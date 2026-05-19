@@ -1,0 +1,9 @@
+::sysinit:/etc/init.d/rcS
+#::askfirst:setsid sh -c 'exec /bin/login </dev/tty1 >/dev/tty1 2>&1'
+#tty2::askfirst:-/bin/sh
+#tty3::askfirst:-/bin/sh
+#tty4::askfirst:-/bin/sh
+#::restart:/bin/sh
+::ctrlaltdel:/sbin/reboot
+::shutdown:/bin/umount -a -r
+::respawn:/bin/login
