@@ -38,14 +38,15 @@ Every package can have own license (we will treat all legal issues very seriousl
 but this documention and files from this repo are provided "as is" (you could use MIT or whatever you want).
 
  1. [Milestone 1 - development environment, booting process, filesystem structure and core components, rebooting](milestone1.md)
- 2. Milestone 2 - mounting USB devices
- 3. Milestone 3 - network, sound, CPU microcode and kernel packages
- 4. Milestone 4 - dbus? AppArmor?  SeLinux?
- 5. Milestone 5 - easy configuration
- 6. Milestone 6 - graphic UI
- 7. Milestone 7 - real packet manager
- 8. Milestone 8 - more packages, software compiling, etc.
- 9. Milestone 9 - installation
- 10. Milestone 10 - big party?
+ 2. [Milestone 2 - mounting USB devices](milestone2.md)
+ 3. [Milestone 3 - saving SSD writes](milestone3.md)
+ 4. Milestone 4 - network, sound, CPU microcode and kernel packages
+ 5. Milestone 5 - dbus? AppArmor?  SeLinux?
+ 6. Milestone 6 - easy configuration
+ 7. Milestone 7 - graphic UI
+ 8. Milestone 8 - real packet manager
+ 9. Milestone 9 - more packages, software compiling, etc.
+ 10. Milestone 10 - installation
+ 11. Milestone 11 - big party?
 
 List can change, in ideal situation we will get full functional modern system.

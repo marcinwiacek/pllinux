@@ -122,9 +122,14 @@ Linux kernel is available in [kernel.org](https://kernel.org/). You need to:
   4. (optionall) copy [config file](.config) into unpacked tree
   5. **make menuconfig** for entering easy config menu
   6. **make -j 4** for compilation (instead of 4 use number of CPU cores, the more, the better)
-  7. copy generated **bzImage** file (note: we don't look on modules in this moment)
+  7. copy generated **bzImage** file arch/x86/boot/bzImage
+(note: we don't look on modules in this moment)
 
 My config is nothing special - I just removed various debugging options and ancient / exotic architectures (for example old EXT2 or Amiga filesystem)
+
+Funny notes:
+
+  * USB mass storage needs SCSI disk support
 
 **Sandbox tool**
 
@@ -133,7 +138,8 @@ static version (compiled without external libraries) and [this is provided by Al
 
 Why bubblewrap?
 
-It can work without **sudo** in contrast to the **chroot**, additionally is used by prominent projects like Flatpak.
+It can work without **sudo** in contrast to the **chroot**, additionally is used by prominent projects like Flatpak. You can limit permissions and have support for such
+kernel features like overlayfs (merging different directories into one).
 
 **Basic tools environment (cp, ls, etc.)**
 
@@ -150,7 +156,8 @@ Why dinit?
 Original Unix systems used runlevel concept and it was quite limited. During some tests there were investigated options available in:
 
   1. **busybox** (it has got **init** command and can use similar concept to classical runlevel system with [inittab](inittab), but problem
-was with documentation)
+was with documentation and finally there was found [Init System](https://deepwiki.com/mirror/busybox/4.1-init-system) and
+[BusyBox Init System: A Lightweight Approach to System Initialization](https://www.foxipex.com/2024/11/15/busybox-init-system-a-lightweight-approach-to-system-initialization/))
   2. [https://smarden.org/runit/](**runit**) (but project looked a little bit like abandomed [even on Github](https://github.com/g-pape/runit)
 and during some tests started creating files on disk, which we want to avoid)
   3. [https://github.com/rinit-org/rinit](**rinit**) (nice options, but project looks too frish)
@@ -161,8 +168,13 @@ and finally there was **dinit** selected, because it seems to have minimum amoun
   1. dependencies
   2. retries
 
-Note: it doesn't have scheduling and for this we need to build service probably and you can see 
+Notes: 
+
+  1. it doesn't have scheduling and for this we need to build service probably and you can see 
 [some kind of comparison with others](https://github.com/davmac314/dinit/blob/master/doc/COMPARISON)
+  2. in the future we could consider merging it maybe with busybox
+
+We compiled it with own config - TODO describe it.
 
 **Some tools like fsck.ext4 kernel tools**
 
@@ -179,7 +191,8 @@ For minimal environment there is enough to have sh shell from busybox, for extra
 
 # Rebooting
 
-**dinit** is providing **shutdown** command, we created **poweroff.sh** and **reboot.sh** scripts with it.
+**dinit** is providing **shutdown** command, we created **poweroff.sh** and **reboot.sh** scripts with it. To make them working
+with non-root users we had to give read/write permissions to the /run/dinitctl.
 
 # Running
 
@@ -189,3 +202,6 @@ For minimal environment there is enough to have sh shell from busybox, for extra
   * copy [file /etc/grub.d/40_custom](40_custom) with correct UUID for new filesystem
   * refresh GRUB with **sudo update-grub**
   * reboot and select correct menu option in your system
+  * to login: use root/root, user/user, user2/user2
+  * to switching consoles in Virtualbox: right Ctrl+F1, right Ctrl+F2, etc.
+
