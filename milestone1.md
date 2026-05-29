@@ -145,7 +145,11 @@ kernel features like overlayfs (merging different directories into one).
 
 We will start with busybox available in [busybox.net](https://busybox.net/) and very popular in embedded environments. It's build from the source.
 
-In the future there will be probably provided coreutils package
+In the future there will be probably provided coreutils package.
+
+**Some tools like fsck.ext4 kernel tools**
+
+Part of kernel tools from [kernel.org](https://www.kernel.org/pub/linux/utils/util-linux/). They can duplicate **busybox** version, but normally can provide more options.
 
 **PID 1 process / service manager**
 
@@ -175,10 +179,6 @@ Notes:
   2. in the future we could consider merging it maybe with busybox
 
 We compiled it with own config - TODO describe it.
-
-**Some tools like fsck.ext4 kernel tools**
-
-Part of kernel tools from [kernel.org](https://www.kernel.org/pub/linux/utils/util-linux/)
 
 **Bash**
 

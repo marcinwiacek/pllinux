@@ -24,8 +24,17 @@ Where is the problem?
 
 Linux kernel has got different mount spaces - in theory after mounting some partitions and making next "child" space it's possible
 to share some mounts with "child" (see [Shared Subtrees](https://www.kernel.org/doc/html/latest/filesystems/sharedsubtree.html)), but... it seems to be blocked by bwrap.
-In this moment (24.05.2026) there is not known workaround for this and situation, that accessing memory card or pendrive needs this sequence:
+In this moment (24.05.2026) there is not known workaround for this with original version and situation, that accessing memory card or pendrive needs this sequence:
 
   1. connecting device
   2. logging user
 
+Solution is clear - creating bwrap partitions with MS_SLAVE flag like described [Shared Subtrees](https://www.kernel.org/doc/html/latest/filesystems/sharedsubtree.html) and making 
+**mount --make-shared path** from host to the sandbox.
+
+And it seems to work! (the only one limitation is that sandboxes for propagating mount points must be below in process hierarchy and it doesn't work with sandboxes created directly
+from the dinit service)
+
+When it works - how we should proceed?
+
+Good OS must recognize partition types and propose best option for every of them + ask for password for encrypted one.
