@@ -48,8 +48,12 @@ Our initramfs is created with the **find . -print0 | cpio --null --create --verb
 can be unpacked with **gunzip initramfs.gz && cpio -ivF initramfs**
 
 If kernel doesn't find file with initramfs or it will be in wrong non-recognized format or without executable **init** file or when **init** script will
-fail/crash with error, kernel will display (border?) Death Of Screen, in my opinion very problematic, because covers normal bootup messages and sometimes
+fail/crash with error, kernel will display (border?) Screen of Death, in my opinion very problematic, because covers normal bootup messages and sometimes
 doesn't show enough info about rootcause problems.
+
+![Red or border screen of death](RSOD1.png)
+
+![Red or border screen of death](RSOD2.png)
 
 Please note, that our initial initramfs is only ca. 1,3MB big (without fsck) or ca. 3MB big (with fsck). These from Ubuntu are bigger than 40MB. Small difference, right?
 
@@ -77,12 +81,12 @@ from point 3 doesn't see directories from other users, etc.
 
 You could say: OK, but we can achieve it with correct filesystem permissions.
 
-Yes, indeed, correctly configured system can achieve similar things. But... world is not perfect and there are bugs or human mistakes done by devs.
-Every next protection layer is welcome - if you don't see directories and files, possible vector attack could be smaller.
+Yes, indeed, correctly configured system can achieve similar things. But... world is not perfect and there are bugs or human mistakes or intentional actions done by devs.
+Every next protection layer is always welcome - if you don't see directories and files, possible vector attack could be smaller.
 
 But why we want to avoid /bin and other standard directories?
 
-Modern UNIX-like systems became nightmare - you put everything together there and pray, that it can work together. We want to have full modularity and easy
+Modern UNIX-like systems became nightmare - you put everything together and pray, that it can work together. We want to have full modularity and easy
 separating apps, because it's easier to control, what need what (and minimalize amount of problems with overwriting libraries).
 
 You could say: there is NixOS with this already.
@@ -145,11 +149,11 @@ kernel features like overlayfs (merging different directories into one).
 
 We will start with busybox available in [busybox.net](https://busybox.net/) and very popular in embedded environments. It's build from the source.
 
-In the future there will be probably provided coreutils package.
+In the future there will be probably provided (additionally?) coreutils package.
 
 **Some tools like fsck.ext4 kernel tools**
 
-Part of kernel tools from [kernel.org](https://www.kernel.org/pub/linux/utils/util-linux/). They can duplicate **busybox** version, but normally can provide more options.
+Part of kernel tools from [kernel.org](https://www.kernel.org/pub/linux/utils/util-linux/). They duplicate **busybox** version, but normally can provide more options.
 
 **PID 1 process / service manager**
 
@@ -176,13 +180,13 @@ Notes:
 
   1. it doesn't have scheduling and for this we need to build service probably and you can see 
 [some kind of comparison with others](https://github.com/davmac314/dinit/blob/master/doc/COMPARISON)
-  2. in the future we could consider merging it maybe with busybox
+  2. in the future we could consider merging it maybe with **busybox** (**busybox** for critical things, **dinit** for things controlled by users)
 
 We compiled it with own config - TODO describe it.
 
 **Bash**
 
-For minimal environment there is enough to have sh shell from busybox, for extra addition you could use bash shell from
+For minimal environment there is enough to have **sh** shell from **busybox**, for extra addition you could use **bash** shell from
 [https://www.gnu.org/software/bash/](https://www.gnu.org/software/bash/)
 
 **Midnight Commander**
@@ -194,7 +198,7 @@ For minimal environment there is enough to have sh shell from busybox, for extra
 **dinit** is providing **shutdown** command, we created **poweroff.sh** and **reboot.sh** scripts with it. To make them working
 with non-root users we had to give read/write permissions to the /run/dinitctl.
 
-# Running
+# Running (note: this version was not released)
 
   * create EXT4 partition in existing Ubuntu system
   * unpack our M1 file into new partition

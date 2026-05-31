@@ -1,3 +1,6 @@
+# Milestone 2
+# Monting USB devices
+
 In internet you can find a lot of solutions, including info about [autofs](https://www.kernel.org/doc/html/latest/filesystems/autofs.html) or setting up [udev](https://en.wikipedia.org/wiki/Udev)
 or [UUID info in the /etc/fstab](https://linuxconfig.org/automatically-mount-usb-external-drive-with-autofs). They're working, but especially udev seems to be big factory and for our 
 Milestone 2 we just need simple doing some aciton, when device is connected and disconnected.
