@@ -1,8 +1,8 @@
 # Milestone 1
 # Development environment
 
-All development is done in Lubuntu 26.04 LTS installed inside VirtualBox (this compbination is maybe not best choice 
-on the world, but good enough).
+All development is done in Lubuntu 26.04 LTS installed inside VirtualBox (this combination is maybe not best choice 
+on the world, but good enough) with tools like **retext**, **gcc**, etc.
 
 Host system is installed in one virtual disk (20GB+50GB in total), EXT4 partition with new system (2GB) in second,
 additionally there is added GRUB boot entry starting new system with these steps:
@@ -10,7 +10,7 @@ additionally there is added GRUB boot entry starting new system with these steps
   1. created [file /etc/grub.d/40_custom](40_custom) with correct UUID for new filesystem (get with **sudo blkid**)
   2. refreshed GRUB with **sudo update-grub**
 
-We don't use anything special here, so it's enough to setup any other modern distribution (note: my descriptions
+We don't use anything special here, so it's enough to setup any other modern distribution (note: descriptions
 will be mainly Ubuntu based)
 
 # Booting process
@@ -67,7 +67,7 @@ currently you have only "package" files)
   * /home - user files, every user will have in home folder app (files created by apps, separated among apps) and files folder (documents)
   * /etc - general system configuration
 
-Where is this magic?
+"Where is this magic?"
 
   1. PID 1 application has got access to everything and it's starting processes for asking for login
   2. processes for asking for login are started in own sandboxes (which don't have everything already)
@@ -79,30 +79,30 @@ It means, we have sandbox in sandbox in sandbox (in the future there will be may
 will be checked, if it's really required). The idea is, that every layer contains minimum set of directories and files, for example layer user sandbox
 from point 3 doesn't see directories from other users, etc.
 
-You could say: OK, but we can achieve it with correct filesystem permissions.
+"OK, but we can achieve it with correct filesystem permissions"
 
 Yes, indeed, correctly configured system can achieve similar things. But... world is not perfect and there are bugs or human mistakes or intentional actions done by devs.
 Every next protection layer is always welcome - if you don't see directories and files, possible vector attack could be smaller.
 
-But why we want to avoid /bin and other standard directories?
+"But why we want to avoid /bin and other standard directories?"
 
 Modern UNIX-like systems became nightmare - you put everything together and pray, that it can work together. We want to have full modularity and easy
 separating apps, because it's easier to control, what need what (and minimalize amount of problems with overwriting libraries).
 
-You could say: there is NixOS with this already.
+"There is NixOS with this already"
 
 Yes, but their folders structure is rather human unreadable. We also want to remove list of apps from potentially problematic apps (like web servers).
 
-What about sudo?
+"What about sudo?"
 
 Yes, this is problematic, because every sandbox below will have less rights than parent. You can either login normally as second user (root) or...
 make things with services in the system (they're run by PID1).
 
-And problems with shell interpreters given in first line of shell script?
+"And problems with shell interpreters given in first line of shell script?"
 
 This problem will be further investigated.
 
-And what with problems with linking libraries?
+"And what with problems with linking libraries?"
 
 Linux is using normally ldso loader - instead of automatic searching for libraries we prefer scripts starting binary with libraries from concrete directory, for example:
 
@@ -138,9 +138,9 @@ Funny notes:
 **Sandbox tool**
 
 Bubblewrap (bwrap) code is available under [github](https://github.com/containers/bubblewrap). For our purposes (making things very simple) we need the best
-static version (compiled without external libraries) and [this is provided by Alpine Linux](https://pkgs.org/download/bubblewrap-static).
+static version (compiled without external libraries) and [this is for example provided by Alpine Linux](https://pkgs.org/download/bubblewrap-static).
 
-Why bubblewrap?
+"Why bubblewrap?"
 
 It can work without **sudo** in contrast to the **chroot**, additionally is used by prominent projects like Flatpak. You can limit permissions and have support for such
 kernel features like overlayfs (merging different directories into one).
@@ -151,6 +151,11 @@ We will start with busybox available in [busybox.net](https://busybox.net/) and 
 
 In the future there will be probably provided (additionally?) coreutils package.
 
+To make busybox:
+
+  1. make menuconfig
+  2. **make -j 4**
+
 **Some tools like fsck.ext4 kernel tools**
 
 Part of kernel tools from [kernel.org](https://www.kernel.org/pub/linux/utils/util-linux/). They duplicate **busybox** version, but normally can provide more options.
@@ -159,7 +164,7 @@ Part of kernel tools from [kernel.org](https://www.kernel.org/pub/linux/utils/ut
 
 Currently we use **dinit** available under [GitHub](https://github.com/davmac314/dinit).
 
-Why dinit?
+"Why dinit?"
 
 Original Unix systems used runlevel concept and it was quite limited. During some tests there were investigated options available in:
 
@@ -176,9 +181,9 @@ and finally there was **dinit** selected, because it seems to have minimum amoun
   1. dependencies
   2. retries
 
-Notes: 
+Notes:
 
-  1. it doesn't have scheduling and for this we need to build service probably and you can see 
+  1. it doesn't have scheduling and for this we need to build service probably and you can see
 [some kind of comparison with others](https://github.com/davmac314/dinit/blob/master/doc/COMPARISON)
   2. in the future we could consider merging it maybe with **busybox** (**busybox** for critical things, **dinit** for things controlled by users)
 
@@ -208,4 +213,3 @@ with non-root users we had to give read/write permissions to the /run/dinitctl.
   * reboot and select correct menu option in your system
   * to login: use root/root, user/user, user2/user2
   * to switching consoles in Virtualbox: right Ctrl+F1, right Ctrl+F2, etc.
-

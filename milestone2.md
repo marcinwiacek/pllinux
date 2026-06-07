@@ -23,7 +23,7 @@ We will mount all partitions in /mnt and we have additionally steps in out bwrap
 During tests configuration was working... almost - we had pendrive recognized by kernel as /dev/sda device (with one partition /dev/sda1) and system was creating/removing directory 
 /mnt/sda1 and almost correctly mounting partition there.
 
-Where is the problem?
+"Where is the problem?"
 
 Linux kernel has got different mount spaces - in theory after mounting some partitions and making next "child" space it's possible
 to share some mounts with "child" (see [Shared Subtrees](https://www.kernel.org/doc/html/latest/filesystems/sharedsubtree.html)), but... it seems to be blocked by bwrap.
@@ -38,6 +38,6 @@ Solution is clear - creating bwrap partitions with MS_SLAVE flag like described 
 And it seems to work! (the only one limitation is that sandboxes for propagating mount points must be below in process hierarchy and it doesn't work with sandboxes created directly
 from the dinit service)
 
-When it works - how we should proceed?
+"When it works - how we should proceed?"
 
 Good OS must recognize partition types and propose best option for every of them + ask for password for encrypted one.
