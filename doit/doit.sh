@@ -1,6 +1,4 @@
-# Part of PLLINUX
-# It's creating some binaries from the source
-# Tested on Lubuntu 26.04. It's possible, that some deps are missed
+# Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
 package="bwrap";
 deps=0;
@@ -11,7 +9,7 @@ download_unpack() {
   localfile=${url##*/}
   package=$2
   unpackeddir=$3
-  if [ ! -f "download/$localfile" ]; then wget -O download/$localfile $url fi
+  if [ ! -f "download/$localfile" ]; then wget -O download/$localfile $url; fi
   if [ ! -d "out/$package/$unpackeddir" ]; then
     mkdir out/$package || true
     cd out/$package
@@ -75,4 +73,20 @@ if [ "$package" == "all" ] || [ "$package" == "bwrap" ]; then
   sed -i 's/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined \/usr\/lib\/x86_64-linux-gnu\/libcap.so/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined -static \/usr\/lib\/x86_64-linux-gnu\/libcap.a/g' _builddir/build.ninja
   meson compile -C _builddir
   cp _builddir/bwrap ../../../app/bwrap/$ver
+fi
+if [ "$package" == "all" ] || [ "$package" == "dinit" ]; then
+  ver="0.22.0";
+  download_unpack https://github.com/davmac314/dinit/releases/download/v$ver/dinit-$ver.tar.xz dinit dinit-$ver
+  mkdir app/dinit || true
+  mkdir app/dinit/$ver || true
+  mkdir app/dinit/$ver/bin || true
+  cd out/dinit/dinit-$ver
+  ./configure -DBINDIR=/app/dinit/current/bin -DSBINDIR=/app/dinit/current/bin
+  sed -i 's/LDFLAGS_LIBCAP=-L\/usr\/lib64 -lcap/LDFLAGS_LIBCAP=-static -L\/usr\/lib64 -lcap/g' mconfig
+  make all -j$cpu_num
+  cp src/dinit ../../../app/dinit/$ver/bin
+  cp src/dinit-check ../../../app/dinit/$ver/bin
+  cp src/dinit-monitor ../../../app/dinit/$ver/bin
+  cp src/dinitctl ../../../app/dinit/$ver/bin
+  cp src/shutdown ../../../app/dinit/$ver/bin
 fi
