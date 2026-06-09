@@ -4,8 +4,7 @@ brewing since April..."*
 
 Do you like Open Source software?
 
-I love it and words above are probably the best describing my project, which was initially created for checking, how difficult would be creating own OS with
-full modular design and separating apps from each other (without modifying them of course).
+I love it and words above are probably the best describing my project, which was created for checking, how difficult would be creating own complete OS with full modular design and separating apps from each other (without modifying them of course).
 
 Main rules:
 
