@@ -15,8 +15,8 @@ Every version should contain in own root readme.md file with info about package,
 "But where is this revolution?"
 
   1. Every operation on these files are done from system script and app installer itself doesn't have rights (additionally script for changing something in app folder during installation will be running in sandbox created by Bubblewrap)
-  2. You can share with current only "current" version of the app or any version of the app
-  3. You don't need to share with user all apps
+  2. You can share with user only "current" version of the app or any version of the app
+  3. You don't need to share with user all apps info
 
 "But changing /app later needs user logout"
 

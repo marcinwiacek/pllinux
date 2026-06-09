@@ -1,10 +1,9 @@
 # Milestone 1
 # Development environment
 
-All development is done in Lubuntu 26.04 LTS installed inside VirtualBox (this combination is maybe not best choice 
-on the world, but good enough) with tools like **retext**, **gcc**, etc.
+All development is done in Lubuntu 26.04 LTS installed inside VirtualBox with tools like **retext**, **gcc**, etc.
 
-Host system is installed in one virtual disk (20GB+50GB in total), EXT4 partition with new system (2GB) in second,
+This combination is maybe not best choice on the world, but good enough. Host system is installed in one virtual disk (20GB+50GB in total), EXT4 partition with new system (2GB) in second,
 additionally there is added GRUB boot entry starting new system with these steps:
 
   1. created [file /etc/grub.d/40_custom](40_custom) with correct UUID for new filesystem (get with **sudo blkid**)
