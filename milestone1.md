@@ -122,7 +122,7 @@ Linux kernel is available in [kernel.org](https://kernel.org/). You need to:
   1. download it
   2. unpack
   3. **sudo apt install build-essential libncurses-dev bc libelf-dev bison** - these will be probably all required packages for Ubuntu
-  4. (optionall) copy [config file](.config) into unpacked tree
+  4. (optionall) copy [config file](doit/in/kernel/.config) into unpacked tree
   5. **make menuconfig** for entering easy config menu
   6. **make -j 4** for compilation (instead of 4 use number of CPU cores, the more, the better)
   7. copy generated **bzImage** file arch/x86/boot/bzImage

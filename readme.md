@@ -1,5 +1,3 @@
-# Let's make Linux great. Again?
-
 *"...I'm doing a (free) operating system (just a hobby, won't be big and
 professional like GNU) for Intel and AMD CPU clones. This has been
 brewing since April..."*

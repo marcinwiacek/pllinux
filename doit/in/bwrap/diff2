@@ -1,0 +1,37 @@
+--- bind-mount.c.orig	2026-04-23 10:18:48.000000000 +0200
++++ bind-mount.c	2026-05-25 18:25:26.191902764 +0200
+@@ -395,7 +395,7 @@
+ 
+   if (src)
+     {
+-      if (mount (src, dest, NULL, MS_SILENT | MS_BIND | (recursive ? MS_REC : 0), NULL) != 0)
++      if (mount (src, dest, NULL, MS_SILENT | MS_BIND | MS_SLAVE | (recursive ? MS_REC : 0), NULL) != 0)
+         return BIND_MOUNT_ERROR_MOUNT;
+     }
+ 
+@@ -447,10 +447,10 @@
+ 
+   assert (path_equal (mount_tab[0].mountpoint, kernel_case_combination));
+   current_flags = mount_tab[0].options;
+-  new_flags = current_flags | (devices ? 0 : MS_NODEV) | MS_NOSUID | (readonly ? MS_RDONLY : 0);
++  new_flags = current_flags | (devices ? 0 : MS_NODEV) | MS_SLAVE | MS_NOSUID | (readonly ? MS_RDONLY : 0);
+   if (new_flags != current_flags &&
+       mount ("none", resolved_dest,
+-             NULL, MS_SILENT | MS_BIND | MS_REMOUNT | new_flags, NULL) != 0)
++             NULL, MS_SILENT | MS_BIND | MS_REMOUNT | MS_SLAVE | new_flags, NULL) != 0)
+     {
+       if (failing_path != NULL)
+         *failing_path = steal_pointer (&resolved_dest);
+@@ -467,10 +467,10 @@
+       for (i = 1; mount_tab[i].mountpoint != NULL; i++)
+         {
+           current_flags = mount_tab[i].options;
+-          new_flags = current_flags | (devices ? 0 : MS_NODEV) | MS_NOSUID | (readonly ? MS_RDONLY : 0);
++          new_flags = current_flags | (devices ? 0 : MS_NODEV) | MS_SLAVE | MS_NOSUID | (readonly ? MS_RDONLY : 0);
+           if (new_flags != current_flags &&
+               mount ("none", mount_tab[i].mountpoint,
+-                     NULL, MS_SILENT | MS_BIND | MS_REMOUNT | new_flags, NULL) != 0)
++                     NULL, MS_SILENT | MS_BIND | MS_REMOUNT | MS_SLAVE | new_flags, NULL) != 0)
+             {
+               /* If we can't read the mountpoint we can't remount it, but that should
+                  be safe to ignore because its not something the user can access. */

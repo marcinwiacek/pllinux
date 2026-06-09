@@ -1,0 +1,20 @@
+--- bubblewrap.c.orig	2026-04-23 10:18:48.000000000 +0200
++++ bubblewrap.c	2026-05-25 19:06:07.063054713 +0200
+@@ -3348,7 +3348,7 @@
+   if (mkdir ("newroot", 0755))
+     die_with_error ("Creating newroot failed");
+ 
+-  if (mount ("newroot", "newroot", NULL, MS_SILENT | MS_MGC_VAL | MS_BIND | MS_REC, NULL) < 0)
++  if (mount ("newroot", "newroot", NULL, MS_SILENT | MS_MGC_VAL | MS_BIND | MS_REC | MS_SLAVE, NULL) < 0)
+     die_with_mount_error ("setting up newroot bind");
+ 
+   if (mkdir ("oldroot", 0755))
+@@ -3429,7 +3429,7 @@
+   close_ops_fd ();
+ 
+   /* The old root better be rprivate or we will send unmount events to the parent namespace */
+-  if (mount ("oldroot", "oldroot", NULL, MS_SILENT | MS_REC | MS_PRIVATE, NULL) != 0)
++  if (mount ("oldroot", "oldroot", NULL, MS_SILENT | MS_REC | MS_SLAVE, NULL) != 0)
+     die_with_mount_error ("Failed to make old root rprivate");
+ 
+   if (umount2 ("oldroot", MNT_DETACH))
