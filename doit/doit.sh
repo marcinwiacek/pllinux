@@ -1,6 +1,6 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
-package="dinit";
+package="libc";
 deps=0;
 cpu_num=6;
 prefix="$(date +"%y%m%d")_"
@@ -100,4 +100,28 @@ if [ "$package" == "all" ] || [ "$package" == "dinit" ]; then
   cd ../../..
   cp in/dinit/poweroff app/dinit/$prefix$ver
   cp in/dinit/reboot app/dinit/$prefix$ver
+fi
+if [ "$package" == "all" ] || [ "$package" == "kbd" ]; then
+  if [ "$deps" == "1" ]; then sudo apt install autoconf libpam0g-dev; fi
+  ver="2.10.0";
+  download_unpack https://www.kernel.org/pub/linux/utils/kbd/kbd-$ver.tar.xz kbd kbd-$ver
+  create_app kbd $prefix$ver
+  cd out/kbd/kbd-$ver
+  ./configure --prefix=$(pwd)/../../../app/kbd/$prefix$ver  --datarootdir=/app/kbd/$prefix$ver/share
+  make -j$cpu_num
+  make install
+  cd ../../..
+fi
+if [ "$package" == "all" ] || [ "$package" == "libc" ]; then
+  ver="2.43";
+  download_unpack https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz libc glibc-$ver
+  create_app libc $prefix$ver
+  cd out/libc/glibc-$ver
+  mkdir compile
+  cd compile
+  ../configure --disable-sanity-checks
+  sed -i 's/#define OPEN_TREE_CLONE    1 /#ifndef OPEN_TREE_CLONE\n#define OPEN_TREE_CLONE    1\n#endif /g' ../sysdeps/unix/sysv/linux/sys/mount.h
+  make all -j$cpu_num
+  cp libc.so ../../../../app/libc/$prefix$ver
+  cd ../../../..
 fi
