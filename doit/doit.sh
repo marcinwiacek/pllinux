@@ -1,6 +1,6 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
-package="libc";
+package="util-linux";
 deps=0;
 cpu_num=6;
 prefix="$(date +"%y%m%d")_"
@@ -112,10 +112,11 @@ if [ "$package" == "all" ] || [ "$package" == "kbd" ]; then
   make install
   cd ../../..
 fi
-if [ "$package" == "all" ] || [ "$package" == "libc" ]; then
+if [ "$package" == "all" ] || [ "$package" == "libc_ldso" ]; then
   ver="2.43";
   download_unpack https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz libc glibc-$ver
   create_app libc $prefix$ver
+  create_app ldso $prefix$ver
   cd out/libc/glibc-$ver
   mkdir compile
   cd compile
@@ -123,5 +124,27 @@ if [ "$package" == "all" ] || [ "$package" == "libc" ]; then
   sed -i 's/#define OPEN_TREE_CLONE    1 /#ifndef OPEN_TREE_CLONE\n#define OPEN_TREE_CLONE    1\n#endif /g' ../sysdeps/unix/sysv/linux/sys/mount.h
   make all -j$cpu_num
   cp libc.so ../../../../app/libc/$prefix$ver
+  cp elf/ld.so ../../../../app/ldso/$prefix$ver
   cd ../../../..
+fi
+#if [ "$package" == "all" ] || [ "$package" == "binutils" ]; then
+#  ver="2.46.1";
+#  download_unpack https://sourceware.org/pub/binutils/releases/binutils-2.46.1.tar.xz binutils binutils-$ver
+#  create_app binutils $prefix$ver
+#  cd out/binutils/binutils-$ver
+#  ./configure
+#  make all -j$cpu_num
+#  ./configure --prefix=$(pwd)/../../../app/binutils/$prefix$ver
+#  make install
+#  cd ../../..
+#fi
+if [ "$package" == "all" ] || [ "$package" == "util-linux" ]; then
+  ver="2.42";
+  download_unpack https://www.kernel.org/pub/linux/utils/util-linux/v$ver/util-linux-$ver.tar.xz util-linux util-linux-$ver
+  create_app util-linux $prefix$ver
+  cd out/util-linux/util-linux-$ver
+  ./configure --prefix=$(pwd)/../../../app/util-linux/$prefix$ver --without-systemd
+  make all -j$cpu_num
+  make install || true
+  cd ../../..
 fi
