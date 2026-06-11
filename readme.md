@@ -4,26 +4,30 @@ brewing since April..."*
 
 Do you like Open Source software?
 
-I love it and words above are probably the best describing my project, which was created for checking, how difficult would be creating own complete OS with full modular design and separating apps from each other (without modifying them of course).
+I love it and words above are probably the best describing this project, which was created for checking, how difficult would be creating own complete OS with full modular design and separating apps from each other (without modifying them of course).
 
 Main rules:
 
   1. engineering excellence **always** in first place (completing things + no bla bla or spaghetti code)
-  2. reproducible and reliable results
+  2. reproducible and reliable results and builds
   3. simplicity for devs and users (some people will use KISS synonym or remind classic rule "every tool should do excellent just one thing", but this point is not only about that - is about avoiding unnecessary annoying things too)
   4. consistency
-  5. decreasing size and resources usage with temp files, getting and unpacking packages and other things (related to the number of disk writes, amount of bytes sent over network, used RAM, etc.)
+  5. decreasing resources usage with correct using temp files, getting and unpacking packages and other things (related to the number of disk writes, amount of bytes sent over network, used RAM, etc.)
   6. when possible, providing real support for people with disabilities (devs today don't care today about such things like good font antialiasing, gamma support or accessibility functions)
 
-This should evolve into system for daily usage (and maybe change something like Linux did), but won't be rather big factory for everybody and
+This should evolve into system for daily usage (and maybe change something like Linux did), but won't be probably big factory for everybody and
 everything, just simple to understand system for typical machines (laptops, mini pc or servers without funny exotic config). Currently
-I started it with X86, in the future maybe will include ARM. POSIX compatility is important, but not crucial in all details.
+I started it with X86, in the future it will maybe include ARM. POSIX compatility is important, but not crucial in all details.
 Project will NOT focus on concrete buzz words (Rust, AI, etc.) and won't use these mainstream solutions which
 cannot provide added value (improved performance, security, etc.)
 
 "This is wasting of time. NixOS has got majority of these things"
 
 Yes, but it seems to be rather prepared for machines than humans. This is good system, BTW.
+
+"Linux distros are far away"
+
+Yes. But big imperia are collapsing in some moment.
 
 "OS needs software and nobody will be interested in this piece of crap"
 
@@ -35,11 +39,11 @@ No.
 
 In the market you can find of course excellent Unix-like systems prepared for daily usage and concrete tasks. They're good, but many times making very unprofessional, irritating or obsolete things or implementing archaic and ancient standards (some more than 50 years old!)
 
-Project was started because some important basics are broken and fundamental changes required. It's time to cut-off some technical debt.
+Project was started because some sometimes important basics are broken and fundamental changes required. It's time to cut-off some technical debt.
 
 "Does it mean, that the whole market is broken?"
 
-NO, of course not... let's say it clear: current situation is maybe not good, but also not tragic yet. And what's wrong - aggresive pushing AI, Rust, Wayland, GTK4, systemd and other things makes only problems. Many users are returning with big sympathy to old systems created around 1990-2010 because they worked many times much better (3D interface from Windows 95-XP or old Mac OS we're simply more responsible and looked visually nice, the same in the Open Source world we still see so many good voices about Gnome created with GTK2 and GTK3).
+NO, of course not... let's say it clear: current situation is maybe not good, but also not tragic (yet). And what's wrong - aggresive pushing AI, Rust, Wayland, GTK4, systemd and other things makes only problems. Many users are returning with big sympathy to old systems created around 1990-2010 because they worked many times much better (3D interface from Windows 95-XP or old Mac OS we're simply more responsible and looked visually nice, the same in the Open Source world we still see so many good voices about Gnome created with GTK2 and GTK3).
 
 "So OK, let's assume, all this is true. Why we have problems in Open Source world?"
 

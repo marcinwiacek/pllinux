@@ -1,6 +1,6 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
-package="util-linux";
+package="mc";
 deps=0;
 cpu_num=6;
 prefix="$(date +"%y%m%d")_"
@@ -27,6 +27,11 @@ create_app() {
   cp in/$packagename/readme.md app/$packagename/$version
 }
 
+strip_app() {
+  packagename=$1
+  find app/$packagename -type d -exec bash -c 'cd "{}" && strip *' \;
+}
+
 mkdir app || true
 mkdir out || true
 mkdir download || true
@@ -43,6 +48,7 @@ if [ "$package" == "all" ] || [ "$package" == "kernel" ]; then
   cp out/kernel/linux-$ver/.config in/kernel
   cp in/kernel/.config app/kernel/$prefix$ver
   cp out/kernel/linux-$ver/arch/x86/boot/bzImage app/kernel/$prefix$ver
+  strip_app kernel
 fi
 if [ "$package" == "all" ] || [ "$package" == "busybox" ]; then
   ver="1.38.0";
@@ -56,6 +62,7 @@ if [ "$package" == "all" ] || [ "$package" == "busybox" ]; then
   make CONFIG_PREFIX=$(pwd)/../../../app/busybox/$prefix$ver install
   cd ../../..
   cp in/busybox/.config app/busybox/$prefix$ver
+  strip_app busybox
 fi
 if [ "$package" == "all" ] || [ "$package" == "nftables" ]; then
   ver="1.1.6";
@@ -67,6 +74,7 @@ if [ "$package" == "all" ] || [ "$package" == "nftables" ]; then
   make install
   cd ../../..
   cp in/nftables/nft app/nftables/$prefix$ver
+  strip_app bftables
 fi
 if [ "$package" == "all" ] || [ "$package" == "bwrap" ]; then
   ver="0.11.2";
@@ -81,6 +89,7 @@ if [ "$package" == "all" ] || [ "$package" == "bwrap" ]; then
   meson compile -C _builddir
   cp _builddir/bwrap ../../../app/bwrap/$prefix$ver/bin
   cd ../../..
+  strip_app bwrap
 fi
 if [ "$package" == "all" ] || [ "$package" == "dinit" ]; then
   ver="0.22.0";
@@ -100,6 +109,7 @@ if [ "$package" == "all" ] || [ "$package" == "dinit" ]; then
   cd ../../..
   cp in/dinit/poweroff app/dinit/$prefix$ver
   cp in/dinit/reboot app/dinit/$prefix$ver
+  strip_app dinit
 fi
 if [ "$package" == "all" ] || [ "$package" == "kbd" ]; then
   if [ "$deps" == "1" ]; then sudo apt install autoconf libpam0g-dev; fi
@@ -111,8 +121,9 @@ if [ "$package" == "all" ] || [ "$package" == "kbd" ]; then
   make -j$cpu_num
   make install
   cd ../../..
+  strip_app kbd
 fi
-if [ "$package" == "all" ] || [ "$package" == "libc_ldso" ]; then
+if [ "$package" == "all" ] || [ "$package" == "libc" ] || [ "$package" == "ldso" ]; then
   ver="2.43";
   download_unpack https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz libc glibc-$ver
   create_app libc $prefix$ver
@@ -126,6 +137,8 @@ if [ "$package" == "all" ] || [ "$package" == "libc_ldso" ]; then
   cp libc.so ../../../../app/libc/$prefix$ver
   cp elf/ld.so ../../../../app/ldso/$prefix$ver
   cd ../../../..
+  strip_app ldso
+  strip_app libc
 fi
 #if [ "$package" == "all" ] || [ "$package" == "binutils" ]; then
 #  ver="2.46.1";
@@ -147,4 +160,40 @@ if [ "$package" == "all" ] || [ "$package" == "util-linux" ]; then
   make all -j$cpu_num
   make install || true
   cd ../../..
+  strip_app util-linux
+fi
+if [ "$package" == "all" ] || [ "$package" == "mc" ]; then
+  #sudo apt-get install libglib2.0-dev libslang2-dev
+  ver="4.8.33";
+  download_unpack https://ftp.osuosl.org/pub/midnightcommander/mc-4.8.33.tar.xz mc mc-$ver
+  create_app mc $prefix$ver
+  cd out/mc/mc-$ver
+  ./configure LDFLAGS=-static --disable-vfs --prefix=$(pwd)/../../../app/mc/$prefix$ver
+  make all -j$cpu_num
+  make install
+  cd ../../..
+  strip_app mc
+fi
+if [ "$package" == "all" ] || [ "$package" == "bash" ]; then
+  #sudo apt-get install libglib2.0-dev libslang2-dev
+  ver="5.3";
+  download_unpack https://ftp.gnu.org/gnu/bash/bash-$ver.tar.gz bash bash-$ver
+  create_app bash $prefix$ver
+  cd out/bash/bash-$ver
+  ./configure --prefix=$(pwd)/../../../app/bash/$prefix$ver
+  make all -j$cpu_num
+  make install
+  cd ../../..
+  strip_app bash
+fi
+if [ "$package" == "all" ] || [ "$package" == "e2fsprogs" ]; then
+  ver="1.47.4";
+  download_unpack https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/snapshot/e2fsprogs-1.47.4.tar.gz e2fsprogs e2fsprogs-$ver
+  create_app e2fsprogs $prefix$ver
+  cd out/e2fsprogs/e2fsprogs-$ver
+  ./configure LDFLAGS=-static --prefix=$(pwd)/../../../app/e2fsprogs/$prefix$ver
+  make all -j$cpu_num
+  make install
+  cd ../../..
+  strip_app e2fsprogs
 fi
