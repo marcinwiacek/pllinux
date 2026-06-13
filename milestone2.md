@@ -1,5 +1,5 @@
 # Milestone 2
-# Monting USB devices
+# Mounting USB devices
 
 In internet you can find a lot of solutions, including info about [autofs](https://www.kernel.org/doc/html/latest/filesystems/autofs.html) or setting up [udev](https://en.wikipedia.org/wiki/Udev)
 or [UUID info in the /etc/fstab](https://linuxconfig.org/automatically-mount-usb-external-drive-with-autofs). They're working, but especially udev seems to be big factory and for our 
@@ -38,6 +38,10 @@ Solution is clear - creating bwrap partitions with MS_SLAVE flag like described 
 And it seems to work! (the only one limitation is that sandboxes for propagating mount points must be below in process hierarchy and it doesn't work with sandboxes created directly
 from the dinit service)
 
-"When it works - how we should proceed?"
+"When it works - how we should further proceed?"
 
 Good OS must recognize partition types and propose best option for every of them + ask for password for encrypted one.
+
+In PLINUX there is created script making first part, in the future for encrypted partitions there will be probably created **password** script / command to enter password and making real mount. System doesn't support NTFS yet - module in Linux kernel is quite limited (it can change with 7.1) and there is required external ntfs-3g package.
+
+One funny limitation: mdev needs /bin/sh link for interpreter - doesn't honor SHELL variable and doesn't show any error, when link doesn't exist.

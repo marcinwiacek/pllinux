@@ -6,7 +6,7 @@ All development is done in Lubuntu 26.04 LTS installed inside VirtualBox with to
 This combination is maybe not best choice on the world, but good enough. Host system is installed in one virtual disk (20GB+50GB in total), EXT4 partition with new system (2GB) in second,
 additionally there is added GRUB boot entry starting new system with these steps:
 
-  1. created [file /etc/grub.d/40_custom](40_custom) with correct UUID for new filesystem (get with **sudo blkid**)
+  1. created [file /etc/grub.d/40_custom](2026/40_custom) with correct UUID for new filesystem (get with **sudo blkid**)
   2. refreshed GRUB with **sudo update-grub**
 
 We don't use anything special here, so it's enough to setup any other modern distribution (note: descriptions
@@ -21,7 +21,7 @@ described this way:
   2. UEFI is starting correct EFI file (OS bootloader) from FAT32 partition in the disk
   3. (optionally) OS bootloader is asking for password for OS partition
   4. OS bootloader is starting Linux kernel with initial initroomfs filesystem (both taken from OS partition) 
- and some parameters (in our case parameters are taken from [the 40_custom file](40_custom) file)
+ and some parameters (in our case parameters are taken from [the 40_custom file](2026/40_custom) file)
   5. Linux kernel is starting **init** script from initroomfs filesystem
   6. Init script is loading all drivers, modules, etc.
   7. Init script is moving filesystem from the initramfs to the OS partition (normally using **switch_root**)
@@ -29,7 +29,7 @@ described this way:
   7. Process with PID 1 is taking care about loading system services (working in background) and login 
 prompts for shell or graphic environment
 
-In first version in points 1 and 2 we will use elements from existing host (Lubuntu) and we won't have points 3 and 6. Our [initial init script](init) is:
+In first version in points 1 and 2 we will use elements from existing host (Lubuntu) and we won't have points 3 and 6. Our [initial init script](2026/init) is:
 
   1. mounting **dev** and **proc** filesystems from the kernel
   2. searching in kernel params for string **root=UUID=......** and extracting UUID (we need it, because kernel can differently
@@ -50,9 +50,9 @@ If kernel doesn't find file with initramfs or it will be in wrong non-recognized
 fail/crash with error, kernel will display (border?) Screen of Death, in my opinion very problematic, because covers normal bootup messages and sometimes
 doesn't show enough info about rootcause problems.
 
-![Red or border screen of death](RSOD1.png)
+![Red or border screen of death](2026/RSOD1.png)
 
-![Red or border screen of death](RSOD2.png)
+![Red or border screen of death](2026/RSOD2.png)
 
 Please note, that our initial initramfs is only ca. 1,3MB big (without fsck) or ca. 3MB big (with fsck). These from Ubuntu are bigger than 40MB. Small difference, right?
 
@@ -167,7 +167,7 @@ Currently we use **dinit** available under [GitHub](https://github.com/davmac314
 
 Original Unix systems used runlevel concept and it was quite limited. During some tests there were investigated options available in:
 
-  1. **busybox** (it has got **init** command and can use similar concept to classical runlevel system with [inittab](inittab), but problem
+  1. **busybox** (it has got **init** command and can use similar concept to classical runlevel system with [inittab](2026/inittab), but problem
 was with documentation and finally there was found [Init System](https://deepwiki.com/mirror/busybox/4.1-init-system) and
 [BusyBox Init System: A Lightweight Approach to System Initialization](https://www.foxipex.com/2024/11/15/busybox-init-system-a-lightweight-approach-to-system-initialization/))
   2. [https://smarden.org/runit/](**runit**) (but project looked a little bit like abandomed [even on Github](https://github.com/g-pape/runit)
@@ -207,7 +207,7 @@ with non-root users we had to give read/write permissions to the /run/dinitctl.
   * create EXT4 partition in existing Ubuntu system
   * unpack our M1 file into new partition
   * get UUID for partition with **sudo blkid**
-  * copy [file /etc/grub.d/40_custom](40_custom) with correct UUID for new filesystem
+  * copy [file /etc/grub.d/40_custom](2026/40_custom) with correct UUID for new filesystem
   * refresh GRUB with **sudo update-grub**
   * reboot and select correct menu option in your system
   * to login: use root/root, user/user, user2/user2

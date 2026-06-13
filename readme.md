@@ -27,7 +27,7 @@ Yes, but it seems to be rather prepared for machines than humans. This is good s
 
 "Linux distros are far away"
 
-Yes. But big imperia are collapsing in some moment.
+Yes. But big imperia are always collapsing in some moment.
 
 "OS needs software and nobody will be interested in this piece of crap"
 
@@ -56,7 +56,7 @@ NO, of course not... let's say it clear: current situation is maybe not good, bu
 
 Some links:
 
-  1. [The Lunduke Journal in Youtube](https://www.youtube.com/@Lunduke) - you don't have to agree with everything, but it shows very good some political actions,
+  1. [The Lunduke Journal in Youtube](https://www.youtube.com/@Lunduke) - you don't have to agree with everything, but it shows quite good some political actions,
 nonsense related with Rust and intentional making Open Source software worse
   2. [Is Gnome/GTK developed against Open-Source and Linux? (+few words about Korean/western and Chinese approach)](https://mwiacek.com/www/?q=node/629) -
 things notified by Marcin Wiącek few years ago and confirmed not only by Lunduke
@@ -90,9 +90,9 @@ We want to say again - if some our understanding or some action somewhere is wro
 
 And some general plan:
 
- 1. [Milestone 1 - development environment, booting process, filesystem structure and core components, rebooting](milestone1.md)
+ 1. [Milestone 1 - development environment, booting process, filesystem structure, core components, rebooting](milestone1.md)
  2. [Milestone 2 - mounting USB devices](milestone2.md)
- 3. [Milestone 3 - /app structure](milestone3.md)
+ 3. [Milestone 3 - app folder structure, network, dynamic linking and interpreters again, ](milestone3.md)
  4. [Milestone 4 - SSD writes, logging, manual pages](milestone4.md)
  5. [Milestone 5 - network, sound, CPU microcode and kernel packages](milestone5.md)
  6. Milestone 6 - dbus? AppArmor? SeLinux?
