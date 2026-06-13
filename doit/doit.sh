@@ -1,6 +1,6 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
-package="mc";
+package="e2fsprogs";
 deps=0;
 cpu_num=6;
 prefix="$(date +"%y%m%d")_"
@@ -168,7 +168,7 @@ if [ "$package" == "all" ] || [ "$package" == "mc" ]; then
   download_unpack https://ftp.osuosl.org/pub/midnightcommander/mc-4.8.33.tar.xz mc mc-$ver
   create_app mc $prefix$ver
   cd out/mc/mc-$ver
-  ./configure LDFLAGS=-static --disable-vfs --prefix=$(pwd)/../../../app/mc/$prefix$ver
+  ./configure --disable-vfs --prefix=$(pwd)/../../../app/mc/$prefix$ver
   make all -j$cpu_num
   make install
   cd ../../..
@@ -191,7 +191,7 @@ if [ "$package" == "all" ] || [ "$package" == "e2fsprogs" ]; then
   download_unpack https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/snapshot/e2fsprogs-1.47.4.tar.gz e2fsprogs e2fsprogs-$ver
   create_app e2fsprogs $prefix$ver
   cd out/e2fsprogs/e2fsprogs-$ver
-  ./configure LDFLAGS=-static --prefix=$(pwd)/../../../app/e2fsprogs/$prefix$ver
+  ./configure LDFLAGS=-static --enable-symlink-install  --enable-relative-symlinks --prefix=$(pwd)/../../../app/e2fsprogs/$prefix$ver
   make all -j$cpu_num
   make install
   cd ../../..
