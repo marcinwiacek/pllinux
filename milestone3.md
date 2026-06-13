@@ -1,12 +1,12 @@
 # Milestone 3
 # App folder structure
 
-/app1/version1
-/app1/version2
-/app1/current
-/app2/version1
-/app2/version2
-/app2/current
+  * /app1/version1
+  * /app1/version2
+  * /app1/current
+  * /app2/version1
+  * /app2/version2
+  * /app2/current
 
 In current implementation we make links from current app version to the current and we use current in many scripts, additionally normally directories with version are created using pattern "YYMMDD_version_from_the_app", where YYMMDD is year, month and day of creating package (in the future date will be eventually removed)
 
@@ -20,7 +20,7 @@ Every version should contain in own root readme.md file with info about package,
 
 "But changing /app later needs user logout"
 
-In some cases probably yes (when we share only concrete versions), in some not (when we share the whole /app).
+In some cases probably yes (when we share only concrete versions), in some not (when we share the whole /app or the whole /appx).
 
 "What about hardcoding path with version name and mounting for user the same directory with current?"
 
@@ -40,7 +40,7 @@ With firewall it would be good to have tool like OpenSnitch asking user for bloc
 
 # Dynamic linking and interpreters again
 
-This topic returns like boomerang. Shell scripts  usually have in the first line link to interpreter, similar thing is with binary files, which require external libraries (they normally have also similar link and interpreter is named dynamic loader). PLLINUX could potentially run EVERY command this way:
+This topic returns like boomerang. Shell scripts usually have in the first line link to interpreter, similar thing is with binary files, which require external libraries (they normally have also similar link and interpreter is named dynamic loader). PLLINUX could potentially run EVERY command this way:
 
 **interpreter binary/shell_script options**
 
@@ -58,22 +58,21 @@ There will be probably also left in the filesystem link from "standard" location
 
 System in this moment has got 15 packages:
 
-**bash
-busybox
-bwrap
-dinit
-e2fsprogs
-initramfs
-kbd
-kernel
-ldso
-libc
-libtinfo
-mc
-nftables
-pllinux
-util-linux
-**
+  1. bash
+  2. busybox
+  3. bwrap
+  4. dinit
+  5. e2fsprogs
+  6. initramfs
+  7. kbd
+  8. kernel
+  9. ldso
+  10. libc
+  11. libtinfo
+  12. mc
+  13. nftables
+  14. pllinux
+  15. util-linux
 
 Almost everything is currently compiled from source using script [**doit.sh**](doit/doit.sh), which is:
 
@@ -109,4 +108,8 @@ Another nice profit from bwrap - we could limit for example proc info and show o
 
 This concept is still investigated - idea is, that normal users in /home see only documents and in the /other file data from other apps in normal Linux saved in /home (root user will see in /home directories from all users and in the /other file data from other apps in normal Linux saved in /home)
 
-Generally in this moment system boots, has access to the internet with firewall from root (IP4 with Ethernet and DHCP) and mount automatically external devices with FAT32, EXTFAT, EXT2-4 partitions. Users are trapped in the cage created by bubblewrap - giving them access to **dinit** (services, rebotting) needs explicite granting it. There is a lot of TODO, but it seems to be possible building more secure system with small resources usage.
+Generally in this moment system boots, has access to the internet with firewall from root (IP4 with Ethernet and DHCP) and mount automatically external devices with FAT32, EXTFAT, EXT2-4 partitions (available rw to this users, which are enabled by root). Users are trapped in the cage created by bubblewrap - for example giving them access to **dinit** (services, rebotting) needs explicite granting it. There is a lot of TODO, but it seems to be possible building more secure system with small resources usage.
+
+"But this not mature and contains many security issues"
+
+Everything, what created human, has got issues. The problem is, that various things in GNU systems are overcomplicated and without projects like PLLINUX they will stay with us forever - for example I would like to be more than happy to see dynamical loader in the form of normal binary (not library) - it would be easier to replace it with something more adequate to PLLINUX (it could be even shell script running "real" dynamic loader with options)

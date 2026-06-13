@@ -92,9 +92,9 @@ And some general plan:
 
  1. [Milestone 1 - development environment, booting process, filesystem structure, core components, rebooting](milestone1.md)
  2. [Milestone 2 - mounting USB devices](milestone2.md)
- 3. [Milestone 3 - app folder structure, network, dynamic linking and interpreters again, ](milestone3.md)
- 4. [Milestone 4 - SSD writes, logging, manual pages](milestone4.md)
- 5. [Milestone 5 - network, sound, CPU microcode and kernel packages](milestone5.md)
+ 3. [Milestone 3 - app folder structure, network, dynamic linking and interpreters again, packages, system in this moment](milestone3.md)
+ 4. [Milestone 4 - SSD writes, logging, manual pages]
+ 5. [Milestone 5 - sound, CPU microcode and kernel packages]
  6. Milestone 6 - dbus? AppArmor? SeLinux?
  7. Milestone 7 - easy configuration
  8. Milestone 8 - real packet manager
