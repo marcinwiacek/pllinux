@@ -38,7 +38,7 @@ Configuration can be done using **ifplugd** from **busybox** (it can call **ifup
 
 With firewall it would be good to have tool like OpenSnitch asking user for blocking / accepting all connection, but for the start PLLINUX is using something called **nftables** (it's newer version of the old, good **iptables**)
 
-# Dynamic linking and interpreters again
+# Dynamic linking and interpreters (again)
 
 This topic returns like boomerang. Shell scripts usually have in the first line link to interpreter, similar thing is with binary files, which require external libraries (they normally have also similar link and interpreter is named dynamic loader). PLLINUX could potentially run EVERY command this way:
 
@@ -92,13 +92,18 @@ Font is provided by kbd package. In theory it should be possible to map also Pol
 
 ![Memory](2026/jun_memory.png)
 
-System needs ca. 100MB RAM. Without **dinit** it could be maybe a little less, in further version probably we don't need more much more - there must added cron and acpi daemon/service from busybox, syslog and few details and in command line version that's it, for example mounting daemons are started on demand.
+System needs ca. 100MB RAM. Without **dinit** it could be maybe a little less and in further version probably we don't need much more - there must be added cron and acpi daemon/service from busybox, syslog and few details and in command line version that's it (for example mounting daemons are started on demand).
 
 ![Memory](2026/jun_mc_root.png)
 
 ![Memory](2026/jun_mc_user.png)
 
-In the first screen from root account, in the second from user account. Power of the modularity - the same system & other apps served for other users (+ we don't show them all versions, when don't want), only absolute necessary system files are shown.
+In the first screen from root account, in the second from user account. This is power of the modularity:
+
+  1. the same system & other apps served for other users (+ we don't show them all versions, when don't want)
+  2. only absolute necessary system files are shown
+
+And now examples: http server user see less than normal user (but have some special network config), for C projects you could assign other home directory than for Rust, etc.
 
 ![Memory](2026/jun_limit_proc.png)
 
