@@ -1,7 +1,7 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="fs"; # fs to build all or "name" for concrete package
+package="libc"; # fs to build all or "name" for concrete package
 cpu_num=6; # how many CPU cores are used during compiling
 prefix="$(date +"%y%m%d")_" # prefix for packages versions in /app in new system
 
@@ -207,6 +207,10 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ] || [ "$package" == "ldso" 
   cp libc.so $output/app/libc/$prefix$ver
   cp elf/ld.so $output/app/ldso/$prefix$ver
   cd ../../../..
+  olddir=$(pwd)
+  cd $output/app/libc/$prefix$ver
+  ln -s libc.so libc.so.6
+  cd $olddir
   strip_app ldso
   link_app ldso $prefix$ver
   strip_app libc
