@@ -6,7 +6,7 @@ This is project with operating system built around Linux kernel and Bubblewrap (
 
 **Some important points**
 
-  1. splitting apps and users in totally different way than in various Linux distributions, which gives you much more security
+  1. splitting apps and users in different way than in various Linux distributions, which gives you much more security and flexibility
 (you can provide and show other apps to other users, build package scripts can run in the sanbdbox, upgrades and rollbacks are much easier, etc.)
   2. reproducible and reliable results (dependiences among apps must be always defined and thing running in one installation will work on the other)
   3. simplicity for devs and users

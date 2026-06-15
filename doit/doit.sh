@@ -1,7 +1,7 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="libc"; # fs to build all or "name" for concrete package
+package="mc"; # fs to build all or "name" for concrete package
 cpu_num=6; # how many CPU cores are used during compiling
 prefix="$(date +"%y%m%d")_" # prefix for packages versions in /app in new system
 
@@ -57,9 +57,10 @@ findlib() {
   binary=$2
   mkdir -p $appdir/lib
   list="$(ldd $appdir/$binary | egrep -o '/lib.*\.[0-9]')"
-  for i in $list; do cp -v --parents "$i" "$appdir"; done
+  for lib in $list; do rsync -a ${lib%.so*}.so* "$appdir/lib"; done
+  rm -r $appdir/lib/ld-linux-x86-64.so.2 || true
   rm -r $appdir/lib64 || true
-  rm -r $appdir/lib/x86_64-linux-gnu/libc.so.6 || true
+  rm -r $appdir/lib/libc.so* || true
 }
 
 mkdir out || true
@@ -136,7 +137,7 @@ if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
   cp in/nftables/nft $output/app/nftables/$prefix$ver
   strip_app nftables
   findlib $output/app/nftables/$prefix$ver sbin/nft
-  rm -r $output/app/nftables/$prefix$ver/lib/x86_64-linux-gnu/libtinfo.so.6 || true
+  rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
   link_app nftables $prefix$ver
 fi
 if [ "$package" == "fs" ] || [ "$package" == "bwrap" ]; then

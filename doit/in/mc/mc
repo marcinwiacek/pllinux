@@ -31,6 +31,6 @@ mkdir /other/app/mc 2> /dev/null
     --setenv SHELL /app/busybox/current/bin/sh \
     --setenv HISTCONTROL ignorespace \
     --chdir $(pwd) \
-    /app/ldso/current/ld.so --library-path /app/libc/current:$DIR/lib/x86_64-linux-gnu $DIR/bin/mc
+    /app/ldso/current/ld.so --library-path /app/libc/current:$DIR/lib $DIR/bin/mc
 #    --ro-bind $DIR/libexec libexec \
 #    --ro-bind $DIR/share share \
