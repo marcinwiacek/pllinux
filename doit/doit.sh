@@ -1,9 +1,9 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
-output="/mnt/x";
-package="fs";
-cpu_num=6;
-prefix="$(date +"%y%m%d")_"
+output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
+package="fs"; # fs to build all or "name" for concrete package
+cpu_num=6; # how many CPU cores are used during compiling
+prefix="$(date +"%y%m%d")_" # prefix for packages versions in /app in new system
 
 download_unpack() {
   url=$1
@@ -62,8 +62,8 @@ findlib() {
   rm -r $appdir/lib/x86_64-linux-gnu/libc.so.6 || true
 }
 
-#mkdir out || true
-#mkdir download || true
+mkdir out || true
+mkdir download || true
 if [ "$package" == "fs" ]; then
   mkdir $output/app
   mkdir $output/bin
