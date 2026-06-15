@@ -1,0 +1,8 @@
+# Started when system boots. Can be interrupted with ^C
+
+command = /app/busybox/current/bin/sh -c "/app/pllinux/current/scripts/boot2.sh"
+options = starts-on-console pass-cs-fd start-interruptible unmask-intr skippable
+type = scripted
+depends-ms: tty1
+depends-ms: tty2
+depends-ms: tty3

@@ -1,0 +1,36 @@
+#!/app/busybox/current/bin/sh
+DIR=$(dirname $0)
+#cd /
+APP=" --ro-bind /app app "
+APP2=" --ro-bind $DIR/etc/mc etc/mc "
+#APP=" --ro-bind /app/ldso app/ldso "
+#APP=" --ro-bind /app/libc app/libc "
+# don't show internal commands from MC in the shell history
+if [ -d "/etc." ]; then 
+  APP=" --bind /app app "; 
+  APP2=" --bind $DIR/etc/mc etc/mc "
+fi
+mkdir /other/app/mc 2> /dev/null
+/app/bwrap/current/bin/bwrap \
+    --setenv HOME /other/app/mc \
+    --dev dev \
+    --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
+    --proc proc \
+    --tmpfs tmp \
+    --bind-try /run run \
+    --bind /mnt mnt \
+    --bind /home home \
+    --bind-try /other other \
+    --bind-try /etc. etc \
+    $APP2 \
+    $APP \
+    --ro-bind $DIR/bin bin \
+    --ro-bind $DIR/usr usr \
+    --setenv PS1 "[\t] $USER # " \
+    --setenv HISTCONTROL ignorespace \
+    --setenv SHELL /app/busybox/current/bin/sh \
+    --setenv HISTCONTROL ignorespace \
+    --chdir $(pwd) \
+    /app/ldso/current/ld.so --library-path /app/libc/current:$DIR/lib $DIR/bin/mc
+#    --ro-bind $DIR/libexec libexec \
+#    --ro-bind $DIR/share share \

@@ -1,14 +1,17 @@
 **License**
-GPL2 (2+?)
+GPL3+
+
+**Project**
+
+**Description**
 
 **PATH**
 .
 
-**Description**
-Compiled from source.
-
-**Project**
+**SHELL**
+bin/bash
 
 **Deps**
 libc current
 libtinfo current
+ldso current

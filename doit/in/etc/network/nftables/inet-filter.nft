@@ -1,0 +1,19 @@
+flush ruleset
+
+table inet filter {
+  chain input {
+    type filter hook input priority 0; policy drop;
+    udp sport 53 accept
+    tcp sport {80,443} ct state { related, established } accept comment "HTTPS output"
+    ip protocol icmp accept comment "ICMP input - for example ping"
+  }
+  chain forward {
+    type filter hook forward priority 0; policy drop; 
+  }
+  chain output {
+    type filter hook output priority 0; policy drop;
+    udp dport 53 accept comment "DNS output"
+    tcp dport {80,443} ct state { new,related,established } accept comment "HTTPS output"
+    ip protocol icmp accept comment "ICMP output - for example ping"
+  }
+}

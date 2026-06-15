@@ -1,0 +1,8 @@
+type = process
+command = /app/busybox/current/bin/busybox getty -l /app/busybox/current/bin/login 38400 tty3
+#command = /app/bwrap/current/bin/bwrap --bind /mnt mnt --bind /home home --proc proc --bind /app app --ro-bind /etc etc --ro-bind /app/busybox/current/var var --ro-bind /app/busybox/current/bin bin --ro-bind /app/busybox/current/sbin sbin --ro-bind /app/busybox/current/usr usr --dev dev --dev-bind /dev/tty3 /dev/tty3 --bind /run /run --tmpfs /tmp --unshare-pid /bin/busybox getty 38400 tty3
+restart = true
+termsignal = HUP
+smooth-recovery = true
+inittab-id = 1
+inittab-line = tty3

@@ -1,0 +1,5 @@
+#!/app/busybox/current/bin/sh
+#mkdir /other/app/bash || true
+export SHELL=/app/bash/current/bin/bash
+export HOME=/other/app/bash
+/app/ldso/current/ld.so --library-path /app/libc/current:/app/libtinfo/current $(dirname $0)/bin/bash $@

@@ -1,0 +1,7 @@
+type = process
+command = /app/busybox/current/bin/busybox getty -l /app/busybox/current/bin/login 38400 tty2
+restart = true
+termsignal = HUP
+smooth-recovery = true
+inittab-id = 1
+inittab-line = tty2

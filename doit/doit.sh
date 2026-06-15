@@ -1,8 +1,7 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
 output="/mnt/x";
-package="fs";
-deps=0;
+package="kernel";
 cpu_num=6;
 prefix="$(date +"%y%m%d")_"
 
@@ -72,7 +71,7 @@ if [ "$package" == "fs" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
   install_deps "build-essential libncurses-dev bc libelf-dev bison"
-  ver="7.0.12";
+  ver="7.1";
   download_unpack https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver
   create_app kernel $prefix$ver
   cp in/kernel/.config out/kernel/linux-$ver
@@ -97,7 +96,7 @@ if [ "$package" == "fs" ] || [ "$package" == "busybox" ]; then
   cp .config ../../../in/busybox
   make CONFIG_PREFIX=$output/app/busybox/$prefix$ver install
   cd ../../..
-  cp in/busybox/.config $output/app/busybox/$prefix$ver
+  cp in/busybox/* $output/app/busybox/$prefix$ver
   strip_app busybox
   link_app busybox $prefix$ver
 fi
@@ -159,7 +158,7 @@ if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
   download_unpack https://www.kernel.org/pub/linux/utils/kbd/kbd-$ver.tar.xz kbd kbd-$ver
   create_app kbd $prefix$ver
   cd out/kbd/kbd-$ver
-  ./configure --prefix=$output/app/kbd/$prefix$ver  --datarootdir=/app/kbd/$current/share
+  ./configure --prefix=$output/app/kbd/$prefix$ver  --datarootdir=/app/kbd/$prefix$ver/share
   make -j$cpu_num
   make install
   cd ../../..
@@ -215,7 +214,7 @@ if [ "$package" == "fsddd" ] || [ "$package" == "mc" ]; then
   if [ ! -d "/app/mc" ]; then
     echo "MC is exception. You need link from /app to the PLLINUX /app"
   else
-    #sudo apt-get install libglib2.0-dev libslang2-dev libgpm-dev
+    install_deps "libglib2.0-dev libslang2-dev libgpm-dev"
     ver="4.8.33";
     download_unpack https://ftp.osuosl.org/pub/midnightcommander/mc-4.8.33.tar.xz mc mc-$ver
     create_app mc $prefix$ver
@@ -263,7 +262,6 @@ if [ "$package" == "fsddd" ] || [ "$package" == "mc" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "bash" ]; then
-  #sudo apt-get install libglib2.0-dev libslang2-dev
   ver="5.3";
   download_unpack https://ftp.gnu.org/gnu/bash/bash-$ver.tar.gz bash bash-$ver
   create_app bash $prefix$ver

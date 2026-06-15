@@ -6,12 +6,17 @@ This is project with operating system built around Linux kernel and Bubblewrap (
 
 Some important points:
 
-  1. separating apps and users in totally different level than in various classic Linux distributions (you can provide and show other apps to other users, build script will be running in the sanbdbox, etc.)
-  2. reproducible and reliable results (dependiences among apps must be always defined)
+  1. splitting apps and users in totally different way than in various Linux distributions, which gives you much more security
+(you can provide and show other apps to other users, build package scripts can run in the sanbdbox, upgrades and rollbacks are much easier, etc.)
+  2. reproducible and reliable results (dependiences among apps must be always defined and thing running in one installation will work on the other)
   3. simplicity for devs and users
   4. consistency
   5. decreasing resources usage (using tmpfs, etc.)
   6. when possible, providing real support for people with disabilities
+
+![Memory](2026/jun_mc_root.png)
+
+![Memory](2026/jun_mc_user.png)
 
 Work in progress:
 
@@ -34,7 +39,10 @@ Important dates:
   1. 16 April 2026 - start
   2. June 2026 - releasing GitHub repo to public (with script for building)
 
-To build:
+To build and start:
 
   1. install Lubuntu 26.04 (build script is created around it and probably any Ubuntu distribution should work without changes)
-  2. run build script
+  2. create and mount new EXT4 partition
+  3. point this partition in the build script
+  4. run build script
+  5. add PLLINUX to the GRUB

@@ -1,0 +1,5 @@
+#!/app/busybox/current/bin/sh
+#mkdir /other/app/sh || true
+export SHELL=/app/busybox/current/bin/sh
+export HOME=/other/app/sh
+$(dirname $0)/bin/sh $@
