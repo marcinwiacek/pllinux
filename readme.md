@@ -4,7 +4,7 @@ brewing since April..."*
 
 This is project with operating system built around Linux kernel and Bubblewrap (bwrap) with extra separating apps in the main filesystem (something like in NixOS, but done differently).
 
-Some important points:
+**Some important points**
 
   1. splitting apps and users in totally different way than in various Linux distributions, which gives you much more security
 (you can provide and show other apps to other users, build package scripts can run in the sanbdbox, upgrades and rollbacks are much easier, etc.)
@@ -14,11 +14,15 @@ Some important points:
   5. decreasing resources usage (using tmpfs, etc.)
   6. when possible, providing real support for people with disabilities
 
+When you think, that this is just utopia, look on screens below - is it possible in your Linux?
+
 ![Memory](2026/jun_mc_root.png)
 
 ![Memory](2026/jun_mc_user.png)
 
-Work in progress:
+![Memory](2026/jun_memory.png)
+
+**Plans**
 
  0. [Milestone 0 - more initial info](milestone0.md)
  1. [Milestone 1 - development environment, booting process, filesystem structure, core components, rebooting](milestone1.md)
@@ -34,15 +38,31 @@ Work in progress:
  11. Milestone 11 - graphic UI
  12. Milestone 12 - big party?
 
-Important dates:
+This can change without notice
+
+**Important dates**
 
   1. 16 April 2026 - start
   2. June 2026 - releasing GitHub repo to public (with script for building)
 
-To build and start:
+**Building and starting**
 
   1. install Lubuntu 26.04 (build script is created around it and probably any Ubuntu distribution should work without changes)
   2. create and mount new EXT4 partition
   3. point this partition in the build script
   4. run build script
   5. add PLLINUX to the GRUB
+
+In the future there will be of course created ISO and installer.
+
+**How can you help?**
+
+  1. proposing new ideas - it's never too late for them
+  2. showing this project to other people - nothing more helps like more testers, users and developers
+  3. submitting bugs - project is very early stage, but maybe you want already want to say something
+  4. updating existing dynamic loader or making other development - always welcome
+  5. packaging software - always welcome
+
+**Contact**
+
+For example GitHub or marcin ( at ) mwiacek ( dot ) com. I'm not answering very fast, but in the end it always happens.

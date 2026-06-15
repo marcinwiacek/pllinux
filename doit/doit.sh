@@ -1,7 +1,7 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
 output="/mnt/x";
-package="kernel";
+package="fs";
 cpu_num=6;
 prefix="$(date +"%y%m%d")_"
 
@@ -24,7 +24,7 @@ create_app() {
   version=$2
   mkdir $output/app/$packagename || true
   mkdir $output/app/$packagename/$version || true
-  cp in/$packagename/readme.md $output/app/$packagename/$version
+  if [ -f "in/$packagename/readme.md" ]; then cp in/$packagename/readme.md $output/app/$packagename/$version; fi
 }
 
 strip_app() {
@@ -52,6 +52,16 @@ install_deps() {
   done
 }
 
+findlib() {
+  appdir=$1
+  binary=$2
+  mkdir -p $appdir/lib
+  list="$(ldd $appdir/$binary | egrep -o '/lib.*\.[0-9]')"
+  for i in $list; do cp -v --parents "$i" "$appdir"; done
+  rm -r $appdir/lib64 || true
+  rm -r $appdir/lib/x86_64-linux-gnu/libc.so.6 || true
+}
+
 #mkdir out || true
 #mkdir download || true
 if [ "$package" == "fs" ]; then
@@ -59,15 +69,29 @@ if [ "$package" == "fs" ]; then
   mkdir $output/bin
   mkdir $output/dev
   mkdir $output/etc
+  rsync -a in/etc/ $output/etc
   mkdir $output/home
   mkdir $output/home/root
+  mkdir $output/home/root/app
+  mkdir $output/home/root/files
   mkdir $output/home/user
+  mkdir $output/home/user/app
+  mkdir $output/home/user/files
   mkdir $output/home/user2
+  mkdir $output/home/user2/app
+  mkdir $output/home/user2/files
   mkdir $output/mnt
   mkdir $output/proc
   mkdir $output/run
   mkdir $output/sys
   mkdir $output/tmp
+  olddir=$(pwd)
+  cd $output
+  if [ ! -d "etc." ]; then ln -s etc etc.; fi
+  if [ ! -d "other" ]; then ln -s home/root other; fi
+  cd bin
+  ln -s /app/busybox/current/bin/sh sh
+  cd $olddir
 fi
 if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
   install_deps "build-essential libncurses-dev bc libelf-dev bison"
@@ -111,6 +135,8 @@ if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
   cd ../../..
   cp in/nftables/nft $output/app/nftables/$prefix$ver
   strip_app nftables
+  findlib $output/app/nftables/$prefix$ver sbin/nft
+  rm -r $output/app/nftables/$prefix$ver/lib/x86_64-linux-gnu/libtinfo.so.6 || true
   link_app nftables $prefix$ver
 fi
 if [ "$package" == "fs" ] || [ "$package" == "bwrap" ]; then
@@ -210,23 +236,28 @@ if [ "$package" == "fs" ] || [ "$package" == "util-linux" ]; then
   strip_app util-linux
   link_app util-linux $prefix$ver
 fi
-if [ "$package" == "fsddd" ] || [ "$package" == "mc" ]; then
-  if [ ! -d "/app/mc" ]; then
-    echo "MC is exception. You need link from /app to the PLLINUX /app"
-  else
-    install_deps "libglib2.0-dev libslang2-dev libgpm-dev"
-    ver="4.8.33";
-    download_unpack https://ftp.osuosl.org/pub/midnightcommander/mc-4.8.33.tar.xz mc mc-$ver
-    create_app mc $prefix$ver
-    cd out/mc/mc-$ver
-    # prefix value is later put into installed files, which makes installation useless
-    ./configure --disable-vfs -with-gpm-mouse --prefix=/app/mc/current
+if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
+  if [ ! -d "/app" ]; then
+    echo "MC is exception. You need link from /app to the PLLINUX /app. This will be removed in the future"
+    olddir=$(pwd)
+    cd /
+    rm current
+    sudo ln -s $output/app app
+    cd $olddir
+  fi
+  install_deps "libglib2.0-dev libslang2-dev libgpm-dev"
+  ver="4.8.33";
+  download_unpack https://ftp.osuosl.org/pub/midnightcommander/mc-4.8.33.tar.xz mc mc-$ver
+  create_app mc $prefix$ver
+  cd out/mc/mc-$ver
+    # prefix value is later put into installed and binary files, which makes installation useless
+  ./configure --disable-vfs -with-gpm-mouse --prefix=/app/mc/current
 #--exec-prefix=$(pwd)/../../../app/mc/$prefix$ver
 #--prefix=$(pwd)/../../../app/mc/$prefix$ver --exec-prefix=/usr/mc
 #--prefix=/usr/mc 
 #--exec-prefix=/usr/mc
 #--prefix=/app/mc/$prefix$ver
-    make all -j$cpu_num
+  make all -j$cpu_num
 #    mkdir $(pwd)/../../../app/mc/$prefix$ver/bin
 #    mkdir $(pwd)/../../../app/mc/$prefix$ver/sbin
 #    mkdir $(pwd)/../../../app/mc/$prefix$ver/etc
@@ -250,16 +281,31 @@ if [ "$package" == "fsddd" ] || [ "$package" == "mc" ]; then
 #    newcmd="s/$pwdd\/..\/..\/..\/app\/mc\/$prefix$ver/\/app\/mc\/$prefix$ver/g"
 #    find ../../../app/$packagename/$prefix$ver -name "*.sh" -exec bash -c "echo \"executing on {}\" && sed -i \"$newcmd\" {}" \;
 #    find ../../../app/$packagename/$prefix$ver -name "*.csh" -exec bash -c "echo \"executing on {}\" && sed -i \"$newcmd\" {}" \;
-    rm /app/mc/current
-    mkdir /app/mc/$prefix$ver
-    olddir=$(pwd)
-    cd /app/mc
-    ln -s $prefix$ver current
-    cd $olddir
-    make install
-    cd ../../..
-    strip_app mc
-  fi
+  rm /app/mc/current
+  mkdir /app/mc/$prefix$ver
+  olddir=$(pwd)
+  cd /app/mc
+  ln -s $prefix$ver current
+  cd $olddir
+  make install
+  cd ../../..
+  cp in/mc/mc $output/app/mc/$prefix$ver
+  rm $output/app/mc/$prefix$ver/bin/mcdiff
+  cp in/mc/mcdiff $output/app/mc/$prefix$ver/bin/mcdiff
+  rm $output/app/mc/$prefix$ver/bin/mcview
+  cp in/mc/mcview $output/app/mc/$prefix$ver/bin/mcview
+  rm $output/app/mc/$prefix$ver/bin/mcedit
+  cp in/mc/mcedit $output/app/mc/$prefix$ver/bin/mcedit
+  olddir=$(pwd)
+  cd $output/app/mc/$prefix$ver/bin
+  ln -s /app/busybox/current/bin/sh sh
+  cd $olddir
+  mkdir $output/app/mc/$prefix$ver/usr
+  mkdir $output/app/mc/$prefix$ver/usr/share
+  mkdir $output/app/mc/$prefix$ver/usr/share/terminfo
+  rsync -a /usr/share/terminfo/ $output/app/mc/$prefix$ver/usr/share/terminfo
+  findlib $output/app/mc/$prefix$ver bin/mc
+  strip_app mc
 fi
 if [ "$package" == "fs" ] || [ "$package" == "bash" ]; then
   ver="5.3";
@@ -286,4 +332,35 @@ if [ "$package" == "fs" ] || [ "$package" == "e2fsprogs" ]; then
   cp in/e2fsprogs/* $output/app/e2fsprogs/$prefix$ver
   strip_app e2fsprogs
   link_app e2fsprogs $prefix$ver
+fi
+if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
+  ver="0.1";
+  create_app initramfs $prefix$ver
+  mkdir $output/app/initramfs/$prefix$ver/x
+  cp in/initramfs/init $output/app/initramfs/$prefix$ver/x
+  mkdir $output/app/initramfs/$prefix$ver/x/app
+  mkdir $output/app/initramfs/$prefix$ver/x/app/busybox
+  rsync -a $output/app/busybox/ $output/app/initramfs/$prefix$ver/x/app/busybox
+  mkdir $output/app/initramfs/$prefix$ver/x/dev
+  mkdir $output/app/initramfs/$prefix$ver/x/mnt
+  mkdir $output/app/initramfs/$prefix$ver/x/proc
+  cp in/e2fsprogs/readme.md $output/app/e2fsprogs/$prefix$ver
+  olddir=$(pwd)
+  cd $output/app/initramfs/$prefix$ver/x
+  find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > ../initramfs.gz
+  cd ..
+  rm -r x
+  cd $olddir
+  link_app initramfs $prefix$ver
+fi
+if [ "$package" == "fs" ] || [ "$package" == "pllinux" ]; then
+  ver="0.1";
+  create_app pllinux $prefix$ver
+  mkdir $output/app/pllinux/$prefix$ver
+  rsync -a in/pllinux/ $output/app/pllinux/$prefix$ver
+  link_app pllinux $prefix$ver
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libtinfo" ]; then
+  create_app libtinfo current
+  cp /lib/x86_64-linux-gnu/libtinfo.so.6 $output/app/libtinfo/current
 fi

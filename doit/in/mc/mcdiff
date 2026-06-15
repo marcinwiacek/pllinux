@@ -1,0 +1,4 @@
+#!/app/busybox/current/bin/sh
+DIR=$(dirname $0)
+/app/ldso/current/ld.so --library-path /app/libc/current:$DIR/../lib/x86_64-linux-gnu --argv0 $0 $DIR/mc $@
+
