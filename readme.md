@@ -4,14 +4,14 @@ brewing since April..."*
 
 This is project with operating system built around Linux kernel and Bubblewrap (bwrap) with extra separating apps in the main filesystem (something like in NixOS, but done differently).
 
-**Some important points**
+**Important points**
 
   1. splitting apps and users in different way than in various Linux distributions, which gives you much more security and flexibility
 (you can provide and show other apps to other users, build package scripts can run in the sanbdbox, upgrades and rollbacks are much easier, etc.)
   2. reproducible and reliable results (dependiences among apps must be always defined and thing running in one installation will work on the other)
   3. simplicity for devs and users
   4. consistency
-  5. decreasing resources usage (using tmpfs, etc.)
+  5. decreasing resources usage (using tmpfs where possible, etc.)
   6. when possible, providing real support for people with disabilities
 
 When you think, that this is just utopia, look on screens below - is it possible in your Linux?
@@ -24,7 +24,7 @@ When you think, that this is just utopia, look on screens below - is it possible
 
 **Plans**
 
-Currently in early alpha. Some things are done and some todo:
+Currently in early alpha. Some things are done and many still todo:
 
  0. [Milestone 0 - more initial info](milestone0.md)
  1. [Milestone 1 - development environment, booting process, filesystem structure, core components, rebooting](milestone1.md)
@@ -41,6 +41,8 @@ Currently in early alpha. Some things are done and some todo:
  12. Milestone 12 - big party?
 
 This can change without earlier notice.
+
+One note: main author of PLLINUX was preparing some Open Source software ca. 1999 already and some gaps in current builds are connected mainly with time available for the project (and complexity).
 
 **Important dates**
 
