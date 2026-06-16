@@ -1,7 +1,7 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="mc"; # fs to build all or "name" for concrete package
+package="fs"; # fs to build all or "name" for concrete package
 cpu_num=6; # how many CPU cores are used during compiling
 prefix="$(date +"%y%m%d")_" # prefix for packages versions in /app in new system
 
@@ -73,14 +73,41 @@ if [ "$package" == "fs" ]; then
   rsync -a in/etc/ $output/etc
   mkdir $output/home
   mkdir $output/home/root
-  mkdir $output/home/root/app
-  mkdir $output/home/root/files
+  sudo chown root $output/home/root
+  sudo chgrp root $output/home/root
+  sudo mkdir $output/home/root/app
+  sudo chown root $output/home/root/app
+  sudo chgrp root $output/home/root/app
+  sudo mkdir $output/home/root/files
+  sudo chown root $output/home/root/files
+  sudo chgrp root $output/home/root/files
+  sudo chmod u+rwx $output/home/root
+  sudo chmod g-rwx $output/home/root
+  sudo chmod o-rwx $output/home/root
   mkdir $output/home/user
+  sudo chown 1000 $output/home/user
+  sudo chgrp 1000 $output/home/user
   mkdir $output/home/user/app
+  sudo chown 1000 $output/home/user/app
+  sudo chgrp 1000 $output/home/user/app
   mkdir $output/home/user/files
-  mkdir $output/home/user2
-  mkdir $output/home/user2/app
-  mkdir $output/home/user2/files
+  sudo chown 1000 $output/home/user/files
+  sudo chgrp 1000 $output/home/user/files
+  sudo chmod u+rwx $output/home/user
+  sudo chmod g-rwx $output/home/user
+  sudo chmod o-rwx $output/home/user
+  sudo mkdir $output/home/user2
+  sudo chown 1001 $output/home/user2
+  sudo chgrp 1001 $output/home/user2
+  sudo mkdir $output/home/user2/app
+  sudo chown 1001 $output/home/user2/app
+  sudo chgrp 1001 $output/home/user2/app
+  sudo mkdir $output/home/user2/files
+  sudo chown 1001 $output/home/user2/files
+  sudo chgrp 1001 $output/home/user2/files
+  sudo chmod u+rwx $output/home/user2
+  sudo chmod g-rwx $output/home/user2
+  sudo chmod o-rwx $output/home/user2
   mkdir $output/mnt
   mkdir $output/proc
   mkdir $output/run
@@ -185,6 +212,7 @@ if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
   download_unpack https://www.kernel.org/pub/linux/utils/kbd/kbd-$ver.tar.xz kbd kbd-$ver
   create_app kbd $prefix$ver
   cd out/kbd/kbd-$ver
+  make clean
   ./configure --prefix=$output/app/kbd/$prefix$ver  --datarootdir=/app/kbd/$prefix$ver/share
   make -j$cpu_num
   make install
