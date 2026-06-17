@@ -1,7 +1,7 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="busybox"; # fs to build all or "name" for concrete package
+package="git"; # fs to build all or "name" for concrete package
 cpu_num=6; # how many CPU cores are used during compiling
 prefix="$(date +"%y%m%d")_" # prefix for packages versions in /app in new system
 
@@ -37,7 +37,7 @@ link_app() {
   version=$2
   olddir=$(pwd)
   cd $output/app/$1
-  rm current
+  rm current || true
   ln -s $version current
   cd $olddir
 }
@@ -47,6 +47,7 @@ install_deps() {
     if dpkg -s $dep > /dev/null 2>&1; then
       echo $dep installed
     else
+      echo Need to install $dep package
       sudo apt install $dep;
     fi
   done
@@ -154,7 +155,7 @@ if [ "$package" == "fs" ] || [ "$package" == "busybox" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
   ver="1.1.6";
-  download_unpack https://netfilter.org/projects/nftables/files/nftables-1.1.6.tar.xz nftables nftables-$ver
+  download_unpack https://netfilter.org/projects/nftables/files/nftables-$ver.tar.xz nftables nftables-$ver
   create_app nftables $prefix$ver
   cd out/nftables/nftables-$ver
   ./configure --prefix=$output/app/nftables/$prefix$ver
@@ -280,7 +281,7 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
   fi
   install_deps "libglib2.0-dev libslang2-dev libgpm-dev"
   ver="4.8.33";
-  download_unpack https://ftp.osuosl.org/pub/midnightcommander/mc-4.8.33.tar.xz mc mc-$ver
+  download_unpack https://ftp.osuosl.org/pub/midnightcommander/mc-$ver.tar.xz mc mc-$ver
   create_app mc $prefix$ver
   cd out/mc/mc-$ver
     # prefix value is later put into installed and binary files, which makes installation sometimes problematic
@@ -357,7 +358,7 @@ if [ "$package" == "fs" ] || [ "$package" == "bash" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "e2fsprogs" ]; then
   ver="1.47.4";
-  download_unpack https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/snapshot/e2fsprogs-1.47.4.tar.gz e2fsprogs e2fsprogs-$ver
+  download_unpack https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/snapshot/e2fsprogs-$ver.tar.gz e2fsprogs e2fsprogs-$ver
   create_app e2fsprogs $prefix$ver
   cd out/e2fsprogs/e2fsprogs-$ver
   ./configure LDFLAGS=-static --enable-symlink-install  --enable-relative-symlinks --prefix=$output/app/e2fsprogs/$prefix$ver
@@ -398,4 +399,23 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libtinfo" ]; then
   create_app libtinfo current
   cp /lib/x86_64-linux-gnu/libtinfo.so.6 $output/app/libtinfo/current
+fi
+if [ "$package" == "git" ]; then
+  ver="2.54.0";
+  install_deps "gettext"
+  download_unpack https://www.kernel.org/pub/software/scm/git/git-$ver.tar.xz git git-$ver
+  create_app git $prefix$ver
+  cd out/git/git-$ver
+  ./configure
+#  ./configure LDFLAGS=-static --enable-symlink-install  --enable-relative-symlinks --prefix=$output/app/e2fsprogs/$prefix$ver
+  make all -j$cpu_num
+#  make install
+  mkdir $output/app/git/$prefix$ver/bin
+  cp git $output/app/git/$prefix$ver/bin
+  cd ../../..
+  strip_app git
+  link_app git $prefix$ver
+  findlib $output/app/git/$prefix$ver bin/git
+  cp in/git/git $output/app/git/$prefix$ver
+  cp in/git/readme.md $output/app/git/$prefix$ver
 fi
