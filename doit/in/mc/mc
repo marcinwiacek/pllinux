@@ -28,9 +28,9 @@ mkdir /other/app/mc 2> /dev/null
     --ro-bind $DIR/usr usr \
     --setenv PS1 "[\t] $USER # " \
     --setenv HISTCONTROL ignorespace \
-    --setenv SHELL /app/busybox/current/bin/sh \
-    --setenv HISTCONTROL ignorespace \
     --chdir $(pwd) \
     /app/ldso/current/ld.so --library-path /app/libc/current:$DIR/lib $DIR/bin/mc
 #    --ro-bind $DIR/libexec libexec \
 #    --ro-bind $DIR/share share \
+#    --setenv SHELL /app/busybox/current/bin/sh \
+#    --setenv HISTCONTROL ignorespace \

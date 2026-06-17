@@ -1,7 +1,7 @@
 # Part of PLLINUX. Creating some binaries from the source. Tested on Lubuntu 26.04. Possible, that some deps are missed
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="fs"; # fs to build all or "name" for concrete package
+package="busybox"; # fs to build all or "name" for concrete package
 cpu_num=6; # how many CPU cores are used during compiling
 prefix="$(date +"%y%m%d")_" # prefix for packages versions in /app in new system
 
@@ -283,14 +283,21 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
   download_unpack https://ftp.osuosl.org/pub/midnightcommander/mc-4.8.33.tar.xz mc mc-$ver
   create_app mc $prefix$ver
   cd out/mc/mc-$ver
-    # prefix value is later put into installed and binary files, which makes installation useless
-  ./configure --disable-vfs -with-gpm-mouse --prefix=/app/mc/current
+    # prefix value is later put into installed and binary files, which makes installation sometimes problematic
+    # there were different options tried (even changing string in all files, but... it was not possible in binaries)
+#    pwdd=$(pwd)
+#    pwdd=${pwdd//\//\\/}
+#    newcmd="s/$pwdd\/..\/..\/..\/app\/mc\/$prefix$ver/\/app\/mc\/$prefix$ver/g"
+#    find ../../../app/$packagename/$prefix$ver -name "*.sh" -exec bash -c "echo \"executing on {}\" && sed -i \"$newcmd\" {}" \;
+#    find ../../../app/$packagename/$prefix$ver -name "*.csh" -exec bash -c "echo \"executing on {}\" && sed -i \"$newcmd\" {}" \;
 #--exec-prefix=$(pwd)/../../../app/mc/$prefix$ver
 #--prefix=$(pwd)/../../../app/mc/$prefix$ver --exec-prefix=/usr/mc
 #--prefix=/usr/mc 
 #--exec-prefix=/usr/mc
 #--prefix=/app/mc/$prefix$ver
+  ./configure --disable-vfs -with-gpm-mouse --prefix=/app/mc/current
   make all -j$cpu_num
+# sandbox would be clean solution, but for now I have gcc crash
 #    mkdir $(pwd)/../../../app/mc/$prefix$ver/bin
 #    mkdir $(pwd)/../../../app/mc/$prefix$ver/sbin
 #    mkdir $(pwd)/../../../app/mc/$prefix$ver/etc
@@ -309,11 +316,6 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
 #          --chdir /src \
 #          --tmpfs /tmp \
 #          /usr/bin/make install
-#    pwdd=$(pwd)
-#    pwdd=${pwdd//\//\\/}
-#    newcmd="s/$pwdd\/..\/..\/..\/app\/mc\/$prefix$ver/\/app\/mc\/$prefix$ver/g"
-#    find ../../../app/$packagename/$prefix$ver -name "*.sh" -exec bash -c "echo \"executing on {}\" && sed -i \"$newcmd\" {}" \;
-#    find ../../../app/$packagename/$prefix$ver -name "*.csh" -exec bash -c "echo \"executing on {}\" && sed -i \"$newcmd\" {}" \;
   rm /app/mc/current
   mkdir /app/mc/$prefix$ver
   olddir=$(pwd)
