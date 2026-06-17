@@ -5,7 +5,6 @@ APP=" --ro-bind /app app "
 APP2=" --ro-bind $DIR/etc/mc etc/mc "
 #APP=" --ro-bind /app/ldso app/ldso "
 #APP=" --ro-bind /app/libc app/libc "
-# don't show internal commands from MC in the shell history
 if [ -d "/etc." ]; then 
   APP=" --bind /app app "; 
   APP2=" --bind $DIR/etc/mc etc/mc "
@@ -27,10 +26,10 @@ mkdir /other/app/mc 2> /dev/null
     --ro-bind $DIR/bin bin \
     --ro-bind $DIR/usr usr \
     --setenv PS1 "[\t] $USER # " \
-    --setenv HISTCONTROL ignorespace \
+    --setenv SHELL /app/busybox/current/bin/sh \
     --chdir $(pwd) \
     /app/ldso/current/ld.so --library-path /app/libc/current:$DIR/lib $DIR/bin/mc
 #    --ro-bind $DIR/libexec libexec \
 #    --ro-bind $DIR/share share \
-#    --setenv SHELL /app/busybox/current/bin/sh \
+# don't show internal commands from MC in the shell history
 #    --setenv HISTCONTROL ignorespace \
