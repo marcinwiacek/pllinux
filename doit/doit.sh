@@ -1,10 +1,11 @@
 # Part of PLLINUX. Creating some binaries from the source and installing in the system. Tested on Debian.
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="git"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="util-linux"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compiling
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
+# Check if makes sense to build the whole package
 should_make() {
   packagename=$1
   packagever=$2
@@ -22,8 +23,8 @@ should_make() {
   return 0; //true
 }
 
-#Download and unpack package
-#todo: checking checksum and package authentity
+# Download and unpack package
+# todo: checking checksum and package authentity
 download_unpack_source() {
   url=$1
   localfile=${url##*/}
@@ -327,7 +328,7 @@ if [ "$package" == "fs" ] || [ "$package" == "util-linux" ]; then
     download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver/util-linux-$ver.tar.xz util-linux util-linux-$ver
     create_app util-linux $prefix$ver
     cd out/util-linux/util-linux-$ver
-    ./configure --prefix=$output/app/util-linux/$prefix$ver --without-systemd --disable-schedutils --disable-lsfd 
+    ./configure --prefix=$output/app/util-linux/$prefix$ver --without-systemd --disable-lsfd --disable-enosys
     make all -j$cpu_num
     make install || true
     cd ../../..

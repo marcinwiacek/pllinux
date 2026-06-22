@@ -51,7 +51,7 @@ One note: main author of PLLINUX was preparing Open Source software before 2000 
 
 **Building and starting**
 
-  1. install Lubuntu 26.04 (build script is created inside it; probably any Ubuntu distribution should work without changes)
+  1. install Debian "Trixie" (build script is created inside it; probably any last Debian/Ubuntu distribution should work without changes)
   2. create and mount new EXT4 partition
   3. point this partition in the [build script doit.sh](doit/doit.sh)
   4. run [build script doit.sh](doit/doit.sh) (it can ask sometimes for sudo for dependiences)
