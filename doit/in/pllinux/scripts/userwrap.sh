@@ -19,8 +19,10 @@ if [ "$processesall" = 1 ]; then
 else
   PARAMS="$PARAMS --unshare-all "
 fi
+#PARAMS="$PARAMS --perms 0777 "
 PARAMS="$PARAMS --dev dev "
-PARAMS="$PARAMS --dev-bind-try /dev/null /dev/null "
+#PARAMS="$PARAMS --dev-bind-try /dev/null /dev/null "
+#PARAMS="$PARAMS --chmod 0777 /dev "
 PARAMS="$PARAMS --tmpfs tmp "
 PARAMS="$PARAMS --bind home/$USER/files home "
 PARAMS="$PARAMS --bind home/$USER other "

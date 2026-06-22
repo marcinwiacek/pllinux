@@ -1,16 +1,17 @@
 # Milestone 1
 # Development environment
 
-All development is done in Lubuntu 26.04 LTS installed inside VirtualBox with tools like **retext**, **gcc**, etc.
+All development was done initially in Lubuntu 26.04 LTS installed inside VirtualBox with tools like **retext** or **gcc**, later I started doing everything inside VirtualBox + Debian with LXQT (and I hope to stay with this config in long term development).
 
-This combination is maybe not best choice on the world, but good enough. Host system is installed in one virtual disk (20GB+50GB in total), EXT4 partition with new system (2GB) in second,
-additionally there is added GRUB boot entry starting new system with these steps:
+This combination is maybe not best choice on the world, but good enough.
+
+Host system is installed in one virtual disk (20GB), partition for compilation is another 50GB and EXT4 partition with new PLLINUX system needs another 2GB, additionally there is added GRUB boot entry starting new system with these steps:
 
   1. created [file /etc/grub.d/40_custom](2026/40_custom) with correct UUID for new filesystem (get with **sudo blkid**)
   2. refreshed GRUB with **sudo update-grub**
 
 We don't use anything special here, so it's enough to setup any other modern distribution (note: descriptions
-will be mainly Ubuntu based)
+will be mainly Debian based)
 
 # Booting process
 
@@ -204,7 +205,7 @@ with non-root users we had to give read/write permissions to the /run/dinitctl.
 
 # Running (note: this version was not released)
 
-  * create EXT4 partition in existing Ubuntu system
+  * create EXT4 partition in existing host system
   * unpack our M1 file into new partition
   * get UUID for partition with **sudo blkid**
   * copy [file /etc/grub.d/40_custom](2026/40_custom) with correct UUID for new filesystem

@@ -1,3 +1,6 @@
+# Milestone 0
+# Let's make Linux great. Again?
+
 *"...I'm doing a (free) operating system (just a hobby, won't be big and
 professional like GNU) for Intel and AMD CPU clones. This has been
 brewing since April..."*
@@ -8,7 +11,7 @@ I love it and words on the top are probably the best for describing project, whi
 
 Main rules:
 
-  1. engineering excellence always in first place (completing things + no bla bla or spaghetti code) - I'm lazy, but love good done work, which doesn't have to be repeated 1000x
+  1. engineering excellence always in first place (completing things + no bla bla or spaghetti code) - I'm lazy, but love good work, which doesn't have to be repeated 1000x
   2. reproducible and reliable results and builds - see point 1
   3. simplicity for devs and users (some people will use KISS synonym or remind classic "every tool should do excellent just one thing", but this point is not only about that - it's also about avoiding unnecessary annoying things too which can and should be done by computer, not human)
   4. consistency
@@ -64,8 +67,9 @@ nonsense related with Rust and intentional making Open Source software worse
 things notified by Marcin Wiącek few years ago and confirmed not only by Lunduke
   3. [Mainstream Linux became next Windows and is going back instead forward](https://mwiacek.com/www/?q=node/638) - some short analysis from this year about modern "*q*uality"
   4. [Linux Dev Labs](https://www.youtube.com/@linux-dev-labs) - another niche channel: sometimes it's good to look on things from the other perspective (it doesn't mean, that they're always correct)
+  5. [Stop Celebrating Ubuntu 26.04 — It's a Disaster](https://www.youtube.com/watch?v=tG2ZMvBT8W4), [Ubuntu 26.04: The Ubuntu Platform's Downfall](https://www.youtube.com/watch?v=bfEL3UjPUFg) - they're maybe very small videos or channels, but very good mention about such Ubuntu problems like close-source app shop, problems with Rust rewrites, silent installation in background and many other things (random note: 26.04 was day of Czarnobyl disaster in 1986)
 
-And very concrete examples:
+And some other very concrete examples:
 
   1. Rust tools version 0.9 project mentions, that it has WORSE compatibility with tests than release 0.8, but this is
 other people fault - blaming others is becoming norm today
@@ -88,9 +92,9 @@ and all modern stuff making using PC comfortable and funny. Enjoy.
 
 This documention and files from this repo are provided "as is" (you could use MIT or whatever you want).
 
-Every package in PLLINUX can have own license and we don't want to break rights or legal terms (if you see something wrong, please the best drop mail).
+Every package in PLLINUX can have own license and we don't want to break rights or legal terms (if you see something wrong, the best please drop mail).
 The most widely licenses will be probably GPL2 and GPL3 and we want to redirect to the
 [Frequently Asked Questions about the GNU Licenses](https://www.gnu.org/licenses/gpl-faq.html) - with our best knowledge
 it's possible for example to repackage binaries from other distros (which can improve development speed before release 1.0).
 
-We want to say again - if some our understanding or some action somewhere is wrong, please contact us (we will treat all legal issues very seriously).
+We want to say again - if some understanding or some actions somewhere are wrong, please contact us (We will treat all legal issues very seriously).

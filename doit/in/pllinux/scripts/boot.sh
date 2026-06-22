@@ -33,3 +33,5 @@ ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/gr
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl
+
+/app/busybox/current/bin/chmod a+rw /dev/null
