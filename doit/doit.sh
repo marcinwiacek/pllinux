@@ -1,9 +1,9 @@
-# Part of PLLINUX. Creating some binaries from the source and installing in the system. Tested on Debian.
+# Part of PLLINUX. Creating some binaries from the source and installing in the system. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="util-linux"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
-cpu_num=6; # how many CPU cores are used during compiling
-dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
+package="fs"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+cpu_num=6; # how many CPU cores are used during compilation
+dont_process_the_same_ver=1; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
 # Check if makes sense to build the whole package
 should_make() {
@@ -201,18 +201,23 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
   ver="1.1.6";
   if should_make nftables $ver; then
-    install_host_deps "libgmp3-dev libnftnl-dev libmnl-dev"
+    install_host_deps "libgmp3-dev libmnl-dev libedit-dev"
+    #Trixy has got older version of libnftnl-dev
+    if [ ! -f "download/libnftnl11_1.3.1-1_amd64.deb" ]; then
+      wget -O download/libnftnl11_1.3.1-1_amd64.deb http://mirrors.kernel.org/ubuntu/pool/main/libn/libnftnl/libnftnl11_1.3.1-1_amd64.deb
+      sudo apt-get install download/libnftnl11_1.3.1-1_amd64.deb
+    fi
     download_unpack_source https://netfilter.org/projects/nftables/files/nftables-$ver.tar.xz nftables nftables-$ver
-    create_app nftables $prefix$ver.tmp
+    create_app nftables $prefix$ver
     cd out/nftables/nftables-$ver
-    ./configure --prefix=$output/app/nftables/$prefix$ver.tmp
+    ./configure --prefix=$output/app/nftables/$prefix$ver
     make -j$cpu_num
     make install
     cd ../../..
-    cp in/nftables/nft $output/app/nftables/$prefix$ver.tmp
+    cp in/nftables/nft $output/app/nftables/$prefix$ver
     strip_app nftables
-    find_binary_lib $output/app/nftables/$prefix$ver.tmp sbin/nft
-    rm -r $output/app/nftables/$prefix$ver.tmp/lib/libtinfo* || true
+    find_binary_lib $output/app/nftables/$prefix$ver sbin/nft
+    rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
     set_current_app nftables $prefix$ver
   fi
 fi
@@ -474,7 +479,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libtinfo" ]; then
   create_app libtinfo current
   cp /lib/x86_64-linux-gnu/libtinfo.so.6 $output/app/libtinfo/current
 fi
-if [ "$package" == "git" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
   ver="2.54.0";
   if should_make git $ver; then
     install_host_deps "gettext"

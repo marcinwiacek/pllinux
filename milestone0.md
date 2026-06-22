@@ -76,11 +76,15 @@ other people fault - blaming others is becoming norm today
   2. we hear like mantra "Rust will save us", but without explaining from what - this happens, when Rust is known from various problems and is generally too fresh for some environments
   3. deleting info about XLibre from various places with clear info saying, that this is political decision
 
-"But Rust is safe, Wayland better and systemd standard, which every distro need"
+"But Rust is safe, Wayland better and systemd standard, which every distro need today"
 
 In few words: Rust is overcomplicated (that's why Servo had so big problems) and today you can achieve even better results with Safe-C or other languages & tools (do we have so big push for it because somebody want replace GPL with MIT?), Wayland implementation don't give gamma and some features required by people with disabilities (additionally there are initiatives for rewriting X11 things in safe way) and systemd became tool for everything and it doesn't help in anything.
 
-Anyway, these are topics for many-days discussion. Let's return to the PLLINUX. It will use:
+"Linux will not dominate market without standards like Rust, Wayland or systemd"
+
+Yes, indeed, standards are very important. But Linux has not became the most popular in various segments because doesn't have standards - it became, because these standards are not very good.
+
+Anyway, these are all topics for many-days discussion. Let's return to the PLLINUX. It will use:
 
   1. Linux kernel (it's monolytic and with many issues, but widely used and provides quite good hardware support)
   2. **bwrap** (it's used in projects like Flatpak)

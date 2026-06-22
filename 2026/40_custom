@@ -6,6 +6,6 @@ exec tail -n +3 $0
 	menuentry 'PLLINUX' --class ubuntu --class gnu-linux --class gnu --class os $menuentry_id_option 'PL2' {
 		set root='hd1,gpt1'		
 		echo	'Loading PLLINUX ...'
-		linux	/app/kernel/current/bzImage root=UUID=********************* rw
-		initrd /app/kernel/current/initramfs.gz
+		linux	/app/kernel/current/bzImage root=UUID=*************************** rw
+		initrd /app/initramfs/current/initramfs.gz
 	}
