@@ -47,7 +47,7 @@ One note: main author of PLLINUX was preparing Open Source software before 2000 
 **Important dates**
 
   1. 16 April 2026 - start
-  2. June 2026 - releasing GitHub repo to public (with tested script for distribution building)
+  2. 22 June 2026 - making GitHub repo public (with tested script for distribution building)
 
 **Building and starting**
 
