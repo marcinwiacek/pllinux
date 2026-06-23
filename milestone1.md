@@ -30,7 +30,7 @@ described this way:
   7. Process with PID 1 is taking care about loading system services (working in background) and login 
 prompts for shell or graphic environment
 
-In first version in points 1 and 2 we will use elements from existing host (Lubuntu) and we won't have points 3 and 6. Our [initial init script](2026/init) is:
+In first version in points 1 and 2 we will use elements from existing host (Lubuntu) and we won't have points 3 and 6. Our [initial init script](doit/in/initramfs/init) is:
 
   1. mounting **dev** and **proc** filesystems from the kernel
   2. searching in kernel params for string **root=UUID=......** and extracting UUID (we need it, because kernel can differently

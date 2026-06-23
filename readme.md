@@ -58,17 +58,17 @@ One note: main author of PLLINUX was preparing Open Source software before 2000 
   5. add PLLINUX to the GRUB (create [file /etc/grub.d/40_custom](2026/40_custom) with correct UUID for new filesystem get with **sudo blkid**)
   6. restart and have fun.
 
-In this moment (16 Jun 2026) PLLINUX filesystem needs 127MB and place for compiling 27GB. Secure Boot needs probably to disabled now. UEFI "rather" required.
+In this moment (16 Jun 2026) PLLINUX filesystem needs 127MB and place for compiling 27GB. Secure Boot needs to be disabled now, UEFI required.
 
 In the future there will be of course created ISO and installer.
 
 **How can you help?**
 
   1. proposing new ideas - it's never too late for them
-  2. showing this project to other people - good party must be big & nothing helps more than new testers, users and developers
-  3. submitting bugs - project is very early stage, but don't be shy, when want and have something to say
-  4. updating existing dynamic loader or making other development - always welcome
-  5. packaging software - always welcome
+  2. showing this project to other people - good party must be big & nothing helps more than testers, users and developers
+  3. submitting bugs - project is very early stage, but don't be shy, when have something to say
+  4. updating existing dynamic loader or making other development - always welcome (mainly C or Bash shell scripting now)
+  5. packaging software - always welcome (mainly Bash shell scripting now)
 
 **Contact**
 
