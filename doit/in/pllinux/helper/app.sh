@@ -1,5 +1,6 @@
 #!/bin/bash
-
+# Package manager
+INFO="Version from 25.06.2026. Part of PLLINUX"
 DIR="/mnt/x"
 ALL_APP=$(ls $DIR/app)
 
@@ -43,24 +44,15 @@ find_app_install_script() {
          sectionInstall=1
        elif [ "$line" = "" ]; then
          sectionInstall=0;
-       elif [ "$sectionDeps" = 1 ]; then
-         case $DEPS in
-              *$line* )
-                ;;
-              * )
-                complete=0
-                if [ "$DEPS" != "" ]; then
-                  DEPS="$DEPS:"
-                fi
-                DEPS=$DEPS$line
-                ;;
-         esac
+       elif [ "$sectionInstall" = 1 ]; then
+	 INSTALL_SCRIPT=$line
        fi
      done < $DIR/app/${APP_NAME}/${APP_VER}/readme.md
   fi
 }
 
 if [ "$1" == "install" ]; then
+  # build list of all dependencies
   DEPS=$2
   while true; do
     complete=1
@@ -74,6 +66,8 @@ EOF
     done
     if [ "$complete" = 1 ]; then break; fi
   done
+  # install all apps
+  DEPS2="" # build list of new installed apps
   IFS=":"
   for APP in $DEPS
   do
@@ -84,12 +78,87 @@ EOF
     APP_VER=${CURRENT##*/}
     if [ -d "$DIR/app/${APP_NAME}/${APP_VER}" ]; then
       echo "App ${APP_NAME} ${APP_VER} already installed. Skipping"
+      #FIXME: remove after testing
+      if [ "$DEPS2" != "" ]; then
+        DEPS2="$DEPS2:"
+      fi
+      DEPS2="$DEPS2${APP_NAME} ${APP_VER}"
     elif [! -f "${APP_NAME}_${APP_VER}.tar.xz" ]; then
       echo "Backup file ${APP_NAME}_${APP_VER}.tar.xz not exists. Skipping"
     else
-      echo "installing"
-#      find_app_deps $DIR $APP_NAME $APP_VER "InstallDeps"
+      echo "installing app ${APP_NAME} ${APP_VER}"
+      mkdir $DIR/app/${APP_NAME}/${APP_VER}
+      cd $DIR/app/${APP_NAME}/${APP_VER}
+#      tar -xvf ../../download/$localfile
+#      cd
+      if [ "$DEPS2" != "" ]; then
+        DEPS2="$DEPS2:"
+      fi
+      DEPS2="$DEPS2${APP_NAME} ${APP_VER}"
     fi
+  done
+  # find and run all install scripts from new added packages
+  IFS=":"
+  for APP in $DEPS2
+  do
+    IFS=" " read -r APP_NAME APP_VER << EOF
+$APP
+EOF
+    CURRENT=$(realpath $DIR/app/$APP_NAME/$APP_VER)
+    APP_VER=${CURRENT##*/}
+    if [ -d "$DIR/app/${APP_NAME}/${APP_VER}" ]; then
+      INSTALL_SCRIPT=""
+      find_app_install_script $DIR $APP_NAME $APP_VER
+      if [ "$INSTALL_SCRIPT" != "" ]; then
+        PARAMS=""
+        IFS=":"
+        for DEP3 in $DEPS
+        do
+          IFS=" " read -r APP_NAME3 APP_VER3 << EOF
+$DEP
+EOF
+          PARAMS="$PARAMS --ro-bind $DIR/app/${APP_NAME3}/${APP_VER3} app/${APP_NAME3}/${APP_VER3} "
+        done
+        PARAMS="$PARAMS --ro-bind $DIR/app/busybox/current /app/busybox/current "
+        PARAMS="$PARAMS --ro-bind $DIR/app/${APP_NAME}/${APP_VER} app/${APP_NAME}/${APP_VER} "
+	mkdir -p $DIR/app/${APP_NAME}/${APP_VER}/dynamic || true
+        PARAMS="$PARAMS --bind $DIR/app/${APP_NAME}/${APP_VER}/dynamic app/${APP_NAME}/${APP_VER}/dynamic "
+        PARAMS="$PARAMS --dev dev --unshare-all --tmpfs tmp "
+        PARAMS="$PARAMS --chdir /app/${APP_NAME}/${APP_VER}/scripts "
+        PARAMS="$PARAMS /app/busybox/current/bin/sh $INSTALL_SCRIPT"
+        echo "Starting install script for the app ${APP_NAME} ${APP_VER}"
+        IFS=" "
+        bwrap $PARAMS
+        IFS=":"
+      fi
+    fi
+  done
+  #run modules dependent from new installed
+elif [ "$1" == "update" ]; then
+  for APP_NAME in $ALL_APP
+  do
+    ALL_APP_VER=$(ls $DIR/app/$APP_NAME)
+    CURRENT=$(realpath $DIR/app/$APP_NAME/current)
+    for APP_VER in $ALL_APP_VER
+    do
+      VER="";
+      if [ "$APP_VER" != "current" ]; then
+	found=0;
+        while read -r line; do
+	  IFS=" " read -r APP_NAME2 APP_VER2 APP_SIZE2 << EOF
+$line
+EOF
+	  if [ "$APP_VER" == "$APP_VER2" ] && [ "$APP_NAME" == "$APP_NAME2" ]; then
+	    found=1;
+          elif [ "$found" == "1" ] && [ "$APP_NAME" == "$APP_NAME2" ]; then
+	    VER=$APP_VER2;
+          fi
+        done < "updates"
+	if [ "$VER" != "" ]; then
+	    echo "Candidate to update $APP_NAME $VER"
+        fi
+      fi
+    done
   done
 elif [ "$1" == "remove" ]; then
   DEPS=$2
@@ -145,15 +214,18 @@ EOF
       echo "Backup file ${APP_NAME}_${APP_VER}.tar.xz already exists. Skipping"
     elif [ -d "$DIR/app/${APP_NAME}/${APP_VER}" ]; then
       echo "Creating backup file ${APP_NAME}_${APP_VER}.tar.xz"
-      tar cfJ ${APP_NAME}_${APP_VER}.tar.xz -C $DIR/app/${APP_NAME}/${APP_VER} .
+      tar cfJ ${APP_NAME}_${APP_VER}.tar.xz --exclude dynamic -C $DIR/app/${APP_NAME}/${APP_VER} .
     else
       echo "No app $APP_NAME $APP_VER. Skipping"
     fi
   done
 elif [ "$1" == "help" ]; then
-  echo "install file"
-  echo "remove package"
-  echo "backup package"
+  echo "$INFO"
+  echo
+  echo "install [filelist] - install packages from files"
+  echo "update [file] - install latest version of specified packages"
+  echo "remove package_list - remove package and dependencies"
+  echo "backup [package list] - writes all packages to the xz installation files"
   echo "help - this info"
 else
   for APP_NAME in $ALL_APP

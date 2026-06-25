@@ -1,4 +1,4 @@
-# Part of PLLINUX. Creating some binaries from the source and installing in the system. Tested on Debian "Trixie".
+# Part of PLLINUX. Version from 22.06.2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
 package="fs"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
