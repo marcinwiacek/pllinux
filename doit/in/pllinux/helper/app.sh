@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/mnt/x/app/busybox/current/bin/sh
 # Package manager
 INFO="Version from 25.06.2026. Part of PLLINUX"
 DIR="/mnt/x"
@@ -51,7 +51,63 @@ find_app_install_script() {
   fi
 }
 
-if [ "$1" == "install" ]; then
+compare_app_version_segment() {
+  if [ $first_bigger = "0" ]; then
+    if [ "$1" != "" ] && [ "$2" = "" ]; then
+      first_bigger=1
+    elif [ "$1" = "" ] && [ "$2" != "" ]; then
+      first_bigger=-1
+    elif [ "$1" != "" ] || [ "$2" != "" ]; then
+      if [ -z "${1//[0-9]}" ] && [ -z "${2//[0-9]}" ]; then
+	# numeric comparison
+        if [ $2 -gt $1 ]; then
+          first_bigger=-1
+        elif [ $2 -lt $1 ]; then
+          first_bigger=1
+        fi
+      else
+	# string comparison
+        if [ $2 \> $1 ]; then
+          first_bigger=-1
+        elif [ $2 \< $1 ]; then
+          first_bigger=1
+        fi
+      fi
+    fi
+  fi
+}
+
+compare_app_version() {
+  DATE1="${1:0:6}"
+  DATE2="${2:0:6}"
+  VER1="${1:7}"
+  VER2="${2:7}"
+
+      IFS="." read -r APP_VER11 APP_VER12 APP_VER13 APP_VER14 APP_VER15 << EOF
+$VER1
+EOF
+
+      IFS="." read -r APP_VER21 APP_VER22 APP_VER23 APP_VER24 APP_VER25 << EOF
+$VER2
+EOF
+
+  first_bigger=0
+  compare_app_version_segment "$APP_VER11" "$APP_VER21"
+  compare_app_version_segment "$APP_VER12" "$APP_VER22"
+  compare_app_version_segment "$APP_VER13" "$APP_VER23"
+  compare_app_version_segment "$APP_VER14" "$APP_VER24"
+  compare_app_version_segment "$APP_VER15" "$APP_VER25"
+
+  if [ $first_bigger = "0" ]; then
+    if [ $DATE1 \> $DATE2 ]; then
+      first_bigger=1
+    elif [ $DATE1 \< $DATE2 ]; then
+      first_bigger=-1
+    fi
+  fi
+}
+
+if [ "$1" = "install" ]; then
   # build list of all dependencies
   DEPS=$2
   while true; do
@@ -134,7 +190,7 @@ EOF
     fi
   done
   #run modules dependent from new installed
-elif [ "$1" == "update" ]; then
+elif [ "$1" = "update" ]; then
   for APP_NAME in $ALL_APP
   do
     ALL_APP_VER=$(ls $DIR/app/$APP_NAME)
@@ -160,7 +216,7 @@ EOF
       fi
     done
   done
-elif [ "$1" == "remove" ]; then
+elif [ "$1" = "remove" ]; then
   DEPS=$2
   while true; do
     complete=1
@@ -188,7 +244,7 @@ EOF
       echo "Removing app -$APP_NAME $APP_VER"
     fi
   done
-elif [ "$1" == "backup" ]; then
+elif [ "$1" = "backup" ]; then
   DEPS=$2
   while true; do
     complete=1
@@ -219,7 +275,7 @@ EOF
       echo "No app $APP_NAME $APP_VER. Skipping"
     fi
   done
-elif [ "$1" == "help" ]; then
+elif [ "$1" = "help" ]; then
   echo "$INFO"
   echo
   echo "install [filelist] - install packages from files"
@@ -233,14 +289,31 @@ else
     echo App $APP_NAME
     ALL_APP_VER=$(ls $DIR/app/$APP_NAME)
     CURRENT=$(realpath $DIR/app/$APP_NAME/current)
+    APP_VER_CURRENT=""
     for APP_VER in $ALL_APP_VER
     do
       if [ "$APP_VER" != "current" ]; then
 	DEPS=""
         find_app_deps $DIR $APP_NAME $APP_VER "Deps"
         echo -n "  Version $APP_VER"
-        if [ "$CURRENT" == "$DIR/app/$APP_NAME/$APP_VER" ]; then
+        if [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
+	  APP_VER_CURRENT=$APP_VER
           echo -n " [current]"
+          NEW_VER=$APP_VER_CURRENT
+          while read -r line; do
+            IFS=" " read -r APP_NAME2 APP_VER2 APP_SIZE2 << EOF
+$line
+EOF
+            if [ "$APP_NAME" = "$APP_NAME2" ]; then
+   	      compare_app_version $NEW_VER $APP_VER2
+              if [ $first_bigger = "-1" ]; then
+  	        NEW_VER=$APP_VER2
+	      fi
+            fi
+          done < "updates"
+          if [ "$NEW_VER" != "$APP_VER_CURRENT" ]; then
+            echo -n " [update $NEW_VER]"
+          fi
         fi
         if [ "$DEPS" != "" ]; then
           echo -n " [deps $DEPS]"

@@ -30,11 +30,11 @@ Currently in early alpha. Some things are done and many still todo:
  1. [Milestone 1 - development environment, booting process, filesystem structure, core components, rebooting](milestone1.md)
  2. [Milestone 2 - mounting USB devices](milestone2.md)
  3. [Milestone 3 - app folder structure, network, dynamic linking and interpreters (again), packages, system in this moment](milestone3.md)
- 4. [Milestone 4 - SSD writes, logging, manual pages]
- 5. [Milestone 5 - sound, CPU microcode and kernel packages]
- 6. Milestone 6 - dbus? AppArmor? SeLinux?
- 7. Milestone 7 - easy configuration
- 8. Milestone 8 - real packet manager
+ 4. [Milestone 4 - real packet manager](milestone4.md)
+ 5. [Milestone 5 - SSD writes, logging, manual pages]
+ 6. [Milestone 6 - sound, CPU microcode and kernel packages]
+ 7. Milestone 7 - dbus? AppArmor? SeLinux?
+ 8. Milestone 8 - easy configuration
  9. Milestone 9 - more packages, software compiling, etc.
  10. Milestone 10 - installation
  11. Milestone 11 - graphic UI
