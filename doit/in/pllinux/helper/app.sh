@@ -1,6 +1,6 @@
 #!/mnt/x/app/busybox/current/bin/sh
 # Package manager
-INFO="Version from 25.06.2026. Part of PLLINUX"
+INFO="Version from 27.06.2026. Part of PLLINUX"
 DIR="/mnt/x"
 ALL_APP=$(ls $DIR/app)
 IFSORIG=$IFS
@@ -85,11 +85,11 @@ compare_app_version() {
   VER1="${1:7}"
   VER2="${2:7}"
 
-      IFS="." read -r APP_VER11 APP_VER12 APP_VER13 APP_VER14 APP_VER15 << EOF
+  IFS="." read -r APP_VER11 APP_VER12 APP_VER13 APP_VER14 APP_VER15 << EOF
 $VER1
 EOF
 
-      IFS="." read -r APP_VER21 APP_VER22 APP_VER23 APP_VER24 APP_VER25 << EOF
+  IFS="." read -r APP_VER21 APP_VER22 APP_VER23 APP_VER24 APP_VER25 << EOF
 $VER2
 EOF
 
@@ -192,31 +192,78 @@ EOF
     fi
   done
   #run modules dependent from new installed
-elif [ "$1" = "update" ]; then
-  for APP_NAME in $ALL_APP
-  do
+elif [ "$1" = "updateall" ]; then
+  #get new updates file
+  for APP_NAME in $ALL_APP; do
     ALL_APP_VER=$(ls $DIR/app/$APP_NAME)
     CURRENT=$(realpath $DIR/app/$APP_NAME/current)
-    for APP_VER in $ALL_APP_VER
-    do
-      VER="";
+    APP_VER_CURRENT=""
+    for APP_VER in $ALL_APP_VER; do
       if [ "$APP_VER" != "current" ]; then
-	found=0;
-        while read -r line; do
-	  IFS=" " read -r APP_NAME2 APP_VER2 APP_SIZE2 << EOF
+        if [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
+	  APP_VER_CURRENT=$APP_VER
+	  # we search the highest possible update version
+          NEW_VER=$APP_VER_CURRENT
+          while read -r line; do
+            IFS=" " read -r APP_NAME2 APP_VER2 APP_SIZE2 << EOF
 $line
 EOF
-	  if [ "$APP_VER" == "$APP_VER2" ] && [ "$APP_NAME" == "$APP_NAME2" ]; then
-	    found=1;
-          elif [ "$found" == "1" ] && [ "$APP_NAME" == "$APP_NAME2" ]; then
-	    VER=$APP_VER2;
+            if [ "$APP_NAME" = "$APP_NAME2" ]; then
+   	      compare_app_version $NEW_VER $APP_VER2
+              if [ $first_bigger = "-1" ]; then
+  	        NEW_VER=$APP_VER2
+	      fi
+            fi
+          done < "app.updates"
+          if [ "$NEW_VER" != "$APP_VER_CURRENT" ]; then
+            echo "Updating $APP_NAME current to the $NEW_VER"
           fi
-        done < "app.updates"
-	if [ "$VER" != "" ]; then
-	    echo "Candidate to update $APP_NAME $VER"
         fi
       fi
     done
+    DEPS=""
+    for APP_NAME3 in $ALL_APP; do
+      ALL_APP_VER3=$(ls $DIR/app/$APP_NAME3)
+      CURRENT3=$(realpath $DIR/app/$APP_NAME3/current)
+      APP_VER_CURRENT3=""
+      for APP_VER3 in $ALL_APP_VER3; do
+        if [ "$APP_VER3" != "current" ]; then
+          find_app_deps $DIR $APP_NAME3 $APP_VER3 "Deps"
+	fi
+      done
+    done
+    IFS=":"
+    for APP4 in $DEPS; do
+      IFS=" " read -r APP_NAME4 APP_VER4 << EOF
+$APP4
+EOF
+      if [ "$APP_NAME4" = "$APP_NAME" ] && [ "$APP_VER4" != "current" ]; then
+	LEN=${#APP_VER4}-1
+	# we will search the highest/latest version but lower than specified in APP_VER4
+	if [ "${APP_VER4:$LEN:1}" = "-" ]; then
+          MAX_VER=${APP_VER4:0:$LEN}
+	  NEW_VER="0"
+          while read -r line; do
+	    IFS=" " read -r APP_NAME5 APP_VER5 APP_SIZE5 << EOF
+$line
+EOF
+	    if [ "$APP_NAME4" == "$APP_NAME5" ]; then
+   	      compare_app_version $MAX_VER $APP_VER5
+              if [ $first_bigger = "1" ]; then
+   	        compare_app_version $NEW_VER $APP_VER5
+                if [ $first_bigger = "-1" ]; then
+  	          NEW_VER=$APP_VER5
+		fi
+	      fi
+	    fi
+          done < "app.updates"
+	  if [ "$NEW_VER" != "${APP_VER:-1}" ]; then
+            echo "Installing $APP_NAME $NEW_VER because of other app dependency $APP_VER4"
+          fi
+        fi
+      fi
+    done
+    IFS=$IFSORIG
   done
 elif [ "$1" = "remove" ]; then
   DEPS=$2
@@ -280,11 +327,14 @@ EOF
 elif [ "$1" = "help" ]; then
   echo "$INFO"
   echo
-  echo "install [filelist] - install packages from files"
-  echo "update [file] - install latest version of specified packages"
-  echo "remove package_list - remove package and dependencies"
-  echo "backup [package list] - writes all packages to the xz installation files"
+  echo "<no options> - show all versions, dependiences and updates with downloaded repo file"
   echo "help - this info"
+  echo
+  echo "updateall - download repo file and install latest version of all packages from repo"
+  echo
+  echo "backup package list - writes all packages to the xz installation files"
+  echo "install filelist - install packages from files"
+  echo "remove package_list - remove package and dependencies"
 else
   for APP_NAME in $ALL_APP; do
     echo App $APP_NAME
@@ -333,41 +383,39 @@ EOF
 	fi
       done
     done
-    if [ "$DEPS" != "" ]; then
-      IFS=":"
-      for APP4 in $DEPS; do
-        IFS=" " read -r APP_NAME4 APP_VER4 << EOF
+    IFS=":"
+    for APP4 in $DEPS; do
+      IFS=" " read -r APP_NAME4 APP_VER4 << EOF
 $APP4
 EOF
-	if [ "$APP_NAME4" = "$APP_NAME" ] && [ "$APP_VER4" != "current" ]; then
-	  echo -n "  Dep from other app $APP_VER4"
-	  LEN=${#APP_VER4}-1
-	  # we will search the highest/latest version but lower than specified in APP_VER4
-	  if [ "${APP_VER4:$LEN:1}" = "-" ]; then
-            MAX_VER=${APP_VER4:0:$LEN}
-	    NEW_VER="0"
-            while read -r line; do
-	      IFS=" " read -r APP_NAME5 APP_VER5 APP_SIZE5 << EOF
+      if [ "$APP_NAME4" = "$APP_NAME" ] && [ "$APP_VER4" != "current" ]; then
+	echo -n "  Dep from other app $APP_VER4"
+	LEN=${#APP_VER4}-1
+	# we will search the highest/latest version but lower than specified in APP_VER4
+	if [ "${APP_VER4:$LEN:1}" = "-" ]; then
+          MAX_VER=${APP_VER4:0:$LEN}
+	  NEW_VER="0"
+          while read -r line; do
+	    IFS=" " read -r APP_NAME5 APP_VER5 APP_SIZE5 << EOF
 $line
 EOF
-	      if [ "$APP_NAME4" == "$APP_NAME5" ]; then
-   	        compare_app_version $MAX_VER $APP_VER5
-                if [ $first_bigger = "1" ]; then
-   	          compare_app_version $NEW_VER $APP_VER5
-                  if [ $first_bigger = "-1" ]; then
-  	            NEW_VER=$APP_VER5
-		  fi
-	        fi
+	    if [ "$APP_NAME4" == "$APP_NAME5" ]; then
+   	      compare_app_version $MAX_VER $APP_VER5
+              if [ $first_bigger = "1" ]; then
+   	        compare_app_version $NEW_VER $APP_VER5
+                if [ $first_bigger = "-1" ]; then
+  	          NEW_VER=$APP_VER5
+		fi
 	      fi
-            done < "app.updates"
-	    if [ "$NEW_VER" != "${APP_VER:-1}" ]; then
-              echo -n " [update avail $NEW_VER]"
-            fi
+	    fi
+          done < "app.updates"
+	  if [ "$NEW_VER" != "${APP_VER:-1}" ]; then
+            echo -n " [update avail $NEW_VER]"
           fi
-	  echo
         fi
-      done
-      IFS=$IFSORIG
-    fi
+	echo
+      fi
+    done
+    IFS=$IFSORIG
   done
 fi
