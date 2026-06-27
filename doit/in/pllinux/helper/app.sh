@@ -7,11 +7,11 @@ IFSORIG=$IFS
 
 find_app_deps() {
   local DIR=$1
-  local APP_NAME6=$2
-  local APP_VER6=$3
+  local APP_NAME20=$2
+  local APP_VER20=$3
   local SECTION=$4
 #echo find_app_deps $1 $2 $3 $4
-  if [ -e "$DIR/app/${APP_NAME6}/${APP_VER6}/readme.md" ]; then
+  if [ -e "$DIR/app/${APP_NAME20}/${APP_VER20}/readme.md" ]; then
      sectionDeps=0
      while read -r line; do
        if [ "$line" = "**$SECTION**" ]; then
@@ -31,7 +31,7 @@ find_app_deps() {
                 ;;
          esac
        fi
-     done < $DIR/app/${APP_NAME6}/${APP_VER6}/readme.md
+     done < $DIR/app/${APP_NAME20}/${APP_VER20}/readme.md
   fi
 }
 
@@ -286,7 +286,6 @@ elif [ "$1" = "help" ]; then
   echo "backup [package list] - writes all packages to the xz installation files"
   echo "help - this info"
 else
-#  IFS=$IFSORIG
   for APP_NAME in $ALL_APP; do
     echo App $APP_NAME
     ALL_APP_VER=$(ls $DIR/app/$APP_NAME)
@@ -300,6 +299,7 @@ else
         if [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
 	  APP_VER_CURRENT=$APP_VER
           echo -n " [current]"
+	  # we search the highest possible update version
           NEW_VER=$APP_VER_CURRENT
           while read -r line; do
             IFS=" " read -r APP_NAME2 APP_VER2 APP_SIZE2 << EOF
@@ -313,7 +313,7 @@ EOF
             fi
           done < "app.updates"
           if [ "$NEW_VER" != "$APP_VER_CURRENT" ]; then
-            echo -n " [update $NEW_VER]"
+            echo -n " [update avail $NEW_VER]"
           fi
         fi
         if [ "$DEPS" != "" ]; then
@@ -340,7 +340,31 @@ EOF
 $APP4
 EOF
 	if [ "$APP_NAME4" = "$APP_NAME" ] && [ "$APP_VER4" != "current" ]; then
-	  echo "  Dep from other app with version $APP_VER4"
+	  echo -n "  Dep from other app $APP_VER4"
+	  LEN=${#APP_VER4}-1
+	  # we will search the highest/latest version but lower than specified in APP_VER4
+	  if [ "${APP_VER4:$LEN:1}" = "-" ]; then
+            MAX_VER=${APP_VER4:0:$LEN}
+	    NEW_VER="0"
+            while read -r line; do
+	      IFS=" " read -r APP_NAME5 APP_VER5 APP_SIZE5 << EOF
+$line
+EOF
+	      if [ "$APP_NAME4" == "$APP_NAME5" ]; then
+   	        compare_app_version $MAX_VER $APP_VER5
+                if [ $first_bigger = "1" ]; then
+   	          compare_app_version $NEW_VER $APP_VER5
+                  if [ $first_bigger = "-1" ]; then
+  	            NEW_VER=$APP_VER5
+		  fi
+	        fi
+	      fi
+            done < "app.updates"
+	    if [ "$NEW_VER" != "${APP_VER:-1}" ]; then
+              echo -n " [update avail $NEW_VER]"
+            fi
+          fi
+	  echo
         fi
       done
       IFS=$IFSORIG
