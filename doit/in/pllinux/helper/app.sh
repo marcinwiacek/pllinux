@@ -3,13 +3,15 @@
 INFO="Version from 25.06.2026. Part of PLLINUX"
 DIR="/mnt/x"
 ALL_APP=$(ls $DIR/app)
+IFSORIG=$IFS
 
 find_app_deps() {
-  DIR=$1
-  APP_NAME=$2
-  APP_VER=$3
-  SECTION=$4
-  if [ -e "$DIR/app/${APP_NAME}/${APP_VER}/readme.md" ]; then
+  local DIR=$1
+  local APP_NAME6=$2
+  local APP_VER6=$3
+  local SECTION=$4
+#echo find_app_deps $1 $2 $3 $4
+  if [ -e "$DIR/app/${APP_NAME6}/${APP_VER6}/readme.md" ]; then
      sectionDeps=0
      while read -r line; do
        if [ "$line" = "**$SECTION**" ]; then
@@ -29,7 +31,7 @@ find_app_deps() {
                 ;;
          esac
        fi
-     done < $DIR/app/${APP_NAME}/${APP_VER}/readme.md
+     done < $DIR/app/${APP_NAME6}/${APP_VER6}/readme.md
   fi
 }
 
@@ -209,7 +211,7 @@ EOF
           elif [ "$found" == "1" ] && [ "$APP_NAME" == "$APP_NAME2" ]; then
 	    VER=$APP_VER2;
           fi
-        done < "updates"
+        done < "app.updates"
 	if [ "$VER" != "" ]; then
 	    echo "Candidate to update $APP_NAME $VER"
         fi
@@ -284,14 +286,13 @@ elif [ "$1" = "help" ]; then
   echo "backup [package list] - writes all packages to the xz installation files"
   echo "help - this info"
 else
-  for APP_NAME in $ALL_APP
-  do
+#  IFS=$IFSORIG
+  for APP_NAME in $ALL_APP; do
     echo App $APP_NAME
     ALL_APP_VER=$(ls $DIR/app/$APP_NAME)
     CURRENT=$(realpath $DIR/app/$APP_NAME/current)
     APP_VER_CURRENT=""
-    for APP_VER in $ALL_APP_VER
-    do
+    for APP_VER in $ALL_APP_VER; do
       if [ "$APP_VER" != "current" ]; then
 	DEPS=""
         find_app_deps $DIR $APP_NAME $APP_VER "Deps"
@@ -310,7 +311,7 @@ EOF
   	        NEW_VER=$APP_VER2
 	      fi
             fi
-          done < "updates"
+          done < "app.updates"
           if [ "$NEW_VER" != "$APP_VER_CURRENT" ]; then
             echo -n " [update $NEW_VER]"
           fi
@@ -321,5 +322,28 @@ EOF
         echo
       fi
     done
+    DEPS=""
+    for APP_NAME3 in $ALL_APP; do
+      ALL_APP_VER3=$(ls $DIR/app/$APP_NAME3)
+      CURRENT3=$(realpath $DIR/app/$APP_NAME3/current)
+      APP_VER_CURRENT3=""
+      for APP_VER3 in $ALL_APP_VER3; do
+        if [ "$APP_VER3" != "current" ]; then
+          find_app_deps $DIR $APP_NAME3 $APP_VER3 "Deps"
+	fi
+      done
+    done
+    if [ "$DEPS" != "" ]; then
+      IFS=":"
+      for APP4 in $DEPS; do
+        IFS=" " read -r APP_NAME4 APP_VER4 << EOF
+$APP4
+EOF
+	if [ "$APP_NAME4" = "$APP_NAME" ] && [ "$APP_VER4" != "current" ]; then
+	  echo "  Dep from other app with version $APP_VER4"
+        fi
+      done
+      IFS=$IFSORIG
+    fi
   done
 fi
