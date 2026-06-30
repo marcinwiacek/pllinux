@@ -1,6 +1,6 @@
 #!/mnt/x/app/busybox/current/bin/sh
 # Package manager
-INFO="Version from 28.06.2026. Part of PLLINUX"
+INFO="Version from 30.06.2026. Part of PLLINUX"
 DIR="/mnt/x"
 ALL_APP=$(ls $DIR/app --sort name)
 IFSORIG=$IFS
@@ -140,8 +140,43 @@ get_repo_updates() {
   done < "app.repos"
 }
 
-#install_app() {
-#}
+# we search the highest possible update version
+find_latest_latest_app_version_in_repo() {
+  APP_NAME=$1
+  while read -r line; do
+    IFS=" " read -r APP_NAME10 APP_VER10 APP_REPO10 << EOF
+$line
+EOF
+    if [ "$APP_NAME" = "$APP_NAME10" ]; then
+      compare_app_version $NEW_VER $APP_VER10
+      if [ $first_bigger = "-1" ] || [ "$NEW_VER" = 0 ]; then
+        NEW_VER=$APP_VER10
+        NEW_REPO=$APP_REPO10
+      fi
+    fi
+  done <<< "$REPO_UPDATES"
+}
+
+# we search the highest/latest version but lower than specified in APP_VER
+find_latest_app_version_lower_than_given_in_repo() {
+  APP_NAME=$1
+  MAX_VER=$2
+  while read -r line; do
+    IFS=" " read -r APP_NAME10 APP_VER10 APP_REPO10 << EOF
+$line
+EOF
+    if [ "$APP_NAME" == "$APP_NAME10" ]; then
+      compare_app_version $MAX_VER $APP_VER10
+      if [ $first_bigger = "1" ]; then
+        compare_app_version $NEW_VER $APP_VER10
+        if [ $first_bigger = "-1" ]; then
+          NEW_VER=$APP_VER10
+          NEW_REPO=$APP_REPO10
+        fi
+      fi
+    fi
+  done <<< "$REPO_UPDATES"
+}
 
 if [ "$1" = "install" ] && [ "$2" != "" ]; then
   REPO_UPDATES=""
@@ -157,48 +192,34 @@ if [ "$1" = "install" ] && [ "$2" != "" ]; then
       IFS=" " read -r APP_NAME APP_VER << EOF
 $DEP
 EOF
+      case $2 in
+        *${APP_NAME}${APP_VER}* )
+          case $DEPS_PROCESSED in
+            *${APP_NAME}${APP_VER}* )
+               ;;
+            * )
+               echo "Processing application ${APP_NAME} ${APP_VER}"
+               ;;
+          esac
+          ;;
+      esac
       case $DEPS_PROCESSED in
         *${APP_NAME}${APP_VER}* )
            ;;
         * )
            DEPS_PROCESSED="$DEPS_PROCESSED:${APP_NAME}${APP_VER}"
-
+           if [ "$APP_VER" == "" ]; then
+             APP_VER=current
+           fi
            NEW_VER=0
            NEW_REPO=""
            LEN=${#APP_VER}-1
            if [ "$APP_VER" = "current" ]; then
-             # we search the highest possible update version
-             while read -r line; do
-               IFS=" " read -r APP_NAME2 APP_VER2 APP_REPO2 << EOF
-$line
-EOF
-               if [ "$APP_NAME" = "$APP_NAME2" ]; then
-                 compare_app_version $NEW_VER $APP_VER2
-                 if [ $first_bigger = "-1" ] || [ "$NEW_VER" = "" ]; then
-                   NEW_VER=$APP_VER2
-                   NEW_REPO=$APP_REPO2
-                 fi
-               fi
-             done <<< "$REPO_UPDATES"
+             find_latest_latest_app_version_in_repo $APP_NAME
            elif [ "${APP_VER:$LEN:1}" = "-" ]; then
-             # we will search the highest/latest version but lower than specified in APP_VER
-             MAX_VER=${APP_VER:0:$LEN}
-             while read -r line; do
-               IFS=" " read -r APP_NAME2 APP_VER2 APP_REPO2 << EOF
-$line
-EOF
-               if [ "$APP_NAME" == "$APP_NAME2" ]; then
-                 compare_app_version $MAX_VER $APP_VER2
-                 if [ $first_bigger = "1" ]; then
-                   compare_app_version $NEW_VER $APP_VER2
-                   if [ $first_bigger = "-1" ]; then
-                     NEW_VER=$APP_VER2
-                     NEW_REPO=$APP_REPO2
-                   fi
-                 fi
-               fi
-             done <<< "$REPO_UPDATES"
+             find_latest_app_version_lower_than_given_in_repo $APP_NAME ${APP_VER:0:$LEN}
            else
+             # we get version string "as is" and search in repo
              while read -r line; do
                IFS=" " read -r APP_NAME2 APP_VER2 APP_REPO2 << EOF
 $line
@@ -210,24 +231,27 @@ EOF
              done <<< "$REPO_UPDATES"
            fi
            if [ "$NEW_VER" = "0" ]; then
-             echo "App ${APP_NAME} ${APP_VER} not found in repo. Skipping"
-             exit 1
+             echo "  App ${APP_NAME} ${APP_VER} not found in repo. Skipping"
            elif [ -d "$DIR/app/${APP_NAME}/${NEW_VER}" ]; then
-             echo "App ${APP_NAME} ${NEW_VER} already installed. Skipping"
+             echo "  App ${APP_NAME} ${NEW_VER} already installed. Skipping"
            elif [ ! -f "${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz" ]; then
-             echo "Backup file ${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz does not exist."
-             exit 1
+             echo "  File ${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz does not exist. Skipping"
            else
-             mkdir /tmp/app
-             mkdir /tmp/app/${APP_NAME}
-             mkdir /tmp/app/${APP_NAME}/${NEW_VER}
+             mkdir /tmp/app 2> /dev/null
+             mkdir /tmp/app/${APP_NAME} 2> /dev/null
+             mkdir /tmp/app/${APP_NAME}/${NEW_VER} 2> /dev/null
              olddir=$(pwd)
              cd /tmp/app/${APP_NAME}/${NEW_VER}
-             echo Unpacking $olddir/${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz
+             echo "  Unpacking $olddir/${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz to /tmp/app"
              tar -xvf $olddir/${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz 2> /dev/null > /dev/null
+             cd ..
+             case $2 in
+               *${APP_NAME}* )
+                  ln -s ${NEW_VER} current
+                  ;;
+             esac
              find_app_deps /tmp/app/${APP_NAME}/${NEW_VER} "Deps" 1
              cd $olddir
-#echo ${APP_NAME} ${NEW_VER} adding new deps $NEW_DEPS
              if [ "$NEW_DEPS" != "" ]; then
                NEW_DEPS="${APP_NAME} ${NEW_VER}:$NEW_DEPS"
              else
@@ -241,8 +265,7 @@ EOF
       break;
     fi
   done
-#echo $DEPS
-#echo $NEW_DEPS
+  # searching and running installation scripts if any
   IFS=":"
   for DEP in $NEW_DEPS; do
     IFS=" " read -r APP_NAME APP_VER << EOF
@@ -275,17 +298,21 @@ EOF
       PARAMS="$PARAMS --dev dev --unshare-all --tmpfs tmp "
       PARAMS="$PARAMS --chdir /app/${APP_NAME}/${APP_VER}/scripts "
       PARAMS="$PARAMS /app/busybox/current/bin/sh $INSTALL_SCRIPT"
-      echo "Starting install script for the app ${APP_NAME} ${APP_VER}"
+      echo "  Starting install script for the app ${APP_NAME} ${APP_VER}"
       IFS=" "
       bwrap $PARAMS
       IFS=":"
     fi
   done
   #run modules dependent from new installed
+  if [ -d "/tmp/app" ]; then
+    rsync -a /tmp/app $DIR
+    rm -r -f /tmp/app
+  fi
 elif [ "$1" = "update" ]; then
   REPO_UPDATES=""
   get_repo_updates
-  # find all numeric deps (non current)
+  # find all deps with concrete version number (non current)
   DEPS=""
   for APP_NAME3 in $ALL_APP; do
     for APP_VER3 in $(ls $DIR/app/$APP_NAME3); do
@@ -304,19 +331,8 @@ elif [ "$1" = "update" ]; then
         DEPS=""
         find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
         if [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
-          # we search the highest possible update version
           NEW_VER=$APP_VER
-          while read -r line; do
-            IFS=" " read -r APP_NAME2 APP_VER2 APP_SIZE2 << EOF
-$line
-EOF
-            if [ "$APP_NAME" = "$APP_NAME2" ]; then
-              compare_app_version $NEW_VER $APP_VER2
-              if [ $first_bigger = "-1" ]; then
-                NEW_VER=$APP_VER2
-              fi
-            fi
-          done <<< "$REPO_UPDATES"
+          find_latest_latest_app_version_in_repo $APP_NAME
           if [ "$NEW_VER" != "$APP_VER" ]; then
             echo "Installing $APP_NAME $NEW_VER and setting as current"
           fi
@@ -330,24 +346,10 @@ $APP4
 EOF
       if [ "$APP_NAME4" = "$APP_NAME" ]; then
         LEN=${#APP_VER4}-1
-        # we will search the highest/latest version but lower than specified in APP_VER4
+        # search for the highest/latest version but lower than specified in APP_VER4
         if [ "${APP_VER4:$LEN:1}" = "-" ]; then
-          MAX_VER=${APP_VER4:0:$LEN}
-          NEW_VER="0"
-          while read -r line; do
-            IFS=" " read -r APP_NAME5 APP_VER5 APP_SIZE5 << EOF
-$line
-EOF
-            if [ "$APP_NAME4" == "$APP_NAME5" ]; then
-              compare_app_version $MAX_VER $APP_VER5
-              if [ $first_bigger = "1" ]; then
-                compare_app_version $NEW_VER $APP_VER5
-                if [ $first_bigger = "-1" ]; then
-                  NEW_VER=$APP_VER5
-                fi
-              fi
-            fi
-          done <<< "$REPO_UPDATES"
+          NEW_VER=0
+          find_latest_app_version_lower_than_given_in_repo $APP_NAME4 ${APP_VER4:0:$LEN}
           if [ "$NEW_VER" != "${APP_VER:-1}" ]; then
             echo "Installing $APP_NAME $NEW_VER because of other app dependency $APP_VER4"
           fi
@@ -379,9 +381,9 @@ EOF
     CURRENT=$(realpath $DIR/app/$APP_NAME/$APP_VER)
     APP_VER=${CURRENT##*/}
     if [! -d "$DIR/app/${APP_NAME}/${APP_VER}" ]; then
-      echo "No app -$APP_NAME $APP_VER. Skipping"
+      echo "No app $APP_NAME $APP_VER. Skipping"
     else
-      echo "Removing app -$APP_NAME $APP_VER"
+      echo "Removing app $APP_NAME $APP_VER"
     fi
   done
 elif [ "$1" = "backup" ]; then
@@ -435,8 +437,7 @@ EOF
 elif [ "$1" = "available" ]; then
   REPO_UPDATES=""
   get_repo_updates
-#echo "$REPO_UPDATES"
-  # find all numeric deps (non current)
+  # find all deps with concrete version number (non current)
   DEPS=""
   for APP_NAME3 in $ALL_APP; do
     for APP_VER3 in $(ls $DIR/app/$APP_NAME3); do
@@ -455,22 +456,12 @@ elif [ "$1" = "available" ]; then
       if [ "$APP_VER" != "current" ]; then
         DEPS=""
         find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
-        echo -n "  Version $APP_VER"
-        if [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
-          echo -n " [current]"
-          # we search the highest possible update version
+        if [ "$CURRENT" != "$DIR/app/$APP_NAME/$APP_VER" ]; then
+          echo -n "  Version $APP_VER"
+        else
+          echo -n "  Version [$APP_VER]"
           NEW_VER=$APP_VER
-          while read -r line; do
-            IFS=" " read -r APP_NAME2 APP_VER2 APP_SIZE2 << EOF
-$line
-EOF
-            if [ "$APP_NAME" = "$APP_NAME2" ]; then
-              compare_app_version $NEW_VER $APP_VER2
-              if [ $first_bigger = "-1" ]; then
-                NEW_VER=$APP_VER2
-              fi
-            fi
-          done <<< "$REPO_UPDATES"
+          find_latest_latest_app_version_in_repo $APP_NAME
           if [ "$NEW_VER" != "$APP_VER" ]; then
             echo -n " [update $NEW_VER]"
           fi
@@ -489,24 +480,10 @@ EOF
       if [ "$APP_NAME4" = "$APP_NAME" ]; then
         echo -n "  Dep from other app $APP_VER4"
         LEN=${#APP_VER4}-1
-        # we will search the highest/latest version but lower than specified in APP_VER4
+        # search for the highest/latest version but lower than specified in APP_VER4
         if [ "${APP_VER4:$LEN:1}" = "-" ]; then
-          MAX_VER=${APP_VER4:0:$LEN}
-          NEW_VER="0"
-          while read -r line; do
-            IFS=" " read -r APP_NAME5 APP_VER5 APP_SIZE5 << EOF
-$line
-EOF
-            if [ "$APP_NAME4" == "$APP_NAME5" ]; then
-              compare_app_version $MAX_VER $APP_VER5
-              if [ $first_bigger = "1" ]; then
-                compare_app_version $NEW_VER $APP_VER5
-                if [ $first_bigger = "-1" ]; then
-                  NEW_VER=$APP_VER5
-                fi
-              fi
-            fi
-          done <<< "$REPO_UPDATES"
+          NEW_VER=0
+          find_latest_app_version_lower_than_given_in_repo $APP_NAME4 ${APP_VER4:0:$LEN}
           if [ "$NEW_VER" != "${APP_VER:-1}" ]; then
             echo -n " [update $NEW_VER]"
           fi
@@ -526,9 +503,10 @@ elif [ "$1" == "" ]; then
       if [ "$APP_VER" != "current" ]; then
         DEPS=""
         find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
-        echo -n "  Version $APP_VER"
         if [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
-          echo -n " [current]"
+          echo -n "  Version [$APP_VER]"
+        else
+          echo -n "  Version $APP_VER"
         fi
         if [ "$DEPS" != "" ]; then
           echo -n " [deps $DEPS]"
@@ -550,14 +528,22 @@ EOF
 else
   echo "$INFO"
   echo
-  echo "Without params:"
-  echo "Shows versions and dependiences in /app"
+  echo "Without params shows versions and dependiences in the /app."
   echo
-  echo "With param:"
-  echo "help - this info"
-  echo "available - gets all repo info and shows versions, dependiences and possible updates in /app"
-  echo "backup [package_list] - backup packages and related (or all) to the xz installation files, example: backup \"busybox current:kernel current\""
-  echo "install package_list - gets all repo info and install packages from repo"
-  echo "remove package_list - remove package and dependencies from /app"
-  echo "update - gets all repo info and install all updates"
+  echo "Possible params:"
+  echo 
+  echo "help                  - this info"
+  echo "available             - gets repo info and shows versions, dependiences and possible updates for /app"
+  echo "backup [package_list] - backup packages and related (or all, when package_list not given) to the xz package files."
+  echo "                        Example: backup \"busybox current:kernel:pllinux 260221_0.1\""
+  echo "install package_list  - gets repo info and install packages from the repo."
+  echo "                        Note: it takes latest and greatest versions, but doesn't update \"current\" links for dependencies."
+  echo "                        Example: install \"mc:kernel 7.1.1:mc 260232_0.1\""
+  echo "remove package_list   - remove package and dependencies from /app"
+  echo "update                - gets repo info and install all updates."
+  echo "                        Note: Updates \"current\" links when necessary"
+  echo
+  echo "Repo list:"
+  echo
+  echo $(cat app.repos)
 fi
