@@ -178,13 +178,9 @@ EOF
   done <<< "$REPO_UPDATES"
 }
 
-if [ "$1" = "install" ] && [ "$2" != "" ]; then
-  REPO_UPDATES=""
-  get_repo_updates
+install_single_app() {
   rm -f -r /tmp/app
-  DEPS=$2
-  NEW_DEPS=""
-  DEPS_PROCESSED=""
+DEPS2=""
   while true; do
     complete=1
     IFS=":"
@@ -192,123 +188,120 @@ if [ "$1" = "install" ] && [ "$2" != "" ]; then
       IFS=" " read -r APP_NAME APP_VER << EOF
 $DEP
 EOF
-      case $2 in
-        *${APP_NAME}${APP_VER}* )
-          case $DEPS_PROCESSED in
-            *${APP_NAME}${APP_VER}* )
-               ;;
-            * )
-               echo "Processing application ${APP_NAME} ${APP_VER}"
-               ;;
-          esac
-          ;;
-      esac
-      case $DEPS_PROCESSED in
-        *${APP_NAME}${APP_VER}* )
-           ;;
-        * )
-           DEPS_PROCESSED="$DEPS_PROCESSED:${APP_NAME}${APP_VER}"
-           if [ "$APP_VER" == "" ]; then
-             APP_VER=current
-           fi
-           NEW_VER=0
-           NEW_REPO=""
-           LEN=${#APP_VER}-1
-           if [ "$APP_VER" = "current" ]; then
-             find_latest_latest_app_version_in_repo $APP_NAME
-           elif [ "${APP_VER:$LEN:1}" = "-" ]; then
-             find_latest_app_version_lower_than_given_in_repo $APP_NAME ${APP_VER:0:$LEN}
-           else
-             # we get version string "as is" and search in repo
-             while read -r line; do
-               IFS=" " read -r APP_NAME2 APP_VER2 APP_REPO2 << EOF
+      NEW_VER=0
+      NEW_REPO=""
+      LEN=${#APP_VER}-1
+      if [ "$APP_VER" = "current" ]; then
+        if [ ! -d "$DIR/app/${APP_NAME}/current" ]; then
+          find_latest_latest_app_version_in_repo $APP_NAME
+        else
+          NEW_VER="current"
+        fi
+      elif [ "${APP_VER:$LEN:1}" = "-" ]; then
+        find_latest_app_version_lower_than_given_in_repo $APP_NAME ${APP_VER:0:$LEN}
+      else
+        # fixme: string without date
+        # we get version string "as is" and search in repo
+        while read -r line; do
+          IFS=" " read -r APP_NAME2 APP_VER2 APP_REPO2 << EOF
 $line
 EOF
-               if [ "$APP_NAME" = "$APP_NAME2" ] && [ "$APP_VER" = "$APP_VER2" ]; then
-                 NEW_VER=$APP_VER2
-                 NEW_REPO=$APP_REPO2
-               fi
-             done <<< "$REPO_UPDATES"
-           fi
-           if [ "$NEW_VER" = "0" ]; then
-             echo "  App ${APP_NAME} ${APP_VER} not found in repo. Skipping"
-           elif [ -d "$DIR/app/${APP_NAME}/${NEW_VER}" ]; then
-             echo "  App ${APP_NAME} ${NEW_VER} already installed. Skipping"
-           elif [ ! -f "${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz" ]; then
-             echo "  File ${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz does not exist. Skipping"
-           else
-             mkdir /tmp/app 2> /dev/null
-             mkdir /tmp/app/${APP_NAME} 2> /dev/null
-             mkdir /tmp/app/${APP_NAME}/${NEW_VER} 2> /dev/null
-             olddir=$(pwd)
-             cd /tmp/app/${APP_NAME}/${NEW_VER}
-             echo "  Unpacking $olddir/${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz to /tmp/app"
-             tar -xvf $olddir/${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz 2> /dev/null > /dev/null
-             cd ..
-             case $2 in
-               *${APP_NAME}* )
-                  ln -s ${NEW_VER} current
-                  ;;
-             esac
-             find_app_deps /tmp/app/${APP_NAME}/${NEW_VER} "Deps" 1
-             cd $olddir
-             if [ "$NEW_DEPS" != "" ]; then
-               NEW_DEPS="${APP_NAME} ${NEW_VER}:$NEW_DEPS"
-             else
-               NEW_DEPS="${APP_NAME} ${NEW_VER}"
-             fi
-           fi
-           ;;
-      esac
+          if [ "$APP_NAME" = "$APP_NAME2" ] && [ "$APP_VER" = "$APP_VER2" ]; then
+            NEW_VER=$APP_VER2
+            NEW_REPO=$APP_REPO2
+          fi
+        done <<< "$REPO_UPDATES"
+      fi
+      if [ "$NEW_VER" = "0" ]; then
+        echo "  App ${APP_NAME} ${APP_VER} not found in repo. Skipping"
+      elif [ -d "$DIR/app/${APP_NAME}/${NEW_VER}" ]; then
+        echo "  App ${APP_NAME} ${NEW_VER} already installed. Skipping"
+DEPS2="${APP_NAME} ${NEW_VER}:$DEPS2"
+      elif [ ! -f "${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz" ]; then
+        echo "  File ${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz does not exist. Skipping"
+      elif [ ! -d "/tmp/app/${APP_NAME}/${NEW_VER}" ]; then
+DEPS2="${APP_NAME} ${NEW_VER}:$DEPS2"
+        mkdir /tmp/app 2> /dev/null
+        mkdir /tmp/app/${APP_NAME} 2> /dev/null
+        mkdir /tmp/app/${APP_NAME}/${NEW_VER} 2> /dev/null
+        olddir=$(pwd)
+        cd /tmp/app/${APP_NAME}/${NEW_VER}
+        echo "  Unpacking $olddir/${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz to /tmp/app"
+        tar -xvf $olddir/${NEW_REPO}${APP_NAME}_${NEW_VER}.tar.xz 2> /dev/null > /dev/null
+        cd ..
+        if [ ! -d "$DIR/app/${APP_NAME}/current" ]; then
+          ln -s ${NEW_VER} current
+        fi
+        find_app_deps /tmp/app/${APP_NAME}/${NEW_VER} "Deps" 1
+        cd $olddir
+      fi
     done
     if [ "$complete" = 1 ]; then
       break;
     fi
   done
-  # searching and running installation scripts if any
-  IFS=":"
-  for DEP in $NEW_DEPS; do
-    IFS=" " read -r APP_NAME APP_VER << EOF
-$DEP
+  if [ -d "/tmp/app" ]; then
+    # searching and running installation scripts if any
+    IFS=$IFSORIG
+    for APP_NAME in $(ls /tmp/app --sort name); do
+      for APP_VER in $(ls /tmp/app/${APP_NAME}); do
+        if [ "$APP_VER" != "current" ]; then
+          INSTALL_SCRIPT=""
+          find_app_install_script /tmp/app/$APP_NAME/$APP_VER
+          if [ "$INSTALL_SCRIPT" != "" ]; then
+            PARAMS=""
+            IFS=":"
+# fixme - wrong deps list
+# we need to take deps again from readme and process it
+            for DEP3 in $DEPS2; do
+              IFS=" " read -r APP_NAME3 APP_VER3 << EOF
+$DEP3
 EOF
-    if [ ! -d "/tmp/app/${APP_NAME}/${APP_VER}" ]; then
-      echo "No directory ${APP_NAME} ${APP_VER}. Smth wrong"
-      exit 1
-    fi
-    INSTALL_SCRIPT=""
-    find_app_install_script /tmp/app/$APP_NAME/$APP_VER
-    if [ "$INSTALL_SCRIPT" != "" ]; then
-      PARAMS=""
-      IFS=":"
-#fixme: wrong dep list
-      for DEP3 in $DEPS; do
-        IFS=" " read -r APP_NAME3 APP_VER3 << EOF
-$DEP
-EOF
-        if [ -d "/tmp/app/${APP_NAME3}/${APP_VER3}" ]; then
-          PARAMS="$PARAMS --ro-bind /tmp/app/${APP_NAME3}/${APP_VER3} /app/${APP_NAME3}/${APP_VER3} "
-        else
-          PARAMS="$PARAMS --ro-bind $DIR/app/${APP_NAME3}/${APP_VER3} /app/${APP_NAME3}/${APP_VER3} "
+              if [ -d "/tmp/app/${APP_NAME3}/${APP_VER3}" ]; then
+                PARAMS="$PARAMS --ro-bind /tmp/app/${APP_NAME3}/${APP_VER3} /app/${APP_NAME3}/${APP_VER3} "
+              else
+                PARAMS="$PARAMS --ro-bind $DIR/app/${APP_NAME3}/${APP_VER3} /app/${APP_NAME3}/${APP_VER3} "
+              fi
+            done
+            PARAMS="$PARAMS --ro-bind $DIR/app/busybox/current /app/busybox/current "
+            PARAMS="$PARAMS --ro-bind /tmp/app/${APP_NAME}/${APP_VER} /app/${APP_NAME}/${APP_VER} "
+            mkdir -p /tmp/app/${APP_NAME}/${APP_VER}/dynamic || true
+            PARAMS="$PARAMS --bind /tmp/app/${APP_NAME}/${APP_VER}/dynamic /app/${APP_NAME}/${APP_VER}/dynamic "
+            PARAMS="$PARAMS --dev dev --unshare-all --tmpfs tmp "
+            PARAMS="$PARAMS --chdir /app/${APP_NAME}/${APP_VER}/scripts "
+            PARAMS="$PARAMS /app/busybox/current/bin/sh $INSTALL_SCRIPT"
+            echo "  Starting install script for the app ${APP_NAME} ${APP_VER}"
+            IFS=" "
+            bwrap $PARAMS
+            IFS=$IFSORIG
+          fi
         fi
       done
-      PARAMS="$PARAMS --ro-bind $DIR/app/busybox/current /app/busybox/current "
-      PARAMS="$PARAMS --ro-bind /tmp/app/${APP_NAME}/${APP_VER} /app/${APP_NAME}/${APP_VER} "
-      mkdir -p /tmp/app/${APP_NAME}/${APP_VER}/dynamic || true
-      PARAMS="$PARAMS --bind /tmp/app/${APP_NAME}/${APP_VER}/dynamic /app/${APP_NAME}/${APP_VER}/dynamic "
-      PARAMS="$PARAMS --dev dev --unshare-all --tmpfs tmp "
-      PARAMS="$PARAMS --chdir /app/${APP_NAME}/${APP_VER}/scripts "
-      PARAMS="$PARAMS /app/busybox/current/bin/sh $INSTALL_SCRIPT"
-      echo "  Starting install script for the app ${APP_NAME} ${APP_VER}"
-      IFS=" "
-      bwrap $PARAMS
-      IFS=":"
-    fi
-  done
+    done
+  fi
   #run modules dependent from new installed
   if [ -d "/tmp/app" ]; then
     rsync -a /tmp/app $DIR
     rm -r -f /tmp/app
   fi
+}
+
+if [ "$1" = "install" ] && [ "$2" != "" ]; then
+  REPO_UPDATES=""
+  get_repo_updates
+  IFS=":"
+  for DEP in $2; do
+    IFS=" " read -r APP_NAME APP_VER << EOF
+$DEP
+EOF
+      if [ "$APP_VER" == "" ]; then
+        APP_VER=current
+      fi
+    echo "Processing app ${APP_NAME} ${APP_VER}"
+    DEPS="${APP_NAME} ${APP_VER}"
+    install_single_app
+    IFS=":"
+  done
 elif [ "$1" = "update" ]; then
   REPO_UPDATES=""
   get_repo_updates
