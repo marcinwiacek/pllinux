@@ -345,7 +345,7 @@ EOF
     install_single_app 0
     IFS=":"
   done
-elif [ "$1" = "update" ]; then
+elif [ "$1" = "update" ] || [ "$1" == "upgrade" ]; then
   REPO_UPDATES=""
   get_repo_updates
   APP_LIST=$2
@@ -536,16 +536,17 @@ else
   echo
   echo "Possible params:"
   echo 
-  echo "help                  - this info"
-  echo "available             - gets repo info and shows versions, dependiences and possible updates for /app"
-  echo "backup [package_list] - backup packages and related packages (or all, when package_list not given) to the xz package files"
-  echo "                        Example: backup \"busybox current:kernel:pllinux 260221_0.1:mc:x 0.2\""
-  echo "install package_list  - gets repo info and install packages from the repo."
-  echo "                        Note: it takes latest and greatest versions, but doesn't update \"current\" links for dependencies."
-  echo "                        Example: install \"mc:kernel 7.1.1:mc 260232_0.1\""
-  echo "remove package_list   - remove package and dependencies from /app"
-  echo "update [package_list] - gets repo info and install updates in the /app"
-  echo "                        Note: Updates \"current\" links when necessary"
+  echo "help                   - this info"
+  echo "available              - gets repo info and shows versions, dependiences and possible updates for /app"
+  echo "backup [package_list]  - backup packages and related packages (or all, when package_list not given) to the xz package files"
+  echo "                         Example: backup \"busybox current:kernel:pllinux 260221_0.1:mc:x 0.2\""
+  echo "install package_list   - gets repo info and install packages from the repo."
+  echo "                         Note: it takes latest and greatest versions, but doesn't update \"current\" links for dependencies."
+  echo "                         Example: install \"mc:kernel 7.1.1:mc 260232_0.1\""
+  echo "remove package_list    - remove package and dependencies from /app"
+  echo "update [package_list]  - gets repo info and install updates in the /app"
+  echo "                         Note: Updates \"current\" links when necessary"
+  echo "upgrade [package_list] - the same to update"
   echo
   echo "Repo list:"
   echo

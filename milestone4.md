@@ -7,10 +7,10 @@ date_version.
 
 Examples:
 
-260510_5.0
-260512_5.0
-260511_6.0
-260514_5.0
+    260510_5.0
+    260512_5.0
+    260511_6.0
+    260514_5.0
 
 As you can, we resolved problem, when concrete version is repackaged with some fixes (for example security).
 
@@ -25,27 +25,26 @@ One possible solution:
 
 We need extra information, which shows generation, for example:
 
-260510_1_5.0
-260512_1_5.0
-260511_2_6.0
-260514_1_5.0
-260515_1_5.1
-
+    260510_1_5.0
+    260512_1_5.0
+    260511_2_6.0
+    260514_1_5.0
+    260515_1_5.1
 or
 
-0000001_260510_5.0
-0000001_260510_5.1
-0000001_260610_5.2
-0000002_260410_6.0
+    0000001_260510_5.0
+    0000001_260510_5.1
+    0000001_260610_5.2
+    0000002_260410_6.0
 
 But what about situation, when somebody want to package version 4.0 or 3.0? We don't have lower number than 0000001.
 
 Let's return to original naming:
 
-260510_5.0
-260512_5.0
-260511_6.0
-260514_5.0
+    260510_5.0
+    260512_5.0
+    260511_6.0
+    260514_5.0
 
 We just need to have way to say:
 
@@ -80,8 +79,6 @@ and
 "260510_5.8a" - date is the same and both 5.0 are the same, but a makes new packet name longer
 "260510_5.89" - string is longer
 "260510_5.101" - string is longer
-
-
 
 Isn't it enough to say: for this app we want all versions or we want all versions starting with 1.
 
