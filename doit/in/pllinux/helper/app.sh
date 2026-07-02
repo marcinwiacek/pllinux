@@ -532,11 +532,7 @@ EOF
 else
   echo "$INFO"
   echo
-  echo "Without params shows versions and dependiences in the /app."
-  echo
-  echo "Possible params:"
-  echo 
-  echo "help                   - this info"
+  echo "(no param)             - shows versions and dependiences in the /app"
   echo "available              - gets repo info and shows versions, dependiences and possible updates for /app"
   echo "backup [package_list]  - backup packages and related packages (or all, when package_list not given) to the xz package files"
   echo "                         Example: backup \"busybox current:kernel:pllinux 260221_0.1:mc:x 0.2\""
@@ -547,8 +543,8 @@ else
   echo "update [package_list]  - gets repo info and install updates in the /app"
   echo "                         Note: Updates \"current\" links when necessary"
   echo "upgrade [package_list] - the same to update"
+  echo "(any other param)      - this info"
   echo
   echo "Repo list:"
-  echo
   echo $(cat app.repos)
 fi
