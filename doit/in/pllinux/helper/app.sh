@@ -227,6 +227,7 @@ EOF
 install_single_app() {
   rm -f -r /tmp/app
   UPDATE_CURRENT=$1
+  INSTALL_ERROR=0
   while true; do
     complete=1
     find_all_app_versions_in_repo $UPDATE_CURRENT
@@ -245,6 +246,8 @@ EOF
 #        fi
       elif [ ! -f "${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz" ]; then
         echo "  File ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz does not exist. Skipping"
+        INSTALL_ERROR=1
+        break
       elif [ ! -d "/tmp/app/${APP_NAME}/${APP_VER}" ]; then
         mkdir /tmp/app 2> /dev/null
         mkdir /tmp/app/${APP_NAME} 2> /dev/null
@@ -265,7 +268,7 @@ EOF
       break;
     fi
   done
-  if [ -d "/tmp/app" ]; then
+  if [ -d "/tmp/app" ] && [ "$INSTALL_ERROR" = "0" ]; then
     # searching and running installation scripts if any
     IFS=$IFSORIG
     for APP_NAME in $(ls /tmp/app --sort name); do
@@ -396,8 +399,9 @@ EOF
       DEPS="${APP_NAME} ${APP_VER}"
       install_single_app 0
       if [ "$1" = "install" ]; then
-        if [ -d "/tmp/app" ]; then
+        if [ -d "/tmp/app" ] && [ "$INSTALL_ERROR" = "0" ]; then
           rsync -a /tmp/app $DIR
+          echo "Installing to /app"
    #    rm -r -f /tmp/app
         fi
       fi
