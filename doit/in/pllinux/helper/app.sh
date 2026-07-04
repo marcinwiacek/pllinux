@@ -317,10 +317,11 @@ EOF
 #  fi
 }
 
-# we search the highest/latest version but lower than specified in APP_VER
+# we search the highest/latest version but lower than specified in MAX_VER
+# returns NEW_VER
 find_latest_app_version_lower_than_given_in_app() {
   local APP_NAME=$1
-  MAX_VER=$2
+  local MAX_VER=$2
   IFS=$IFSORIG
   for APP_VER in $(ls $DIR/app/$APP_NAME); do
     if [ "$APP_VER" != "current" ]; then
