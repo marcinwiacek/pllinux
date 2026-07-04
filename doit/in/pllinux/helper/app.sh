@@ -339,44 +339,40 @@ find_current_app_versions_in_app() {
     IFS=" " read -r APP_NAME20 APP_VER20 << EOF
 $DEP
 EOF
-    NEW_VER=0
+    NEW_VER=$APP_VER20
     LEN=${#APP_VER20}-1
     IFS=$IFSORIG
-    if [ "$APP_VER20" = "current" ]; then
-      CURRENT=$(realpath $DIR/app/$APP_NAME20/current)
-      for APP_VER21 in $(ls $DIR/app/$APP_NAME20); do
-        if [ "$CURRENT" = "$DIR/app/$APP_NAME20/$APP_VER21" ]; then
-          NEW_VER=$APP_VER21
-          break
-        fi
-      done
-    elif [ "$((LEN))" -lt 5 ] || [ ${APP_VER20:6:1} != "_" ]; then
-      # version without date
-      for APP_VER21 in $(ls $DIR/app/$APP_NAME20); do
-        if [ "$APP_VER20" = "${APP_VER21:7}" ]; then
-          if [ $NEW_VER == 0 ] || [ "${APP_VER21:0:6}" \> "${NEW_VER:0:6}" ]; then
+    if [ -d "$DIR/app/$APP_NAME20" ]; then
+      if [ "$APP_VER20" = "current" ]; then
+        CURRENT=$(realpath $DIR/app/$APP_NAME20/current)
+        for APP_VER21 in $(ls $DIR/app/$APP_NAME20); do
+          if [ "$CURRENT" = "$DIR/app/$APP_NAME20/$APP_VER21" ]; then
             NEW_VER=$APP_VER21
+            break
           fi
-        fi
-      done
-    elif [ "${APP_VER20:$LEN:1}" = "-" ]; then
-      # we search the highest/latest version but lower than specified in APP_VER
-      MAX_VER=${APP_VER20:0:$LEN}
-      for APP_VER31 in $(ls $DIR/app/$APP_NAME20); do
-        compare_app_version $MAX_VER $APP_VER21
-        if [ $first_bigger = "1" ]; then
-          compare_app_version $NEW_VER $APP_VER31
-          if [ $first_bigger = "-1" ]; then
-            NEW_VER=$APP_VER31
+        done
+      elif [ "$((LEN))" -lt 5 ] || [ ${APP_VER20:6:1} != "_" ]; then
+        # version without date
+        for APP_VER21 in $(ls $DIR/app/$APP_NAME20); do
+          if [ "$APP_VER20" = "${APP_VER21:7}" ]; then
+            if [ $NEW_VER == $APP_VER ] || [ "${APP_VER21:0:6}" \> "${NEW_VER:0:6}" ]; then
+              NEW_VER=$APP_VER21
+            fi
           fi
-        fi
-      done
-    else
-      # we get version string "as is" and search in repo
-      NEW_VER=$APP_VER20
-    fi
-    if [ $NEW_VER == "0" ]; then
-      NEW_VER="<$APP_VER20>"
+        done
+      elif [ "${APP_VER20:$LEN:1}" = "-" ]; then
+        # we search the highest/latest version but lower than specified in APP_VER
+        MAX_VER=${APP_VER20:0:$LEN}
+        for APP_VER31 in $(ls $DIR/app/$APP_NAME20); do
+         compare_app_version $MAX_VER $APP_VER21
+          if [ $first_bigger = "1" ]; then
+            compare_app_version $NEW_VER $APP_VER31
+            if [ $first_bigger = "-1" ]; then
+              NEW_VER=$APP_VER31
+            fi
+          fi
+        done
+      fi
     fi
     NEW_DEPS="$NEW_DEPS${APP_NAME20} ${NEW_VER}:"
   done
@@ -462,19 +458,19 @@ elif [ "$1" = "delete" ] || [ "$1" = "deletecheck" ] || [ "$1" = "remove" ] || [
   if [ "$2" != "" ]; then
     DEPS=""
     IFS=":"
-    for DEP in $2; do
-      IFS=" " read -r APP_NAME APP_VER << EOF
-$DEP
-EOF
-      if [ "$APP_VER" = "" ]; then
-        APP_VER="current"
-      fi
+#    for DEP in $2; do
+#      IFS=" " read -r APP_NAME APP_VER << EOF
+#$DEP
+#EOF
+#      if [ "$APP_VER" = "" ]; then
+#        APP_VER="current"
+#      fi
 #      if [ $DEPS != "" ]; then
 #        DEPS="$DEPS:"
 #      fi
-      DEPS="$DEPS${APP_NAME} ${APP_VER}"
-    done
-#echo alamakota
+#      DEPS="$DEPS${APP_NAME} ${APP_VER}"
+#    done
+    DEPS=$2
     # finding and dependencies and dependencies from their dependencies
     while true; do
       complete=1
@@ -530,16 +526,22 @@ EOF
 $APP
 EOF
       DONT_REMOVE=0
-      for APP_NAME2 in $SYSTEM_APPS; do
-        if [ "$APP_NAME" = "$APP_NAME2" ]; then
-          CURRENT=$(realpath $DIR/app/$APP_NAME/current)
-          if [ "$DIR/app/$APP_NAME/$APP_VER" = "$CURRENT" ]; then
-            echo "Cannot remove $APP_NAME $APP_VER (current). Required for system work" 
-            DONT_REMOVE=1
-            break
+      if [ ! -d "$DIR/app/$APP_NAME/$APP_VER" ]; then
+        echo "App $APP_NAME $APP_VER not installed. Skipping" 
+        DONT_REMOVE=1
+      fi
+      if [ "$DONT_REMOVE" = "0" ]; then
+        for APP_NAME2 in $SYSTEM_APPS; do
+          if [ "$APP_NAME" = "$APP_NAME2" ]; then
+            CURRENT=$(realpath $DIR/app/$APP_NAME/current)
+            if [ "$DIR/app/$APP_NAME/$APP_VER" = "$CURRENT" ]; then
+              echo "Cannot remove $APP_NAME $APP_VER (current). Required for system work" 
+              DONT_REMOVE=1
+              break
+            fi
           fi
-        fi
-      done
+        done
+      fi
       if [ "$DONT_REMOVE" = "0" ]; then
         for APP2 in $DEPS_FROM_OTHER_APPS; do
           IFS=" " read -r APP_NAME2 APP_VER2 << EOF
@@ -685,10 +687,10 @@ else
   echo "                              Example: install \"mc:kernel 7.1.1:mc 260232_0.1\""
   echo "installcheck package_list   - like install, but shows info only (no updates in /app)"
   echo
-  echo "delete package              - remove package and dependencies from /app"
-  echo "deletecheck package         - like delete, but shows info only (no updates in /app)"
-  echo "remove package              - like delete"
-  echo "removecheck package         - like delete, but shows info only (no updates in /app)"
+  echo "delete package_list         - remove package and dependencies from /app"
+  echo "deletecheck package_list    - like delete, but shows info only (no updates in /app)"
+  echo "remove package_list         - like delete"
+  echo "removecheck package_list    - like delete, but shows info only (no updates in /app)"
   echo
   echo "update [package_list]       - gets repo info and install updates in the /app"
   echo "                              Note: Updates \"current\" links when necessary"
