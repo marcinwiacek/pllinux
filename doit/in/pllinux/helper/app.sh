@@ -176,25 +176,7 @@ EOF
   done <<< "$REPO_UPDATES"
 }
 
-# we search the highest/latest version but lower than specified in APP_VER
-find_latest_app_version_lower_than_given_in_app() {
-  local APP_NAME=$1
-  MAX_VER=$2
-  IFS=$IFSORIG
-  for APP_VER in $(ls $DIR/app/$APP_NAME); do
-    if [ "$APP_VER" != "current" ]; then
-      compare_app_version $MAX_VER $APP_VER
-      if [ $first_bigger = "1" ]; then
-        compare_app_version $NEW_VER $APP_VER
-        if [ $first_bigger = "-1" ]; then
-          NEW_VER=$APP_VER
-        fi
-      fi
-    fi
-  done
-}
-
-find_all_app_versions() {
+find_all_app_versions_in_repo() {
   UPDATE_CURRENT=$1
   NEW_DEPS=""
   IFS=":"
@@ -247,7 +229,7 @@ install_single_app() {
   UPDATE_CURRENT=$1
   while true; do
     complete=1
-    find_all_app_versions $UPDATE_CURRENT
+    find_all_app_versions_in_repo $UPDATE_CURRENT
     IFS=":"
     for DEP in $NEW_DEPS; do
       IFS=" " read -r APP_NAME APP_VER APP_REPO << EOF
@@ -294,7 +276,7 @@ EOF
           if [ "$INSTALL_SCRIPT" != "" ]; then
             DEPS=""
             find_app_deps /tmp/app/${APP_NAME}/${APP_VER} "Deps" 1
-            find_all_app_versions
+            find_all_app_versions_in_repo
             PARAMS=""
             IFS=":"
             for DEP in $NEW_DEPS; do
@@ -330,6 +312,24 @@ EOF
 #    rsync -a /tmp/app $DIR
 #    rm -r -f /tmp/app
 #  fi
+}
+
+# we search the highest/latest version but lower than specified in APP_VER
+find_latest_app_version_lower_than_given_in_app() {
+  local APP_NAME=$1
+  MAX_VER=$2
+  IFS=$IFSORIG
+  for APP_VER in $(ls $DIR/app/$APP_NAME); do
+    if [ "$APP_VER" != "current" ]; then
+      compare_app_version $MAX_VER $APP_VER
+      if [ $first_bigger = "1" ]; then
+        compare_app_version $NEW_VER $APP_VER
+        if [ $first_bigger = "-1" ]; then
+          NEW_VER=$APP_VER
+        fi
+      fi
+    fi
+  done
 }
 
 find_current_app_versions_in_app() {
@@ -436,7 +436,7 @@ $APP4
 EOF
       if [ "$APP_NAME4" = "$APP_NAME" ]; then
         DEPS="${APP_NAME4} ${APP_VER4}"
-        find_all_app_versions 0
+        find_all_app_versions_in_repo 0
         IFS=" " read -r APP_NAME5 APP_VER5 NEW_REPO5 << EOF
 $NEW_DEPS
 EOF
@@ -661,7 +661,7 @@ EOF
         echo -n "  Dep from the other app $APP_VER4"
         if [ "$1" != "" ]; then
           DEPS="${APP_NAME4} ${APP_VER4}"
-          find_all_app_versions 0
+          find_all_app_versions_in_repo 0
           IFS=" " read -r APP_NAME5 APP_VER5 NEW_REPO5 << EOF
 $NEW_DEPS
 EOF
