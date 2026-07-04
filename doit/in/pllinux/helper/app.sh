@@ -329,25 +329,68 @@ EOF
   fi
 }
 
-IFSORIG=$IFS
-
-if [ "$1" = "install" ] && [ "$2" != "" ]; then
-  REPO_UPDATES=""
-  get_repo_updates
+find_current_app_versions_in_app() {
+  NEW_DEPS=""
   IFS=":"
-  for DEP in $2; do
-    IFS=" " read -r APP_NAME APP_VER << EOF
+  for DEP in $DEPS; do
+    IFS=" " read -r APP_NAME20 APP_VER20 << EOF
 $DEP
 EOF
-    if [ "$APP_VER" == "" ]; then
-      APP_VER=current
+    NEW_VER=0
+    LEN=${#APP_VER20}-1
+    IFS=$IFSORIG
+    if [ "$APP_VER20" = "current" ]; then
+      NEW_VER=$APP_VER20
+    elif [ "$((LEN))" -lt 5 ] || [ ${APP_VER20:6:1} != "_" ]; then
+      # version without date
+      for APP_VER21 in $(ls $DIR/app/$APP_NAME20); do
+        if [ "$APP_VER20" = "${APP_VER21:7}" ]; then
+          if [ $NEW_VER == 0 ] || [ "${APP_VER21:0:6}" \> "${NEW_VER:0:6}" ]; then
+            NEW_VER=$APP_VER21
+          fi
+        fi
+      done
+    elif [ "${APP_VER20:$LEN:1}" = "-" ]; then
+      # we search the highest/latest version but lower than specified in APP_VER
+      MAX_VER=${APP_VER20:0:$LEN}
+      for APP_VER21 in $(ls $DIR/app/$APP_NAME20); do
+        compare_app_version $MAX_VER $APP_VER21
+        if [ $first_bigger = "1" ]; then
+          compare_app_version $NEW_VER $APP_VER21
+          if [ $first_bigger = "-1" ]; then
+            NEW_VER=$APP_VER21
+          fi
+        fi
+      done
+    else
+      # we get version string "as is" and search in repo
+      NEW_VER=$APP_VER20
     fi
-    echo "Processing app ${APP_NAME} ${APP_VER}"
-    DEPS="${APP_NAME} ${APP_VER}"
-    install_single_app 0
-    IFS=":"
+    NEW_DEPS="$NEW_DEPS${APP_NAME20} ${NEW_VER}:"
   done
-elif [ "$1" = "update" ] || [ "$1" == "upgrade" ]; then
+}
+
+IFSORIG=$IFS
+
+if [ "$1" = "install" ] || [ "$1" = "installcheck" ]; then
+  if [ "$2" != "" ]; then
+    REPO_UPDATES=""
+    get_repo_updates
+    IFS=":"
+    for DEP in $2; do
+      IFS=" " read -r APP_NAME APP_VER << EOF
+$DEP
+EOF
+      if [ "$APP_VER" == "" ]; then
+        APP_VER=current
+      fi
+      echo "Processing app ${APP_NAME} ${APP_VER}"
+      DEPS="${APP_NAME} ${APP_VER}"
+      install_single_app 0
+      IFS=":"
+    done
+  fi
+elif [ "$1" = "update" ] || [ "$1" == "upgrade" ] || [ "$1" = "updatecheck" ] || [ "$1" == "upgradecheck" ]; then
   REPO_UPDATES=""
   get_repo_updates
   APP_LIST=$2
@@ -386,60 +429,70 @@ EOF
     done
     IFS=" "
   done
-elif [ "$1" = "remove" ] && [ "$2" != "" ]; then
-  DEPS=$2
-  ALL_APPS=""
-  for APP_NAME3 in $(ls $DIR/app --sort name); do
-    for APP_VER3 in $(ls $DIR/app/$APP_NAME3); do
-      ALL_APPS="$ALL_APPS$APP_NAME3 $APP_VER3:"
-    done
-  done
-  while true; do
-    complete=1
-    IFS=":"
-    for DEP in $DEPS; do
-      IFS=" " read -r APP_NAME APP_VER << EOF
-$DEP
-EOF
-      find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
-    done
-    if [ "$complete" = 1 ]; then
-      break;
-    fi
-  done
-  DEPS2=$DEPS
-  IFS=":"
-  for APP in $DEPS2; do
-    IFS=" " read -r APP_NAME APP_VER << EOF
-$APP
-EOF
-#    CURRENT=$(realpath $DIR/app/$APP_NAME/$APP_VER)
-#    APP_VER=${CURRENT##*/}
-    if [ ! -d "$DIR/app/${APP_NAME}/${APP_VER}" ]; then
-      echo "No app $APP_NAME $APP_VER. Skipping"
-    else
-      DONT_REMOVE=0
-      for APP2 in $ALL_APPS; do
-        IFS=" " read -r APP_NAME3 APP_VER3 << EOF
-$APP2
-EOF
-        if [ "$APP_VER3" = "$APP_VER" ] && [ "$APP_NAME3" = "$APP_NAME" ]; then
-          ignore=1
-        else
-          DEPS=""
-          find_app_deps $DIR/app/$APP_NAME3/$APP_VER3 "Deps" 0
-          if [[ $DEPS == *"$APP_NAME $APP_VER"* ]]; then
-            echo "$APP_NAME $APP_VER cannot be removed because of dependency in $APP_NAME3 $APP_VER3"
-            DONT_REMOVE=1
-          fi
+elif [ "$1" = "delete" ] || [ "$1" = "deletecheck" ] || [ "$1" = "remove" ] || [ "$1" = "removecheck" ]; then
+  if [ "$2" != "" ]; then
+    DEPS=$2
+    ALL_APPS=""
+    for APP_NAME3 in $(ls $DIR/app --sort name); do
+      for APP_VER3 in $(ls $DIR/app/$APP_NAME3); do
+        if [ $APP_VER3 != "current" ]; then
+          ALL_APPS="$ALL_APPS$APP_NAME3 $APP_VER3:"
         fi
       done
+    done
+    while true; do
+      complete=1
       IFS=":"
-      if [ $DONT_REMOVE == "0" ]; then
-        echo "Removing app $APP_NAME $APP_VER"
+      for DEP in $DEPS; do
+        IFS=" " read -r APP_NAME APP_VER << EOF
+$DEP
+EOF
+        find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
+      done
+      if [ "$complete" = 1 ]; then
+        break;
       fi
-    fi
-  done
+    done
+    find_current_app_versions_in_app
+    DEPS2=$NEW_DEPS
+    IFS=":"
+    for APP in $DEPS2; do
+      IFS=" " read -r APP_NAME APP_VER << EOF
+$APP
+EOF
+      if [ ! -d "$DIR/app/${APP_NAME}/${APP_VER}" ]; then
+        echo "No app $APP_NAME $APP_VER. Skipping"
+      else
+        DONT_REMOVE=0
+        for APP2 in $ALL_APPS; do
+          IFS=" " read -r APP_NAME3 APP_VER3 << EOF
+$APP2
+EOF
+          if [ "$APP_NAME" != "$APP_NAME3" ] || [ "$APP_VER" != "$APP_VER3" ]; then
+            DEPS=""
+            find_app_deps $DIR/app/$APP_NAME3/$APP_VER3 "Deps" 1
+            for APP4 in $DEPS; do
+              IFS=" " read -r APP_NAME4 APP_VER4 << EOF
+$APP4
+EOF
+              if [ "$APP_NAME" = "$APP_NAME4" ] && [ "$APP_VER" = "$APP_VER4" ]; then
+                echo "$APP_NAME $APP_VER cannot be removed because of dependency (example: $APP_NAME3 $APP_VER3)"
+                DONT_REMOVE=1
+                break
+              fi
+            done
+            if [ $DONT_REMOVE = "1" ]; then
+              break
+            fi
+          fi
+        done
+        IFS=":"
+        if [ $DONT_REMOVE == "0" ]; then
+          echo "Removing app $APP_NAME $APP_VER"
+        fi
+      fi
+    done
+  fi
 elif [ "$1" = "backup" ]; then
   DEPS=$2
   if [ "$DEPS" == "" ]; then
@@ -551,18 +604,29 @@ EOF
 else
   echo "$INFO"
   echo
-  echo "(no param)             - shows versions and dependiences in the /app"
-  echo "available              - gets repo info and shows versions, dependiences and possible updates for /app"
-  echo "backup [package_list]  - backup packages and related packages (or all, when package_list not given) to the xz package files"
-  echo "                         Example: backup \"busybox current:kernel:pllinux 260221_0.1:mc:x 0.2\""
-  echo "install package_list   - gets repo info and install packages from the repo."
-  echo "                         Note: it takes latest and greatest versions, but doesn't update \"current\" links for dependencies."
-  echo "                         Example: install \"mc:kernel 7.1.1:mc 260232_0.1\""
-  echo "remove package_list    - remove package and dependencies from /app"
-  echo "update [package_list]  - gets repo info and install updates in the /app"
-  echo "                         Note: Updates \"current\" links when necessary"
-  echo "upgrade [package_list] - the same to update"
-  echo "(any other param)      - this info"
+  echo "(no param)                  - shows versions and dependiences in the /app"
+  echo "available                   - gets repo info and shows versions, dependiences and possible updates for /app"
+  echo "backup [package_list]       - backup packages and related packages (or all, when package_list not given) to the xz package files"
+  echo "                              Example: backup \"busybox current:kernel:pllinux 260221_0.1:mc:x 0.2\""
+  echo
+  echo "install package_list        - gets repo info and install packages from the repo."
+  echo "                              Note: it takes latest and greatest versions, but doesn't update \"current\" links for dependencies."
+  echo "                              Example: install \"mc:kernel 7.1.1:mc 260232_0.1\""
+  echo "installcheck package_list   - like install, but shows info only (no updates in /app)"
+  echo
+  echo "delete package_list         - remove package and dependencies from /app"
+  echo "deletecheck package_list    - like delete, but shows info only (no updates in /app)"
+  echo "remove package_list         - like delete"
+  echo "removecheck package_list    - like delete, but shows info only (no updates in /app)"
+  echo
+  echo "update [package_list]       - gets repo info and install updates in the /app"
+  echo "                              Note: Updates \"current\" links when necessary"
+  echo "                              Example: update \"mc:busybox\""
+  echo "updatecheck [package_list]  - like update, but shows info only (no updates in /app)"
+  echo "upgrade [package_list]      - like update"
+  echo "upgradecheck [package_list] - like update, but shows info only (no updates in /app)"
+  echo
+  echo "(any other param)           - this info"
   echo
   echo "Repo list:"
   echo $(cat app.repos)
