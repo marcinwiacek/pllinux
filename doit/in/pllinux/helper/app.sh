@@ -2,6 +2,7 @@
 # Package manager
 INFO="Version from 2 Jul 2026. Part of PLLINUX"
 DIR="/mnt/x"
+SYSTEM_APPS="busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:ldso:libc:libtinfo:nftables:pllinux:util-linux" # we cannot remove "current" for these apps
 
 # getting app dependencies from app readme.md
 find_app_deps() {
@@ -31,7 +32,7 @@ find_app_deps() {
                 if [ "$DEPS" != "" ]; then
                   DEPS="$DEPS:"
                 fi
-                DEPS=$DEPS$line
+                DEPS="$DEPS$line"
               fi
               ;;
          esac
@@ -323,10 +324,10 @@ EOF
     done
   fi
   #fixme:run modules dependent from new installed
-  if [ -d "/tmp/app" ]; then
-    rsync -a /tmp/app $DIR
+#  if [ -d "/tmp/app" ]; then
+#    rsync -a /tmp/app $DIR
 #    rm -r -f /tmp/app
-  fi
+#  fi
 }
 
 find_current_app_versions_in_app() {
@@ -340,7 +341,13 @@ EOF
     LEN=${#APP_VER20}-1
     IFS=$IFSORIG
     if [ "$APP_VER20" = "current" ]; then
-      NEW_VER=$APP_VER20
+      CURRENT=$(realpath $DIR/app/$APP_NAME20/current)
+      for APP_VER21 in $(ls $DIR/app/$APP_NAME20); do
+        if [ "$CURRENT" = "$DIR/app/$APP_NAME20/$APP_VER21" ]; then
+          NEW_VER=$APP_VER21
+          break
+        fi
+      done
     elif [ "$((LEN))" -lt 5 ] || [ ${APP_VER20:6:1} != "_" ]; then
       # version without date
       for APP_VER21 in $(ls $DIR/app/$APP_NAME20); do
@@ -366,6 +373,10 @@ EOF
       # we get version string "as is" and search in repo
       NEW_VER=$APP_VER20
     fi
+    if [ $NEW_VER == "0" ]; then
+      NEW_VER="<$APP_VER20>"
+#      echo Problem with dependency $APP_NAME20 $APP_VER20
+    fi
     NEW_DEPS="$NEW_DEPS${APP_NAME20} ${NEW_VER}:"
   done
 }
@@ -387,7 +398,10 @@ EOF
       echo "Processing app ${APP_NAME} ${APP_VER}"
       DEPS="${APP_NAME} ${APP_VER}"
       install_single_app 0
-      IFS=":"
+      if [ -d "/tmp/app" ]; then
+        rsync -a /tmp/app $DIR
+   #    rm -r -f /tmp/app
+      fi
     done
   fi
 elif [ "$1" = "update" ] || [ "$1" == "upgrade" ] || [ "$1" = "updatecheck" ] || [ "$1" == "upgradecheck" ]; then
@@ -410,6 +424,10 @@ elif [ "$1" = "update" ] || [ "$1" == "upgrade" ] || [ "$1" = "updatecheck" ] ||
   for APP_NAME in $APP_LIST; do
     DEPS="${APP_NAME} current"
     install_single_app 1
+    if [ -d "/tmp/app" ]; then
+      rsync -a /tmp/app $DIR
+   #    rm -r -f /tmp/app
+    fi
     IFS=":"
     for APP4 in $DEPS_NON_CURRENT; do
       IFS=" " read -r APP_NAME4 APP_VER4 << EOF
@@ -424,6 +442,10 @@ EOF
         if [ ! -d "$DIR/app/${APP_NAME}/${APP_VER5}" ]; then
           DEPS="${APP_NAME} ${APP_VER5}"
           install_single_app 0
+          if [ -d "/tmp/app" ]; then
+            rsync -a /tmp/app $DIR
+       #    rm -r -f /tmp/app
+          fi
         fi
       fi
     done
@@ -431,15 +453,8 @@ EOF
   done
 elif [ "$1" = "delete" ] || [ "$1" = "deletecheck" ] || [ "$1" = "remove" ] || [ "$1" = "removecheck" ]; then
   if [ "$2" != "" ]; then
+    # finding and dependencies and dependencies from dependencies
     DEPS=$2
-    ALL_APPS=""
-    for APP_NAME3 in $(ls $DIR/app --sort name); do
-      for APP_VER3 in $(ls $DIR/app/$APP_NAME3); do
-        if [ $APP_VER3 != "current" ]; then
-          ALL_APPS="$ALL_APPS$APP_NAME3 $APP_VER3:"
-        fi
-      done
-    done
     while true; do
       complete=1
       IFS=":"
@@ -447,48 +462,92 @@ elif [ "$1" = "delete" ] || [ "$1" = "deletecheck" ] || [ "$1" = "remove" ] || [
         IFS=" " read -r APP_NAME APP_VER << EOF
 $DEP
 EOF
+        if [ "$APP_VER" = "" ]; then
+          APP_VER="current"
+        fi
         find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
       done
       if [ "$complete" = 1 ]; then
         break;
       fi
     done
+    # replace everything with concrete version numbers
     find_current_app_versions_in_app
     DEPS2=$NEW_DEPS
+    # get all other apps than apps for removing
+    ALL_INSTALLED_APPS=""
+    for APP_NAME in $(ls $DIR/app --sort name); do
+      for APP_VER in $(ls $DIR/app/$APP_NAME); do
+        if [ $APP_VER != "current" ]; then
+          found=0
+          IFS=":"
+          for APP in $DEPS2; do
+            IFS=" " read -r APP_NAME2 APP_VER2 << EOF
+$APP
+EOF
+            if [ "$APP_NAME" = "$APP_NAME2" ] && [ "$APP_VER" = "$APP_VER2" ]; then
+              found=1
+              break
+            fi
+          done
+          IFS=$IFSORIG
+          if [ $found = "0" ]; then
+            ALL_INSTALLED_APPS="${ALL_INSTALLED_APPS}${APP_NAME} ${APP_VER}:"
+          fi
+        fi
+      done
+    done
+    # removing
     IFS=":"
     for APP in $DEPS2; do
       IFS=" " read -r APP_NAME APP_VER << EOF
 $APP
 EOF
-      if [ ! -d "$DIR/app/${APP_NAME}/${APP_VER}" ]; then
-        echo "No app $APP_NAME $APP_VER. Skipping"
-      else
-        DONT_REMOVE=0
-        for APP2 in $ALL_APPS; do
-          IFS=" " read -r APP_NAME3 APP_VER3 << EOF
+      DONT_REMOVE=0
+      for APP_NAME2 in $SYSTEM_APPS; do
+        if [ "$APP_NAME" = "$APP_NAME2" ]; then
+          CURRENT=$(realpath $DIR/app/$APP_NAME/current)
+          if [ "$DIR/app/$APP_NAME/$APP_VER" = "$CURRENT" ]; then
+            echo "Cannot remove $APP_NAME $APP_VER (current). Required for system work" 
+            DONT_REMOVE=1
+            break
+          fi
+        fi
+      done
+      if [ "$DONT_REMOVE" = "0" ]; then
+        for APP2 in $ALL_INSTALLED_APPS; do
+          IFS=" " read -r APP_NAME2 APP_VER2 << EOF
 $APP2
 EOF
-          if [ "$APP_NAME" != "$APP_NAME3" ] || [ "$APP_VER" != "$APP_VER3" ]; then
+          if [ "$APP_NAME" != "$APP_NAME2" ] || [ "$APP_VER" != "$APP_VER2" ]; then
             DEPS=""
-            find_app_deps $DIR/app/$APP_NAME3/$APP_VER3 "Deps" 1
-            for APP4 in $DEPS; do
-              IFS=" " read -r APP_NAME4 APP_VER4 << EOF
-$APP4
+            find_app_deps $DIR/app/$APP_NAME2/$APP_VER2 "Deps" 1
+            if [ "$DEPS" != "" ]; then
+              find_current_app_versions_in_app
+              IFS=":"
+              for APP3 in $NEW_DEPS; do
+                IFS=" " read -r APP_NAME3 APP_VER3 << EOF
+$APP3
 EOF
-              if [ "$APP_NAME" = "$APP_NAME4" ] && [ "$APP_VER" = "$APP_VER4" ]; then
-                echo "$APP_NAME $APP_VER cannot be removed because of dependency (example: $APP_NAME3 $APP_VER3)"
-                DONT_REMOVE=1
+                if [ "$APP_NAME" = "$APP_NAME3" ] && [ "$APP_VER" = "$APP_VER3" ]; then
+                  echo "$APP_NAME $APP_VER cannot be removed because of dependency (example: $APP_NAME2 $APP_VER2)"
+                  DONT_REMOVE=1
+                  break
+                fi
+              done
+              if [ $DONT_REMOVE = "1" ]; then
                 break
               fi
-            done
-            if [ $DONT_REMOVE = "1" ]; then
-              break
             fi
           fi
         done
         IFS=":"
         if [ $DONT_REMOVE == "0" ]; then
-          echo "Removing app $APP_NAME $APP_VER"
+          if [ "$1" = "delete" ] || [ "$1" = "remove" ]; then
+            echo "Removing app $APP_NAME $APP_VER"
+          else
+            echo "(check) Removing app $APP_NAME $APP_VER"
+          fi
         fi
       fi
     done
