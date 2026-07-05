@@ -1,9 +1,9 @@
-# Part of PLLINUX. Version from 22.06.2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
+# Part of PLLINUX. Version from 6 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="fs"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="gnupg"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
-dont_process_the_same_ver=1; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
+dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
 # Check if makes sense to build the whole package
 should_make() {
@@ -32,6 +32,7 @@ download_unpack_source() {
   unpackeddir=$3
 
   if [ ! -f "download/$localfile" ]; then
+    echo $url
     wget -O /tmp/$localfile.tmp $url;
     if [ $? -eq 0 ]; then
       mv /tmp/$localfile.tmp download/$localfile
@@ -498,5 +499,88 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
     find_binary_lib $output/app/git/$prefix$ver bin/git
     cp in/git/git $output/app/git/$prefix$ver
     cp in/git/readme.md $output/app/git/$prefix$ver
+  fi
+fi
+if [ "$package" == "libgpg-error" ]; then
+  ver="1.61";
+  if should_make libgpg-error $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${ver}.tar.bz2 libgpg-error libgpg-error-$ver
+    create_app libgpg-error $prefix$ver
+    cd out/libgpg-error/libgpg-error-$ver
+    ./configure --prefix=$output/app/libgpg-error/$prefix$ver --enable-install-gpg-error-config
+    make all -j$cpu_num
+    make install
+    cd ../../..
+    set_current_app libgpg-error $prefix$ver
+  fi
+fi
+if [ "$package" == "libgcrypt" ]; then
+  ver="1.12.2";
+  if should_make libgcrypt $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${ver}.tar.bz2 libgcrypt libgcrypt-$ver
+    create_app libgcrypt $prefix$ver
+    cd out/libgcrypt/libgcrypt-$ver
+    ./configure --prefix=$output/app/libgcrypt/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
+    make all -j$cpu_num
+    make install
+    cd ../../..
+    set_current_app libgcrypt $prefix$ver
+  fi
+fi
+if [ "$package" == "libassuan" ]; then
+  ver="3.0.2";
+  if should_make libassuan $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libassuan/libassuan-${ver}.tar.bz2 libassuan libassuan-$ver
+    create_app libassuan $prefix$ver
+    cd out/libassuan/libassuan-$ver
+    ./configure --prefix=$output/app/libassuan/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
+    make all -j$cpu_num
+    make install
+    cd ../../..
+    set_current_app libassuan $prefix$ver
+  fi
+fi
+if [ "$package" == "libksba" ]; then
+  ver="1.8.0";
+  if should_make libksba $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libksba/libksba-${ver}.tar.bz2 libksba libksba-$ver
+    create_app libksba $prefix$ver
+    cd out/libksba/libksba-$ver
+    ./configure --prefix=$output/app/libksba/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
+    make all -j$cpu_num
+    make install
+    cd ../../..
+    set_current_app libksba $prefix$ver
+  fi
+fi
+if [ "$package" == "npth" ]; then
+  ver="1.8";
+  if should_make npth $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/npth/npth-${ver}.tar.bz2 npth npth-$ver
+    create_app npth $prefix$ver
+    cd out/npth/npth-$ver
+    ./configure --prefix=$output/app/npth/$prefix$ver 
+    make all -j$cpu_num
+    make install
+    cd ../../..
+    set_current_app npth $prefix$ver
+  fi
+fi
+if [ "$package" == "gnupg" ]; then
+  ver="2.5.21";
+  if should_make gnupg $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${ver}.tar.bz2 gnupg gnupg-$ver
+    create_app gnupg $prefix$ver
+    cd out/gnupg/gnupg-$ver
+    ./configure --with-libgpg-error-prefix=$output/app/libgpg-error/current \
+      --with-libgcrypt-prefix=$output/app/libgcrypt/current \
+      --with-libassuan-prefix=$output/app/libassuan/current \
+      --with-ksba-prefix=$output/app/libksba/current \
+      --with-npth-prefix=$output/app/npth/current \
+      --prefix=$output/app/gnupg/$prefix$ver
+    make all -j$cpu_num
+    make install
+    cd ../../..
+    set_current_app gnupg $prefix$ver
   fi
 fi
