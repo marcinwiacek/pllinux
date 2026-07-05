@@ -1,5 +1,5 @@
 #!/mnt/x/app/busybox/current/bin/sh
-INFO="Package manager. Version from 4 Jul 2026. Part of PLLINUX"
+INFO="Package manager. Version from 6 Jul 2026. Part of PLLINUX"
 DIR="/mnt/x" # in real system /
 SYSTEM_APPS="busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:ldso:libc:libtinfo:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
 
@@ -615,74 +615,11 @@ EOF
       fi
     fi
   done
-elif [ "$1" = "available" ] || [ "$1" == "" ]; then
-  if [ "$1" != "" ]; then
-    REPO_UPDATES=""
-    get_repo_updates
-  fi
-  # find all deps with concrete version number (non current)
-  DEPS=""
-  for APP_NAME3 in $(ls $DIR/app --sort name); do
-    for APP_VER3 in $(ls $DIR/app/$APP_NAME3); do
-      if [ "$APP_VER3" != "current" ]; then
-        find_app_deps $DIR/app/$APP_NAME3/$APP_VER3 "Deps" 0
-      fi
-    done
-  done
-  DEPS_NON_CURRENT=$DEPS
-  #go over all apps
-  for APP_NAME in $(ls $DIR/app --sort name); do
-    echo App $APP_NAME
-    CURRENT=$(realpath $DIR/app/$APP_NAME/current)
-    for APP_VER in $(ls $DIR/app/$APP_NAME); do
-      if [ "$APP_VER" != "current" ]; then
-        if [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
-          echo -n "  Version [$APP_VER]"
-        else
-          echo -n "  Version $APP_VER"
-        fi
-        DEPS=""
-        find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
-        if [ "$DEPS" != "" ]; then
-          echo -n " [deps $DEPS]"
-        fi
-        if [ "$1" != "" ] && [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
-          NEW_VER=$APP_VER
-          find_latest_latest_app_version_in_repo $APP_NAME
-          if [ "$NEW_VER" != "$APP_VER" ]; then
-            echo -n " [update $NEW_VER]"
-          fi
-        fi
-        echo
-      fi
-    done
-    IFS=":"
-    for APP4 in $DEPS_NON_CURRENT; do
-      IFS=" " read -r APP_NAME4 APP_VER4 << EOF
-$APP4
-EOF
-      if [ "$APP_NAME4" = "$APP_NAME" ]; then
-        echo -n "  Dep from the other app $APP_VER4"
-        if [ "$1" != "" ]; then
-          DEPS="${APP_NAME4} ${APP_VER4}"
-          find_all_app_versions_in_repo 0
-          IFS=" " read -r APP_NAME5 APP_VER5 NEW_REPO5 << EOF
-$NEW_DEPS
-EOF
-          if [ ! -d "$DIR/app/${APP_NAME}/${APP_VER5}" ]; then
-            echo -n " [update $APP_VER5]"
-          fi
-        fi
-        echo
-      fi
-    done
-    IFS=$IFSORIG
-  done
-else
+elif [ "$1" = "help" ]; then
   echo "$INFO"
   echo
-  echo "(no param)                  - shows versions and dependiences in the /app"
-  echo "available                   - gets repo info and shows versions, dependiences and possible updates for the /app"
+  echo "[name_part]                 - shows versions and dependiences in the /app for all or specified apps"
+  echo "available [name_part]       - gets repo info and shows versions, dependiences and possible updates for the /app for all or specified apps"
   echo "backup [package_list]       - backup packages and related packages from the /app (all, when \"package_list\" not given) to the xz package files"
   echo "                              Example: backup \"busybox current:kernel:pllinux 260221_0.1:mc:x 0.2\""
   echo
@@ -703,8 +640,90 @@ else
   echo "upgrade [package_list]      - like update"
   echo "upgradecheck [package_list] - like update, but shows info only (no updates in the /app)"
   echo
-  echo "(any other param)           - this info"
+  echo "help                        - this info"
   echo
   echo "Repo list:"
   echo $(cat app.repos)
+else
+  MASK=""
+  if [ "$1" = "available" ]; then
+    REPO_UPDATES=""
+    get_repo_updates
+    if [ "$2" != "" ]; then
+      MASK=$2
+    fi
+  elif [ "$1" != "" ]; then
+    MASK=$1
+  fi
+  # find all deps with concrete version number (non current)
+  DEPS=""
+  for APP_NAME3 in $(ls $DIR/app --sort name); do
+    for APP_VER3 in $(ls $DIR/app/$APP_NAME3); do
+      if [ "$APP_VER3" != "current" ]; then
+        find_app_deps $DIR/app/$APP_NAME3/$APP_VER3 "Deps" 0
+      fi
+    done
+  done
+  DEPS_NON_CURRENT=$DEPS
+  #go over all apps
+  for APP_NAME in $(ls $DIR/app --sort name); do
+    DISP=0
+    if [ "$MASK" = "" ]; then
+      DISP=1
+    else
+      case $APP_NAME in
+        *$MASK* )
+           DISP=1
+           ;;
+      esac
+    fi
+    if [ "$DISP" = "0" ]; then
+      continue
+    fi
+    echo App $APP_NAME
+    CURRENT=$(realpath $DIR/app/$APP_NAME/current)
+    for APP_VER in $(ls $DIR/app/$APP_NAME); do
+      if [ "$APP_VER" != "current" ]; then
+        if [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
+          echo -n "  Version [$APP_VER]"
+        else
+          echo -n "  Version $APP_VER"
+        fi
+        DEPS=""
+        find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
+        if [ "$DEPS" != "" ]; then
+          echo -n " [deps $DEPS]"
+        fi
+        if [ "$1" = "available" ] && [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
+          NEW_VER=$APP_VER
+          find_latest_latest_app_version_in_repo $APP_NAME
+          if [ "$NEW_VER" != "$APP_VER" ]; then
+            echo -n " [update $NEW_VER]"
+          fi
+        fi
+        echo
+      fi
+    done
+    IFS=":"
+    for APP4 in $DEPS_NON_CURRENT; do
+      IFS=" " read -r APP_NAME4 APP_VER4 << EOF
+$APP4
+EOF
+      if [ "$APP_NAME4" = "$APP_NAME" ]; then
+        echo -n "  Dep from the other app $APP_VER4"
+        if [ "$1" = "available" ]; then
+          DEPS="${APP_NAME4} ${APP_VER4}"
+          find_all_app_versions_in_repo 0
+          IFS=" " read -r APP_NAME5 APP_VER5 NEW_REPO5 << EOF
+$NEW_DEPS
+EOF
+          if [ ! -d "$DIR/app/${APP_NAME}/${APP_VER5}" ]; then
+            echo -n " [update $APP_VER5]"
+          fi
+        fi
+        echo
+      fi
+    done
+    IFS=$IFSORIG
+  done
 fi
