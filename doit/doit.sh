@@ -559,7 +559,7 @@ if [ "$package" == "npth" ]; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/npth/npth-${ver}.tar.bz2 npth npth-$ver
     create_app npth $prefix$ver
     cd out/npth/npth-$ver
-    ./configure --prefix=$output/app/npth/$prefix$ver 
+    ./configure --prefix=$output/app/npth/$prefix$ver --enable-install-npth-config
     make all -j$cpu_num
     make install
     cd ../../..
