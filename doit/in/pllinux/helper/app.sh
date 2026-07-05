@@ -1,6 +1,5 @@
 #!/mnt/x/app/busybox/current/bin/sh
-# Package manager
-INFO="Version from 4 Jul 2026. Part of PLLINUX"
+INFO="Package manager. Version from 4 Jul 2026. Part of PLLINUX"
 DIR="/mnt/x" # in real system /
 SYSTEM_APPS="busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:ldso:libc:libtinfo:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
 
@@ -683,26 +682,26 @@ else
   echo "$INFO"
   echo
   echo "(no param)                  - shows versions and dependiences in the /app"
-  echo "available                   - gets repo info and shows versions, dependiences and possible updates for /app"
-  echo "backup [package_list]       - backup packages and related packages (or all, when package_list not given) to the xz package files"
+  echo "available                   - gets repo info and shows versions, dependiences and possible updates for the /app"
+  echo "backup [package_list]       - backup packages and related packages from the /app (all, when \"package_list\" not given) to the xz package files"
   echo "                              Example: backup \"busybox current:kernel:pllinux 260221_0.1:mc:x 0.2\""
   echo
   echo "install package_list        - gets repo info and install packages from the repo."
-  echo "                              Note: it takes latest and greatest versions, but doesn't update \"current\" links for dependencies."
+  echo "                              Note: it takes latest and greatest available version, but doesn't update \"current\" links for dependencies."
   echo "                              Example: install \"mc:kernel 7.1.1:mc 260232_0.1\""
-  echo "installcheck package_list   - like install, but shows info only (no updates in /app)"
+  echo "installcheck package_list   - like install, but shows info only (no updates in the /app)"
   echo
-  echo "delete package_list         - remove package and dependencies from /app"
-  echo "deletecheck package_list    - like delete, but shows info only (no updates in /app)"
+  echo "delete package_list         - remove package and dependencies from the /app"
+  echo "deletecheck package_list    - like delete, but shows info only (no updates in the /app)"
   echo "remove package_list         - like delete"
-  echo "removecheck package_list    - like delete, but shows info only (no updates in /app)"
+  echo "removecheck package_list    - like delete, but shows info only (no updates in the /app)"
   echo
   echo "update [package_list]       - gets repo info and install updates in the /app"
   echo "                              Note: Updates \"current\" links when necessary"
   echo "                              Example: update \"mc:busybox\""
-  echo "updatecheck [package_list]  - like update, but shows info only (no updates in /app)"
+  echo "updatecheck [package_list]  - like update, but shows info only (no updates in the /app)"
   echo "upgrade [package_list]      - like update"
-  echo "upgradecheck [package_list] - like update, but shows info only (no updates in /app)"
+  echo "upgradecheck [package_list] - like update, but shows info only (no updates in the /app)"
   echo
   echo "(any other param)           - this info"
   echo
