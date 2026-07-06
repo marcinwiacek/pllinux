@@ -126,8 +126,11 @@ In this moment it's important to prepare AND optimalize all algorithms + it's go
 
 Let's look what we have:
 
-# Package format
+# Package format and authenticity checking
 
 In first package manager versions we used high compression archive (currently tar.xz), currently there is used tar.xz put into tar file with extra OpenSSL signature together (I was considering GnuPGP as well, but in the end I'm more from the OpenSSL world and it can make all actions with less steps).
 
 Inside tar.xz file there can be provided scripts directory with installation script - it's run in the bwrap sandbox with module dependencies and can create extra content in the dynamic directory.
+
+Each repo needs two copies of public key used for signing packages - they must be stored in totally independent location and the same
+(when not, this can mean, that one of them was compromised and we cannot trust packages anymore)
