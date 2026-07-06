@@ -1,6 +1,6 @@
 #!/mnt/x/app/busybox/current/bin/sh
 INFO="Package manager. Version from 6 Jul 2026. Part of PLLINUX"
-DIR="/mnt/x" # in real system /
+DIR="/mnt/x" # in real system empty string
 SYSTEM_APPS="busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:ldso:libc:libtinfo:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
 
 # getting app dependencies from app readme.md
@@ -243,8 +243,8 @@ EOF
 #        if [ $UPDATE_CURRENT = "0" ]; then
           echo "  App ${APP_NAME} not found in repo. Skipping"
 #        fi
-      elif [ ! -f "${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz" ]; then
-        echo "  File ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz does not exist. Skipping"
+      elif [ ! -f "${APP_REPO}${APP_NAME}_${APP_VER}.tar" ]; then
+        echo "  File ${APP_REPO}${APP_NAME}_${APP_VER}.tar does not exist. Skipping"
         INSTALL_ERROR=1
         break
       elif [ ! -d "/tmp/app/${APP_NAME}/${APP_VER}" ]; then
@@ -253,14 +253,23 @@ EOF
         mkdir /tmp/app/${APP_NAME}/${APP_VER} 2> /dev/null
         olddir=$(pwd)
         cd /tmp/app/${APP_NAME}/${APP_VER}
-        echo "  Unpacking $olddir/${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz to /tmp/app"
-        tar -xvf $olddir/${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz 2> /dev/null > /dev/null
-        cd ..
-        if [ $UPDATE_CURRENT = "1" ] || [ ! -d "$DIR/app/${APP_NAME}/current" ]; then
-          ln -s ${APP_VER} current
+        echo "  Unpacking $olddir/${APP_REPO}${APP_NAME}_${APP_VER}.tar to /tmp/app"
+        tar -xvf $olddir/${APP_REPO}${APP_NAME}_${APP_VER}.tar 2> /dev/null > /dev/null
+        VERIFY=$(openssl dgst -verify $olddir/app.publickey -keyform PEM -sha256 -signature ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz.sig -binary ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz 2> /dev/null | grep "Verified OK")
+        if [ "$VERIFY" != "Verified OK" ]; then
+          INSTALL_ERROR=1
+          echo "  Verification error"
+        else
+          tar -xvf ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz 2> /dev/null > /dev/null
+          rm ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz
+          rm ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz.sig
+          cd ..
+          if [ $UPDATE_CURRENT = "1" ] || [ ! -d "$DIR/app/${APP_NAME}/current" ]; then
+            ln -s ${APP_VER} current
+          fi
+          cd $olddir
+          find_app_deps /tmp/app/${APP_NAME}/${APP_VER} "Deps" 1
         fi
-        cd $olddir
-        find_app_deps /tmp/app/${APP_NAME}/${APP_VER} "Deps" 1
       fi
     done
     if [ "$complete" = 1 ]; then
@@ -270,7 +279,7 @@ EOF
   if [ -d "/tmp/app" ] && [ "$INSTALL_ERROR" = "0" ]; then
     # searching and running installation scripts if any
     IFS=$IFSORIG
-    for APP_NAME in $(ls /tmp/app --sort name); do
+    for APP_NAME in $(ls /tmp/app); do
       for APP_VER in $(ls /tmp/app/${APP_NAME}); do
         if [ "$APP_VER" != "current" ]; then
           INSTALL_SCRIPT=""
@@ -412,7 +421,7 @@ elif [ "$1" = "update" ] || [ "$1" == "upgrade" ] || [ "$1" = "updatecheck" ] ||
   get_repo_updates
   APP_LIST=$2
   if [ "$APP_LIST" = "" ]; then
-    APP_LIST=$(ls $DIR/app --sort name)
+    APP_LIST=$(ls $DIR/app)
   fi 
   # find all deps with concrete version number (non current)
   DEPS=""
@@ -495,7 +504,7 @@ EOF
 #    echo $DEPS_FROM_APP_TO_REMOVE
     # get deps from all other apps than apps for removing
     DEPS_FROM_OTHER_APPS=""
-    for APP_NAME in $(ls $DIR/app --sort name); do
+    for APP_NAME in $(ls $DIR/app); do
       for APP_VER in $(ls $DIR/app/$APP_NAME); do
         if [ $APP_VER != "current" ]; then
           found=0
@@ -569,10 +578,14 @@ EOF
     done
   fi
 elif [ "$1" = "backup" ]; then
+  if [ ! -f "app.privkey" ]; then
+    openssl genrsa --out app.privkey 4096
+    openssl rsa -in app.privkey -pubout > app.publickey
+  fi
   DEPS=$2
   if [ "$DEPS" == "" ]; then
-    for APP_NAME in $(ls $DIR/app --sort name); do
-      for APP_VER in $(ls $DIR/app/$APP_NAME --sort name); do
+    for APP_NAME in $(ls $DIR/app); do
+      for APP_VER in $(ls $DIR/app/$APP_NAME); do
         if [ "$APP_VER" != "current" ]; then
           if [ "$DEPS" != "" ]; then
             DEPS="$DEPS:"
@@ -605,17 +618,22 @@ EOF
     if [ "$APP_VER" != "current" ] && [ "${APP_VER:$LEN:1}" != "-" ]; then
       CURRENT=$(realpath $DIR/app/$APP_NAME/$APP_VER)
       APP_VER=${CURRENT##*/}
-      if [ -f "${APP_NAME}_${APP_VER}.tar.xz" ]; then
-        echo "Backup file ${APP_NAME}_${APP_VER}.tar.xz already exists. Skipping"
+      if [ -f "${APP_NAME}_${APP_VER}.tar" ]; then
+        echo "Backup file ${APP_NAME}_${APP_VER}.tar already exists. Skipping"
       elif [ -d "$DIR/app/${APP_NAME}/${APP_VER}" ]; then
-        echo "Creating backup file ${APP_NAME}_${APP_VER}.tar.xz"
-        tar cfJ ${APP_NAME}_${APP_VER}.tar.xz --exclude dynamic -C $DIR/app/${APP_NAME}/${APP_VER} .
+        echo "Creating backup file ${APP_NAME}_${APP_VER}.tar"
+        rm -r /tmp/app
+        mkdir /tmp/app
+        tar cfJ /tmp/app/${APP_NAME}_${APP_VER}.tar.xz --exclude dynamic -C $DIR/app/${APP_NAME}/${APP_VER} .
+        openssl dgst -sign app.privkey -keyform PEM -sha256 -out /tmp/app/${APP_NAME}_${APP_VER}.tar.xz.sig -binary /tmp/app/${APP_NAME}_${APP_VER}.tar.xz
+        tar cfJ ${APP_NAME}_${APP_VER}.tar -C /tmp/app .
+        rm -r /tmp/app
       else
         echo "No app $APP_NAME $APP_VER. Skipping"
       fi
     fi
   done
-elif [ "$1" = "help" ]; then
+elif [ "$1" = "help" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
   echo "$INFO"
   echo
   echo "[name_part]                 - shows versions and dependiences in the /app for all or specified apps"
@@ -657,7 +675,7 @@ else
   fi
   # find all deps with concrete version number (non current)
   DEPS=""
-  for APP_NAME3 in $(ls $DIR/app --sort name); do
+  for APP_NAME3 in $(ls $DIR/app); do
     for APP_VER3 in $(ls $DIR/app/$APP_NAME3); do
       if [ "$APP_VER3" != "current" ]; then
         find_app_deps $DIR/app/$APP_NAME3/$APP_VER3 "Deps" 0
@@ -666,7 +684,7 @@ else
   done
   DEPS_NON_CURRENT=$DEPS
   #go over all apps
-  for APP_NAME in $(ls $DIR/app --sort name); do
+  for APP_NAME in $(ls $DIR/app); do
     DISP=0
     if [ "$MASK" = "" ]; then
       DISP=1
