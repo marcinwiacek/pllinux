@@ -128,4 +128,6 @@ Let's look what we have:
 
 # Package format
 
-In first package manager versions we used high compression archive (currently tar.xz), currently there is used tar.xz put into tar file with extra PGP signature.
+In first package manager versions we used high compression archive (currently tar.xz), currently there is used tar.xz put into tar file with extra OpenSSL signature together (I was considering GnuPGP as well, but in the end I'm more from the OpenSSL world and it can make all actions with less steps).
+
+Inside tar.xz file there can be provided scripts directory with installation script - it's run in the bwrap sandbox with module dependencies and can create extra content in the dynamic directory.

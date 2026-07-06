@@ -122,16 +122,20 @@ EOF
 get_repo_updates() {
   REPO_UPDATES=""
   while read -r repo_line; do
-    if [ "$repo_line" != "http" ]; then
-      if [ ! -d "$repo_line" ]; then
-        echo Repo directory $repo_line not found. Skipping
-      elif [ ! -f "${repo_line}/app.repo.updates" ]; then
-        echo "Repo directory $repo_line without app.repo.updates file. Skipping"
+    IFS=" " read -r REPO_URL REPO_FIRST_PUBLIC_KEY REPO_SECOND_PUBLIC_KEY << EOF
+$repo_line
+EOF
+#echo $REPO_URL $REPO_FIRST_PUBLIC_KEY $REPO_SECOND_PUBLIC_KEY
+    if [ "$REPO_URL" != "http" ]; then
+      if [ ! -d "$REPO_URL" ]; then
+        echo Repo directory $REPO_URL not found. Skipping
+      elif [ ! -f "${REPO_URL}/app.repo.updates" ]; then
+        echo "Repo directory $REPO_URL without app.repo.updates file. Skipping"
       else
         while read -r line; do
-          REPO_UPDATES="$REPO_UPDATES$line $repo_line
+          REPO_UPDATES="$REPO_UPDATES$line $REPO_URL
 "
-        done < "${repo_line}app.repo.updates"
+        done < "${REPO_URL}app.repo.updates"
       fi
     fi
   done < "app.repos"
