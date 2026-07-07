@@ -121,24 +121,55 @@ EOF
 
 get_repo_updates() {
   REPO_UPDATES=""
+  LINE_NUM=1
+  rm -r -f /tmp/apprepo
   while read -r repo_line; do
     IFS=" " read -r REPO_URL REPO_FIRST_PUBLIC_KEY REPO_SECOND_PUBLIC_KEY << EOF
 $repo_line
 EOF
-#echo $REPO_URL $REPO_FIRST_PUBLIC_KEY $REPO_SECOND_PUBLIC_KEY
-    if [ "$REPO_URL" != "http" ]; then
-      if [ ! -d "$REPO_URL" ]; then
-        echo Repo directory $REPO_URL not found. Skipping
-      elif [ ! -f "${REPO_URL}/app.repo.updates" ]; then
+    if [ "${REPO_URL:0:5}" = "https" ]; then
+      mkdir /tmp/apprepo 2> /dev/null
+      mkdir /tmp/apprepo/${LINE_NUM} 2> /dev/null
+      wget -O /tmp/apprepo/${LINE_NUM}/app.repo.updates ${REPO_URL//[*]/app.repo.updates} > /dev/null 2> /dev/null
+      if [ $? -eq 0 ]; then
+        wget -O /tmp/apprepo/${LINE_NUM}/app.publickey1 $REPO_FIRST_PUBLIC_KEY > /dev/null 2> /dev/null
+        if [ $? -eq 0 ]; then
+          if [ $REPO_FIRST_PUBLIC_KEY = $REPO_SECOND_PUBLIC_KEY ]; then
+            echo "Repo $REPO_URL issue - the same public key (worse security)"
+            cp /tmp/apprepo/${LINE_NUM}/app.publickey1 /tmp/apprepo/${LINE_NUM}/app.publickey2
+          else 
+            wget -O /tmp/apprepo/${LINE_NUM}/app.publickey2 $REPO_SECOND_PUBLIC_KEY > /dev/null 2> /dev/null
+          fi
+          if cmp -s /tmp/apprepo/${LINE_NUM}/app.publickey1 /tmp/apprepo/${LINE_NUM}/app.publickey2; then
+            while read -r line; do
+              REPO_UPDATES="$REPO_UPDATES$line $REPO_URL /tmp/apprepo/${LINE_NUM}/app.publickey1
+"
+            done < "/tmp/apprepo/${LINE_NUM}/app.repo.updates"
+          else
+            echo Repo $REPO_URL problem - both public keys are not the same. Skipping
+          fi
+        fi
+      fi
+      LINE_NUM=$LINE_NUM+1
+    else
+      REPO_DIR=${REPO_URL//[*]/}
+      if [ ! -d "$REPO_DIR" ]; then
+        echo Repo directory $REPO_DIR not found. Skipping
+      elif [ ! -f "${REPO_URL//[*]/app.repo.updates}" ]; then
         echo "Repo directory $REPO_URL without app.repo.updates file. Skipping"
       else
-        while read -r line; do
-          REPO_UPDATES="$REPO_UPDATES$line $REPO_URL
+        if cmp -s $REPO_FIRST_PUBLIC_KEY $REPO_SECOND_PUBLIC_KEY; then
+          while read -r line; do
+            REPO_UPDATES="$REPO_UPDATES$line $REPO_URL $REPO_FIRST_PUBLIC_KEY
 "
-        done < "${REPO_URL}app.repo.updates"
+          done < "${REPO_URL//[*]/app.repo.updates}"
+        else
+          echo Repo $REPO_URL problem - both public keys are not the same. Skipping
+        fi
       fi
     fi
   done < "app.repos"
+  echo "$REPO_UPDATES"
 }
 
 # we search the highest possible update version
@@ -236,7 +267,7 @@ install_single_app() {
     find_all_app_versions_in_repo $UPDATE_CURRENT
     IFS=":"
     for DEP in $NEW_DEPS; do
-      IFS=" " read -r APP_NAME APP_VER APP_REPO << EOF
+      IFS=" " read -r APP_NAME APP_VER APP_REPO APP_PUBLIC_KEY << EOF
 $DEP
 EOF
       if [ -d "$DIR/app/${APP_NAME}/${APP_VER}" ]; then
@@ -247,32 +278,47 @@ EOF
 #        if [ $UPDATE_CURRENT = "0" ]; then
           echo "  App ${APP_NAME} not found in repo. Skipping"
 #        fi
-      elif [ ! -f "${APP_REPO}${APP_NAME}_${APP_VER}.tar" ]; then
-        echo "  File ${APP_REPO}${APP_NAME}_${APP_VER}.tar does not exist. Skipping"
-        INSTALL_ERROR=1
-        break
-      elif [ ! -d "/tmp/app/${APP_NAME}/${APP_VER}" ]; then
-        mkdir /tmp/app 2> /dev/null
-        mkdir /tmp/app/${APP_NAME} 2> /dev/null
-        mkdir /tmp/app/${APP_NAME}/${APP_VER} 2> /dev/null
-        olddir=$(pwd)
-        cd /tmp/app/${APP_NAME}/${APP_VER}
-        echo "  Unpacking $olddir/${APP_REPO}${APP_NAME}_${APP_VER}.tar to /tmp/app"
-        tar -xvf $olddir/${APP_REPO}${APP_NAME}_${APP_VER}.tar 2> /dev/null > /dev/null
-        VERIFY=$(openssl dgst -verify $olddir/app.publickey -keyform PEM -sha256 -signature ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz.sig -binary ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz 2> /dev/null | grep "Verified OK")
-        if [ "$VERIFY" != "Verified OK" ]; then
-          INSTALL_ERROR=1
-          echo "  Verification error"
-        else
-          tar -xvf ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz 2> /dev/null > /dev/null
-          rm ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz
-          rm ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz.sig
-          cd ..
-          if [ $UPDATE_CURRENT = "1" ] || [ ! -d "$DIR/app/${APP_NAME}/current" ]; then
-            ln -s ${APP_VER} current
+      else
+        LINK="${APP_REPO//[*]/${APP_NAME}_${APP_VER}.tar}"
+        if [ "${APP_REPO:0:5}" = "https" ]; then
+          if [ ! -f "/tmp/apprepo/${APP_NAME}_${APP_VER}.tar}" ]; then
+            wget -O "/tmp/apprepo/${APP_NAME}_${APP_VER}.tar}" $LINK
+            if [ $? -ne 0 ]; then
+              INSTALL_ERROR=1
+              break
+            else
+              LINK="/tmp/apprepo/${APP_NAME}_${APP_VER}.tar}"
+            fi
           fi
-          cd $olddir
-          find_app_deps /tmp/app/${APP_NAME}/${APP_VER} "Deps" 1
+        elif [ ! -f "$LINK" ]; then
+          echo "  File $LINK does not exist. Skipping"
+          INSTALL_ERROR=1
+          break
+        fi
+        if [ ! -d "/tmp/app/${APP_NAME}/${APP_VER}" ]; then
+          mkdir /tmp/app 2> /dev/null
+          mkdir /tmp/app/${APP_NAME} 2> /dev/null
+          mkdir /tmp/app/${APP_NAME}/${APP_VER} 2> /dev/null
+          olddir=$(pwd)
+          cd /tmp/app/${APP_NAME}/${APP_VER}
+          echo "  Unpacking $LINK to /tmp/app"
+          tar -xvf $LINK 2> /dev/null > /dev/null
+          echo "openssl dgst -verify ${OLDDIR}$APP_PUBLIC_KEY -keyform PEM -sha256 -signature ${APP_NAME}_${APP_VER}.tar.xz.sig -binary ${APP_NAME}_${APP_VER}.tar.xz"
+          VERIFY=$(openssl dgst -verify ${OLDDIR}$APP_PUBLIC_KEY -keyform PEM -sha256 -signature ${APP_NAME}_${APP_VER}.tar.xz.sig -binary ${APP_NAME}_${APP_VER}.tar.xz 2> /dev/null | grep "Verified OK")
+          if [ "$VERIFY" != "Verified OK" ]; then
+            INSTALL_ERROR=1
+            echo "  Verification error"
+          else
+            tar -xvf ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz 2> /dev/null > /dev/null
+#            rm ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz
+#            rm ${APP_REPO}${APP_NAME}_${APP_VER}.tar.xz.sig
+            cd ..
+            if [ $UPDATE_CURRENT = "1" ] || [ ! -d "$DIR/app/${APP_NAME}/current" ]; then
+              ln -s ${APP_VER} current
+            fi
+            cd $olddir
+            find_app_deps /tmp/app/${APP_NAME}/${APP_VER} "Deps" 1
+          fi
         fi
       fi
     done
@@ -665,7 +711,7 @@ elif [ "$1" = "help" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
   echo "help                        - this info"
   echo
   echo "Repo list:"
-  echo $(cat app.repos)
+  echo "$(cat app.repos)"
 else
   MASK=""
   if [ "$1" = "available" ]; then
