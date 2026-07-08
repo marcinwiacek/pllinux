@@ -22,6 +22,10 @@ When you think, this is just utopia, look on screens below - is it possible with
 
 ![Memory](2026/jun_memory.png)
 
+![Memory](2026/jul_app.png)
+
+(last screen was done from the host)
+
 **Plans**
 
 Currently in early alpha. Some things are done and many still todo:
