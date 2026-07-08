@@ -69,6 +69,7 @@ things notified by Marcin Wiącek few years ago and confirmed not only by Lunduk
   4. [Linux Dev Labs](https://www.youtube.com/@linux-dev-labs) - another niche channel: sometimes it's good to look on things from the other perspective (it doesn't mean, that they're always correct)
   5. [Stop Celebrating Ubuntu 26.04 — It's a Disaster](https://www.youtube.com/watch?v=tG2ZMvBT8W4), [Ubuntu 26.04: The Ubuntu Platform's Downfall](https://www.youtube.com/watch?v=bfEL3UjPUFg) or [Ubuntu 26.04 Trust Problem: Snap Flaws, Ads & Migration](https://www.youtube.com/watch?v=dzASGvSGF3M) - they're maybe very small videos or channels, but very good mention about such Ubuntu problems like close-source app shop, problems with Rust rewrites, silent installation in background and many other things (random note: 26.04 was day of Czarnobyl disaster in 1986)
   6. [Ubuntu dominates servers, but one choice killed it on the desktop](https://www.xda-developers.com/ubuntu-dominates-servers-but-one-choice-killed-it-on-the-desktop/)
+  7. [A new foundation for TUXEDO OS: Switching to Debian](https://www.tuxedocomputers.com/en/A-new-foundation-for-TUXEDO-OS-Switching-to-Debian.tuxedo)
 
 And some other very concrete examples:
 

@@ -1,4 +1,4 @@
-# Milestone 5
+# Milestone 4
 # Packaging versioning discussion
 
 I will try to make brainstrom about versioning here, if you want summary, just go to another section.

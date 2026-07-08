@@ -48,7 +48,7 @@ One note: main author of PLLINUX was preparing Open Source software before 2000 
 
   1. 16 April 2026 - start
   2. 22 June 2026 - making GitHub repo public (with tested script for distribution building)
-  3. July 2026 - package manager and first packages online
+  3. July 2026 - package manager and [first packages online in the freshmeat.net / sourceforge.net](https://sourceforge.net/projects/pllinux/files/)
 
 **Building and starting**
 
@@ -57,7 +57,9 @@ One note: main author of PLLINUX was preparing Open Source software before 2000 
   3. point this partition in the [build script doit.sh](doit/doit.sh)
   4. run [build script doit.sh](doit/doit.sh) (it can ask sometimes for sudo for dependiences)
   5. add PLLINUX to the GRUB (create [file /etc/grub.d/40_custom](2026/40_custom) with correct UUID for new filesystem get with **sudo blkid**)
-  6. restart and have fun.
+  6. (if necessary) increase resolution in /etc/default/grub (GRUB_GFXMODE=1920x1080 or something similar)
+  7. execute **update-grub** command
+  8. restart and have fun.
 
 In this moment (16 Jun 2026) PLLINUX filesystem needs 127MB and place for compiling 27GB. Secure Boot needs to be disabled now, UEFI required.
 
