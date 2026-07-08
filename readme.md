@@ -48,7 +48,7 @@ One note: main author of PLLINUX was preparing Open Source software before 2000 
 
   1. 16 April 2026 - start
   2. 22 June 2026 - making GitHub repo public (with tested script for distribution building)
-  3. July 2026 - package manager and [first packages online in the freshmeat.net / sourceforge.net](https://sourceforge.net/projects/pllinux/files/)
+  3. 9 July 2026 - package manager and [first package online in the freshmeat.net / sourceforge.net](https://sourceforge.net/projects/pllinux/files/)
 
 **Building and starting**
 

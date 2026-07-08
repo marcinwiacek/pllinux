@@ -124,7 +124,9 @@ This was written with shell script.
 In this moment it's important to prepare AND optimalize all algorithms + it's good to have easy to maintain and audit code
 (ok, sh or bash scripts are problematic in terms of maintaining, but good enough in this stage).
 
-Let's look what we have:
+Let's look what we have (screen done from host system):
+
+![app.sh options](2026/jul_app.png)
 
 # Package format and authenticity checking
 
@@ -132,5 +134,9 @@ In first package manager versions we used high compression archive (currently ta
 
 Inside tar.xz file there can be provided scripts directory with installation script - it's run in the bwrap sandbox with module dependencies and can create extra content in the dynamic directory.
 
-Each repo needs two copies of public key used for signing packages - they must be stored in totally independent location and the same
-(when not, this can mean, that one of them was compromised and we cannot trust packages anymore)
+Each repo needs two copies of public key used for signing packages - they must be stored in totally independent locations and the same
+(when not, this can mean, that one of them was compromised and we maybe cannot trust packages anymore). In the future we will maybe additionally compare it to local copies too.
+
+Anyway, first successfull upgrade from remote repo in real PLLINUX was done 9 Jul 2026:
+
+![first app.sh upgrade](2026/jul_update.png)
