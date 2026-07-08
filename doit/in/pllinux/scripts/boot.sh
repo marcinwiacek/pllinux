@@ -17,6 +17,8 @@ ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/gr
 # allow propagating /mnt mount into bwrap sandboxes
 /app/util-linux/current/mount --make-shared /mnt
 
+/app/util-linux/current/mount mount -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
+
 # starts and configures automatic mounting devices (USB pendrives, memory cards, etc.)
 # (enable mdev on request and process already connected devices)
 /app/busybox/current/bin/echo /app/busybox/current/sbin/mdev > /proc/sys/kernel/hotplug
