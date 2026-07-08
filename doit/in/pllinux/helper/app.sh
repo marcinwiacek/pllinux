@@ -1,6 +1,6 @@
-#!/mnt/x/app/busybox/current/bin/sh
-INFO="Package manager. Version from 6 Jul 2026. Part of PLLINUX"
-DIR="/mnt/x" # in real system empty string
+#!/app/busybox/current/bin/sh
+INFO="Package manager. Version from 8 Jul 2026. Part of PLLINUX"
+DIR="/" # path with / in the end. In real system /
 SYSTEM_APPS="busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:ldso:libc:libtinfo:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
 
 # getting app dependencies from app readme.md
@@ -225,7 +225,7 @@ EOF
     NEW_REPO="-"
     LEN=${#APP_VER20}-1
     if [ "$APP_VER20" = "current" ]; then
-      if [ ! -d "$DIR/app/${APP_NAME20}/current" ] || [ $UPDATE_CURRENT = "1" ]; then
+      if [ ! -d "${DIR}app/${APP_NAME20}/current" ] || [ $UPDATE_CURRENT = "1" ]; then
         find_latest_latest_app_version_in_repo $APP_NAME20
       else
         NEW_VER="current"
@@ -274,7 +274,7 @@ install_single_app() {
       IFS=" " read -r APP_NAME APP_VER APP_REPO APP_PUBLIC_KEY << EOF
 $DEP
 EOF
-      if [ -d "$DIR/app/${APP_NAME}/${APP_VER}" ]; then
+      if [ -d "${DIR}app/${APP_NAME}/${APP_VER}" ]; then
         if [ $UPDATE_CURRENT = "0" ]; then
           echo "  App ${APP_NAME} ${APP_VER} already installed. Skipping"
         fi
@@ -316,7 +316,7 @@ EOF
             rm ${APP_NAME}_${APP_VER}.tar.xz
             rm ${APP_NAME}_${APP_VER}.tar.xz.sig
             cd ..
-            if [ $UPDATE_CURRENT = "1" ] || [ ! -d "$DIR/app/${APP_NAME}/current" ]; then
+            if [ $UPDATE_CURRENT = "1" ] || [ ! -d "${DIR}app/${APP_NAME}/current" ]; then
               ln -s ${APP_VER} current
             fi
             cd $olddir
@@ -349,13 +349,13 @@ $DEP
 EOF
               if [ -d "/tmp/app/${APP_NAME3}/${APP_VER3}" ]; then
                 PARAMS="$PARAMS --ro-bind /tmp/app/${APP_NAME3}/${APP_VER3} /app/${APP_NAME3}/${APP_VER3} "
-              elif [ -d "$DIR/app/${APP_NAME3}/${APP_VER3}" ]; then
-                PARAMS="$PARAMS --ro-bind $DIR/app/${APP_NAME3}/${APP_VER3} /app/${APP_NAME3}/${APP_VER3} "
+              elif [ -d "${DIR}app/${APP_NAME3}/${APP_VER3}" ]; then
+                PARAMS="$PARAMS --ro-bind ${DIR}app/${APP_NAME3}/${APP_VER3} /app/${APP_NAME3}/${APP_VER3} "
               else
                 echo "Something wrong. Dependency ${APP_NAME3} ${APP_VER3}"
               fi
             done
-            PARAMS="$PARAMS --ro-bind $DIR/app/busybox/current /app/busybox/current "
+            PARAMS="$PARAMS --ro-bind ${DIR}app/busybox/current /app/busybox/current "
             PARAMS="$PARAMS --ro-bind /tmp/app/${APP_NAME}/${APP_VER} /app/${APP_NAME}/${APP_VER} "
             mkdir -p /tmp/app/${APP_NAME}/${APP_VER}/dynamic || true
             PARAMS="$PARAMS --bind /tmp/app/${APP_NAME}/${APP_VER}/dynamic /app/${APP_NAME}/${APP_VER}/dynamic "
@@ -384,7 +384,7 @@ find_latest_app_version_lower_than_given_in_app() {
   local APP_NAME=$1
   local MAX_VER=$2
   IFS=$IFSORIG
-  for APP_VER in $(ls $DIR/app/$APP_NAME); do
+  for APP_VER in $(ls ${DIR}app/$APP_NAME); do
     if [ "$APP_VER" != "current" ]; then
       compare_app_version $MAX_VER $APP_VER
       if [ $first_bigger = "1" ]; then
@@ -407,18 +407,18 @@ EOF
     NEW_VER=$APP_VER20
     LEN=${#APP_VER20}-1
     IFS=$IFSORIG
-    if [ -d "$DIR/app/$APP_NAME20" ]; then
+    if [ -d "${DIR}app/$APP_NAME20" ]; then
       if [ "$APP_VER20" = "current" ]; then
-        CURRENT=$(realpath $DIR/app/$APP_NAME20/current)
-        for APP_VER21 in $(ls $DIR/app/$APP_NAME20); do
-          if [ "$CURRENT" = "$DIR/app/$APP_NAME20/$APP_VER21" ]; then
+        CURRENT=$(realpath ${DIR}app/$APP_NAME20/current)
+        for APP_VER21 in $(ls ${DIR}app/$APP_NAME20); do
+          if [ "$CURRENT" = "${DIR}app/$APP_NAME20/$APP_VER21" ]; then
             NEW_VER=$APP_VER21
             break
           fi
         done
       elif [ "$((LEN))" -lt 5 ] || [ ${APP_VER20:6:1} != "_" ]; then
         # version without date
-        for APP_VER21 in $(ls $DIR/app/$APP_NAME20); do
+        for APP_VER21 in $(ls ${DIR}app/$APP_NAME20); do
           if [ "$APP_VER20" = "${APP_VER21:7}" ]; then
             if [ $NEW_VER == $APP_VER ] || [ "${APP_VER21:0:6}" \> "${NEW_VER:0:6}" ]; then
               NEW_VER=$APP_VER21
@@ -428,7 +428,7 @@ EOF
       elif [ "${APP_VER20:$LEN:1}" = "-" ]; then
         # we search the highest/latest version but lower than specified in APP_VER
         MAX_VER=${APP_VER20:0:$LEN}
-        for APP_VER31 in $(ls $DIR/app/$APP_NAME20); do
+        for APP_VER31 in $(ls ${DIR}app/$APP_NAME20); do
          compare_app_version $MAX_VER $APP_VER21
           if [ $first_bigger = "1" ]; then
             compare_app_version $NEW_VER $APP_VER31
@@ -474,14 +474,14 @@ elif [ "$1" = "update" ] || [ "$1" == "upgrade" ] || [ "$1" = "updatecheck" ] ||
   get_repo_updates
   APP_LIST=$2
   if [ "$APP_LIST" = "" ]; then
-    APP_LIST=$(ls $DIR/app)
+    APP_LIST=$(ls ${DIR}app)
   fi 
   # find all deps with concrete version number (non current)
   DEPS=""
   for APP_NAME3 in $APP_LIST; do
-    for APP_VER3 in $(ls $DIR/app/$APP_NAME3); do
+    for APP_VER3 in $(ls ${DIR}app/$APP_NAME3); do
       if [ "$APP_VER3" != "current" ]; then
-        find_app_deps $DIR/app/$APP_NAME3/$APP_VER3 "Deps" 0
+        find_app_deps ${DIR}app/$APP_NAME3/$APP_VER3 "Deps" 0
       fi
     done
   done
@@ -506,7 +506,7 @@ EOF
         IFS=" " read -r APP_NAME5 APP_VER5 NEW_REPO5 << EOF
 $NEW_DEPS
 EOF
-        if [ ! -d "$DIR/app/${APP_NAME}/${APP_VER5}" ]; then
+        if [ ! -d "${DIR}app/${APP_NAME}/${APP_VER5}" ]; then
           DEPS="${APP_NAME} ${APP_VER5}"
           install_single_app 0
           if [ "$1" = "update" ] || [ "$1" == "upgrade" ]; then
@@ -545,7 +545,7 @@ elif [ "$1" = "delete" ] || [ "$1" = "deletecheck" ] || [ "$1" = "remove" ] || [
         IFS=" " read -r APP_NAME APP_VER << EOF
 $DEP
 EOF
-        find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
+        find_app_deps ${DIR}app/$APP_NAME/$APP_VER "Deps" 1
       done
       if [ "$complete" = 1 ]; then
         break;
@@ -557,8 +557,8 @@ EOF
 #    echo $DEPS_FROM_APP_TO_REMOVE
     # get deps from all other apps than apps for removing
     DEPS_FROM_OTHER_APPS=""
-    for APP_NAME in $(ls $DIR/app); do
-      for APP_VER in $(ls $DIR/app/$APP_NAME); do
+    for APP_NAME in $(ls ${DIR}app); do
+      for APP_VER in $(ls ${DIR}app/$APP_NAME); do
         if [ $APP_VER != "current" ]; then
           found=0
           IFS=":"
@@ -574,7 +574,7 @@ EOF
           IFS=$IFSORIG
           if [ $found = "0" ]; then
             DEPS=""
-            find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
+            find_app_deps ${DIR}app/$APP_NAME/$APP_VER "Deps" 1
             if [ "$DEPS" != "" ]; then
               # replace everything with concrete version numbers
               find_current_app_versions_in_app
@@ -592,15 +592,15 @@ EOF
 $APP
 EOF
       DONT_REMOVE=0
-      if [ ! -d "$DIR/app/$APP_NAME/$APP_VER" ]; then
+      if [ ! -d "${DIR}app/$APP_NAME/$APP_VER" ]; then
         echo "App $APP_NAME $APP_VER not installed. Skipping" 
         DONT_REMOVE=1
       fi
       if [ "$DONT_REMOVE" = "0" ]; then
         for APP_NAME2 in $SYSTEM_APPS; do
           if [ "$APP_NAME" = "$APP_NAME2" ]; then
-            CURRENT=$(realpath $DIR/app/$APP_NAME/current)
-            if [ "$DIR/app/$APP_NAME/$APP_VER" = "$CURRENT" ]; then
+            CURRENT=$(realpath ${DIR}app/$APP_NAME/current)
+            if [ "${DIR}app/$APP_NAME/$APP_VER" = "$CURRENT" ]; then
               echo "Cannot remove $APP_NAME $APP_VER (current). Required for system work" 
               DONT_REMOVE=1
               break
@@ -637,8 +637,8 @@ elif [ "$1" = "backup" ]; then
   fi
   DEPS=$2
   if [ "$DEPS" == "" ]; then
-    for APP_NAME in $(ls $DIR/app); do
-      for APP_VER in $(ls $DIR/app/$APP_NAME); do
+    for APP_NAME in $(ls ${DIR}app); do
+      for APP_VER in $(ls ${DIR}app/$APP_NAME); do
         if [ "$APP_VER" != "current" ]; then
           if [ "$DEPS" != "" ]; then
             DEPS="$DEPS:"
@@ -655,7 +655,7 @@ elif [ "$1" = "backup" ]; then
       IFS=" " read -r APP_NAME APP_VER << EOF
 $DEP
 EOF
-      find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
+      find_app_deps ${DIR}app/$APP_NAME/$APP_VER "Deps" 1
     done
     if [ "$complete" = 1 ]; then
       break;
@@ -669,15 +669,15 @@ EOF
     LEN=${#APP_VER}-1
     #fixme: with - dependency we have to find correct version
     if [ "$APP_VER" != "current" ] && [ "${APP_VER:$LEN:1}" != "-" ]; then
-      CURRENT=$(realpath $DIR/app/$APP_NAME/$APP_VER)
+      CURRENT=$(realpath ${DIR}app/$APP_NAME/$APP_VER)
       APP_VER=${CURRENT##*/}
       if [ -f "${APP_NAME}_${APP_VER}.tar" ]; then
         echo "Backup file ${APP_NAME}_${APP_VER}.tar already exists. Skipping"
-      elif [ -d "$DIR/app/${APP_NAME}/${APP_VER}" ]; then
+      elif [ -d "${DIR}app/${APP_NAME}/${APP_VER}" ]; then
         echo "Creating backup file ${APP_NAME}_${APP_VER}.tar"
         rm -r /tmp/app
         mkdir /tmp/app
-        tar cfJ /tmp/app/${APP_NAME}_${APP_VER}.tar.xz --exclude dynamic -C $DIR/app/${APP_NAME}/${APP_VER} .
+        tar cfJ /tmp/app/${APP_NAME}_${APP_VER}.tar.xz --exclude dynamic -C ${DIR}app/${APP_NAME}/${APP_VER} .
         openssl dgst -sign app.privkey -keyform PEM -sha256 -out /tmp/app/${APP_NAME}_${APP_VER}.tar.xz.sig -binary /tmp/app/${APP_NAME}_${APP_VER}.tar.xz
         tar cfJ ${APP_NAME}_${APP_VER}.tar -C /tmp/app .
         rm -r /tmp/app
@@ -728,16 +728,16 @@ else
   fi
   # find all deps with concrete version number (non current)
   DEPS=""
-  for APP_NAME3 in $(ls $DIR/app); do
-    for APP_VER3 in $(ls $DIR/app/$APP_NAME3); do
+  for APP_NAME3 in $(ls ${DIR}app); do
+    for APP_VER3 in $(ls ${DIR}app/$APP_NAME3); do
       if [ "$APP_VER3" != "current" ]; then
-        find_app_deps $DIR/app/$APP_NAME3/$APP_VER3 "Deps" 0
+        find_app_deps ${DIR}app/$APP_NAME3/$APP_VER3 "Deps" 0
       fi
     done
   done
   DEPS_NON_CURRENT=$DEPS
   #go over all apps
-  for APP_NAME in $(ls $DIR/app); do
+  for APP_NAME in $(ls ${DIR}app); do
     DISP=0
     if [ "$MASK" = "" ]; then
       DISP=1
@@ -752,20 +752,20 @@ else
       continue
     fi
     echo App $APP_NAME
-    CURRENT=$(realpath $DIR/app/$APP_NAME/current)
-    for APP_VER in $(ls $DIR/app/$APP_NAME); do
+    CURRENT=$(realpath ${DIR}app/$APP_NAME/current)
+    for APP_VER in $(ls ${DIR}app/$APP_NAME); do
       if [ "$APP_VER" != "current" ]; then
-        if [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
+        if [ "$CURRENT" = "${DIR}app/$APP_NAME/$APP_VER" ]; then
           echo -n "  Version [$APP_VER]"
         else
           echo -n "  Version $APP_VER"
         fi
         DEPS=""
-        find_app_deps $DIR/app/$APP_NAME/$APP_VER "Deps" 1
+        find_app_deps ${DIR}app/$APP_NAME/$APP_VER "Deps" 1
         if [ "$DEPS" != "" ]; then
           echo -n " [deps $DEPS]"
         fi
-        if [ "$1" = "available" ] && [ "$CURRENT" = "$DIR/app/$APP_NAME/$APP_VER" ]; then
+        if [ "$1" = "available" ] && [ "$CURRENT" = "${DIR}app/$APP_NAME/$APP_VER" ]; then
           NEW_VER=$APP_VER
           find_latest_latest_app_version_in_repo $APP_NAME
           if [ "$NEW_VER" != "$APP_VER" ]; then
@@ -788,7 +788,7 @@ EOF
           IFS=" " read -r APP_NAME5 APP_VER5 NEW_REPO5 << EOF
 $NEW_DEPS
 EOF
-          if [ ! -d "$DIR/app/${APP_NAME}/${APP_VER5}" ]; then
+          if [ ! -d "${DIR}app/${APP_NAME}/${APP_VER5}" ]; then
             echo -n " [update $APP_VER5]"
           fi
         fi
