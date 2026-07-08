@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="openssl"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="wget2"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -165,9 +165,10 @@ if [ "$package" == "fs" ]; then
   cd bin
   ln -s /app/busybox/current/bin/sh sh
   cd $olddir
+  cp /etc/localtime $output/etc/localtime
 fi
 if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
-  ver="7.1.1";
+  ver="7.1.3";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
     download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver
@@ -602,5 +603,52 @@ if [ "$package" == "openssl" ]; then
     cd ../../..
     set_current_app openssl $prefix$ver
     rsync -a in/openssl/ $output/app/openssl/$prefix$ver
+  fi
+fi
+if [ "$package" == "wget2" ]; then
+  ver="2.2.1";
+  if should_make wget2 $ver; then
+    install_host_deps "lzip"
+    download_unpack_source https://ftp.gnu.org/gnu/wget/wget2-$ver.tar.lz wget2 wget2-$ver
+    create_app wget2 $prefix$ver
+    cd out/wget2/wget2-$ver
+    ./configure
+    make all -j$cpu_num
+    mkdir $output/app/wget2/$prefix$ver/bin
+    mkdir $output/app/wget2/$prefix$ver/lib
+    mkdir $output/app/wget2/$prefix$ver/ssl
+    cp src/wget2_noinstall $output/app/wget2/$prefix$ver/bin
+    cp libwget/.libs/*.so.4 $output/app/wget2/$prefix$ver/lib
+    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/wget2/$prefix$ver/lib
+    cp /lib/x86_64-linux-gnu/libpcre2-8.so.0 $output/app/wget2/$prefix$ver/lib
+    cp /lib/x86_64-linux-gnu/libssl.so.3 $output/app/wget2/$prefix$ver/lib
+    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/wget2/$prefix$ver/lib
+    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/wget2/$prefix$ver/lib
+    cd ../../..
+    olddir=$(pwd)
+    cd /etc/ssl/certs
+    rsync -a -L . $output/app/wget2/$prefix$ver/ssl
+    cd $olddir
+    set_current_app wget2 $prefix$ver
+    rsync -a in/wget2/ $output/app/wget2/$prefix$ver
+  fi
+fi
+if [ "$package" == "rsync" ]; then
+  ver="3.4.4";
+  if should_make rsync $ver; then
+    download_unpack_source https://download.samba.org/pub/rsync/src/rsync-$ver.tar.gz rsync rsync-$ver
+    create_app rsync $prefix$ver
+    cd out/rsync/rsync-$ver
+    ./configure --disable-xxhash --disable-lz4
+    make all -j$cpu_num
+    mkdir $output/app/rsync/$prefix$ver/bin
+    cp rsync $output/app/rsync/$prefix$ver/bin
+    mkdir $output/app/rsync/$prefix$ver/lib
+    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/rsync/$prefix$ver/lib
+    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/rsync/$prefix$ver/lib
+    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/rsync/$prefix$ver/lib
+    cd ../../..
+    set_current_app rsync $prefix$ver
+    rsync -a in/rsync/ $output/app/rsync/$prefix$ver
   fi
 fi
