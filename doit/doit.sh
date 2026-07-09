@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="wget2"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="zlib"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -650,5 +650,78 @@ if [ "$package" == "rsync" ]; then
     cd ../../..
     set_current_app rsync $prefix$ver
     rsync -a in/rsync/ $output/app/rsync/$prefix$ver
+  fi
+fi
+if [ "$package" == "groff" ]; then
+  # for displaying man pages
+  ver="1.24.1";
+  if should_make groff $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/groff/groff-$ver.tar.gz groff groff-$ver
+    create_app groff $prefix$ver
+    cd out/groff/groff-$ver
+    ./configure --prefix=$output/app/groff/$prefix$ver
+    make all -j$cpu_num
+    make install
+#    mkdir $output/app/rsync/$prefix$ver/bin
+#    cp rsync $output/app/rsync/$prefix$ver/bin
+#    mkdir $output/app/rsync/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/rsync/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/rsync/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/rsync/$prefix$ver/lib
+#    cd ../../..
+#    set_current_app rsync $prefix$ver
+#    rsync -a in/rsync/ $output/app/rsync/$prefix$ver
+  fi
+fi
+if [ "$package" == "zstd" ]; then
+  ver="1.5.7";
+  if should_make zstd $ver; then
+    download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver
+    create_app zstd $prefix$ver
+    cd out/zstd/zstd-$ver
+    ./configure
+    make all -j$cpu_num
+#    make install
+    mkdir $output/app/zstd/$prefix$ver/bin
+    cp programs/zstd $output/app/zstd/$prefix$ver/bin
+    cp programs/zstd-compress $output/app/zstd/$prefix$ver/bin
+    cp programs/zstd-decompress $output/app/zstd/$prefix$ver/bin
+    cp programs/zstd-small $output/app/zstd/$prefix$ver/bin
+    cp programs/zstdgrep $output/app/zstd/$prefix$ver/bin
+    cp programs/zstdsmall $output/app/zstd/$prefix$ver/bin
+    mkdir $output/app/zstd/$prefix$ver/lib
+    cp lib/lib* $output/app/zstd/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/rsync/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/rsync/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/rsync/$prefix$ver/lib
+    cd ../../..
+    set_current_app zstd $prefix$ver
+#    rsync -a in/rsync/ $output/app/rsync/$prefix$ver
+  fi
+fi
+if [ "$package" == "zlib" ]; then
+  ver="1.3.2";
+  if should_make zlib $ver; then
+    download_unpack_source https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver
+    create_app zlib $prefix$ver
+    cd out/zlib/zlib-$ver
+    ./configure
+    make all -j$cpu_num
+#    make install
+    mkdir $output/app/zlib/$prefix$ver/lib
+#    cp programs/zstd $output/app/zstd/$prefix$ver/bin
+#    cp programs/zstd-compress $output/app/zstd/$prefix$ver/bin
+#    cp programs/zstd-decompress $output/app/zstd/$prefix$ver/bin
+#    cp programs/zstd-small $output/app/zstd/$prefix$ver/bin
+#    cp programs/zstdgrep $output/app/zstd/$prefix$ver/bin
+#    cp programs/zstdsmall $output/app/zstd/$prefix$ver/bin
+#    mkdir $output/app/zstd/$prefix$ver/lib
+    cp -H libz* $output/app/zlib/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/rsync/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/rsync/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/rsync/$prefix$ver/lib
+    cd ../../..
+    set_current_app zlib $prefix$ver
+#    rsync -a in/rsync/ $output/app/rsync/$prefix$ver
   fi
 fi
