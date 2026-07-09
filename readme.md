@@ -35,14 +35,15 @@ Currently in early alpha. Some things are done and many still todo:
  2. [Milestone 2 - mounting USB devices](milestone2.md)
  3. [Milestone 3 - app folder structure, network, dynamic linking and interpreters (again), packages, system in this moment](milestone3.md)
  4. [Milestone 4 - real packet manager](milestone4.md)
- 5. [Milestone 5 - SSD writes, logging, manual pages]
- 6. [Milestone 6 - sound, CPU microcode and kernel packages]
- 7. Milestone 7 - dbus? AppArmor? SeLinux?
- 8. Milestone 8 - easy configuration
- 9. Milestone 9 - more packages, software compiling, etc.
- 10. Milestone 10 - installation
- 11. Milestone 11 - graphic UI
- 12. Milestone 12 - big party?
+ 5. [Milestone 5 - dynamic loader searching for apps inside /app]
+ 6. [Milestone 6 - SSD writes, logging, manual pages]
+ 7. [Milestone 7 - sound, CPU microcode and kernel packages]
+ 8. Milestone 8 - dbus? AppArmor? SeLinux?
+ 9. Milestone 9 - easy configuration
+ 10. Milestone 10 - more packages, software compiling, etc.
+ 11. Milestone 11 - installation
+ 12. Milestone 12 - graphic UI
+ 14. Milestone 14 - big party?
 
 This can change without earlier notice.
 
