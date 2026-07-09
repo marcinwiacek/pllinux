@@ -13,6 +13,7 @@ This is project with operating system built around Linux kernel and Bubblewrap (
   5. consistency
   6. decreasing resources usage (using tmpfs where possible, etc.)
   7. when possible, providing real support for people with disabilities
+  8. when possible, using modern version of tools (for example wget2 instead of wget) or leaving decision to the user (if utils-rs will be packages, there will be always proposed original utils version as well)
 
 When you think, this is just utopia, look on screens below - is it possible with your Linux?
 

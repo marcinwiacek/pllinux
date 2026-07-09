@@ -84,7 +84,7 @@ In few words: Rust is overcomplicated (that's why Servo had so big problems) and
 
 "Linux will not dominate market without standards like Rust, Wayland or systemd"
 
-Yes, indeed, standards are very important. But Linux has not became the most popular in various segments because doesn't have standards - it became, because these standards are not very good.
+Yes, indeed, standards are very important. But Linux has not became the most popular in various segments because doesn't have standards - it became marginal there, because these standards are not very good.
 
 Anyway, these are all topics for many-days discussion. Let's return to the PLLINUX. It will use:
 
