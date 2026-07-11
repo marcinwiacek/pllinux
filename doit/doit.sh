@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="mc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="gcc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -800,6 +800,26 @@ if [ "$package" == "ncurses" ]; then
     cp out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
     set_current_app ncurses $prefix$ver
     rsync -a in/ncurses/ $output/app/ncurses/$prefix$ver
+#    strip_app ncurses
+  fi
+fi
+if [ "$package" == "gcc" ]; then
+#  ver="16.1.0";
+  ver="14.4.0";
+  if should_make gcc $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/gcc/gcc-$ver/gcc-$ver.tar.xz gcc gcc-$ver
+    create_app gcc $prefix$ver
+    cd out/gcc/gcc-$ver
+    contrib/download_prerequisites
+    ./configure --disable-multilib
+#    ./configure --prefix=$output/app/ncurses/$prefix$ver --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
+    make all -j$cpu_num
+#    make install
+#    chmod a-x $output/app/ncurses/$prefix$ver/lib/*
+#    cd ../../..
+#    cp out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
+#    set_current_app ncurses $prefix$ver
+#    rsync -a in/ncurses/ $output/app/ncurses/$prefix$ver
 #    strip_app ncurses
   fi
 fi
