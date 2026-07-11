@@ -1,7 +1,7 @@
-# Part of PLLINUX. Version from 6 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
+# Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="ncurses"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="mc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -205,6 +205,7 @@ if [ "$package" == "fs" ] || [ "$package" == "busybox" ]; then
     cp in/busybox/* $output/app/busybox/$prefix$ver.tmp
     strip_app busybox $prefix$ver
     set_current_app busybox $prefix$ver
+    rm $output/app/busybox/$prefix$ver/linuxrc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
@@ -227,6 +228,7 @@ if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
     strip_app nftables
     find_binary_lib $output/app/nftables/$prefix$ver sbin/nft
     rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
+    chmod a-x $output/app/nftables/$prefix$ver/lib/*
     set_current_app nftables $prefix$ver
   fi
 fi
@@ -428,6 +430,7 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
     mkdir $output/app/mc/$prefix$ver/usr/share/terminfo
     rsync -a /usr/share/terminfo/ $output/app/mc/$prefix$ver/usr/share/terminfo
     find_binary_lib $output/app/mc/$prefix$ver bin/mc
+    rm $output/app/mc/$prefix$ver/lib/libpcre2*
     strip_app mc
   fi
 fi
@@ -789,7 +792,7 @@ if [ "$package" == "ncurses" ]; then
     download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver
     create_app ncurses $prefix$ver
     cd out/ncurses/ncurses-$ver
-    ./configure --prefix=$output/app/ncurses/$prefix$ver --with-shared  --with-termlib  --with-ticlib --disable-widec
+    ./configure --prefix=$output/app/ncurses/$prefix$ver --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
     make all -j$cpu_num
     make install
     chmod a-x $output/app/ncurses/$prefix$ver/lib/*
@@ -797,6 +800,6 @@ if [ "$package" == "ncurses" ]; then
     cp out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
     set_current_app ncurses $prefix$ver
     rsync -a in/ncurses/ $output/app/ncurses/$prefix$ver
-    strip_app ncurses
+#    strip_app ncurses
   fi
 fi

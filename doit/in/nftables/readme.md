@@ -4,11 +4,9 @@ GPL2 (2+?)
 **PATH**
 .
 
-**Description**
-Compiled from source.
-
 **Project**
+https://netfilter.org/projects/nftables/index.html
 
 **Deps**
 libc current
-libtinfo current
+ncurses current

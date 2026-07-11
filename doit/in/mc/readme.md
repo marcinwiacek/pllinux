@@ -11,6 +11,7 @@ lib and usr - precompiled files extracted from the working Lubuntu 26.04 (it sho
 libc current
 ldso current
 bwrap current
+pcre2 current
 
 **PATH**
 .

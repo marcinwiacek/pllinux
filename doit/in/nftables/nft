@@ -1,3 +1,3 @@
 #!/app/busybox/current/bin/sh
 DIR=$(/app/busybox/current/bin/dirname $0)
-/app/ldso/current/ld.so --library-path /app/libtinfo/current:/app/libc/current:$DIR/lib $DIR/sbin/nft $@
+/app/ldso/current/ld.so --library-path /app/ncurses/current/lib:/app/libc/current/lib:$DIR/lib $DIR/sbin/nft $@
