@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="zstd"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="wget2"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -596,6 +596,25 @@ if [ "$package" == "gnupg" ]; then
   fi
 fi
 if [ "$package" == "openssl" ]; then
+  ver="3.6.3";
+  if should_make openssl $ver; then
+    download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver
+    create_app openssl $prefix$ver
+    cd out/openssl/openssl-$ver
+    ./Configure
+    make all -j$cpu_num
+    mkdir $output/app/openssl/$prefix$ver/bin
+    mkdir $output/app/openssl/$prefix$ver/lib
+    cp apps/openssl $output/app/openssl/$prefix$ver/bin
+    rsync -a *.so* $output/app/openssl/$prefix$ver/lib
+    olddir=$(pwd)
+    cd $output/app/openssl/$prefix$ver/lib
+    chmod a-x *
+    cd $olddir
+    cd ../../..
+#    set_current_app openssl $prefix$ver
+    rsync -a in/openssl/ $output/app/openssl/$prefix$ver
+  fi
   ver="4.0.1";
   if should_make openssl $ver; then
     download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver
@@ -606,7 +625,11 @@ if [ "$package" == "openssl" ]; then
     mkdir $output/app/openssl/$prefix$ver/bin
     mkdir $output/app/openssl/$prefix$ver/lib
     cp apps/openssl $output/app/openssl/$prefix$ver/bin
-    cp *.so.4 $output/app/openssl/$prefix$ver/lib
+    rsync -a *.so* $output/app/openssl/$prefix$ver/lib
+    olddir=$(pwd)
+    cd $output/app/openssl/$prefix$ver/lib
+    chmod a-x *
+    cd $olddir
     cd ../../..
     set_current_app openssl $prefix$ver
     rsync -a in/openssl/ $output/app/openssl/$prefix$ver
@@ -625,12 +648,13 @@ if [ "$package" == "wget2" ]; then
     mkdir $output/app/wget2/$prefix$ver/lib
     mkdir $output/app/wget2/$prefix$ver/ssl
     cp src/wget2_noinstall $output/app/wget2/$prefix$ver/bin
-    cp libwget/.libs/*.so.4 $output/app/wget2/$prefix$ver/lib
-    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/wget2/$prefix$ver/lib
+    cp libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/wget2/$prefix$ver/lib
     cp /lib/x86_64-linux-gnu/libpcre2-8.so.0 $output/app/wget2/$prefix$ver/lib
-    cp /lib/x86_64-linux-gnu/libssl.so.3 $output/app/wget2/$prefix$ver/lib
-    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/wget2/$prefix$ver/lib
-    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/wget2/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libssl.so.3 $output/app/wget2/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/wget2/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/wget2/$prefix$ver/lib
+    chmod a-x $output/app/wget2/$prefix$ver/lib/*
     cd ../../..
     olddir=$(pwd)
     cd /etc/ssl/certs
@@ -652,8 +676,8 @@ if [ "$package" == "rsync" ]; then
     cp rsync $output/app/rsync/$prefix$ver/bin
     mkdir $output/app/rsync/$prefix$ver/lib
     cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/rsync/$prefix$ver/lib
-    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/rsync/$prefix$ver/lib
-    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/rsync/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/rsync/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/rsync/$prefix$ver/lib
     cd ../../..
     set_current_app rsync $prefix$ver
     rsync -a in/rsync/ $output/app/rsync/$prefix$ver
