@@ -5,3 +5,7 @@ Statically linked with support for /mnt. Core part of PLLINUX.
 bin
 
 **Project**
+https://github.com/containers/bubblewrap
+
+**License**
+LGPL2+

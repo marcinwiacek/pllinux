@@ -11,3 +11,6 @@ bin/sh
 Compiled from source with static linking and some path and minor changes.
 
 Core part of PLLINUX
+
+**Project**
+https://busybox.net

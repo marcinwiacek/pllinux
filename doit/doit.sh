@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="wget2"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="e2fsprogs"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -454,6 +454,7 @@ if [ "$package" == "fs" ] || [ "$package" == "e2fsprogs" ]; then
     cp in/e2fsprogs/* $output/app/e2fsprogs/$prefix$ver
     strip_app e2fsprogs
     set_current_app e2fsprogs $prefix$ver
+#    rsync -a in/e2fsprogs/ $output/app/zlib/$prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
@@ -489,7 +490,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libtinfo" ]; then
   cp /lib/x86_64-linux-gnu/libtinfo.so.6 $output/app/libtinfo/current
 fi
 if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
-  ver="2.54.0";
+  ver="2.55.0";
   if should_make git $ver; then
     install_host_deps "gettext"
     download_unpack_source https://www.kernel.org/pub/software/scm/git/git-$ver.tar.xz git git-$ver
@@ -497,14 +498,14 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
     cd out/git/git-$ver
     ./configure
 #  ./configure LDFLAGS=-static --enable-symlink-install  --enable-relative-symlinks --prefix=$output/app/e2fsprogs/$prefix$ver
-    make all -j$cpu_num
+    make all -j$cpu_num NO_RUST=1
 #  make install
     mkdir $output/app/git/$prefix$ver/bin
     cp git $output/app/git/$prefix$ver/bin
     cd ../../..
     strip_app git
     set_current_app git $prefix$ver
-    find_binary_lib $output/app/git/$prefix$ver bin/git
+#    find_binary_lib $output/app/git/$prefix$ver bin/git
     cp in/git/git $output/app/git/$prefix$ver
     cp in/git/readme.md $output/app/git/$prefix$ver
   fi
@@ -614,6 +615,7 @@ if [ "$package" == "openssl" ]; then
     cd ../../..
 #    set_current_app openssl $prefix$ver
     rsync -a in/openssl/ $output/app/openssl/$prefix$ver
+    strip_app openssl
   fi
   ver="4.0.1";
   if should_make openssl $ver; then
@@ -633,6 +635,7 @@ if [ "$package" == "openssl" ]; then
     cd ../../..
     set_current_app openssl $prefix$ver
     rsync -a in/openssl/ $output/app/openssl/$prefix$ver
+    strip_app openssl
   fi
 fi
 if [ "$package" == "wget2" ]; then
@@ -648,7 +651,8 @@ if [ "$package" == "wget2" ]; then
     mkdir $output/app/wget2/$prefix$ver/lib
     mkdir $output/app/wget2/$prefix$ver/ssl
     cp src/wget2_noinstall $output/app/wget2/$prefix$ver/bin
-    cp libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
+    rsync -a libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
+#    cp libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
 #    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/wget2/$prefix$ver/lib
     cp /lib/x86_64-linux-gnu/libpcre2-8.so.0 $output/app/wget2/$prefix$ver/lib
 #    cp /lib/x86_64-linux-gnu/libssl.so.3 $output/app/wget2/$prefix$ver/lib
@@ -662,6 +666,7 @@ if [ "$package" == "wget2" ]; then
     cd $olddir
     set_current_app wget2 $prefix$ver
     rsync -a in/wget2/ $output/app/wget2/$prefix$ver
+    strip_app wget2
   fi
 fi
 if [ "$package" == "rsync" ]; then
@@ -674,13 +679,14 @@ if [ "$package" == "rsync" ]; then
     make all -j$cpu_num
     mkdir $output/app/rsync/$prefix$ver/bin
     cp rsync $output/app/rsync/$prefix$ver/bin
-    mkdir $output/app/rsync/$prefix$ver/lib
-    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/rsync/$prefix$ver/lib
+#    mkdir $output/app/rsync/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/rsync/$prefix$ver/lib
 #    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/rsync/$prefix$ver/lib
 #    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/rsync/$prefix$ver/lib
     cd ../../..
     set_current_app rsync $prefix$ver
     rsync -a in/rsync/ $output/app/rsync/$prefix$ver
+    strip_app rsync
   fi
 fi
 if [ "$package" == "groff" ]; then
@@ -734,6 +740,7 @@ if [ "$package" == "zstd" ]; then
     set_current_app zstd $prefix$ver
     cp LICENSE $output/app/zlib/$prefix$ver
     rsync -a in/zstd/ $output/app/zstd/$prefix$ver
+    strip_app zstd
   fi
 fi
 if [ "$package" == "zlib" ]; then
@@ -751,5 +758,6 @@ if [ "$package" == "zlib" ]; then
     cd ../../..
     set_current_app zlib $prefix$ver
     rsync -a in/zlib/ $output/app/zlib/$prefix$ver
+    strip_app zlib
   fi
 fi

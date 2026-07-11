@@ -1,14 +1,13 @@
 **License**
-GPL2
+GPL2.0 / LGPL 2.0
 
 **PATH**
 .
 
 **Deps**
 libc current
-zlib current
 
 **Description**
 
 **Project**
-https://git-scm.com/
+https://e2fsprogs.sourceforge.net/
