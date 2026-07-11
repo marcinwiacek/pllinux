@@ -3,12 +3,9 @@
 #echo $DIR
 #ls $DIR
 /app/bwrap/current/bin/bwrap \
-    --unshare-all \
-    --share-net \
-    --ro-bind /etc/resolv.conf /etc/resolv.conf \
     --tmpfs tmp \
     --bind /app app \
     --dev dev \
     --chdir /app/pllinux/current/helper \
-    --setenv PATH /app/wget2/current:/app/busybox/current/bin:/app/busybox/current/sbin \
+    --setenv PATH /app/busybox/current/bin:/app/busybox/current/sbin \
     /app/busybox/current/bin/sh ./app.sh $@

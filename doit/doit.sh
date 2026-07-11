@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="zlib"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="zstd"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -102,6 +102,13 @@ find_binary_lib() {
   rm -r $appdir/lib/ld-linux-x86-64.so.2 || true
   rm -r $appdir/lib64 || true
   rm -r $appdir/lib/libc.so* || true
+}
+
+create_readme() {
+  CONTENT=""
+  if [ $1 != "" ]; then
+    CONTENT="$CONTENT**Deps**"
+  fi
 }
 
 prefix="$(date +"%y%m%d")_" # prefix for packages versions in /app in new system
@@ -681,7 +688,6 @@ if [ "$package" == "zstd" ]; then
     cd out/zstd/zstd-$ver
     ./configure
     make all -j$cpu_num
-#    make install
     mkdir $output/app/zstd/$prefix$ver/bin
     cp programs/zstd $output/app/zstd/$prefix$ver/bin
     cp programs/zstd-compress $output/app/zstd/$prefix$ver/bin
@@ -690,13 +696,20 @@ if [ "$package" == "zstd" ]; then
     cp programs/zstdgrep $output/app/zstd/$prefix$ver/bin
     cp programs/zstdsmall $output/app/zstd/$prefix$ver/bin
     mkdir $output/app/zstd/$prefix$ver/lib
-    cp lib/lib* $output/app/zstd/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/rsync/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/rsync/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/rsync/$prefix$ver/lib
+    rsync -a lib/lib* $output/app/zstd/$prefix$ver/lib
+    olddir=$(pwd)
+    cd $output/app/zstd/$prefix$ver/lib
+    rm libzstd.so
+    ln -s libzstd.so.$ver libzstd.so
+    rm libzstd.so.1
+    ln -s libzstd.so.$ver libzstd.so.1
+    chmod a-x *
+    cd $olddir
+    cp LICENSE $output/app/zstd/$prefix$ver
     cd ../../..
     set_current_app zstd $prefix$ver
-#    rsync -a in/rsync/ $output/app/rsync/$prefix$ver
+    cp LICENSE $output/app/zlib/$prefix$ver
+    rsync -a in/zstd/ $output/app/zstd/$prefix$ver
   fi
 fi
 if [ "$package" == "zlib" ]; then
@@ -707,21 +720,12 @@ if [ "$package" == "zlib" ]; then
     cd out/zlib/zlib-$ver
     ./configure
     make all -j$cpu_num
-#    make install
     mkdir $output/app/zlib/$prefix$ver/lib
-#    cp programs/zstd $output/app/zstd/$prefix$ver/bin
-#    cp programs/zstd-compress $output/app/zstd/$prefix$ver/bin
-#    cp programs/zstd-decompress $output/app/zstd/$prefix$ver/bin
-#    cp programs/zstd-small $output/app/zstd/$prefix$ver/bin
-#    cp programs/zstdgrep $output/app/zstd/$prefix$ver/bin
-#    cp programs/zstdsmall $output/app/zstd/$prefix$ver/bin
-#    mkdir $output/app/zstd/$prefix$ver/lib
-    cp -H libz* $output/app/zlib/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/rsync/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/rsync/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/rsync/$prefix$ver/lib
+    rsync -a libz* $output/app/zlib/$prefix$ver/lib
+    chmod a-x $output/app/zlib/$prefix$ver/lib/*
+    cp LICENSE $output/app/zlib/$prefix$ver
     cd ../../..
     set_current_app zlib $prefix$ver
-#    rsync -a in/rsync/ $output/app/rsync/$prefix$ver
+    rsync -a in/zlib/ $output/app/zlib/$prefix$ver
   fi
 fi
