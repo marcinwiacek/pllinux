@@ -14,5 +14,5 @@ bin/bash
 
 **Deps**
 libc current
-libtinfo current
+ncurses current
 ldso current
