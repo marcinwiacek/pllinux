@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="e2fsprogs"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="libc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -312,17 +312,21 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ] || [ "$package" == "ldso" 
     sed -i 's/#define OPEN_TREE_CLONE    1 /#ifndef OPEN_TREE_CLONE\n#define OPEN_TREE_CLONE    1\n#endif /g' ../sysdeps/unix/sysv/linux/sys/mount.h
     make all -j$cpu_num
 #  make install -test
-    cp libc.so $output/app/libc/$prefix$ver
+    mkdir $output/app/libc/$prefix$ver/lib
+    cp libc.so $output/app/libc/$prefix$ver/lib
     cp elf/ld.so $output/app/ldso/$prefix$ver
     cd ../../../..
     olddir=$(pwd)
-    cd $output/app/libc/$prefix$ver
+    cd $output/app/libc/$prefix$ver/lib
     ln -s libc.so libc.so.6
+    chmod a-x *
     cd $olddir
     strip_app ldso
     set_current_app ldso $prefix$ver
     strip_app libc
     set_current_app libc $prefix$ver
+    cp in/libc/* $output/app/libc/$prefix$ver
+    cp in/libc/* $output/app/ldso/$prefix$ver
   fi
 fi
 #if [ "$package" == "all" ] || [ "$package" == "binutils" ]; then
