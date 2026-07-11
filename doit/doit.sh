@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="libc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="pcre2"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -658,7 +658,7 @@ if [ "$package" == "wget2" ]; then
     rsync -a libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
 #    cp libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
 #    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/wget2/$prefix$ver/lib
-    cp /lib/x86_64-linux-gnu/libpcre2-8.so.0 $output/app/wget2/$prefix$ver/lib
+#    cp /lib/x86_64-linux-gnu/libpcre2-8.so.0 $output/app/wget2/$prefix$ver/lib
 #    cp /lib/x86_64-linux-gnu/libssl.so.3 $output/app/wget2/$prefix$ver/lib
 #    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/wget2/$prefix$ver/lib
 #    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/wget2/$prefix$ver/lib
@@ -763,5 +763,22 @@ if [ "$package" == "zlib" ]; then
     set_current_app zlib $prefix$ver
     rsync -a in/zlib/ $output/app/zlib/$prefix$ver
     strip_app zlib
+  fi
+fi
+if [ "$package" == "pcre2" ]; then
+  ver="10.47";
+  if should_make pcre2 $ver; then
+    download_unpack_source https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$ver/pcre2-$ver.tar.gz pcre2 pcre2-$ver
+    create_app pcre2 $prefix$ver
+    cd out/pcre2/pcre2-$ver
+    ./configure --prefix=$output/app/pcre2/$prefix$ver
+    make all -j$cpu_num
+    make install
+    chmod a-x $output/app/pcre2/$prefix$ver/lib/*
+    cd ../../..
+    cp out/pcre2/pcre2-$ver/LICENCE.md $output/app/pcre2/$prefix$ver
+    set_current_app pcre2 $prefix$ver
+    rsync -a in/pcre2/ $output/app/pcre2/$prefix$ver
+    strip_app pcre2
   fi
 fi
