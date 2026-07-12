@@ -488,10 +488,6 @@ if [ "$package" == "fs" ] || [ "$package" == "pllinux" ]; then
   rsync -a in/pllinux/ $output/app/pllinux/$prefix$ver
   set_current_app pllinux $prefix$ver
 fi
-#if [ "$package" == "fs" ] || [ "$package" == "libtinfo" ]; then
-#  create_app libtinfo current
-#  cp /lib/x86_64-linux-gnu/libtinfo.so.6 $output/app/libtinfo/current
-#fi
 if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
   ver="2.55.0";
   if should_make git $ver; then
@@ -835,6 +831,7 @@ if [ "$package" == "slang" ]; then
   fi
 fi
 #if [ "$package" == "gpm" ]; then
+#  code seems to be obsolete
 #  ver="1.20.7";
 #  if should_make gpm $ver; then
 #    install_host_deps "libtool"
@@ -853,6 +850,7 @@ fi
 #  fi
 #fi
 if [ "$package" == "glib" ]; then
+  # Work in progress
   ver="2.89.1";
   if should_make glib $ver; then
     download_unpack_source https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver
