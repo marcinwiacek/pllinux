@@ -12,6 +12,7 @@ libc current
 ldso current
 bwrap current
 pcre2 current
+gcc current
 
 **PATH**
 .

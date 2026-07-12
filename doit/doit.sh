@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="gcc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="mc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -431,6 +431,7 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
     rsync -a /usr/share/terminfo/ $output/app/mc/$prefix$ver/usr/share/terminfo
     find_binary_lib $output/app/mc/$prefix$ver bin/mc
     rm $output/app/mc/$prefix$ver/lib/libpcre2*
+    rm $output/app/mc/$prefix$ver/lib/libatomic*
     strip_app mc
   fi
 fi
