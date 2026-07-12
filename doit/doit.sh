@@ -811,15 +811,17 @@ if [ "$package" == "gcc" ]; then
     create_app gcc $prefix$ver
     cd out/gcc/gcc-$ver
     contrib/download_prerequisites
-    ./configure --disable-multilib
-#    ./configure --prefix=$output/app/ncurses/$prefix$ver --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
+    cd ..
+    mkdir gcc-$ver-build
+    cd gcc-$ver-build
+    ../gcc-$ver/configure --enable-shared --disable-multilib --prefix=
     make all -j$cpu_num
-#    make install
-#    chmod a-x $output/app/ncurses/$prefix$ver/lib/*
-#    cd ../../..
-#    cp out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
-#    set_current_app ncurses $prefix$ver
-#    rsync -a in/ncurses/ $output/app/ncurses/$prefix$ver
-#    strip_app ncurses
+    make DESTDIR=$output/app/gcc/$prefix$ver install-strip
+    cp $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
+    chmod a-x $output/app/gcc/$prefix$ver/lib/*
+    rm -r $output/app/gcc/$prefix$ver/lib64
+    cd ../../..
+    set_current_app gcc $prefix$ver
+    rsync -a in/gcc/ $output/app/gcc/$prefix$ver
   fi
 fi
