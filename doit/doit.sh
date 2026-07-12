@@ -432,6 +432,7 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
     find_binary_lib $output/app/mc/$prefix$ver bin/mc
     rm $output/app/mc/$prefix$ver/lib/libpcre2*
     rm $output/app/mc/$prefix$ver/lib/libatomic*
+    rm $output/app/mc/$prefix$ver/lib/libslang*
     strip_app mc
   fi
 fi
@@ -824,5 +825,22 @@ if [ "$package" == "gcc" ]; then
     cd ../../..
     set_current_app gcc $prefix$ver
     rsync -a in/gcc/ $output/app/gcc/$prefix$ver
+  fi
+fi
+if [ "$package" == "slang" ]; then
+  ver="2.3.3";
+  if should_make slang $ver; then
+    download_unpack_source https://www.jedsoft.org/releases/slang/slang-$ver.tar.bz2 slang slang-$ver
+    create_app slang $prefix$ver
+    cd out/slang/slang-$ver
+    ./configure --prefix=$output/app/slang/$prefix$ver
+    make all -j$cpu_num
+    make install
+    chmod a-x $output/app/slang/$prefix$ver/lib/*
+    cd ../../..
+#    cp out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
+    set_current_app slang $prefix$ver
+#    rsync -a in/ncurses/ $output/app/ncurses/$prefix$ver
+#    strip_app ncurses
   fi
 fi

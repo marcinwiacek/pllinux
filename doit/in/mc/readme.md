@@ -13,6 +13,7 @@ ldso current
 bwrap current
 pcre2 current
 gcc current
+slang current
 
 **PATH**
 .
