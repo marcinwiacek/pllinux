@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="libc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="mc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -377,7 +377,7 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
 #--prefix=/usr/mc 
 #--exec-prefix=/usr/mc
 #--prefix=/app/mc/$prefix$ver
-    ./configure --disable-vfs -with-gpm-mouse --prefix=/app/mc/current
+    ./configure --disable-vfs -without-gpm-mouse --prefix=/app/mc/current
     make all -j$cpu_num
 # sandbox would be clean solution, but for now I have gcc crash
 #    mkdir $(pwd)/../../../app/mc/$prefix$ver/bin
@@ -834,3 +834,21 @@ if [ "$package" == "slang" ]; then
     set_current_app slang $prefix$ver
   fi
 fi
+#if [ "$package" == "gpm" ]; then
+#  ver="1.20.7";
+#  if should_make gpm $ver; then
+#    install_host_deps "libtool"
+#    download_unpack_source https://github.com/telmich/gpm/archive/refs/tags/$ver.tar.gz gpm gpm-$ver
+#    create_app gpm $prefix$ver
+#    cd out/gpm/gpm-$ver
+#    ./autogen.sh
+#    autoupdate
+#    ./autogen.sh
+#    ./configure --prefix=$output/app/gpm/$prefix$ver
+#    make all -j$cpu_num
+#    make install
+#    chmod a-x $output/app/slang/$prefix$ver/lib/*
+#    cd ../../..
+#    set_current_app slang $prefix$ver
+#  fi
+#fi
