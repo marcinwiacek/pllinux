@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="mc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="libc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -307,22 +307,14 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ] || [ "$package" == "ldso" 
     download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz libc glibc-$ver
     create_app libc $prefix$ver
     create_app ldso $prefix$ver
-    cd out/libc/glibc-$ver
-    mkdir compile
-    cd compile
-    ../configure --disable-sanity-checks --prefix=$output/app/libc/$prefix$ver --disable-static-c++-tests --disable-static-c++-link-check
-    sed -i 's/#define OPEN_TREE_CLONE    1 /#ifndef OPEN_TREE_CLONE\n#define OPEN_TREE_CLONE    1\n#endif /g' ../sysdeps/unix/sysv/linux/sys/mount.h
+    mkdir out/libc/glibc-$ver-build
+    cd out/libc/glibc-$ver-build
+    ../glibc-$ver/configure --prefix=$output/app/libc/$prefix$ver
+    sed -i 's/#define OPEN_TREE_CLONE    1 /#ifndef OPEN_TREE_CLONE\n#define OPEN_TREE_CLONE    1\n#endif /g' ../glibc-$ver/sysdeps/unix/sysv/linux/sys/mount.h
     make all -j$cpu_num
-#  make install -test
-    mkdir $output/app/libc/$prefix$ver/lib
-    cp libc.so $output/app/libc/$prefix$ver/lib
+    make install
     cp elf/ld.so $output/app/ldso/$prefix$ver
-    cd ../../../..
-    olddir=$(pwd)
-    cd $output/app/libc/$prefix$ver/lib
-    ln -s libc.so libc.so.6
-    chmod a-x *
-    cd $olddir
+    cd ../../..
     strip_app ldso
     set_current_app ldso $prefix$ver
     strip_app libc
@@ -433,6 +425,7 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
     rm $output/app/mc/$prefix$ver/lib/libpcre2*
     rm $output/app/mc/$prefix$ver/lib/libatomic*
     rm $output/app/mc/$prefix$ver/lib/libslang*
+    rm $output/app/mc/$prefix$ver/lib/libm*
     strip_app mc
   fi
 fi
@@ -838,9 +831,6 @@ if [ "$package" == "slang" ]; then
     make install
     chmod a-x $output/app/slang/$prefix$ver/lib/*
     cd ../../..
-#    cp out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
     set_current_app slang $prefix$ver
-#    rsync -a in/ncurses/ $output/app/ncurses/$prefix$ver
-#    strip_app ncurses
   fi
 fi
