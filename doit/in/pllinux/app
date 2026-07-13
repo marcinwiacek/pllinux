@@ -11,4 +11,4 @@
     --dev dev \
     --chdir /app/pllinux/current/helper \
     --setenv PATH /app/wget2/current:/app/busybox/current/bin:/app/busybox/current/sbin \
-    /app/busybox/current/bin/sh ./app.sh $@
+    /app/busybox/current/bin/sh /app/pllinux/current/helper/app.sh $@
