@@ -4,13 +4,12 @@ Init filesystem for kernel:
   * packing: find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > ../app/kernel/current/initramfs.gz
 
 Inside:
-  * busybox 1.37
-  * fsck 1.47.2
+  * busybox 1.38
   * own init script
 
 **Project**
 [GitHub](https://github.com/marcinwiacek/pllinux)
 
 **License**
-  * busybox and fsck - GPL2
+  * busybox - GPL2
   * init - I don't care
