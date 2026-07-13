@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="mc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="gcc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -321,6 +321,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ] || [ "$package" == "ldso" 
     set_current_app libc $prefix$ver
     cp in/libc/* $output/app/libc/$prefix$ver
     cp in/libc/* $output/app/ldso/$prefix$ver
+    chmod a-x $output/app/libc/$prefix$ver/lib/*
   fi
 fi
 #if [ "$package" == "all" ] || [ "$package" == "binutils" ]; then
@@ -421,11 +422,6 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
     mkdir $output/app/mc/$prefix$ver/usr/share
     mkdir $output/app/mc/$prefix$ver/usr/share/terminfo
     rsync -a /usr/share/terminfo/ $output/app/mc/$prefix$ver/usr/share/terminfo
-#    find_binary_lib $output/app/mc/$prefix$ver bin/mc
-#    rm $output/app/mc/$prefix$ver/lib/libpcre2*
-#    rm $output/app/mc/$prefix$ver/lib/libatomic*
-#    rm $output/app/mc/$prefix$ver/lib/libslang*
-#    rm $output/app/mc/$prefix$ver/lib/libm*
     strip_app mc
   fi
 fi
@@ -457,7 +453,6 @@ if [ "$package" == "fs" ] || [ "$package" == "e2fsprogs" ]; then
     cp in/e2fsprogs/* $output/app/e2fsprogs/$prefix$ver
     strip_app e2fsprogs
     set_current_app e2fsprogs $prefix$ver
-#    rsync -a in/e2fsprogs/ $output/app/zlib/$prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
@@ -472,7 +467,6 @@ if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
     mkdir /tmp/initramfs/dev
     mkdir /tmp/initramfs/mnt
     mkdir /tmp/initramfs/proc
-#    cp in/e2fsprogs/readme.md $output/app/e2fsprogs/$prefix$ver
     olddir=$(pwd)
     cd /tmp/initramfs
     find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $output/app/initramfs/$prefix$ver/initramfs.gz
@@ -496,7 +490,6 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
     create_app git $prefix$ver
     cd out/git/git-$ver
     ./configure
-#  ./configure LDFLAGS=-static --enable-symlink-install  --enable-relative-symlinks --prefix=$output/app/e2fsprogs/$prefix$ver
     make all -j$cpu_num NO_RUST=1
 #  make install
     mkdir $output/app/git/$prefix$ver/bin
@@ -504,11 +497,11 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
     cd ../../..
     strip_app git
     set_current_app git $prefix$ver
-#    find_binary_lib $output/app/git/$prefix$ver bin/git
     cp in/git/git $output/app/git/$prefix$ver
     cp in/git/readme.md $output/app/git/$prefix$ver
   fi
 fi
+# PGP
 if [ "$package" == "libgpg-error" ]; then
   ver="1.61";
   if should_make libgpg-error $ver; then
@@ -522,6 +515,7 @@ if [ "$package" == "libgpg-error" ]; then
     set_current_app libgpg-error $prefix$ver
   fi
 fi
+# PGP
 if [ "$package" == "libgcrypt" ]; then
   ver="1.12.2";
   if should_make libgcrypt $ver; then
@@ -535,6 +529,7 @@ if [ "$package" == "libgcrypt" ]; then
     set_current_app libgcrypt $prefix$ver
   fi
 fi
+# PGP
 if [ "$package" == "libassuan" ]; then
   ver="3.0.2";
   if should_make libassuan $ver; then
@@ -548,6 +543,7 @@ if [ "$package" == "libassuan" ]; then
     set_current_app libassuan $prefix$ver
   fi
 fi
+# PGP
 if [ "$package" == "libksba" ]; then
   ver="1.8.0";
   if should_make libksba $ver; then
@@ -561,6 +557,7 @@ if [ "$package" == "libksba" ]; then
     set_current_app libksba $prefix$ver
   fi
 fi
+# PGP
 if [ "$package" == "npth" ]; then
   ver="1.8";
   if should_make npth $ver; then
@@ -574,6 +571,7 @@ if [ "$package" == "npth" ]; then
     set_current_app npth $prefix$ver
   fi
 fi
+# PGP
 if [ "$package" == "gnupg" ]; then
   ver="2.5.21";
   if should_make gnupg $ver; then
@@ -612,7 +610,6 @@ if [ "$package" == "openssl" ]; then
     chmod a-x *
     cd $olddir
     cd ../../..
-#    set_current_app openssl $prefix$ver
     rsync -a in/openssl/ $output/app/openssl/$prefix$ver
     strip_app openssl
   fi
@@ -651,12 +648,6 @@ if [ "$package" == "wget2" ]; then
     mkdir $output/app/wget2/$prefix$ver/ssl
     cp src/wget2_noinstall $output/app/wget2/$prefix$ver/bin
     rsync -a libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
-#    cp libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/wget2/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libpcre2-8.so.0 $output/app/wget2/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libssl.so.3 $output/app/wget2/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/wget2/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/wget2/$prefix$ver/lib
     chmod a-x $output/app/wget2/$prefix$ver/lib/*
     cd ../../..
     olddir=$(pwd)
@@ -678,10 +669,6 @@ if [ "$package" == "rsync" ]; then
     make all -j$cpu_num
     mkdir $output/app/rsync/$prefix$ver/bin
     cp rsync $output/app/rsync/$prefix$ver/bin
-#    mkdir $output/app/rsync/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/rsync/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/rsync/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/rsync/$prefix$ver/lib
     cd ../../..
     set_current_app rsync $prefix$ver
     rsync -a in/rsync/ $output/app/rsync/$prefix$ver
@@ -689,6 +676,7 @@ if [ "$package" == "rsync" ]; then
   fi
 fi
 if [ "$package" == "groff" ]; then
+  # work in progress
   # for displaying man pages
   ver="1.24.1";
   if should_make groff $ver; then
@@ -698,15 +686,6 @@ if [ "$package" == "groff" ]; then
     ./configure --prefix=$output/app/groff/$prefix$ver
     make all -j$cpu_num
     make install
-#    mkdir $output/app/rsync/$prefix$ver/bin
-#    cp rsync $output/app/rsync/$prefix$ver/bin
-#    mkdir $output/app/rsync/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libcrypto.so.3 $output/app/rsync/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libz.so.1 $output/app/rsync/$prefix$ver/lib
-#    cp /lib/x86_64-linux-gnu/libzstd.so.1 $output/app/rsync/$prefix$ver/lib
-#    cd ../../..
-#    set_current_app rsync $prefix$ver
-#    rsync -a in/rsync/ $output/app/rsync/$prefix$ver
   fi
 fi
 if [ "$package" == "zstd" ]; then
@@ -813,6 +792,8 @@ if [ "$package" == "gcc" ]; then
     rm -r $output/app/gcc/$prefix$ver/lib64
     cd ../../..
     set_current_app gcc $prefix$ver
+    strip_app gcc
+    rsync -a in/gcc/ $output/app/gcc/$prefix$ver
   fi
 fi
 if [ "$package" == "slang" ]; then
@@ -870,5 +851,7 @@ if [ "$package" == "glib" ]; then
     rsync -a $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/glib/$prefix$ver/lib
     rm -r $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/
     set_current_app glib $prefix$ver
+    strip_app glib
+    rsync -a in/glib/ $output/app/glib/$prefix$ver
   fi
 fi
