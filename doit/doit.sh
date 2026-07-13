@@ -813,7 +813,6 @@ if [ "$package" == "gcc" ]; then
     rm -r $output/app/gcc/$prefix$ver/lib64
     cd ../../..
     set_current_app gcc $prefix$ver
-    rsync -a in/gcc/ $output/app/gcc/$prefix$ver
   fi
 fi
 if [ "$package" == "slang" ]; then
@@ -855,17 +854,21 @@ if [ "$package" == "glib" ]; then
     download_unpack_source https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver
     create_app glib $prefix$ver
     cd out/glib/glib-$ver
-    cd subprojects
-    meson subprojects download --sourcedir ..
-    rm -r gvdb
-    rm -r packagecache
-    rm -r packagefiles
-    cd ..
-    meson setup -Dprefix=$output/app/glib/$prefix$ver _build
+    if [ -d "subprojects/packagefiles" ]; then
+      cd subprojects
+      meson subprojects download --sourcedir ..
+      rm -r gvdb
+      rm -r packagecache
+      rm -r packagefiles
+      cd ..
+      meson setup -Dprefix=$output/app/glib/$prefix$ver --buildtype minsize _build
+    fi
     meson compile -C _build
     meson install -C _build
 #    chmod a-x $output/app/slang/$prefix$ver/lib/*
     cd ../../..
+    rsync -a $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/glib/$prefix$ver/lib
+    rm -r $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/
     set_current_app glib $prefix$ver
   fi
 fi
