@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="pllinux"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="libc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 
@@ -321,7 +321,8 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ] || [ "$package" == "ldso" 
     set_current_app libc $prefix$ver
     cp in/libc/* $output/app/libc/$prefix$ver
     cp in/libc/* $output/app/ldso/$prefix$ver
-    chmod a-x $output/app/libc/$prefix$ver/lib/*
+#    chmod a-x $output/app/libc/$prefix$ver/lib/*
+    find $output/app/libc/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/libc/$prefix$ver/lib && chmod a-x {} " \;
   fi
 fi
 #if [ "$package" == "all" ] || [ "$package" == "binutils" ]; then
@@ -765,7 +766,7 @@ if [ "$package" == "ncurses" ]; then
     ./configure --prefix=$output/app/ncurses/$prefix$ver --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
     make all -j$cpu_num
     make install
-    chmod a-x $output/app/ncurses/$prefix$ver/lib/*
+    chmod a-x $output/app/ncurses/$prefix$ver/lib/lib*
     cd ../../..
     cp out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
     set_current_app ncurses $prefix$ver
@@ -788,7 +789,7 @@ if [ "$package" == "gcc" ]; then
     make all -j$cpu_num
     make DESTDIR=$output/app/gcc/$prefix$ver install-strip
     cp $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
-    chmod a-x $output/app/gcc/$prefix$ver/lib/*
+    chmod a-x $output/app/gcc/$prefix$ver/lib/lib*
     rm -r $output/app/gcc/$prefix$ver/lib64
     cd ../../..
     set_current_app gcc $prefix$ver
