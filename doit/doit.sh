@@ -850,22 +850,22 @@ fi
 #  fi
 #fi
 if [ "$package" == "glib" ]; then
-  # Work in progress
   ver="2.89.1";
   if should_make glib $ver; then
     download_unpack_source https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver
     create_app glib $prefix$ver
     cd out/glib/glib-$ver
-    meson setup ../glib-$ver-build
-    meson compile -C ../glib-$ver-build
-#    meson install -C _builddir
-
-
-#    ./configure --prefix=$output/app/glib/$prefix$ver
-#    make all -j$cpu_num
-#    make install
+    cd subprojects
+    meson subprojects download --sourcedir ..
+    rm -r gvdb
+    rm -r packagecache
+    rm -r packagefiles
+    cd ..
+    meson setup -Dprefix=$output/app/glib/$prefix$ver _build
+    meson compile -C _build
+    meson install -C _build
 #    chmod a-x $output/app/slang/$prefix$ver/lib/*
     cd ../../..
-#    set_current_app glib $prefix$ver
+    set_current_app glib $prefix$ver
   fi
 fi
