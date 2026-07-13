@@ -14,6 +14,7 @@ bwrap current
 pcre2 current
 gcc current
 slang current
+glib current
 
 **PATH**
 .
