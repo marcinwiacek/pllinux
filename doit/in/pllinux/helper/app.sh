@@ -1,6 +1,9 @@
 #!/app/busybox/current/bin/sh
 INFO="Package manager. Version from 8 Jul 2026. Part of PLLINUX"
 DIR="/" # path with / in the end. In real system /
+if [ -d "/mnt/x" ]; then
+  DIR="/mnt/x/"
+fi
 SYSTEM_APPS="busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:ldso:libc:libtinfo:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
 
 # getting app dependencies from app readme.md
@@ -122,7 +125,7 @@ EOF
 get_repo_updates() {
   REPO_UPDATES=""
   LINE_NUM=1
-  rm -r -f /tmp/apprepo
+  rm -r -f /tmp/apprepo 2> /dev/null
   while read -r repo_line; do
     IFS=" " read -r REPO_URL REPO_FIRST_PUBLIC_KEY REPO_SECOND_PUBLIC_KEY << EOF
 $repo_line
@@ -262,7 +265,7 @@ EOF
 }
 
 install_single_app() {
-  rm -f -r /tmp/app
+  rm -f -r /tmp/app 2> /dev/null
   UPDATE_CURRENT=$1
   INSTALL_ERROR=0
   while true; do
@@ -372,6 +375,7 @@ EOF
     done
   fi
   #fixme:run modules dependent from new installed
+  #fixme:services
 #  if [ -d "/tmp/app" ]; then
 #    rsync -a /tmp/app $DIR
 #    rm -r -f /tmp/app
@@ -675,7 +679,7 @@ EOF
         echo "Backup file ${APP_NAME}_${APP_VER}.tar already exists. Skipping"
       elif [ -d "${DIR}app/${APP_NAME}/${APP_VER}" ]; then
         echo "Creating backup file ${APP_NAME}_${APP_VER}.tar"
-        rm -r /tmp/app
+        rm -r /tmp/app 2> /dev/null
         mkdir /tmp/app
         tar cfJ /tmp/app/${APP_NAME}_${APP_VER}.tar.xz --exclude dynamic -C ${DIR}app/${APP_NAME}/${APP_VER} .
         openssl dgst -sign app.privkey -keyform PEM -sha256 -out /tmp/app/${APP_NAME}_${APP_VER}.tar.xz.sig -binary /tmp/app/${APP_NAME}_${APP_VER}.tar.xz
