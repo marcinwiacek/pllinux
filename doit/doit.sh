@@ -1,10 +1,10 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="mc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="gcc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
-use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
+use_tmpfs=1; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
 
 # Check if makes sense to build the whole package
 should_make() {
@@ -790,10 +790,10 @@ if [ "$package" == "gcc" ]; then
     cd ..
     mkdir gcc-$ver-build
     if [ "$use_tmpfs" = "1" ]; then
-      sudo mount mount -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 gcc-$ver-build
+      sudo mount mount -t tmpfs -o rw,noatime,nosuid gcc-$ver-build
     fi
     cd gcc-$ver-build
-    ../gcc-$ver/configure --enable-shared --disable-multilib --prefix=
+    ../gcc-$ver/configure --enable-shared --disable-multilib --prefix= --disable-bootstrap --enable-languages=c,c++
     make all -j$cpu_num
     make DESTDIR=$output/app/gcc/$prefix$ver install-strip
     cp $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
