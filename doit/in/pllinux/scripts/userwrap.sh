@@ -7,7 +7,10 @@
 #          "app name1 ver1:name2 ver2:name3 ver3" - access to apps
 # Example: mnt "app mc current:bash current"
 
-export PS1="\e[32m[\t] $USER:\w $ \e[m"  # green [time] user:folder $
+# green [time] user:folder $
+# OR
+# green [time] user:folder amber git branch name $
+export PS1="\e[32m[\t] $USER:\w\$(if [ -f "/app/git/current/git" ] && git rev-parse --git-dir > /dev/null 2>&1; then echo -n \" \e[33m\";git branch --show-current; fi) $ \e[m"
 
 processesall=0
 for ARG in "$@"
