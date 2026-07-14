@@ -1,10 +1,10 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="gcc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="mc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
-use_tmpfs=0; # 1 - some compilations will be don in RAM disk; 0 - save all to disk
+use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
 
 # Check if makes sense to build the whole package
 should_make() {
@@ -322,7 +322,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ] || [ "$package" == "ldso" 
     set_current_app libc $prefix$ver
     cp in/libc/* $output/app/libc/$prefix$ver
     cp in/libc/* $output/app/ldso/$prefix$ver
-#    chmod a-x $output/app/libc/$prefix$ver/lib/*
     find $output/app/libc/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/libc/$prefix$ver/lib && chmod a-x {} " \;
   fi
 fi
@@ -419,11 +418,16 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
     olddir=$(pwd)
     cd $output/app/mc/$prefix$ver/bin
     ln -s /app/busybox/current/bin/sh sh
+    cd $output/app/mc/$prefix$ver
+    mkdir usr
+    cd usr
+    mkdir share
+    cd share
+    ln -s /app/ncurses/current/share/terminfo terminfo
     cd $olddir
     mkdir $output/app/mc/$prefix$ver/usr
     mkdir $output/app/mc/$prefix$ver/usr/share
     mkdir $output/app/mc/$prefix$ver/usr/share/terminfo
-    rsync -a /usr/share/terminfo/ $output/app/mc/$prefix$ver/usr/share/terminfo
     strip_app mc
   fi
 fi
