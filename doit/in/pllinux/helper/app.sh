@@ -554,20 +554,19 @@ elif [ "$1" = "delete" ] || [ "$1" = "deletecheck" ] || [ "$1" = "remove" ] || [
   if [ "$2" != "" ]; then
     DEPS=""
     IFS=":"
-#    for DEP in $2; do
-#      IFS=" " read -r APP_NAME APP_VER << EOF
-#$DEP
-#EOF
-#      if [ "$APP_VER" = "" ]; then
-#        APP_VER="current"
-#      fi
-#      if [ $DEPS != "" ]; then
-#        DEPS="$DEPS:"
-#      fi
-#      DEPS="$DEPS${APP_NAME} ${APP_VER}"
-#    done
-    DEPS=$2
-    # finding and dependencies and dependencies from their dependencies
+    for DEP in $2; do
+      IFS=" " read -r APP_NAME APP_VER << EOF
+$DEP
+EOF
+      if [ "$APP_VER" = "" ]; then
+        APP_VER="current"
+      fi
+      if [ "$DEPS" != "" ]; then
+        DEPS="$DEPS:"
+      fi
+      DEPS="$DEPS${APP_NAME} ${APP_VER}"
+    done
+    # finding dependencies and dependencies from their dependencies
     while true; do
       complete=1
       IFS=":"
