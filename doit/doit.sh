@@ -599,7 +599,7 @@ if [ "$package" == "gnupg" ]; then
     rsync -a in/gnupg/ $output/app/gnupg/$prefix$ver
   fi
 fi
-if [ "$package" == "openssl" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "openssl" ]; then
   ver="3.6.3";
   if should_make openssl $ver; then
     download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver
@@ -640,7 +640,7 @@ if [ "$package" == "openssl" ]; then
     strip_app openssl
   fi
 fi
-if [ "$package" == "wget2" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "wget2" ]; then
   ver="2.2.1";
   if should_make wget2 $ver; then
     install_host_deps "lzip"
@@ -665,7 +665,7 @@ if [ "$package" == "wget2" ]; then
     strip_app wget2
   fi
 fi
-if [ "$package" == "rsync" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "rsync" ]; then
   ver="3.4.4";
   if should_make rsync $ver; then
     download_unpack_source https://download.samba.org/pub/rsync/src/rsync-$ver.tar.gz rsync rsync-$ver
@@ -694,7 +694,7 @@ if [ "$package" == "groff" ]; then
     make install
   fi
 fi
-if [ "$package" == "zstd" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
   ver="1.5.7";
   if should_make zstd $ver; then
     download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver
@@ -727,7 +727,7 @@ if [ "$package" == "zstd" ]; then
     strip_app zstd
   fi
 fi
-if [ "$package" == "zlib" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "zlib" ]; then
   ver="1.3.2";
   if should_make zlib $ver; then
     download_unpack_source https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver
@@ -745,7 +745,7 @@ if [ "$package" == "zlib" ]; then
     strip_app zlib
   fi
 fi
-if [ "$package" == "pcre2" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "pcre2" ]; then
   ver="10.47";
   if should_make pcre2 $ver; then
     download_unpack_source https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$ver/pcre2-$ver.tar.gz pcre2 pcre2-$ver
@@ -762,7 +762,7 @@ if [ "$package" == "pcre2" ]; then
     strip_app pcre2
   fi
 fi
-if [ "$package" == "ncurses" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "ncurses" ]; then
   ver="6.6";
   if should_make ncurses $ver; then
     download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver
@@ -779,7 +779,7 @@ if [ "$package" == "ncurses" ]; then
 #    strip_app ncurses
   fi
 fi
-if [ "$package" == "gcc" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "gcc" ]; then
 #  ver="16.1.0";
   ver="14.4.0";
   if should_make gcc $ver; then
@@ -805,7 +805,7 @@ if [ "$package" == "gcc" ]; then
     rsync -a in/gcc/ $output/app/gcc/$prefix$ver
   fi
 fi
-if [ "$package" == "slang" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
   ver="2.3.3";
   if should_make slang $ver; then
     download_unpack_source https://www.jedsoft.org/releases/slang/slang-$ver.tar.bz2 slang slang-$ver
@@ -838,7 +838,7 @@ fi
 #    set_current_app slang $prefix$ver
 #  fi
 #fi
-if [ "$package" == "glib" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "glib" ]; then
   ver="2.89.1";
   if should_make glib $ver; then
     download_unpack_source https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver
@@ -865,7 +865,7 @@ if [ "$package" == "glib" ]; then
     rsync -a in/glib/ $output/app/glib/$prefix$ver
   fi
 fi
-if [ "$package" == "autoconf" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "autoconf" ]; then
   ver="2.73";
   if should_make autoconf $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/autoconf/autoconf-2.73.tar.xz autoconf autoconf-$ver
@@ -883,7 +883,7 @@ if [ "$package" == "autoconf" ]; then
     set_current_app autoconf $prefix$ver
   fi
 fi
-if [ "$package" == "automake" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "automake" ]; then
   ver="1.18";
   if should_make automake $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/automake/automake-$ver.tar.xz automake automake-$ver
