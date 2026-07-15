@@ -327,14 +327,19 @@ EOF
                   sectionServices=0;
                 elif [ "$sectionServices" = 1 ]; then
                   #fixme checking for paths
-                  echo "Checking service -$line-"
-                  if [ -f "/etc/dinit.d/$line" ]; then
-                    CURRENT=$(realpath /etc/dinit.d/$line)
-                    if [ $CURRENT != "/app/appname/current/services/$line" ]; then
-                      echo "Package trying to intercept service from the other app"
+                  echo -n "  Checking service '$line' - "
+                  if [ -e "${DIR}etc/dinit.d/$line" ]; then
+                    CURRENT=$(readlink ${DIR}etc/dinit.d/$line)
+                    if [ "$CURRENT" != "/app/${APP_NAME}/current/services/$line" ]; then
+                      echo "package trying to intercept service from the other app. Skipping"
                       INSTALL_ERROR=1
+                    else
+                      echo "OK"
                     fi
+                  else
+                    echo "not installed in system"
                   fi
+                fi
               done < readme.md
             fi
             if [ "$INSTALL_ERROR" = "0" ]; then
