@@ -318,12 +318,33 @@ EOF
             tar -xvf ${APP_NAME}_${APP_VER}.tar.xz 2> /dev/null > /dev/null
             rm ${APP_NAME}_${APP_VER}.tar.xz
             rm ${APP_NAME}_${APP_VER}.tar.xz.sig
-            cd ..
-            if [ $UPDATE_CURRENT = "1" ] || [ ! -d "${DIR}app/${APP_NAME}/current" ]; then
-              ln -s ${APP_VER} current
+            if [ -e "readme.md" ]; then
+              sectionServices=0
+              while read -r line; do
+                if [ "$line" = "**Services**" ]; then
+                  sectionServices=1
+                elif [ "$line" = "" ]; then
+                  sectionServices=0;
+                elif [ "$sectionServices" = 1 ]; then
+                  #fixme checking for paths
+                  echo "Checking service -$line-"
+                  if [ -f "/etc/dinit.d/$line" ]; then
+                    CURRENT=$(realpath /etc/dinit.d/$line)
+                    if [ $CURRENT != "/app/appname/current/services/$line" ]; then
+                      echo "Package trying to intercept service from the other app"
+                      INSTALL_ERROR=1
+                    fi
+                  fi
+              done < readme.md
             fi
-            cd $olddir
-            find_app_deps /tmp/app/${APP_NAME}/${APP_VER} "Deps" 1
+            if [ "$INSTALL_ERROR" = "0" ]; then
+              cd ..
+              if [ $UPDATE_CURRENT = "1" ] || [ ! -d "${DIR}app/${APP_NAME}/current" ]; then
+                ln -s ${APP_VER} current
+              fi
+              cd $olddir
+              find_app_deps /tmp/app/${APP_NAME}/${APP_VER} "Deps" 1
+            fi
           fi
         fi
       fi
