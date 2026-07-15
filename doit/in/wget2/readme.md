@@ -2,7 +2,7 @@
 libc current
 zlib current
 zstd current
-openssl 260711_3.6.3
+openssl 260711_4.0-
 pcre2 current
 
 **License**
