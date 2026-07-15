@@ -876,16 +876,11 @@ if [ "$package" == "autoconf" ]; then
       sudo mount mount -t tmpfs -o rw,noatime,nosuid autoconf-$ver-build
     fi
     cd autoconf-$ver-build
-    ../autoconf-$ver/configure
+    ../autoconf-$ver/configure --prefix=$output/app/autoconf/$prefix$ver
     make all -j$cpu_num
-#    make DESTDIR=$output/app/gcc/$prefix$ver install-strip
-#    cp $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
-#    chmod a-x $output/app/gcc/$prefix$ver/lib/lib*
-#    rm -r $output/app/gcc/$prefix$ver/lib64
-#    cd ../../..
-#    set_current_app gcc $prefix$ver
-#    strip_app gcc
-#    rsync -a in/gcc/ $output/app/gcc/$prefix$ver
+    make install
+    cd ../../..
+    set_current_app autoconf $prefix$ver
   fi
 fi
 if [ "$package" == "automake" ]; then
@@ -899,15 +894,10 @@ if [ "$package" == "automake" ]; then
       sudo mount mount -t tmpfs -o rw,noatime,nosuid autoconf-$ver-build
     fi
     cd automake-$ver-build
-    ../automake-$ver/configure
+    ../automake-$ver/configure --prefix=$output/app/automake/$prefix$ver
     make all -j$cpu_num
-#    make DESTDIR=$output/app/gcc/$prefix$ver install-strip
-#    cp $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
-#    chmod a-x $output/app/gcc/$prefix$ver/lib/lib*
-#    rm -r $output/app/gcc/$prefix$ver/lib64
-#    cd ../../..
-#    set_current_app gcc $prefix$ver
-#    strip_app gcc
-#    rsync -a in/gcc/ $output/app/gcc/$prefix$ver
+    make install
+    cd ../../..
+    set_current_app automake $prefix$ver
   fi
 fi
