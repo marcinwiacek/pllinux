@@ -136,23 +136,27 @@ EOF
       LINK=${REPO_URL/;/:}
 #echo "$LINK"
 #echo "${LINK/[*]/app.repo.updates}"
+      echo -n "Getting repo.updates..."
       wget -O /tmp/apprepo/${LINE_NUM}/app.repo.updates ${LINK/[*]/app.repo.updates} > /dev/null 2> /dev/null
       if [ $? -eq 0 ]; then
+        echo -n "getting first key..."
         wget -O /tmp/apprepo/${LINE_NUM}/app.publickey1 $REPO_FIRST_PUBLIC_KEY > /dev/null 2> /dev/null
         if [ $? -eq 0 ]; then
           if [ $REPO_FIRST_PUBLIC_KEY = $REPO_SECOND_PUBLIC_KEY ]; then
-            echo "Repo $REPO_URL issue - the same public key (worse security)"
+            echo "repo $REPO_URL issue - the same public key (worse security)"
             cp /tmp/apprepo/${LINE_NUM}/app.publickey1 /tmp/apprepo/${LINE_NUM}/app.publickey2
           else 
+            echo -n "getting second key..."
             wget -O /tmp/apprepo/${LINE_NUM}/app.publickey2 $REPO_SECOND_PUBLIC_KEY > /dev/null 2> /dev/null
           fi
           if cmp -s /tmp/apprepo/${LINE_NUM}/app.publickey1 /tmp/apprepo/${LINE_NUM}/app.publickey2; then
+            echo
             while read -r line; do
               REPO_UPDATES="$REPO_UPDATES$line $REPO_URL /tmp/apprepo/${LINE_NUM}/app.publickey1
 "
             done < "/tmp/apprepo/${LINE_NUM}/app.repo.updates"
           else
-            echo Repo $REPO_URL problem - both public keys are not the same. Skipping
+            echo repo $REPO_URL problem - both public keys are not the same. Skipping
           fi
         fi
       fi
