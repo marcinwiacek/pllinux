@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="grub"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="tzdb"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -941,3 +941,15 @@ if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
     set_current_app xorriso $prefix$ver
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
+  #work in progress
+  ver="2026c";
+  if should_make tzdata $ver; then
+    download_unpack_source https://data.iana.org/time-zones/releases/tzdb-$ver.tar.lz tzdb tzdb-$ver
+    create_app tzdb $prefix$ver
+    cd out/tzdb/tzdb-$ver
+    make TOPDIR="$output/app/tzdb/$prefix$ver" install
+    set_current_app tzdb $prefix$ver
+  fi
+fi
+

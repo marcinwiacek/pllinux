@@ -30,6 +30,9 @@ ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/gr
 /app/kbd/current/setfont -C /dev/tty3 sun12x22.psfu.gz 2> /dev/null
 /app/kbd/current/setfont -C /dev/tty4 sun12x22.psfu.gz 2> /dev/null
 
+# localtime
+ln -s /app/tzdb/current/usr/share/zoneinfo/Europe/Warsaw /etc/localtime
+
 # firewall rules
 /app/nftables/current/nft -f /etc/network/nftables/inet-filter.nft
 
