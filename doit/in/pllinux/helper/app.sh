@@ -43,6 +43,26 @@ find_app_deps() {
   fi
 }
 
+find_app_services() {
+  local DIR=$1
+  SERVICES=""
+  if [ -e "$DIR/readme.md" ]; then
+     sectionServices=0
+     while read -r line; do
+       if [ "$line" = "**Services**" ]; then
+         sectionServices=1
+       elif [ "$line" = "" ]; then
+         sectionServices=0;
+       elif [ "$sectionServices" = 1 ]; then
+                if [ "$SERVICES" != "" ]; then
+                  SERVICES="$SERVICES:"
+                fi
+                SERVICES="$SERVICES$line"
+       fi
+     done < $DIR/readme.md
+  fi
+}
+
 # getting name of install script (if any) from app readme.md
 find_app_install_script() {
   local DIR=$1
@@ -323,48 +343,31 @@ EOF
             tar -xvf ${APP_NAME}_${APP_VER}.tar.xz 2> /dev/null > /dev/null
             rm ${APP_NAME}_${APP_VER}.tar.xz
             rm ${APP_NAME}_${APP_VER}.tar.xz.sig
-            if [ -e "readme.md" ]; then
-              sectionServices=0
-              while read -r line; do
-                if [ "$line" = "**Services**" ]; then
-                  sectionServices=1
-                elif [ "$line" = "" ]; then
-                  sectionServices=0;
-                elif [ "$sectionServices" = 1 ]; then
-                  #fixme checking for paths
-                  echo -n "  Checking service '$line' - "
-                  if [ -e "${DIR}etc/dinit.d/$line" ]; then
-                    CURRENT=$(readlink ${DIR}etc/dinit.d/$line)
-                    if [ "$CURRENT" != "/app/${APP_NAME}/current/services/$line" ]; then
-                      echo "package trying to intercept service from the other app. Skipping"
-                      INSTALL_ERROR=1
-                    else
-                      echo "OK"
-                    fi
-                  else
-                    echo "OK (not installed in system)"
-                  fi
+            find_app_services /tmp/app/${APP_NAME}/${APP_VER}
+            for SERVICE in $SERVICES; do
+              #fixme checking for paths
+              echo -n "  Checking service '$SERVICE' - "
+              if [ -e "${DIR}etc/dinit.d/$SERVICE" ]; then
+                CURRENT=$(readlink ${DIR}etc/dinit.d/$SERVICE)
+                if [ "$CURRENT" != "/app/${APP_NAME}/current/services/$SERVICE" ]; then
+                  echo "package trying to intercept service from the other app. Skipping"
+                  INSTALL_ERROR=1
+                else
+                  echo "OK"
                 fi
-              done < readme.md
-              if [ "$INSTALL_ERROR" = "0" ]; then
-                sectionServices=0
-                while read -r line; do
-                  if [ "$line" = "**Services**" ]; then
-                    sectionServices=1
-                  elif [ "$line" = "" ]; then
-                    sectionServices=0;
-                  elif [ "$sectionServices" = 1 ]; then
-                    if [ ! -e "${DIR}etc/dinit.d/$line" ]; then
-                      echo "  Installing service '$line'"
-                      cd ${DIR}etc/dinit.d
-                      ln -s /app/${APP_NAME}/current/services/$line $line
-                      cd /tmp/app/${APP_NAME}/${APP_VER}
-                    fi
-                  fi
-                done < readme.md
+              else
+                echo "OK (not installed in system)"
               fi
-            fi
+            done
             if [ "$INSTALL_ERROR" = "0" ]; then
+              for SERVICE in $SERVICES; do
+                if [ ! -e "${DIR}etc/dinit.d/$SERVICE" ]; then
+                  echo "  Installing service '$SERVICE'"
+                  cd ${DIR}etc/dinit.d
+                  ln -s /app/${APP_NAME}/current/services/$SERVICE $SERVICE
+                  cd /tmp/app/${APP_NAME}/${APP_VER}
+                fi
+              done
               cd ..
               if [ $UPDATE_CURRENT = "1" ] || [ ! -d "${DIR}app/${APP_NAME}/current" ]; then
                 ln -s ${APP_VER} current
@@ -741,6 +744,7 @@ elif [ "$1" = "help" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
   echo
   echo "[name_part]                 - shows versions and dependiences in the /app for all or specified apps"
   echo "available [name_part]       - gets repo info and shows versions, dependiences and possible updates for the /app for all or specified apps"
+  echo "updates [name_part]         - like available"
   echo "backup [package_list]       - backup packages and related packages from the /app (all, when \"package_list\" not given) to the xz package files"
   echo "                              Example: backup \"busybox current:kernel:pllinux 260221_0.1:mc:x 0.2\""
   echo
@@ -767,7 +771,7 @@ elif [ "$1" = "help" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
   echo "$(cat app.repos)"
 else
   MASK=""
-  if [ "$1" = "available" ]; then
+  if [ "$1" = "available" ] || [ "$1" = "updates" ]; then
     REPO_UPDATES=""
     get_repo_updates
     if [ "$2" != "" ]; then
@@ -814,6 +818,10 @@ else
         find_app_deps ${DIR}app/$APP_NAME/$APP_VER "Deps" 1
         if [ "$DEPS" != "" ]; then
           echo -n " [deps $DEPS]"
+        fi
+        find_app_services ${DIR}app/${APP_NAME}/${APP_VER}
+        if [ "$SERVICES" != "" ]; then
+          echo -n " [services $SERVICES]"
         fi
         if [ "$1" = "available" ] && [ "$CURRENT" = "${DIR}app/$APP_NAME/$APP_VER" ]; then
           NEW_VER=$APP_VER
