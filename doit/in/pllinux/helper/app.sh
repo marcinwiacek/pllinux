@@ -224,7 +224,7 @@ find_all_app_versions_in_repo() {
     IFS=" " read -r APP_NAME20 APP_VER20 << EOF
 $DEP
 EOF
-    NEW_VER=0
+    NEW_VER=$APP_VER20
     NEW_REPO="-"
     LEN=${#APP_VER20}-1
     if [ "$APP_VER20" = "current" ]; then
@@ -282,7 +282,7 @@ EOF
           echo "  App ${APP_NAME} ${APP_VER} already installed. Skipping"
         fi
       elif [ "$APP_REPO" = "-" ]; then
-        echo "  App ${APP_NAME} not found in repo. Skipping"
+        echo "  App ${APP_NAME} ${APP_VER} not found in repo. Skipping"
       else
         LINK="${APP_REPO/[*]/${APP_NAME}_${APP_VER}.tar}"
         if [ "${APP_REPO:0:5}" = "https" ]; then
@@ -307,14 +307,15 @@ EOF
           mkdir /tmp/app/${APP_NAME}/${APP_VER} 2> /dev/null
           olddir=$(pwd)
           cd /tmp/app/${APP_NAME}/${APP_VER}
-          echo "  Unpacking $LINK to /tmp/app"
+          echo -n "  Unpacking $LINK to /tmp/app "
           tar -xvf $LINK 2> /dev/null > /dev/null
           VERIFY=$(openssl dgst -verify $APP_PUBLIC_KEY -keyform PEM -sha256 -signature ${APP_NAME}_${APP_VER}.tar.xz.sig -binary ${APP_NAME}_${APP_VER}.tar.xz 2> /dev/null | grep "Verified OK")
           if [ "$VERIFY" != "Verified OK" ]; then
             INSTALL_ERROR=1
-            echo "  Verification error"
+            echo "- package verification error"
             cd $olddir
           else
+            echo "- unpacked and verified OK"
             tar -xvf ${APP_NAME}_${APP_VER}.tar.xz 2> /dev/null > /dev/null
             rm ${APP_NAME}_${APP_VER}.tar.xz
             rm ${APP_NAME}_${APP_VER}.tar.xz.sig
@@ -337,10 +338,27 @@ EOF
                       echo "OK"
                     fi
                   else
-                    echo "not installed in system"
+                    echo "OK (not installed in system)"
                   fi
                 fi
               done < readme.md
+              if [ "$INSTALL_ERROR" = "0" ]; then
+                sectionServices=0
+                while read -r line; do
+                  if [ "$line" = "**Services**" ]; then
+                    sectionServices=1
+                  elif [ "$line" = "" ]; then
+                    sectionServices=0;
+                  elif [ "$sectionServices" = 1 ]; then
+                    if [ ! -e "${DIR}etc/dinit.d/$line" ]; then
+                      echo "  Installing service '$line'"
+                      cd ${DIR}etc/dinit.d
+                      ln -s /app/${APP_NAME}/current/services/$line $line
+                      cd /tmp/app/${APP_NAME}/${APP_VER}
+                    fi
+                  fi
+                done < readme.md
+              fi
             fi
             if [ "$INSTALL_ERROR" = "0" ]; then
               cd ..
@@ -381,7 +399,7 @@ EOF
               elif [ -d "${DIR}app/${APP_NAME3}/${APP_VER3}" ]; then
                 PARAMS="$PARAMS --ro-bind ${DIR}app/${APP_NAME3}/${APP_VER3} /app/${APP_NAME3}/${APP_VER3} "
               else
-                echo "Something wrong. Dependency ${APP_NAME3} ${APP_VER3}"
+                echo "  Something wrong. Dependency ${APP_NAME3} ${APP_VER3}"
               fi
             done
             PARAMS="$PARAMS --ro-bind ${DIR}app/busybox/current /app/busybox/current "
@@ -401,7 +419,6 @@ EOF
     done
   fi
   #fixme:run modules dependent from new installed
-  #fixme:services
 #  if [ -d "/tmp/app" ]; then
 #    rsync -a /tmp/app $DIR
 #    rm -r -f /tmp/app
@@ -711,7 +728,7 @@ EOF
         tar cfJ ${APP_NAME}_${APP_VER}.tar -C /tmp/app .
         rm -r /tmp/app
       else
-        echo "No app $APP_NAME $APP_VER. Skipping"
+        echo "No app $APP_NAME $APP_VER. Probably not resolved dependency in some other app. Skipping"
       fi
     fi
   done
