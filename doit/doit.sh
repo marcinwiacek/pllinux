@@ -173,7 +173,7 @@ if [ "$package" == "fs" ]; then
   cd bin
   ln -s /app/busybox/current/bin/sh sh
   cd $olddir
-  cp /etc/localtime $output/etc/localtime
+#  cp /etc/localtime $output/etc/localtime
 fi
 if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
   ver="7.1.3";
