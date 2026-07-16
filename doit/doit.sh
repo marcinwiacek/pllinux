@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="xorriso"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="grub"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -905,15 +905,18 @@ if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
   #work in progress
   ver="2.14";
   if should_make grub $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-$ver
+    install_host_deps "autoconf-archive"
+    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-gub-$ver
     create_app grub $prefix$ver
     cd out/grub
-    mkdir grub-$ver-build
-    if [ "$use_tmpfs" = "1" ]; then
-      sudo mount mount -t tmpfs -o rw,noatime,nosuid grub-$ver-build
-    fi
-    cd grub-$ver-build
-    ../grub-$ver/configure --prefix=$output/app/grub/$prefix$ver
+    mkdir grub-grub-$ver-build
+#    if [ "$use_tmpfs" = "1" ]; then
+#      sudo mount mount -t tmpfs -o rw,noatime,nosuid grub-$ver-build
+#    fi
+    cd grub-grub-$ver
+    autoconf
+    cd grub-grub-$ver-build
+    ../grub-grub-$ver/configure --prefix=$output/app/grub/$prefix$ver
     make all -j$cpu_num
     make install
     cd ../../..
