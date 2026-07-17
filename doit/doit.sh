@@ -711,19 +711,19 @@ if [ "$package" == "fs" ] || [ "$package" == "rsync" ]; then
     strip_app rsync
   fi
 fi
-if [ "$package" == "groff" ]; then
+#if [ "$package" == "groff" ]; then
   # work in progress
   # for displaying man pages
-  ver="1.24.1";
-  if should_make groff $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/groff/groff-$ver.tar.gz groff groff-$ver
-    create_app groff $prefix$ver
-    cd out/groff/groff-$ver
-    ./configure --prefix=$output/app/groff/$prefix$ver
-    make all -j$cpu_num
-    make install
-  fi
-fi
+#  ver="1.24.1";
+#  if should_make groff $ver; then
+#    download_unpack_source https://ftp.gnu.org/gnu/groff/groff-$ver.tar.gz groff groff-$ver
+#    create_app groff $prefix$ver
+#    cd out/groff/groff-$ver
+#    ./configure --prefix=$output/app/groff/$prefix$ver
+#    make all -j$cpu_num
+#    make install
+#  fi
+#fi
 if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
   ver="1.5.7";
   if should_make zstd $ver; then
@@ -826,9 +826,10 @@ if [ "$package" == "fs" ] || [ "$package" == "gcc" ]; then
     ../gcc-$ver/configure --enable-shared --disable-multilib --prefix= --disable-bootstrap --enable-languages=c,c++
     make all -j$cpu_num
     make DESTDIR=$output/app/gcc/$prefix$ver install-strip
-    cp $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
+    rsync -a $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
+#    cp $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
     chmod a-x $output/app/gcc/$prefix$ver/lib/lib*
-    rm -r $output/app/gcc/$prefix$ver/lib64
+#    rm -r $output/app/gcc/$prefix$ver/lib64
     cd ../../..
     set_current_app gcc $prefix$ver
     strip_app gcc
@@ -984,4 +985,21 @@ if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
     set_current_app tzdb $prefix$ver
   fi
 fi
-
+if [ "$package" == "fs" ] || [ "$package" == "mandb" ]; then
+  ver="2.13.1";
+  if should_make xorriso $ver; then
+    download_unpack_source https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 mandb mandb-$ver
+    create_app xorriso $prefix$ver
+    cd out/xorriso
+    mkdir xorriso-$ver-build
+#    if [ "$use_tmpfs" = "1" ]; then
+#      sudo mount mount -t tmpfs -o rw,noatime,nosuid grub-$ver-build
+#    fi
+    cd xorriso-$ver-build
+    ../xorriso-$ver/configure --prefix=$output/app/xorriso/$prefix$ver
+    make -j$cpu_num
+    make install
+    cd ../../..
+    set_current_app xorriso $prefix$ver
+  fi
+fi
