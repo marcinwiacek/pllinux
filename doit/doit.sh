@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="gcc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="man-db"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -827,9 +827,8 @@ if [ "$package" == "fs" ] || [ "$package" == "gcc" ]; then
     make all -j$cpu_num
     make DESTDIR=$output/app/gcc/$prefix$ver install-strip
     rsync -a $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
-#    cp $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
     chmod a-x $output/app/gcc/$prefix$ver/lib/lib*
-#    rm -r $output/app/gcc/$prefix$ver/lib64
+    rm -r $output/app/gcc/$prefix$ver/lib64
     cd ../../..
     set_current_app gcc $prefix$ver
     strip_app gcc
@@ -985,21 +984,16 @@ if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
     set_current_app tzdb $prefix$ver
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "mandb" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "man-db" ]; then
   ver="2.13.1";
-  if should_make xorriso $ver; then
-    download_unpack_source https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 mandb mandb-$ver
-    create_app xorriso $prefix$ver
-    cd out/xorriso
-    mkdir xorriso-$ver-build
-#    if [ "$use_tmpfs" = "1" ]; then
-#      sudo mount mount -t tmpfs -o rw,noatime,nosuid grub-$ver-build
-#    fi
-    cd xorriso-$ver-build
-    ../xorriso-$ver/configure --prefix=$output/app/xorriso/$prefix$ver
+  if should_make man-db $ver; then
+    download_unpack_source https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 man-db man-db-$ver
+    create_app man-db $prefix$ver
+    cd out/man-db/man-db-$ver
+    ../configure --prefix=$output/app/man-db/$prefix$ver
     make -j$cpu_num
     make install
     cd ../../..
-    set_current_app xorriso $prefix$ver
+    set_current_app man-db $prefix$ver
   fi
 fi
