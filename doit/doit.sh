@@ -119,14 +119,11 @@ remove_duplicates() {
     DOITAGAIN="0"
     for fname in $(find . -maxdepth 1 -type f); do
       CHECKSUM=($(md5sum $fname))
-#echo $fname - $CHECKSUM
       for fname2 in $(find . -maxdepth 1 -type f); do
         CHECKSUM2=($(md5sum $fname2))
-#echo $fname2 - $CHECKSUM2
         if [ "$fname" != "$fname2" ] && [ "$CHECKSUM" = "$CHECKSUM2" ]; then
-	    rm $fname2
+            rm $fname2
             ln -s $fname $fname2
-#echo $fname2 $fname
             DOITAGAIN="1"
         fi
       done
@@ -711,19 +708,6 @@ if [ "$package" == "fs" ] || [ "$package" == "rsync" ]; then
     strip_app rsync
   fi
 fi
-#if [ "$package" == "groff" ]; then
-  # work in progress
-  # for displaying man pages
-#  ver="1.24.1";
-#  if should_make groff $ver; then
-#    download_unpack_source https://ftp.gnu.org/gnu/groff/groff-$ver.tar.gz groff groff-$ver
-#    create_app groff $prefix$ver
-#    cd out/groff/groff-$ver
-#    ./configure --prefix=$output/app/groff/$prefix$ver
-#    make all -j$cpu_num
-#    make install
-#  fi
-#fi
 if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
   ver="1.5.7";
   if should_make zstd $ver; then
@@ -974,7 +958,6 @@ if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
-  #work in progress
   ver="2026c";
   if should_make tzdata $ver; then
     download_unpack_source https://data.iana.org/time-zones/releases/tzdb-$ver.tar.lz tzdb tzdb-$ver
@@ -984,13 +967,29 @@ if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
     set_current_app tzdb $prefix$ver
   fi
 fi
+#if [ "$package" == "groff" ]; then
+  # work in progress
+  # for displaying man pages
+#  ver="1.24.1";
+#  if should_make groff $ver; then
+#    download_unpack_source https://ftp.gnu.org/gnu/groff/groff-$ver.tar.gz groff groff-$ver
+#    create_app groff $prefix$ver
+#    cd out/groff/groff-$ver
+#    ./configure --prefix=$output/app/groff/$prefix$ver
+#    make all -j$cpu_num
+#    make install
+#  fi
+#fi
 if [ "$package" == "fs" ] || [ "$package" == "man-db" ]; then
+  #work in progress
   ver="2.13.1";
   if should_make man-db $ver; then
+    install_host_deps "autopoint libpipeline-dev"
     download_unpack_source https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 man-db man-db-$ver
     create_app man-db $prefix$ver
     cd out/man-db/man-db-$ver
-    ../configure --prefix=$output/app/man-db/$prefix$ver
+    ./bootstrap
+    ./configure --prefix=$output/app/man-db/$prefix$ver
     make -j$cpu_num
     make install
     cd ../../..
