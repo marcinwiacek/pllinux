@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="man-db"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="libc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -335,10 +335,14 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ] || [ "$package" == "ldso" 
     download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz libc glibc-$ver
     create_app libc $prefix$ver
     create_app ldso $prefix$ver
-    mkdir out/libc/glibc-$ver-build
-    cd out/libc/glibc-$ver-build
-    ../glibc-$ver/configure --prefix=$output/app/libc/$prefix$ver
-    sed -i 's/#define OPEN_TREE_CLONE    1 /#ifndef OPEN_TREE_CLONE\n#define OPEN_TREE_CLONE    1\n#endif /g' ../glibc-$ver/sysdeps/unix/sysv/linux/sys/mount.h
+    if [ ! -d "out/libc/glibc-$ver-build" ]; then
+      mkdir out/libc/glibc-$ver-build
+      cd out/libc/glibc-$ver-build
+      ../glibc-$ver/configure --prefix=$output/app/libc/$prefix$ver --disable-static-c++-tests
+    else
+      cd out/libc/glibc-$ver-build
+    fi
+#    sed -i 's/#define OPEN_TREE_CLONE    1 /#ifndef OPEN_TREE_CLONE\n#define OPEN_TREE_CLONE    1\n#endif /g' ../glibc-$ver/sysdeps/unix/sysv/linux/sys/mount.h
     make all -j$cpu_num
     make install
     cp elf/ld.so $output/app/ldso/$prefix$ver
@@ -994,5 +998,20 @@ if [ "$package" == "fs" ] || [ "$package" == "man-db" ]; then
     make install
     cd ../../..
     set_current_app man-db $prefix$ver
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "smartmontools" ]; then
+  #work in progress
+  rel="7_5";
+  ver="7.5";
+  if should_make smartmontools $ver; then
+    download_unpack_source https://github.com/smartmontools/smartmontools/releases/download/RELEASE_$rel/smartmontools-$ver.tar.gz smartmontools smartmontools-$ver
+    create_app smartmontools $prefix$ver
+    cd out/smartmontools/smartmontools-$ver
+    ./configure --prefix=$output/app/smartmontools/$prefix$ver
+    make -j$cpu_num
+    make install
+    cd ../../..
+    set_current_app smartmontools $prefix$ver
   fi
 fi

@@ -37,7 +37,7 @@ Currently in early alpha. Some things are done and many still todo:
  3. [Milestone 3 - app folder structure, network, dynamic linking and interpreters (again), packages, system in this moment](milestone3.md)
  4. [Milestone 4 - real packet manager](milestone4.md)
  5. [Milestone 5 - new packages and options](milestone5.md)
- 6. [Milestone 6 - dynamic loader searching for apps inside /app]
+ 6. [Milestone 6 - hacking ld-linux-x86-64.ld.so2 / dynamic loader searching for apps inside /app](milestone6.md)
  7. [Milestone 7 - SSD writes, logging, manual pages]
  8. [Milestone 8 - sound, CPU microcode and kernel packages]
  9. Milestone 9 - dbus? AppArmor? SeLinux?
