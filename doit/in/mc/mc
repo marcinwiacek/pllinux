@@ -25,6 +25,7 @@ mkdir /other/app/mc 2> /dev/null
     $APP \
     --ro-bind $DIR/bin bin \
     --ro-bind $DIR/usr usr \
+    --ro-bind /lib64 lib64 \
     --setenv PS1 "[\t] $USER # " \
     --setenv SHELL /app/busybox/current/bin/sh \
     --chdir $(pwd) \
