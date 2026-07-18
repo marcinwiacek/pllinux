@@ -35,3 +35,7 @@ Bingo!
 ![Alt text](2026/jul_ldso4.png)
 
 We have first from many very steps in good direction. Now we need to place it in correct function + get binary path + process. Simple, isn't it?
+
+Well, there are at least two entry points, where we need to find our ELF executable name and path + we need to find our readme.md. Some puzzle elements: [some patch elements](doit/in/libc/243_patch1.txt)
+
+Real work starts now.

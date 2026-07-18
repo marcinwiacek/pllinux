@@ -1,0 +1,59 @@
+--- rtld.c	2026-01-23 21:54:00.000000000 +0100
++++ rtld.c.mw	2026-07-18 20:22:00.464560472 +0200
+@@ -1376,6 +1376,17 @@
+ #endif
+ 
+   const char *ld_so_name = _dl_argv[0];
++
++  //mw
++  if (*user_entry != (ElfW(Addr)) ENTRY_POINT) {
++      _dl_error_printf ("path from");
++      _dl_error_printf (ld_so_name);
++      char *rp = (char *)malloc(1000);
++      getcwd(rp,1000);
++      _dl_error_printf (rp);
++      free(rp);
++  }
++
+   if (*user_entry == (ElfW(Addr)) ENTRY_POINT)
+     {
+       /* Ho ho.  We are not the program interpreter!  We are the program
+@@ -1540,6 +1551,14 @@
+       --_dl_argc;
+       ++_dl_argv;
+ 
++      //mw
++      _dl_error_printf ("path from");
++      _dl_error_printf (_dl_argv[0]);
++      char *rp = (char *)malloc(1000);
++      getcwd(rp,1000);
++      _dl_error_printf (rp);
++      free(rp);
++
+       /* The initialization of dl_stack_prot_flags done below assumes the
+ 	 executable's PT_GNU_STACK may have been honored by the kernel, and
+ 	 so a PT_GNU_STACK with PF_X set means the stack started out with
+@@ -2585,6 +2604,23 @@
+   char *envline;
+   char *debug_output = NULL;
+ 
++  //mw
++  size_t file_size;
++  char *file;
++  static const char preload_file[] = "/mnt/x/app/mc/current/readme.md";
++  if (__glibc_unlikely (__access (preload_file, R_OK) == 0))
++    {
++      /* Read the contents of the file.  */
++      file = _dl_sysdep_read_whole_file (preload_file, &file_size,
++					 PROT_READ | PROT_WRITE);
++      if (__glibc_unlikely (file != MAP_FAILED))
++	{
++      _dl_error_printf (file);
++
++	  __munmap (file, file_size);
++	}
++    }
++
+   while ((envline = _dl_next_ld_env_entry (&runp)) != NULL)
+     {
+       size_t len = 0;
