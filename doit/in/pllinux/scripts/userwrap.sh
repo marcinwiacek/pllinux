@@ -29,10 +29,13 @@ PARAMS="$PARAMS --dev dev "
 PARAMS="$PARAMS --tmpfs tmp "
 PARAMS="$PARAMS --bind home/$USER/files home "
 PARAMS="$PARAMS --bind home/$USER other "
+PARAMS="$PARAMS --ro-bind /etc/localtime /etc/localtime "
+PARAMS="$PARAMS --ro-bind /lib64 lib64 "
 allapp=0
 deps=""
 path=""
 shell=""
+
 
 for ARG in "$@"
 do
