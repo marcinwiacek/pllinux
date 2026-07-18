@@ -334,30 +334,23 @@ if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
     set_current_app kbd $prefix$ver
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "libc" ] || [ "$package" == "ldso" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "libc" ]; then
   ver="2.43";
   if should_make libc $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz libc glibc-$ver
     create_app libc $prefix$ver
-    create_app ldso $prefix$ver
-    if [ ! -d "out/libc/glibc-$ver-build" ]; then
-      mkdir out/libc/glibc-$ver-build
-      cd out/libc/glibc-$ver-build
-      ../glibc-$ver/configure --prefix=$output/app/libc/$prefix$ver
-    else
-      cd out/libc/glibc-$ver-build
-    fi
+    mkdir out/libc/glibc-$ver-build
+    cd out/libc/glibc-$ver-build
+    ../glibc-$ver/configure --prefix=$output/app/libc/$prefix$ver
+    cp ../../../in/libc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
 #    sed -i 's/#define OPEN_TREE_CLONE    1 /#ifndef OPEN_TREE_CLONE\n#define OPEN_TREE_CLONE    1\n#endif /g' ../glibc-$ver/sysdeps/unix/sysv/linux/sys/mount.h
     make all -j$cpu_num
     make install
-    cp elf/ld.so $output/app/ldso/$prefix$ver
     cd ../../..
-    strip_app ldso
-    set_current_app ldso $prefix$ver
     strip_app libc
     set_current_app libc $prefix$ver
-    cp in/libc/* $output/app/libc/$prefix$ver
-    cp in/libc/* $output/app/ldso/$prefix$ver
+    cp in/libc/readme.md $output/app/libc/$prefix$ver
+    cp in/libc/2_43_patch_ver4.txt $output/app/libc/$prefix$ver
     find $output/app/libc/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/libc/$prefix$ver/lib && chmod a-x {} " \;
   fi
 fi
