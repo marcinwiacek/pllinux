@@ -20,5 +20,10 @@ Option 2 seems to be easier and more ellegant. During some research there were f
 
 With place 1 code was quite fast written (it's very ugly and just for starting some things)
 
+![Alt text](2026/jul_ldso1.png)
 
+but it end with compilation errors (rootcause is quite clear, but shows, that this path will need more code updates and because of it it's not very good)
 
+![Alt text](2026/jul_ldso2.png)
+
+Let's go to place 2

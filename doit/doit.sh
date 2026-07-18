@@ -338,7 +338,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ] || [ "$package" == "ldso" 
     if [ ! -d "out/libc/glibc-$ver-build" ]; then
       mkdir out/libc/glibc-$ver-build
       cd out/libc/glibc-$ver-build
-      ../glibc-$ver/configure --prefix=$output/app/libc/$prefix$ver --disable-static-c++-tests
+      ../glibc-$ver/configure --prefix=$output/app/libc/$prefix$ver
     else
       cd out/libc/glibc-$ver-build
     fi
