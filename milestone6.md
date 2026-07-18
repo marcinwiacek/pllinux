@@ -43,4 +43,8 @@ Real work starts now.
 
 After parsing readme.md we can prepare LD_LIBRARY_PATH value (this covers just the most simple cases): [patch2](doit/in/libc/2_43_patch_ver2.txt)
 
-But how to pass it further to other code parts?
+But how to pass it further to other code parts? Few tries and...
+
+![Alt text](2026/jul_ldso5.png)
+
+18 Jul is next milestone - we have first working [patch for ld.so compatible with PLLINUX](doit/in/libc/2_43_patch_ver3.txt)
