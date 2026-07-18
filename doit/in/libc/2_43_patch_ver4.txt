@@ -1,0 +1,124 @@
+--- rtld.c	2026-01-23 21:54:00.000000000 +0100
++++ rtld.c.mw7	2026-07-19 01:29:13.745680134 +0200
+@@ -1348,6 +1348,94 @@
+ #endif
+ }
+ 
++static void* mw_find_pllinux_path(void) {
++  _dl_error_printf ("PLLINUX path ");
++  char *rp = (char *)malloc(1000);
++  getcwd(rp,999); // in theory we could use NULL,0 ... but it gives some errors/warnings (theory != practise. Again)
++
++  int prefixLen = 0;
++  if (!strncmp(rp,"/app/",5)) prefixLen = 5;
++  if (!strncmp(rp,"/mnt/x/app/",11)) prefixLen = 11; //used for testing in host. in real compilation will be removed
++
++  if (prefixLen==0) return NULL; //no PLLinux
++
++  int pos=strlen(rp)-1; //last character before last /
++  int posnum=0;
++  for (int i =0;i<strlen(rp);i++) {
++    if (rp[i]=='/') {
++      posnum++;
++      if (posnum==(prefixLen==5?4:6)) {
++        pos=i;
++        break;
++      }
++    }
++  }
++
++  char *finalstr = (char *)malloc(pos+1+5+1);
++  strncpy(finalstr,rp,pos+1);
++  strcpy(finalstr+pos+1,"/lib");
++  finalstr[pos+1+5]=0;
++
++  strcpy(rp+pos+1,"/readme.md");
++  rp[pos+1+10]=0;
++
++  size_t file_size;
++  char *file;
++  if (__glibc_unlikely (__access (rp, R_OK) == 0)) {
++    /* Read the contents of the file.  */
++    file = _dl_sysdep_read_whole_file (rp, &file_size, PROT_READ | PROT_WRITE); //segfault without PROT_WRITE
++    free(rp);
++    if (__glibc_unlikely (file != MAP_FAILED)) {
++      int depssection=0,i=0,newlinepos=0,spacepos=0;
++      while (i<strlen(file)) {
++        if (!strncmp(file+i,"**Deps**",8)) {
++          depssection=1;
++          i+=8;
++        } else if (file[i]==10) {
++          if (newlinepos == i) {
++            depssection=0;
++          } else if (depssection==1) {
++            depssection=2;
++          } else if (depssection==2 && spacepos!=0) {
++            depssection=2;
++            int oldlen=strlen(finalstr);
++            finalstr = realloc(finalstr,oldlen+1+prefixLen+i-newlinepos+4+1);
++            finalstr[oldlen]=':';
++            strncpy(finalstr+oldlen+1,finalstr,prefixLen+1);
++            strncpy(finalstr+oldlen+1+prefixLen,file+newlinepos,i-newlinepos);
++            strcpy(finalstr+oldlen+1+prefixLen+i-newlinepos,"/lib");
++            finalstr[oldlen+1+prefixLen+i-newlinepos+4]=0;
++          }
++          newlinepos=i+1;
++          spacepos=0;
++          i++;
++        } else if (file[i]==' ') {
++          if (spacepos==0) {
++            spacepos=i;
++            file[i]='/';
++          }
++          i++;
++        } else {
++          i++;
++        }
++      }
++      __munmap (file, file_size);
++    }
++  }
++
++  char rp2[3];
++  rp2[0]='-';
++  rp2[1]=0;
++  _dl_error_printf (rp2);
++  _dl_error_printf(finalstr);
++  rp2[0]='-';
++  rp2[1]=10;
++  rp2[2]=0;
++  _dl_error_printf (rp2);
++
++  return finalstr;
++}
++
+ static void
+ dl_main (const ElfW(Phdr) *phdr,
+ 	 ElfW(Word) phnum,
+@@ -1376,6 +1464,14 @@
+ #endif
+ 
+   const char *ld_so_name = _dl_argv[0];
++
++  //mw
++  if (*user_entry != (ElfW(Addr)) ENTRY_POINT) {
++      //interpreter
++      char *pllinux = mw_find_pllinux_path();
++      state.library_path = pllinux;
++  }
++
+   if (*user_entry == (ElfW(Addr)) ENTRY_POINT)
+     {
+       /* Ho ho.  We are not the program interpreter!  We are the program
+@@ -1540,6 +1636,11 @@
+       --_dl_argc;
+       ++_dl_argv;
+ 
++      //mw
++      //program with params
++      char *pllinux = mw_find_pllinux_path();
++      state.library_path = pllinux;
++
+       /* The initialization of dl_stack_prot_flags done below assumes the
+ 	 executable's PT_GNU_STACK may have been honored by the kernel, and
+ 	 so a PT_GNU_STACK with PF_X set means the stack started out with
