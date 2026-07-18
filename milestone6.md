@@ -26,4 +26,12 @@ but it end with compilation errors (rootcause is quite clear, but shows, that th
 
 ![Alt text](2026/jul_ldso2.png)
 
-Let's go to place 2
+Let's go to place 2... and we have the same linking problems. It looks, that in this place we cannot use stdio.h functions. Let's check it.
+
+![Alt text](2026/jul_ldso3.png)
+
+Bingo!
+
+![Alt text](2026/jul_ldso4.png)
+
+We have first from many very steps in good direction. Now we need to place it in correct function + get binary path + process. Simple, isn't it?
