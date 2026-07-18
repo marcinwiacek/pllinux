@@ -36,6 +36,11 @@ Bingo!
 
 We have first from many very steps in good direction. Now we need to place it in correct function + get binary path + process. Simple, isn't it?
 
-Well, there are at least two entry points, where we need to find our ELF executable name and path + we need to find and process our readme.md. Some puzzle elements (patch from glibc 2.43): [some patch elements](doit/in/libc/2_43_patch_ver1.txt)
+Well, there are at least two entry points, where we need to find our ELF executable name and path + we need to find and process our readme.md. Some puzzle elements (patch from glibc 2.43):
+[some patch elements](doit/in/libc/2_43_patch_ver1.txt)
 
 Real work starts now.
+
+After parsing readme.md we can prepare LD_LIBRARY_PATH value (this covers just the most simple cases): [patch2](doit/in/libc/2_43_patch_ver2.txt)
+
+But how to pass it further to other code parts?
