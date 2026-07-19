@@ -8,5 +8,5 @@ sbin
 https://netfilter.org/projects/nftables/index.html
 
 **Deps**
-libc current
+glibc current
 ncurses current

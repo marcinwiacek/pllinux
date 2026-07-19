@@ -5,7 +5,7 @@ GPL3+ with GCC Runtime Library Exception
 bin
 
 **Deps**
-libc current
+glibc current
 zstd current
 
 **Description**

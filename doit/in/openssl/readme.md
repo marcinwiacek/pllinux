@@ -5,7 +5,7 @@ Apache 2.0
 https://github.com/openssl/openssl
 
 **Deps**
-libc current
+glibc current
 
 **PATH**
 bin

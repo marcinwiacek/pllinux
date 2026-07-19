@@ -6,7 +6,7 @@ https://invisible-island.net/ncurses
 **Description**
 
 **Deps**
-libc current
+glibc current
 
 **PATH**
 bin

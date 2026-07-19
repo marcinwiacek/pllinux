@@ -1,9 +1,9 @@
 **Deps**
-libc current
+glibc current
+openssl 260713_3.6.3
+pcre2 current
 zlib current
 zstd current
-openssl 260711_4.0-
-pcre2 current
 
 **License**
 GPL3+

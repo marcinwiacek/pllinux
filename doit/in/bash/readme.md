@@ -14,5 +14,5 @@ sh-compatible Bourne Again SHell with elements from the csh (C SHell) and ksh (K
 bin/bash
 
 **Deps**
-libc current
+glibc current
 ncurses current

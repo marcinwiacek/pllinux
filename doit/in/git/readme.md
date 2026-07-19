@@ -5,7 +5,7 @@ GPL2
 bin
 
 **Deps**
-libc current
+glibc current
 zlib current
 
 **Description**

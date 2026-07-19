@@ -5,7 +5,7 @@ GPL2.0 / LGPL 2.0
 bin:sbin
 
 **Deps**
-libc current
+glibc current
 
 **Description**
 

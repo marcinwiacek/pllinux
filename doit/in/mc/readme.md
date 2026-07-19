@@ -7,13 +7,13 @@ GPL3
 **Description**
 
 **Deps**
-libc current
 bwrap current
-pcre2 current
 gcc current
-slang current
 glib current
+glibc current
 ncurses current
+pcre2 current
+slang current
 
 **PATH**
 .

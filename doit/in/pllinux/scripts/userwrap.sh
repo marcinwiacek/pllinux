@@ -10,7 +10,7 @@
 # green [time] user:folder $
 # OR
 # green [time] user:folder amber git branch name $
-export PS1="\e[32m[\t] $USER:\w\$(if [ -f "/app/git/current/git" ] && git rev-parse --git-dir > /dev/null 2>&1; then echo -n \" \e[33m\";git branch --show-current; fi) $ \e[m"
+export PS1="\e[32m[\t] $USER:\w\$(if [ -f "/app/git/current/bin/git" ] && git rev-parse --git-dir > /dev/null 2>&1; then echo -n \" \e[33m\";git branch --show-current; fi) $ \e[m"
 
 processesall=0
 for ARG in "$@"

@@ -1,5 +1,5 @@
 **Deps**
-libc current
+glibc current
 
 **License**
 GPL2+

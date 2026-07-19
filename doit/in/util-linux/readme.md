@@ -2,7 +2,7 @@
 GPL2
 
 **Deps**
-libc current
+glibc current
 
 **Project**
 https://github.com/util-linux/util-linux

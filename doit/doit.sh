@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="libc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="glibc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -202,10 +202,9 @@ if [ "$package" == "fs" ]; then
   ln -s /app/busybox/current/bin/sh sh
   cd ..
   cd lib64
-  ln -s /app/libc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
+  ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
   chmod a+x ld-linux-x86-64.so.2
   cd $olddir
-#  cp /etc/localtime $output/etc/localtime
 fi
 if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
   ver="7.1.3";
@@ -336,25 +335,23 @@ if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
     set_current_app kbd $prefix$ver
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "libc" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
   ver="2.43";
-  if should_make libc $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz libc glibc-$ver
-    create_app libc $prefix$ver
-    mkdir out/libc/glibc-$ver-build
-    cd out/libc/glibc-$ver-build
-    ../glibc-$ver/configure --prefix=$output/app/libc/$prefix$ver
-    cp ../../../in/libc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
-#    sed -i 's/#define OPEN_TREE_CLONE    1 /#ifndef OPEN_TREE_CLONE\n#define OPEN_TREE_CLONE    1\n#endif /g' ../glibc-$ver/sysdeps/unix/sysv/linux/sys/mount.h
+  if should_make glibc $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver
+    create_app glibc $prefix$ver
+    mkdir out/glibc/glibc-$ver-build
+    cd out/glibc/glibc-$ver-build
+    ../glibc-$ver/configure --prefix=$output/app/glibc/$prefix$ver
+    cp ../../../in/glibc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
     make all -j$cpu_num
     make install
     cd ../../..
-    strip_app libc
-    set_current_app libc $prefix$ver
-#    cp in/libc/readme.md $output/app/libc/$prefix$ver
-    cp in/libc/2_43_patch_ver5.txt $output/app/libc/$prefix$ver
-    find $output/app/libc/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/libc/$prefix$ver/lib && chmod a-x {} " \;
-    chmod a+x $output/app/libc/$prefix$ver/lib/ld-linux-x86-64.so.2
+    strip_app glibc
+    set_current_app glibc $prefix$ver
+    cp in/libc/2_43_patch_ver5.txt $output/app/glibc/$prefix$ver
+    find $output/app/glibc/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/glibc/$prefix$ver/lib && chmod a-x {} " \;
+    chmod a+x $output/app/glibc/$prefix$ver/lib/ld-linux-x86-64.so.2
   fi
 fi
 #if [ "$package" == "all" ] || [ "$package" == "binutils" ]; then
@@ -536,7 +533,6 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
     strip_app git
     set_current_app git $prefix$ver
     cp in/git/git $output/app/git/$prefix$ver
-#    cp in/git/readme.md $output/app/git/$prefix$ver
   fi
 fi
 # PGP

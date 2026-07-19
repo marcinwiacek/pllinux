@@ -7,7 +7,7 @@ GPL2+
 https://kbd-project.org/
 
 **Deps**
-libc current
+glibc current
 
 **PATH**
 bin
