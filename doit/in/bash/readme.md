@@ -5,7 +5,7 @@ GPL3+
 https://www.gnu.org/software/bash/
 
 **Description**
-sh-compatible Bourne Again SHell from the GNU project with elements from the csh (C SHell) and ksh (Korn SHell).
+sh-compatible Bourne Again SHell with elements from the csh (C SHell) and ksh (Korn SHell).
 
 **PATH**
 .
