@@ -2,5 +2,4 @@
 https://www.iana.org/time-zones
 
 **PATH**
-usr/bin
-usr/sbin
+usr/bin:usr/sbin

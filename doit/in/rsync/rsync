@@ -1,3 +1,0 @@
-#!/app/busybox/current/bin/sh
-DIR=$(/app/busybox/current/bin/dirname $0)
-/app/libc/current/lib/ld-linux-x86-64.so.2 --library-path /app/openssl/260711_3.6.3/lib:/app/zlib/current/lib:/app/zstd/current/lib:/app/libc/current/lib $DIR/bin/rsync $@

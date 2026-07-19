@@ -2,7 +2,7 @@
 libc current
 zlib current
 zstd current
-openssl 260711_4.0-
+openssl 260713_3.6.3
 
 **License**
 GPL3+
@@ -11,4 +11,4 @@ GPL3+
 https://rsync.samba.org
 
 **PATH**
-.
+bin

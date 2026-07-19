@@ -1348,10 +1348,18 @@ _dl_start_args_adjust (int skip_args, int skip_env)
 #endif
 }
 
+//mw
 static void* mw_find_pllinux_path(void) {
   _dl_error_printf ("PLLINUX path ");
   char *rp = (char *)malloc(1000);
   getcwd(rp,999); // in theory we could use NULL,0 ... but it gives some errors/warnings (theory != practise. Again)
+
+  char rp2[3];
+  rp2[0]=10;
+  rp2[1]=0;
+
+  _dl_error_printf(rp);
+  _dl_error_printf (rp2);
 
   int prefixLen = 0;
   if (!strncmp(rp,"/app/",5)) prefixLen = 5;
@@ -1365,7 +1373,7 @@ static void* mw_find_pllinux_path(void) {
     if (rp[i]=='/') {
       posnum++;
       if (posnum==(prefixLen==5?4:6)) {
-        pos=i;
+        pos=i-1;
         break;
       }
     }
@@ -1423,7 +1431,6 @@ static void* mw_find_pllinux_path(void) {
     }
   }
 
-  char rp2[3];
   rp2[0]='-';
   rp2[1]=0;
   _dl_error_printf (rp2);

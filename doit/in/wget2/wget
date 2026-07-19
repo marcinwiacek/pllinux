@@ -1,3 +1,0 @@
-#!/app/busybox/current/bin/sh
-DIR=$(/app/busybox/current/bin/dirname $0)
-/app/ldso/current/ld.so --library-path /app/pcre2/current/lib:/app/openssl/260711_3.6.3/lib:/app/zstd/current/lib:/app/zlib/current/lib:/app/libc/current/lib:$DIR/lib $DIR/bin/wget2_noinstall --ca-directory $DIR/ssl $@

@@ -25,16 +25,16 @@ ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/gr
 /app/busybox/current/sbin/mdev -s
 
 # console font
-/app/kbd/current/setfont/bin -C /dev/tty1 sun12x22.psfu.gz 2> /dev/null
-/app/kbd/current/setfont/bin -C /dev/tty2 sun12x22.psfu.gz 2> /dev/null
-/app/kbd/current/setfont/bin -C /dev/tty3 sun12x22.psfu.gz 2> /dev/null
-/app/kbd/current/setfont/bin -C /dev/tty4 sun12x22.psfu.gz 2> /dev/null
+/app/kbd/current/bin/setfont -C /dev/tty1 sun12x22.psfu.gz 2> /dev/null
+/app/kbd/current/bin/setfont -C /dev/tty2 sun12x22.psfu.gz 2> /dev/null
+/app/kbd/current/bin/setfont -C /dev/tty3 sun12x22.psfu.gz 2> /dev/null
+/app/kbd/current/bin/setfont -C /dev/tty4 sun12x22.psfu.gz 2> /dev/null
 
 # localtime
-ln -s /app/tzdb/current/usr/share/zoneinfo/Europe/Warsaw /etc/localtime
+ln -s /app/tzdb/current/usr/share/zoneinfo/Europe/Warsaw /etc/localtime 2> /dev/null
 
 # firewall rules
-/app/nftables/current/nft/sbin -f /etc/network/nftables/inet-filter.nft
+/app/nftables/current/sbin/nft -f /etc/network/nftables/inet-filter.nft
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl

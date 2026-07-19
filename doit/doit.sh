@@ -344,7 +344,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ]; then
     mkdir out/libc/glibc-$ver-build
     cd out/libc/glibc-$ver-build
     ../glibc-$ver/configure --prefix=$output/app/libc/$prefix$ver
-    cp ../../../in/libc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
+#    cp ../../../in/libc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
 #    sed -i 's/#define OPEN_TREE_CLONE    1 /#ifndef OPEN_TREE_CLONE\n#define OPEN_TREE_CLONE    1\n#endif /g' ../glibc-$ver/sysdeps/unix/sysv/linux/sys/mount.h
     make all -j$cpu_num
     make install
@@ -694,6 +694,7 @@ if [ "$package" == "fs" ] || [ "$package" == "wget2" ]; then
     cd $olddir
     set_current_app wget2 $prefix$ver
     rsync -a in/wget2/ $output/app/wget2/$prefix$ver
+    mv $output/app/wget2/$prefix$ver/bin/wget2_noinstall $output/app/wget2/$prefix$ver/bin/wget
     strip_app wget2
   fi
 fi
