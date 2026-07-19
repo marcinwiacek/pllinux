@@ -87,6 +87,7 @@ EOF
           elif [ "$line" = "" ]; then
             sectionDeps=0;
             sectionPath=0;
+            sectionPathFirst=0;
             sectionShell=0;
           elif [ "$sectionDeps" = 1 ]; then
             case $deps in
