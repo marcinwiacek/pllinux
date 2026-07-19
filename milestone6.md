@@ -37,17 +37,17 @@ Bingo!
 We have first from many very steps in good direction. Now we need to place it in correct function + get binary path + process. Simple, isn't it?
 
 Well, there are at least two entry points, where we need to find our ELF executable name and path + we need to find and process our readme.md. Some puzzle elements (patch from glibc 2.43):
-[some patch elements](doit/in/libc/2_43_patch_ver1.txt)
+[some patch elements](doit/in/glibc/2_43_patch_ver1.txt)
 
 Real work starts now.
 
-After parsing readme.md we can prepare LD_LIBRARY_PATH value (this covers just the most simple cases): [patch2](doit/in/libc/2_43_patch_ver2.txt)
+After parsing readme.md we can prepare LD_LIBRARY_PATH value (this covers just the most simple cases): [patch2](doit/in/glibc/2_43_patch_ver2.txt)
 
 But how to pass it further to other code parts? Few tries and...
 
 ![Alt text](2026/jul_ldso5.png)
 
-18 Jul is next (very huge!) milestone - we have first working [patch for ld.so compatible with PLLINUX](doit/in/libc/2_43_patch_ver3.txt). But it isn't the end.
+18 Jul is next (very huge!) milestone - we have first working [patch for ld.so compatible with PLLINUX](doit/in/glibc/2_43_patch_ver3.txt). But it isn't the end.
 
 ![Alt text](2026/jul_ldso6.png)
 
@@ -59,6 +59,6 @@ We need to find correctly binary in all cases. Let's assume we have /app/package
 
 etc.
 
-[Version 4 is better](doit/in/libc/2_43_patch_ver4.txt), not doesn't resolve case with PATH. And finally... few minutes later we have [version 5](doit/in/libc/2_43_patch_ver5.txt).
+[Version 4 is better](doit/in/glibc/2_43_patch_ver4.txt), not doesn't resolve case with PATH. And finally... few minutes later we have [version 5](doit/in/glibc/2_43_patch_ver5.txt).
 
 In this moment it covers the most important cases (we don't have only version with "-" and we don't search for dependencies from dependencies).
