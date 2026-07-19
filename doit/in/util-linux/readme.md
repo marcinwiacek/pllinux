@@ -9,4 +9,5 @@ GPL2
 https://github.com/util-linux/util-linux
 
 **PATH**
-.
+bin
+sbin

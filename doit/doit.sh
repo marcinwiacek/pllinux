@@ -283,6 +283,8 @@ if [ "$package" == "fs" ] || [ "$package" == "bwrap" ]; then
     cd ../../..
     strip_app bwrap
     set_current_app bwrap $prefix$ver
+    cp in/bwrap/diff $output/app/bwrap/$prefix$ver
+    cp in/bwrap/diff2 $output/app/bwrap/$prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "dinit" ]; then
@@ -349,7 +351,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ]; then
     cd ../../..
     strip_app libc
     set_current_app libc $prefix$ver
-    cp in/libc/readme.md $output/app/libc/$prefix$ver
+#    cp in/libc/readme.md $output/app/libc/$prefix$ver
     cp in/libc/2_43_patch_ver4.txt $output/app/libc/$prefix$ver
     find $output/app/libc/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/libc/$prefix$ver/lib && chmod a-x {} " \;
   fi
@@ -533,7 +535,7 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
     strip_app git
     set_current_app git $prefix$ver
     cp in/git/git $output/app/git/$prefix$ver
-    cp in/git/readme.md $output/app/git/$prefix$ver
+#    cp in/git/readme.md $output/app/git/$prefix$ver
   fi
 fi
 # PGP

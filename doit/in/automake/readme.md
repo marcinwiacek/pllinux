@@ -1,14 +1,12 @@
 **License**
-GPL2
+GPL2+
 
 **PATH**
 bin
 
 **Deps**
-libc current
-zlib current
 
 **Description**
 
 **Project**
-https://git-scm.com/
+https://www.gnu.org/software/automake/

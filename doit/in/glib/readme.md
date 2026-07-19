@@ -7,3 +7,6 @@ LGPL2.1+
 
 **Project**
 https://docs.gtk.org/glib/
+
+**PATH**
+bin

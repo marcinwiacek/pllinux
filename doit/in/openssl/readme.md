@@ -8,4 +8,4 @@ https://github.com/openssl/openssl
 libc current
 
 **PATH**
-.
+bin

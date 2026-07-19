@@ -8,3 +8,6 @@ https://kbd-project.org/
 
 **Deps**
 libc current
+
+**PATH**
+bin
