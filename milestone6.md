@@ -47,4 +47,14 @@ But how to pass it further to other code parts? Few tries and...
 
 ![Alt text](2026/jul_ldso5.png)
 
-18 Jul is next (very huge!) milestone - we have first working [patch for ld.so compatible with PLLINUX](doit/in/libc/2_43_patch_ver3.txt)
+18 Jul is next (very huge!) milestone - we have first working [patch for ld.so compatible with PLLINUX](doit/in/libc/2_43_patch_ver3.txt). But it isn't the end.
+
+![Alt text](2026/jul_ldso6.png)
+
+We need to find correctly binary in all cases. Let's assume we have /app/package/current/bin/x binary. Now need to handle such cases:
+
+  1. calling it from /
+  2. calling it from own directory
+  3. calling it from any directory when it's in PATH
+
+etc.
