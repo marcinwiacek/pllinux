@@ -78,7 +78,7 @@ In the future there will be of course created ISO and installer.
   1. proposing new ideas - it's never too late for them
   2. showing this project to other people - good party must be big & nothing helps more than testers, users and developers
   3. submitting bugs - project is very early stage, but don't be shy, when have something to say
-  4. updating existing dynamic loader or making other development - always welcome (mainly C or Bash shell scripting now)
+  4. further updates for existing dynamic loader or making other development - always welcome (mainly C or Bash shell scripting now)
   5. packaging software - always welcome (mainly Bash shell scripting now)
 
 **Contact**
