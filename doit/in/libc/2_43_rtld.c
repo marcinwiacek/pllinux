@@ -1361,16 +1361,16 @@ static void* mw_find_pllinux_path(const char *rtldprog) {
   _dl_error_printf(rp);
   _dl_error_printf (rp2);
 
-  _dl_error_printf(rtldprog);
-  _dl_error_printf (rp2);
+//  _dl_error_printf(rtldprog);
+//  _dl_error_printf (rp2);
 
   //this is quick hack. must be replaced with correct expanding path
   if (rtldprog[0]=='/' && strlen(rtldprog)>4) {
     strcpy(rp,rtldprog);
   }
 
-  _dl_error_printf(rp);
-  _dl_error_printf (rp2);
+//  _dl_error_printf(rp);
+//  _dl_error_printf (rp2);
 
   rp2[0]=10;
   rp2[1]=0;
@@ -1653,7 +1653,7 @@ dl_main (const ElfW(Phdr) *phdr,
 
       //mw
       //program with params
-      char *pllinux = mw_find_pllinux_path(RTLD_PROGNAME);
+      char *pllinux = mw_find_pllinux_path(rtld_progname);
       state.library_path = pllinux;
 
       /* The initialization of dl_stack_prot_flags done below assumes the
@@ -1760,15 +1760,31 @@ dl_main (const ElfW(Phdr) *phdr,
 
       //mw
       //interpreter
+//      char *rn = _dl_canonicalize (lt_executable);
+//      if (rn!=NULL) {
+//        char *pllinux = mw_find_pllinux_path(rn);
+//        free(rn);
+//        state.library_path = pllinux;
+//      } else {
+
+  _dl_error_printf("inter ");
+  _dl_error_printf(rtld_progname);
       char *rn = _dl_canonicalize (lt_executable);
-      if (rn!=NULL) {
-        char *pllinux = mw_find_pllinux_path(rn);
-        free(rn);
+  _dl_error_printf("  ");
+  _dl_error_printf(rn);
+  _dl_error_printf("  ");
+free(rn);
+  _dl_error_printf(ld_so_name);
+  _dl_error_printf("  ");
+  _dl_error_printf(_dl_argv[0]);
+  _dl_error_printf("  ");
+  _dl_error_printf(_dl_get_origin());
+  _dl_error_printf("  ");
+
+
+        char *pllinux = mw_find_pllinux_path(rtld_progname);
         state.library_path = pllinux;
-      } else {
-        char *pllinux = mw_find_pllinux_path(RTLD_PROGNAME);
-        state.library_path = pllinux;
-      }
+//      }
 
       /* Create a link_map for the executable itself.
 	 This will be what dlopen on "" returns.  */
