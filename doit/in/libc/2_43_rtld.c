@@ -1350,31 +1350,17 @@ _dl_start_args_adjust (int skip_args, int skip_env)
 
 //mw
 static void* mw_find_pllinux_path(const char *rtldprog) {
-  _dl_error_printf ("PLLINUX path ");
+  _dl_error_printf ("PLLINUX ");
   char *rp = (char *)malloc(1000);
 
-  char rp2[3];
-  rp2[0]='-';
-  rp2[1]=0;
-
   getcwd(rp,999); // in theory we could use NULL,0 ... but it gives some errors/warnings (theory != practise. Again)
-  _dl_error_printf(rp);
-  _dl_error_printf (rp2);
 
-//  _dl_error_printf(rtldprog);
-//  _dl_error_printf (rp2);
-
-  //this is quick hack. must be replaced with correct expanding path
+  //this is quick hack. must be replaced with correct expanding path ? colleague asking...
   if (rtldprog[0]=='/' && strlen(rtldprog)>4) {
     strcpy(rp,rtldprog);
   }
 
-//  _dl_error_printf(rp);
-//  _dl_error_printf (rp2);
-
-  rp2[0]=10;
-  rp2[1]=0;
-  _dl_error_printf (rp2);
+  _dl_error_printf (rp);
 
   int prefixLen = 0;
   if (!strncmp(rp,"/app/",5)) prefixLen = 5;
@@ -1446,8 +1432,10 @@ static void* mw_find_pllinux_path(const char *rtldprog) {
     }
   }
 
-  rp2[0]='-';
-  rp2[1]=0;
+  char rp2[3];
+  rp2[0]=' ';
+  rp2[1]='-';
+  rp2[2]=0;
   _dl_error_printf (rp2);
   _dl_error_printf(finalstr);
   rp2[0]='-';
@@ -1486,7 +1474,6 @@ dl_main (const ElfW(Phdr) *phdr,
 #endif
 
   const char *ld_so_name = _dl_argv[0];
-
   if (*user_entry == (ElfW(Addr)) ENTRY_POINT)
     {
       /* Ho ho.  We are not the program interpreter!  We are the program
@@ -1760,31 +1747,8 @@ dl_main (const ElfW(Phdr) *phdr,
 
       //mw
       //interpreter
-//      char *rn = _dl_canonicalize (lt_executable);
-//      if (rn!=NULL) {
-//        char *pllinux = mw_find_pllinux_path(rn);
-//        free(rn);
-//        state.library_path = pllinux;
-//      } else {
-
-  _dl_error_printf("inter ");
-  _dl_error_printf(rtld_progname);
-      char *rn = _dl_canonicalize (lt_executable);
-  _dl_error_printf("  ");
-  _dl_error_printf(rn);
-  _dl_error_printf("  ");
-free(rn);
-  _dl_error_printf(ld_so_name);
-  _dl_error_printf("  ");
-  _dl_error_printf(_dl_argv[0]);
-  _dl_error_printf("  ");
-  _dl_error_printf(_dl_get_origin());
-  _dl_error_printf("  ");
-
-
-        char *pllinux = mw_find_pllinux_path(rtld_progname);
-        state.library_path = pllinux;
-//      }
+      char *pllinux = mw_find_pllinux_path(_dl_get_origin());
+      state.library_path = pllinux;
 
       /* Create a link_map for the executable itself.
 	 This will be what dlopen on "" returns.  */

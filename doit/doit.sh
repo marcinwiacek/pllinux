@@ -344,7 +344,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ]; then
     mkdir out/libc/glibc-$ver-build
     cd out/libc/glibc-$ver-build
     ../glibc-$ver/configure --prefix=$output/app/libc/$prefix$ver
-#    cp ../../../in/libc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
+    cp ../../../in/libc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
 #    sed -i 's/#define OPEN_TREE_CLONE    1 /#ifndef OPEN_TREE_CLONE\n#define OPEN_TREE_CLONE    1\n#endif /g' ../glibc-$ver/sysdeps/unix/sysv/linux/sys/mount.h
     make all -j$cpu_num
     make install
@@ -352,7 +352,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ]; then
     strip_app libc
     set_current_app libc $prefix$ver
 #    cp in/libc/readme.md $output/app/libc/$prefix$ver
-    cp in/libc/2_43_patch_ver4.txt $output/app/libc/$prefix$ver
+    cp in/libc/2_43_patch_ver5.txt $output/app/libc/$prefix$ver
     find $output/app/libc/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/libc/$prefix$ver/lib && chmod a-x {} " \;
     chmod a+x $output/app/libc/$prefix$ver/lib/ld-linux-x86-64.so.2
   fi

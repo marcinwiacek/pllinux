@@ -58,3 +58,7 @@ We need to find correctly binary in all cases. Let's assume we have /app/package
   3. calling it from any directory when it's in PATH
 
 etc.
+
+[Version 4 is better](doit/in/libc/2_43_patch_ver4.txt), not doesn't resolve case with PATH. And finally... few minutes later we have [version 5](doit/in/libc/2_43_patch_ver5.txt).
+
+In this moment it covers the most important cases (we don't have only version with "-" and we don't search for dependencies from dependencies).
