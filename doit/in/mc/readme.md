@@ -16,7 +16,7 @@ pcre2 current
 slang current
 
 **PATH**
-.
+.:bin
 
 **Network**
 none
