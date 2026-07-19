@@ -11,13 +11,13 @@ do
   fi
 done
 ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/grep ${ROOT_DEVICE_ID#UUID=})
-/app/e2fsprogs/current/fsck.ext4 ${ROOT_DEVICE_NAME%%:*}
+/app/e2fsprogs/current/sbin/fsck.ext4 ${ROOT_DEVICE_NAME%%:*}
 /app/busybox/current/bin/mount -o remount $ROOT_DEVICE_ID /
 
 # allow propagating /mnt mount into bwrap sandboxes
-/app/util-linux/current/mount --make-shared /mnt
+/app/util-linux/current/bin/mount --make-shared /mnt
 
-/app/util-linux/current/mount mount -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
+/app/util-linux/current/bin/mount mount -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
 
 # starts and configures automatic mounting devices (USB pendrives, memory cards, etc.)
 # (enable mdev on request and process already connected devices)
@@ -25,16 +25,16 @@ ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/gr
 /app/busybox/current/sbin/mdev -s
 
 # console font
-/app/kbd/current/setfont -C /dev/tty1 sun12x22.psfu.gz 2> /dev/null
-/app/kbd/current/setfont -C /dev/tty2 sun12x22.psfu.gz 2> /dev/null
-/app/kbd/current/setfont -C /dev/tty3 sun12x22.psfu.gz 2> /dev/null
-/app/kbd/current/setfont -C /dev/tty4 sun12x22.psfu.gz 2> /dev/null
+/app/kbd/current/setfont/bin -C /dev/tty1 sun12x22.psfu.gz 2> /dev/null
+/app/kbd/current/setfont/bin -C /dev/tty2 sun12x22.psfu.gz 2> /dev/null
+/app/kbd/current/setfont/bin -C /dev/tty3 sun12x22.psfu.gz 2> /dev/null
+/app/kbd/current/setfont/bin -C /dev/tty4 sun12x22.psfu.gz 2> /dev/null
 
 # localtime
 ln -s /app/tzdb/current/usr/share/zoneinfo/Europe/Warsaw /etc/localtime
 
 # firewall rules
-/app/nftables/current/nft -f /etc/network/nftables/inet-filter.nft
+/app/nftables/current/nft/sbin -f /etc/network/nftables/inet-filter.nft
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl

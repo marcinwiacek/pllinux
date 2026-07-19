@@ -14,11 +14,11 @@ else
     case $FS in
       ext2|ext3|ext4|exfat|vfat)
         /app/busybox/current/bin/mkdir -p "/mnt/$MDEV" || true
-       /app/util-linux/current/mount -t $FS -o rw,noatime,nodiratime,nodev,noexec,nosuid,sync /dev/$MDEV /mnt/$MDEV
+       /app/util-linux/current/bin/mount -t $FS -o rw,noatime,nodiratime,nodev,noexec,nosuid,sync /dev/$MDEV /mnt/$MDEV
 #        /app/busybox/current/bin/mount -t $PARAM -o noatime,nodiratime,nodev,noexec,nosuid,sync /dev/$MDEV /mnt/$MDEV
         /app/busybox/current/bin/chmod a+rwx "/mnt/$MDEV" || true
         /app/busybox/current/bin/mount -o rshared /mnt/$MDEV
-#       /app/util-linux/current/mount --make-rshared /mnt/$MDEV
+#       /app/util-linux/current/bin/mount --make-rshared /mnt/$MDEV
         ;;
       ntfs)
         # needs ntfs-3g
