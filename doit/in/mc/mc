@@ -29,7 +29,7 @@ mkdir /other/app/mc 2> /dev/null
     --setenv PS1 "[\t] $USER # " \
     --setenv SHELL /app/busybox/current/bin/sh \
     --chdir $(pwd) \
-    /app/libc/current/lib/ld-linux-x86-64.so.2 --library-path /app/glib/current/lib:/app/slang/current/lib:/app/libc/current/lib:/app/pcre2/current/lib:/app/gcc/current/lib:$DIR/lib $DIR/bin/mc
+    /lib64/ld-linux-x86-64.so.2 --library-path /app/glib/current/lib:/app/slang/current/lib:/app/libc/current/lib:/app/pcre2/current/lib:/app/gcc/current/lib:$DIR/lib $DIR/bin/mc
 #    --ro-bind $DIR/libexec libexec \
 #    --ro-bind $DIR/share share \
 # don't show internal commands from MC in the shell history

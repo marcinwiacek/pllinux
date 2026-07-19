@@ -1,3 +1,3 @@
 #!/app/busybox/current/bin/sh
 DIR=$(dirname $0)
-/app/libc/current/lib/ld-linux-x86-64.so.2 --library-path /app/glib/current/lib:/app/slang/current/lib:/app/libc/current/lib:/app/pcre2/current/lib:/app/gcc/current/lib:$DIR/../lib --argv0 $0 $DIR/mc $@
+/lib64/ld-linux-x86-64.so.2 --library-path /app/glib/current/lib:/app/slang/current/lib:/app/libc/current/lib:/app/pcre2/current/lib:/app/gcc/current/lib:$DIR/../lib --argv0 $0 $DIR/mc $@
