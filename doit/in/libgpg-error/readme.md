@@ -4,6 +4,7 @@
 bin
 
 **Deps**
+glibc current
 
 **Description**
 

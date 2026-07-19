@@ -10,6 +10,7 @@ https://www.gnupg.org/software/index.html
 bin:sbin
 
 **Deps**
+glibc current
 libassuan current
 libgcrypt current
 libgpg-error current
