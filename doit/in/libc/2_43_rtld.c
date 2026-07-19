@@ -1349,16 +1349,31 @@ _dl_start_args_adjust (int skip_args, int skip_env)
 }
 
 //mw
-static void* mw_find_pllinux_path(void) {
+static void* mw_find_pllinux_path(const char *rtldprog) {
   _dl_error_printf ("PLLINUX path ");
   char *rp = (char *)malloc(1000);
-  getcwd(rp,999); // in theory we could use NULL,0 ... but it gives some errors/warnings (theory != practise. Again)
 
   char rp2[3];
-  rp2[0]=10;
+  rp2[0]='-';
   rp2[1]=0;
 
+  getcwd(rp,999); // in theory we could use NULL,0 ... but it gives some errors/warnings (theory != practise. Again)
   _dl_error_printf(rp);
+  _dl_error_printf (rp2);
+
+  _dl_error_printf(rtldprog);
+  _dl_error_printf (rp2);
+
+  //this is quick hack. must be replaced with correct expanding path
+  if (rtldprog[0]=='/' && strlen(rtldprog)>4) {
+    strcpy(rp,rtldprog);
+  }
+
+  _dl_error_printf(rp);
+  _dl_error_printf (rp2);
+
+  rp2[0]=10;
+  rp2[1]=0;
   _dl_error_printf (rp2);
 
   int prefixLen = 0;
@@ -1475,7 +1490,7 @@ dl_main (const ElfW(Phdr) *phdr,
   //mw
   if (*user_entry != (ElfW(Addr)) ENTRY_POINT) {
       //interpreter
-      char *pllinux = mw_find_pllinux_path();
+      char *pllinux = mw_find_pllinux_path(RTLD_PROGNAME);
       state.library_path = pllinux;
   }
 
@@ -1645,7 +1660,7 @@ dl_main (const ElfW(Phdr) *phdr,
 
       //mw
       //program with params
-      char *pllinux = mw_find_pllinux_path();
+      char *pllinux = mw_find_pllinux_path(RTLD_PROGNAME);
       state.library_path = pllinux;
 
       /* The initialization of dl_stack_prot_flags done below assumes the
