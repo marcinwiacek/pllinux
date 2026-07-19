@@ -1,3 +1,0 @@
-#!/app/busybox/current/bin/sh
-DIR=$(/app/busybox/current/bin/dirname $0)
-/app/ldso/current/ld.so --library-path $DIR/lib:/app/libc/current/lib:/app/libgpg-error/current/lib:/app/libassuan/current/lib:/app/libgcrypt/current/lib:/app/npth/current/lib:/app/libksba/current/lib $DIR/bin/gpg $@
