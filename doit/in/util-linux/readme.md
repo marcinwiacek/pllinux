@@ -8,5 +8,5 @@ ncurses current
 **Project**
 https://github.com/util-linux/util-linux
 
-**PATH**
+**PATH_First**
 bin:sbin

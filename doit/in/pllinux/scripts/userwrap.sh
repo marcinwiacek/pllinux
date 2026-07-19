@@ -1,7 +1,8 @@
 #!/app/busybox/current/bin/sh
-# Creates bwrap for user
+# Creates bwrap for user. Version from 19 Jul 2026. Part of PLLINUX
 # Options: mnt - user has got access to /mnt
 #          net - access to net
+#          ignorepathorder - PATH will setup according to app order, not according to the order from packages
 #          reset|services - access to the /app/dinit
 #          app - user has got access to everything in /app
 #          "app name1 ver1:name2 ver2:name3 ver3" - access to apps
@@ -36,10 +37,12 @@ deps=""
 path=""
 shell=""
 
-
+ignorepathorder=0
 for ARG in "$@"
 do
-#  echo $ARG
+  if [ "$ARG" = "ignorepathorder" ]; then
+    ignorepathorder=1
+  fi
   if [ "$ARG" = "services" ] || [ "$ARG" = "reset" ]; then 
      deps="$deps:dinit current"; 
      PARAMS="$PARAMS --bind run run "
@@ -54,13 +57,10 @@ do
       allapp=1;
     else
       deps="$deps:${ARG:4}";
-#      echo $deps
     fi
   fi
 done
-#echo $deps
 deps="$deps:bwrap current"
-#echo $deps
 while true; do
   complete=1
   IFS=":"
@@ -70,14 +70,16 @@ while true; do
       IFS=" " read -r APP_NAME APP_VER << EOF
 $DEP
 EOF
-#      echo "-$APP_NAME-$APP_VER-"
       if [ -e "/app/${APP_NAME}/${APP_VER}/readme.md" ]; then
         sectionDeps=0
         sectionPath=0
+        sectionPathFirst=0
         sectionShell=0
         while read -r line; do
           if [ "$line" = "**PATH**" ]; then
             sectionPath=1
+          elif [ "$line" = "**PATH_First**" ]; then
+            sectionPathFirst=1
           elif [ "$line" = "**SHELL**" ]; then
             sectionShell=1
           elif [ "$line" = "**Deps**" ]; then
@@ -93,38 +95,32 @@ EOF
                * )
                 complete=0
                 deps=$deps:$line
-#                echo $deps
                 ;;
             esac
           elif [ "$sectionShell" = 1 ]; then
             shell=/app/${APP_NAME}/${APP_VER}/$line
-          elif [ "$sectionPath" = 1 ]; then
+          elif [ "$sectionPath" = 1 ] || [ "$sectionPathFirst" = 1 ]; then
             IFS=":"
             for folder in $line
             do
               if [ "$folder" = "." ]; then
-                case $path in
-                  */app/${APP_NAME}/${APP_VER}* )
-                    ;;
-                  * )
-		    if [ "$path" = "" ]; then
-                      path=/app/${APP_NAME}/${APP_VER}
-                    else
-                      path=$path:/app/${APP_NAME}/${APP_VER}
-                    fi
-                    ;;
-                esac
+                folder=""
+              else
+                folder="/$folder"
+              fi
+              if [ "$path" = "" ]; then
+                path=/app/${APP_NAME}/${APP_VER}$folder
               else
                 case $path in
-                  */app/${APP_NAME}/${APP_VER}/$folder* )
-                    ;;
+                  */app/${APP_NAME}/${APP_VER}$folder* )
+                      ;;
                   * )
-		    if [ "$path" = "" ]; then
-                      path=/app/${APP_NAME}/${APP_VER}/$folder
-                    else
-                      path=$path:/app/${APP_NAME}/${APP_VER}/$folder
-                    fi
-                    ;;
+                      if [ "$sectionPathFirst" = 1 ] && [ "$ignorepathorder" = 0 ]; then
+                        path=/app/${APP_NAME}/${APP_VER}$folder:$path
+                      else
+                        path=$path:/app/${APP_NAME}/${APP_VER}$folder
+                      fi
+                      ;;
                 esac
               fi
             done
@@ -146,7 +142,6 @@ else
 $DEP
 EOF
       PARAMS="$PARAMS --ro-bind app/${APP_NAME}/${APP_VER} app/${APP_NAME}/${APP_VER} "
-#      PARAMS="$PARAMS --ro-bind $(/app/busybox/current/bin/realpath "/app/${APP_NAME}/${APP_VER}") $(/app/busybox/current/bin/realpath "/app/${APP_NAME}/${APP_VER}") "
     fi
   done
 fi
