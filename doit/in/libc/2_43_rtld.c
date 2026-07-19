@@ -1487,13 +1487,6 @@ dl_main (const ElfW(Phdr) *phdr,
 
   const char *ld_so_name = _dl_argv[0];
 
-  //mw
-  if (*user_entry != (ElfW(Addr)) ENTRY_POINT) {
-      //interpreter
-      char *pllinux = mw_find_pllinux_path(RTLD_PROGNAME);
-      state.library_path = pllinux;
-  }
-
   if (*user_entry == (ElfW(Addr)) ENTRY_POINT)
     {
       /* Ho ho.  We are not the program interpreter!  We are the program
@@ -1764,6 +1757,19 @@ dl_main (const ElfW(Phdr) *phdr,
     }
   else
     {
+
+      //mw
+      //interpreter
+      char *rn = _dl_canonicalize (lt_executable);
+      if (rn!=NULL) {
+        char *pllinux = mw_find_pllinux_path(rn);
+        free(rn);
+        state.library_path = pllinux;
+      } else {
+        char *pllinux = mw_find_pllinux_path(RTLD_PROGNAME);
+        state.library_path = pllinux;
+      }
+
       /* Create a link_map for the executable itself.
 	 This will be what dlopen on "" returns.  */
       main_map = _dl_new_object ((char *) "", "", lt_executable, NULL,
