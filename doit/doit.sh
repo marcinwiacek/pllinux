@@ -202,7 +202,7 @@ if [ "$package" == "fs" ]; then
   ln -s /app/busybox/current/bin/sh sh
   cd ..
   cd lib64
-  ln -s /app/ldso/current/ld.so ld-linux-x86-64.so.2
+  ln -s /app/libc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
   chmod a+x ld-linux-x86-64.so.2
   cd $olddir
 #  cp /etc/localtime $output/etc/localtime
@@ -354,6 +354,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libc" ]; then
 #    cp in/libc/readme.md $output/app/libc/$prefix$ver
     cp in/libc/2_43_patch_ver4.txt $output/app/libc/$prefix$ver
     find $output/app/libc/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/libc/$prefix$ver/lib && chmod a-x {} " \;
+    chmod a+x $output/app/libc/$prefix$ver/lib/ld-linux-x86-64.so.2
   fi
 fi
 #if [ "$package" == "all" ] || [ "$package" == "binutils" ]; then
