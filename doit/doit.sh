@@ -200,6 +200,7 @@ if [ "$package" == "fs" ]; then
   if [ ! -d "other" ]; then ln -s home/root other; fi
   cd bin
   ln -s /app/busybox/current/bin/sh sh
+  ln -s /app/bash/current/bin/bash bash
   cd ..
   cd lib64
   ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
