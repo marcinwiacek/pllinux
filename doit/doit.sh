@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="gnupg"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="jdk"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -41,6 +41,9 @@ download_unpack_source() {
       exit 1
     fi
   fi
+
+  echo "checking directory -d out/$packagename/$unpackeddir"
+
   if [ ! -d "out/$packagename/$unpackeddir" ]; then
     mkdir out/$packagename || true
     cd out/$packagename
@@ -1006,17 +1009,20 @@ if [ "$package" == "fs" ] || [ "$package" == "smartmontools" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
-  #work in progress
-  ver="26+35";
+  ver="25-ga";
+  rel="25-ga";
   if should_make jdk $ver; then
-    download_unpack_source https://github.com/openjdk/jdk/archive/refs/tags/jdk-$ver.tar.gz jdk jdk-$ver
+    install_host_deps "autopoint openjdk-25-jdk libasound2-dev libcups2-dev libfontconfig1-dev libx11-dev libxext-dev libxrender-dev libxrandr-dev libxtst-dev libxt-dev"
+    download_unpack_source https://github.com/openjdk/jdk/archive/refs/tags/jdk-$rel.tar.gz jdk jdk-jdk-$ver
     create_app jdk $prefix$ver
-#    cd out/smartmontools/smartmontools-$ver
-#    ./configure --prefix=$output/app/smartmontools/$prefix$ver
-#    make -j$cpu_num
-#    make install
-#    cd ../../..
-#    set_current_app smartmontools $prefix$ver
+    cd out/jdk/jdk-jdk-$ver
+    chmod a+x configure
+    ./configure --prefix=$output/app/jdk/$prefix$ver
+    make clean
+    make JOBS=$cpu_num
+    make install
+    cd ../../..
+    set_current_app jdk $prefix$ver
   fi
 fi
 
