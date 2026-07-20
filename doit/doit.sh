@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="jdk"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="perl"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -1009,6 +1009,7 @@ if [ "$package" == "fs" ] || [ "$package" == "smartmontools" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
+  # >1GB during installation
   ver="25-ga";
   rel="25-ga";
   if should_make jdk $ver; then
@@ -1025,4 +1026,17 @@ if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
     set_current_app jdk $prefix$ver
   fi
 fi
-
+if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
+  # work in progress
+  ver="5.42.2";
+  if should_make perl $ver; then
+    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver
+    create_app perl $prefix$ver
+    cd out/perl/perl-$ver
+    ./Configure -d
+    make -j$cpu_num
+    make install
+    cd ../../..
+    set_current_app perl $prefix$ver
+  fi
+fi
