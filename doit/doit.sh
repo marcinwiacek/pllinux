@@ -1017,10 +1017,10 @@ if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
     create_app jdk $prefix$ver
     cd out/jdk/jdk-jdk-$ver
     chmod a+x configure
-    ./configure --prefix=$output/app/jdk/$prefix$ver
+    ./configure
     make clean
-    make JOBS=$cpu_num
-    make install
+    make JOBS=$cpu_num images
+    rsync -a build/linux-x86_64-server-release/images/jdk/* $output/app/jdk/$prefix$ver
     cd ../../..
     set_current_app jdk $prefix$ver
   fi
