@@ -43,7 +43,7 @@ grub-mkrescue is blind way.
 
 So, what went wrong?
 
-First, kernel required things like SCSI CDROM support (our ISO is available under /dev/sr0 device). Second, qemu required extra option for UEFI boot:
+First, kernel required things like SCSI CDROM support (our ISO is available under /dev/sr0 device with it). Second, qemu required extra option for UEFI boot:
 
 **qemu-system-x86_64 -cdrom iso.iso -m 4098 -bios /usr/share/OVMF/OVMF_CODE.fd**
 
@@ -53,7 +53,7 @@ aaaannndddd third: in VirtualBox it was required to boot emulated UEFI menu and 
 2. we could modify init script to make things similar like in doit.sh (creating all etc, sys, proc, etc. and for example getting files from /dev/sr0)
 AND switching root there.
 
-Easy, isn't it?
+Easy, isn't it? Let's create script for it making it from the host first.
 
 # SSD writes
 
