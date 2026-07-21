@@ -8,17 +8,25 @@ In many descriptions creating boot drive working with UEFI is using Grub. Curren
 
 Option 1 seems to be easier:
 
-1. download xorriso (sudo apt-get install xorriso) and eventually some Grub packages
-2. prepare initramfs with other init file (it's opening shell for check)
+1. download xorriso (**sudo apt-get install xorriso**) and eventually some Grub packages (**sudo apt-get install grub-pc-bin**)
+2. prepare initramfs with [other init file (it's opening shell for check)](2026/init)
 3. create iso directory
-4. put grub.cfg inside iso\boot\grub
+4. put [grub.cfg](2026/grub.cfg) inside iso\boot\grub
 5. put kernel and initramfs packages into iso\app
-6. make grub-mkrescue -o iso.iso iso/ --disable-shim-lock
+6. make **grub-mkrescue -o iso.iso iso/ --disable-shim-lock**
 
-Try to boot... doesn't work
+Try to boot... for example with Qemu.
 
-Replace kernel with some other (from Debian for example). And it works. We need only to resolve access to the /app and some other things, but... it looks, that
-standard PLLINUX kernel needs some updates.
+**qemu-system-x86_64 -cdrom iso.iso -m 4098**
+
+Doesn't work after selecting menu option in Grub.
+
+![Alt text](2026/jul_magic.png)
+
+Try to replace initramfs with other (old) format and you will see funny info "qemu: linux kernel too old to load a ram disk".
+
+Replace kernel with some other (from Debian for example). And it works - we need only to resolve access to the /app and some other things
+(why does it require 386 Grub version?), but... it looks, that standard PLLINUX kernel needs some updates.
 
 # SSD writes
 
