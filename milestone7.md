@@ -41,6 +41,20 @@ Replace kernel with some other (from Debian for example). And it works - we need
 (why does it require 386 Grub version?), but... it looks, that standard PLLINUX kernel needs some updates OR
 grub-mkrescue is blind way.
 
+So, what went wrong?
+
+First, kernel required things like SCSI CDROM support (our ISO is available under /dev/sr0 device). Second, qemu required extra option for UEFI boot:
+
+**qemu-system-x86_64 -cdrom iso.iso -m 4098 -bios /usr/share/OVMF/OVMF_CODE.fd**
+
+aaaannndddd third: in VirtualBox it was required to boot emulated UEFI menu and select CDROM from there. When we know it:
+
+1. we could use /app from working PLLINUX
+2. we could modify init script to make things similar like in doit.sh (creating all etc, sys, proc, etc. and for example getting files from /dev/sr0)
+AND switching root there.
+
+Easy, isn't it?
+
 # SSD writes
 
 Current SSD and flash memory have limited amount of writes. Because of it we:
