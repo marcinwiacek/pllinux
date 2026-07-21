@@ -35,7 +35,8 @@ Doesn't work after selecting menu option in Grub.
 
 ![Alt text](2026/jul_magic.png)
 
-Try to replace initramfs with other (old) format and you will see funny info "qemu: linux kernel too old to load a ram disk".
+Try to replace initramfs with other (old) format and you will see funny info "qemu: linux kernel too old to load a ram disk" (Open Source like closed source
+software is full of stupidy or funny things).
 
 Replace kernel with some other (from Debian for example). And it works - we need only to resolve access to the /app and some other things
 (why does it require 386 Grub version?), but... it looks, that standard PLLINUX kernel needs some updates OR
