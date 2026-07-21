@@ -220,9 +220,9 @@ if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
     make -j$cpu_num
     cd ../../..
     cp out/kernel/linux-$ver/.config in/kernel # .config will be updated with new header and maybe options
-    create_app kernel $prefix$ver.tmp
-    cp in/kernel/.config $output/app/kernel/$prefix$ver.tmp
-    cp out/kernel/linux-$ver/arch/x86/boot/bzImage $output/app/kernel/$prefix$ver.tmp
+    create_app kernel $prefix$ver
+    cp in/kernel/.config $output/app/kernel/$prefix$ver
+    cp out/kernel/linux-$ver/arch/x86/boot/bzImage $output/app/kernel/$prefix$ver
     strip_app kernel $prefix$ver
     set_current_app kernel $prefix$ver
   fi
