@@ -38,8 +38,8 @@ Currently in early alpha. Some things are done and many still todo:
  4. [Milestone 4 - real packet manager](milestone4.md)
  5. [Milestone 5 - new packages and options](milestone5.md)
  6. [Milestone 6 - hacking ld-linux-x86-64.ld.so2 / dynamic loader searching for apps inside /app](milestone6.md)
- 7. [Milestone 7 - SSD writes, logging, manual pages]
- 8. [Milestone 8 - sound, CPU microcode and kernel packages]
+ 7. [Milestone 7 - Creating booting ISO image](milestone7.md)
+ 8. [Milestone 8 - SSD writes, logging, manual pages, sound, CPU microcode and kernel packages]
  9. Milestone 9 - dbus? AppArmor? SeLinux?
  10. Milestone 10 - easy configuration
  11. Milestone 11 - more packages, software compiling, etc.
