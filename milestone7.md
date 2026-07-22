@@ -21,7 +21,7 @@ In many these descriptions creating boot drive working with UEFI is done with Gr
 Option 1 seems to be easier:
 
 1. download xorriso (**sudo apt-get install xorriso**) and eventually some Grub packages (**sudo apt-get install grub-pc-bin**)
-2. prepare initramfs with [other init file (it's opening shell for check)](doit/in/initramfsiso/init)
+2. prepare initramfs with [other init file (it was opening initially shell for check)](doit/in/initramfsiso/init)
 3. create iso directory
 4. put [grub.cfg](doit/in/boot/grub.cfg) inside iso\boot\grub
 5. put kernel and initramfs packages into iso\app
