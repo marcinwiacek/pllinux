@@ -1,10 +1,11 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="initramfsiso"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="iso"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
+isofile="/mnt/host/iso.iso" # boot iso created with package iso (it will build initramfsiso and creating iso file)
 
 # Check if makes sense to build the whole package
 should_make() {
@@ -510,14 +511,13 @@ if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
     set_current_app initramfs $prefix$ver
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "initramfsiso" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "iso" ] || [ "$package" == "initramfsiso" ]; then
   ver="0.1";
   if should_make initramfsiso $ver; then
     create_app initramfsiso $prefix$ver
     olddir=$(pwd)
     mkdir /tmp/initramfsiso
     cp in/initramfsiso/init /tmp/initramfsiso
-#    cp in/initramfsiso/init.sh /tmp/initramfsiso
     mkdir /tmp/initramfsiso/app
     for app in busybox glibc openssl rsync zlib zstd; do mkdir /tmp/initramfsiso/app/$app; rsync -a $output/app/$app/ /tmp/initramfsiso/app/$app; done
     mkdir /tmp/initramfsiso/dev
@@ -1071,4 +1071,10 @@ if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
     cd ../../..
     set_current_app perl $prefix$ver
   fi
+fi
+if [ "$package" == "iso" ]; then
+  mkdir $output/boot
+  mkdir $output/boot/grub
+  cp in/boot/* $output/boot/grub
+  sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
 fi

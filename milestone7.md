@@ -54,6 +54,11 @@ aaaannndddd third: in VirtualBox it was required to boot emulated UEFI menu and 
 2. we could modify init script to make things similar like in doit.sh (creating all etc, sys, proc, etc. and for example getting files from /dev/sr0)
 AND switching root there.
 
-Easy, isn't it? Let's create script for it making it from the host first.
+Easy, isn't it? Let's create script for it making it from the host first. First tries look promising, but... then it happens:
 
+![Alt text](2026/jul_iso1.png)
+
+Super hiper dynamic loader is not working. But why? I didn't fully answer on that, but after adding all standard system folders (proc, sys, etc.) problem was gone. And finally with big pleasure I could announce, that first working ISO was created and started 22 Jul 2026
+
+![Alt text](2026/jul_iso2.png)
 
