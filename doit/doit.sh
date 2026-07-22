@@ -517,7 +517,7 @@ if [ "$package" == "fs" ] || [ "$package" == "initramfsiso" ]; then
     olddir=$(pwd)
     mkdir /tmp/initramfsiso
     cp in/initramfsiso/init /tmp/initramfsiso
-    cp in/initramfsiso/init.sh /tmp/initramfsiso
+#    cp in/initramfsiso/init.sh /tmp/initramfsiso
     mkdir /tmp/initramfsiso/app
     for app in busybox glibc openssl rsync zlib zstd; do mkdir /tmp/initramfsiso/app/$app; rsync -a $output/app/$app/ /tmp/initramfsiso/app/$app; done
     mkdir /tmp/initramfsiso/dev
