@@ -1,0 +1,106 @@
+#!/app/busybox/current/bin/sh
+
+cd /
+
+#/app/busybox/current/bin/mount -t devtmpfs devtmpfs /dev
+
+#cd lib64
+#/app/busybox/current/bin/ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
+#/app/busybox/current/bin/chmod a+x ld-linux-x86-64.so.2
+#cd ..
+
+#/app/busybox/current/bin/mount -t tmpfs tmpfs mnt
+
+cd mnt
+#/app/busybox/current/bin/mkdir iso
+#/app/busybox/current/bin/mount -t iso9660 /dev/sr0 iso
+
+/app/busybox/current/bin/mkdir app
+/app/rsync/current/bin/rsync -a iso/app/ app
+/app/busybox/current/bin/mkdir bin
+/app/busybox/current/bin/mkdir dev
+/app/busybox/current/bin/mkdir etc
+/app/rsync/current/bin/rsync -a iso/etc/ etc
+/app/busybox/current/bin/mkdir home
+/app/busybox/current/bin/mkdir home/root
+/app/busybox/current/bin/chown root home/root
+/app/busybox/current/bin/chgrp root home/root
+/app/busybox/current/bin/mkdir home/root/app
+/app/busybox/current/bin/chown root home/root/app
+/app/busybox/current/bin/chgrp root home/root/app
+/app/busybox/current/bin/mkdir home/root/files
+/app/busybox/current/bin/chown root home/root/files
+/app/busybox/current/bin/chgrp root home/root/files
+/app/busybox/current/bin/chmod u+rwx home/root
+/app/busybox/current/bin/chmod g-rwx home/root
+/app/busybox/current/bin/chmod o-rwx home/root
+/app/busybox/current/bin/mkdir home/user
+/app/busybox/current/bin/chown 1000 home/user
+/app/busybox/current/bin/chgrp 1000 home/user
+/app/busybox/current/bin/mkdir home/user/app
+/app/busybox/current/bin/chown 1000 home/user/app
+/app/busybox/current/bin/chgrp 1000 home/user/app
+/app/busybox/current/bin/mkdir home/user/files
+/app/busybox/current/bin/chown 1000 home/user/files
+ /app/busybox/current/bin/chgrp 1000 home/user/files
+ /app/busybox/current/bin/chmod u+rwx home/user
+ /app/busybox/current/bin/chmod g-rwx home/user
+ /app/busybox/current/bin/chmod o-rwx home/user
+ /app/busybox/current/bin/mkdir home/user2
+ /app/busybox/current/bin/chown 1001 home/user2
+ /app/busybox/current/bin/chgrp 1001 home/user2
+ /app/busybox/current/bin/mkdir home/user2/app
+ /app/busybox/current/bin/chown 1001 home/user2/app
+ /app/busybox/current/bin/chgrp 1001 home/user2/app
+ /app/busybox/current/bin/mkdir home/user2/files
+ /app/busybox/current/bin/chown 1001 home/user2/files
+ /app/busybox/current/bin/chgrp 1001 home/user2/files
+ /app/busybox/current/bin/chmod u+rwx home/user2
+ /app/busybox/current/bin/chmod g-rwx home/user2
+ /app/busybox/current/bin/chmod o-rwx home/user2
+/app/busybox/current/bin/mkdir mnt
+/app/busybox/current/bin/mkdir proc
+/app/busybox/current/bin/mkdir run
+/app/busybox/current/bin/mkdir sys
+/app/busybox/current/bin/mkdir tmp
+/app/busybox/current/bin/mkdir lib64
+if [ ! -d "etc." ]; then /app/busybox/current/bin/ln -s etc etc.; fi
+if [ ! -d "other" ]; then /app/busybox/current/bin/ln -s home/root other; fi
+cd bin
+/app/busybox/current/bin/ln -s /app/busybox/current/bin/sh sh
+/app/busybox/current/bin/ln -s /app/bash/current/bin/bash bash
+cd ..
+cd lib64
+/app/busybox/current/bin/ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
+/app/busybox/current/bin/chmod a+x ld-linux-x86-64.so.2
+cd ..
+
+/app/busybox/current/bin/mount -t devtmpfs devtmpfs dev
+/app/busybox/current/bin/mount -t proc proc proc
+/app/busybox/current/bin/mount -t tmpfs tmpfs mnt
+/app/busybox/current/bin/mount -t tmpfs tmpfs run
+/app/busybox/current/bin/mount -t sysfs sysfs sys
+
+
+#/app/busybox/current/bin/mount -t proc proc /proc
+
+#KERNEL_PARAMS=$(/app/busybox/current/bin/cat /proc/cmdline $X | /app/busybox/current/bin/tr " ")
+#ROOT_DEVICE_ID=""
+#for PARAM in $KERNEL_PARAMS
+#do
+#  if [ "${PARAM:0:5}" == "root=" ]; then
+#     ROOT_DEVICE_ID=${PARAM#root=}
+#  fi
+#done
+#ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/grep ${ROOT_DEVICE_ID#UUID=})
+
+#/app/busybox/current/bin/mount -r -t ext4 $ROOT_DEVICE_ID /mnt > /dev/null 2>&1
+#if [ $? -ne 0 ]; then
+#exec /app/busybox/current/bin/sh < /dev/console > /dev/console 2>&1
+#else
+
+
+
+export SHELL=/app/busybox/current/bin/sh
+exec /app/busybox/current/sbin/switch_root . "/app/dinit/current/bin/dinit" "$@"
+#fi
