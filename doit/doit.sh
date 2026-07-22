@@ -78,7 +78,9 @@ set_current_app() {
   olddir=$(pwd)
   cd $output/app/$1
   rm current || true
-  mv $version.tmp $version || true
+  if [ -d "$version.tmp" ]; then
+    mv $version.tmp $version || true
+  fi
   ln -s $version current
   cd $olddir
 }
@@ -347,7 +349,7 @@ if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
     mkdir out/glibc/glibc-$ver-build
     cd out/glibc/glibc-$ver-build
     ../glibc-$ver/configure --prefix=$output/app/glibc/$prefix$ver
-#    cp ../../../in/glibc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
+    cp ../../../in/glibc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
     make all -j$cpu_num
     make install
     cd ../../..
@@ -512,6 +514,7 @@ if [ "$package" == "fs" ] || [ "$package" == "initramfsiso" ]; then
   ver="0.1";
   if should_make initramfsiso $ver; then
     create_app initramfsiso $prefix$ver
+    olddir=$(pwd)
     mkdir /tmp/initramfsiso
     cp in/initramfsiso/init /tmp/initramfsiso
     cp in/initramfsiso/init.sh /tmp/initramfsiso
@@ -525,7 +528,11 @@ if [ "$package" == "fs" ] || [ "$package" == "initramfsiso" ]; then
 
     mkdir /tmp/initramfsiso/etc
     mkdir /tmp/initramfsiso/lib64
-    olddir=$(pwd)
+
+    cd /tmp/initramfsiso/lib64
+    ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
+    chmod a+x ld-linux-x86-64.so.2
+
     cd /tmp/initramfsiso
     find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $output/app/initramfsiso/$prefix$ver/initramfs.gz
     rm -r /tmp/initramfsiso
