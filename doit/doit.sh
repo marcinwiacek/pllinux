@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 11 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="kernel"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
+package="initramfsiso"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -347,7 +347,7 @@ if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
     mkdir out/glibc/glibc-$ver-build
     cd out/glibc/glibc-$ver-build
     ../glibc-$ver/configure --prefix=$output/app/glibc/$prefix$ver
-    cp ../../../in/glibc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
+#    cp ../../../in/glibc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
     make all -j$cpu_num
     make install
     cd ../../..
@@ -506,6 +506,31 @@ if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
     rm -r /tmp/initramfs
     cd $olddir
     set_current_app initramfs $prefix$ver
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "initramfsiso" ]; then
+  ver="0.1";
+  if should_make initramfsiso $ver; then
+    create_app initramfsiso $prefix$ver
+    mkdir /tmp/initramfsiso
+    cp in/initramfsiso/init /tmp/initramfsiso
+    cp in/initramfsiso/init.sh /tmp/initramfsiso
+    mkdir /tmp/initramfsiso/app
+    for app in busybox glibc openssl rsync zlib zstd; do mkdir /tmp/initramfsiso/app/$app; rsync -a $output/app/$app/ /tmp/initramfsiso/app/$app; done
+    mkdir /tmp/initramfsiso/dev
+    mkdir /tmp/initramfsiso/proc
+    mkdir /tmp/initramfsiso/mnt
+    mkdir /tmp/initramfsiso/run
+    mkdir /tmp/initramfsiso/sys
+
+    mkdir /tmp/initramfsiso/etc
+    mkdir /tmp/initramfsiso/lib64
+    olddir=$(pwd)
+    cd /tmp/initramfsiso
+    find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $output/app/initramfsiso/$prefix$ver/initramfs.gz
+    rm -r /tmp/initramfsiso
+    cd $olddir
+    set_current_app initramfsiso $prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "pllinux" ]; then
