@@ -23,10 +23,10 @@ if [ "$ROOT_DEVICE_ID" == "" ]; then
   mkdir /mnt/iso
   mount -t iso9660 /dev/sr0 /mnt/iso
 
-  cd /app
-  for app in glibc openssl rsync zlib zstd; do ln -s /mnt/iso/app/$app $app; done
+#  cd /app
+#  for app in glibc openssl rsync zlib zstd; do ln -s /mnt/iso/app/$app $app; done
 
-  cd /mnt
+  cd mnt
 
   mkdir app
   for APP_NAME in $(ls /mnt/iso/app); do
@@ -124,7 +124,7 @@ mount -t tmpfs tmpfs run
 mount -t sysfs sysfs sys
 
 export SHELL=/app/busybox/current/bin/sh
-#exec /app/busybox/current/sbin/switch_root . "/app/dinit/current/bin/dinit" "$@"
+exec /app/busybox/current/sbin/switch_root . "/app/dinit/current/bin/dinit" "$@"
 
 #if [ $? -ne 0 ]; then
-exec sh < /dev/console > /dev/console 2>&1
+#exec sh < /dev/console > /dev/console 2>&1
