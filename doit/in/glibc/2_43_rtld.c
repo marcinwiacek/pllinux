@@ -1357,10 +1357,10 @@ static void* mw_find_pllinux_path(const char *rtldprog) {
   rp2[0]='-';
   rp2[1]=0;
 
-  _dl_error_printf (rp2);
+//  _dl_error_printf (rp2);
   getcwd(rp,999); // in theory we could use NULL,0 ... but it gives some errors/warnings (theory != practise. Again)
-  _dl_error_printf (rp);
-  _dl_error_printf (rp2);
+//  _dl_error_printf (rp);
+//  _dl_error_printf (rp2);
 
   //this is quick hack. must be replaced with correct expanding path ? colleague asking...
   if (rtldprog[0]=='/' && strlen(rtldprog)>4) {
@@ -1368,10 +1368,11 @@ static void* mw_find_pllinux_path(const char *rtldprog) {
   }
 
   _dl_error_printf (rp);
-  _dl_error_printf (rp2);
+//  _dl_error_printf (rp2);
 
   int prefixLen = 0;
   if (!strncmp(rp,"/app/",5)) prefixLen = 5;
+  if (!strncmp(rp,"/iso/app/",9)) prefixLen = 9;
   if (!strncmp(rp,"/mnt/x/app/",11)) prefixLen = 11; //used for testing in host. in real compilation will be removed
 
   if (prefixLen==0) return NULL; //no PLLinux
@@ -1381,7 +1382,7 @@ static void* mw_find_pllinux_path(const char *rtldprog) {
   for (int i =0;i<strlen(rp);i++) {
     if (rp[i]=='/') {
       posnum++;
-      if (posnum==(prefixLen==5?4:6)) {
+      if (posnum==(prefixLen==5?4:(prefixLen==9?5:6))) {
         pos=i-1;
         break;
       }
@@ -1395,8 +1396,8 @@ static void* mw_find_pllinux_path(const char *rtldprog) {
 
   strcpy(rp+pos+1,"/readme.md");
   rp[pos+1+10]=0;
-  _dl_error_printf (rp);
-  _dl_error_printf (rp2);
+//  _dl_error_printf (rp);
+//  _dl_error_printf (rp2);
 
   size_t file_size;
   char *file;
