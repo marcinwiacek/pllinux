@@ -10,9 +10,11 @@ do
      ROOT_DEVICE_ID=${PARAM#root=}
   fi
 done
-ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/grep ${ROOT_DEVICE_ID#UUID=})
-/app/e2fsprogs/current/sbin/fsck.ext4 ${ROOT_DEVICE_NAME%%:*}
-/app/busybox/current/bin/mount -o remount $ROOT_DEVICE_ID /
+if [ "$ROOT_DEVICE_ID" != "" ]; then
+  ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/grep ${ROOT_DEVICE_ID#UUID=})
+  /app/e2fsprogs/current/sbin/fsck.ext4 ${ROOT_DEVICE_NAME%%:*}
+  /app/busybox/current/bin/mount -o remount $ROOT_DEVICE_ID /
+fi
 
 # allow propagating /mnt mount into bwrap sandboxes
 /app/util-linux/current/bin/mount --make-shared /mnt
