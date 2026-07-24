@@ -356,7 +356,7 @@ if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
     cd ../../..
     strip_app glibc
     set_current_app glibc $prefix$ver
-    cp in/glibc/2_43_patch_ver5.txt $output/app/glibc/$prefix$ver
+    cp in/glibc/2_43_patch_ver6.txt $output/app/glibc/$prefix$ver
     find $output/app/glibc/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/glibc/$prefix$ver/lib && chmod a-x {} " \;
     chmod a+x $output/app/glibc/$prefix$ver/lib/ld-linux-x86-64.so.2
   fi
