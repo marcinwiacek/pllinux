@@ -1,10 +1,10 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="glibc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="busybox"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
-use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
+use_tmpfs=1; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
 isofile="/mnt/host/iso.iso" # boot iso created with package iso
 
 # options below shouldn't be probably changed
@@ -63,11 +63,11 @@ download_unpack_source() {
     if [ ! -d "out/$packagename/$unpackeddir" ]; then
       mkdir out/$packagename || true
       cd out/$packagename
-      tar -xvf ../../download/$localfile
+      tar -xvf $curdir/download/$localfile
     fi
   fi
 
-  cd ../..
+  cd $curdir
 }
 
 clean_tmp() {
@@ -84,7 +84,7 @@ create_app() {
 
   mkdir $output/app/$packagename || true
   mkdir $output/app/$packagename/$version || true
-  if [ -f "in/$packagename/readme.md" ]; then cp in/$packagename/readme.md $output/app/$packagename/$version; fi
+  if [ -f "$curdir/in/$packagename/readme.md" ]; then cp $curdir/in/$packagename/readme.md $output/app/$packagename/$version; fi
 }
 
 #strip all binaries and libraries (remove debug symbols)
@@ -254,18 +254,19 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "busybox" ]; then
   ver="1.38.0";
   if should_make busybox $ver; then
-    download_unpack_source https://busybox.net/downloads/busybox-$ver.tar.bz2 busybox busybox-$ver 0
-    cp in/busybox/.config out/busybox/busybox-$ver
-    cd out/busybox/busybox-$ver
+    download_unpack_source https://busybox.net/downloads/busybox-$ver.tar.bz2 busybox busybox-$ver 1
+    cp in/busybox/.config $out/busybox/busybox-$ver
+    cd $out/busybox/busybox-$ver
     make -j$cpu_num
-    create_app busybox $prefix$ver.tmp
-    cp .config ../../../in/busybox # .config will be updated with new header and maybe options
-    make CONFIG_PREFIX=$output/app/busybox/$prefix$ver.tmp install
-    cd ../../..
-    cp in/busybox/* $output/app/busybox/$prefix$ver.tmp
+    create_app busybox $prefix$ver
+    cp .config $curdir/in/busybox # .config will be updated with new header and maybe options
+    make CONFIG_PREFIX=$output/app/busybox/$prefix$ver install
+    cd $curdir
+    cp in/busybox/* $output/app/busybox/$prefix$ver
     strip_app busybox $prefix$ver
     set_current_app busybox $prefix$ver
     rm $output/app/busybox/$prefix$ver/linuxrc
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
@@ -367,12 +368,12 @@ if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
   ver="2.43";
   if should_make glibc $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
-    create_app glibc $prefix$ver
     mkdir $out/glibc/glibc-$ver-build
     cd $out/glibc/glibc-$ver-build
     ../glibc-$ver/configure --prefix=$output/app/glibc/$prefix$ver
     cp $curdir/in/glibc/2_43_rtld.c ../glibc-$ver/elf/rtld.c
     make all -j$cpu_num
+    create_app glibc $prefix$ver
     make install
     cd $curdir
     strip_app glibc

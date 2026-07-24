@@ -22,6 +22,7 @@ PLLINUX during development and usage is trying to fight with problem of high usa
   1. such directories like /mnt or /tmp are always maintaned in RAM
   2. compiling software with doit.sh script can be done in RAM
   3. app package manager is downloading and unpacking to the /tmp (RAM)
+  4. packages are or will be cleaned from useless content (in plan adding option just for installing selected locales)
 
   2. system boot log is not saved - in the future it will be probably optional or done during system startup fail
 
