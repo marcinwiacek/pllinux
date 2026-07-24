@@ -19,7 +19,9 @@ fi
 # allow propagating /mnt mount into bwrap sandboxes
 /app/util-linux/current/bin/mount --make-shared /mnt
 
+# just permissions
 /app/util-linux/current/bin/mount mount -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
+/app/busybox/current/bin/chmod a+rw /dev/null
 
 # starts and configures automatic mounting devices (USB pendrives, memory cards, etc.)
 # (enable mdev on request and process already connected devices)
@@ -32,6 +34,9 @@ fi
 /app/kbd/current/bin/setfont -C /dev/tty3 sun12x22.psfu.gz 2> /dev/null
 /app/kbd/current/bin/setfont -C /dev/tty4 sun12x22.psfu.gz 2> /dev/null
 
+# keyboard
+/app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/qwerty/pl2.map.gz
+
 # localtime
 ln -s /app/tzdb/current/usr/share/zoneinfo/Europe/Warsaw /etc/localtime 2> /dev/null
 
@@ -40,5 +45,3 @@ ln -s /app/tzdb/current/usr/share/zoneinfo/Europe/Warsaw /etc/localtime 2> /dev/
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl
-
-/app/busybox/current/bin/chmod a+rw /dev/null
