@@ -74,4 +74,15 @@ What's the boot procedure?
 4. init script is giving control to the created filesystem
 5. changes done in this filesystem will be of course lost after restart
 
+After some further investigation it looks, that it's possible:
+
+1. to link /mnt/iso/app into main system /app (/app will be read-only in that case)
+2. to copy all /mnt/iso/app into main /app (in that case /app will be read-write, but will occupy RAM and loose all changes after restart)
+
+Option, where every app is linked to the application from the /mnt/iso/app seems to make problems with bwrap. Example of such links below:
+
+![Alt](2026/jul_iso_link.png)
+
+It was not further investigated. In the end ISO is created with two boot menu options (one for rw /app, one for ro /app). This required some cosmetic changes in dynamic loader (it should recognize PLLINUX app running from app folder in different locations). Additionally code was moved from initramfsiso into main initramfs. Mission complete in this moment.
+
 [Prev page](milestone6.md) [Next page](milestone8.md)
