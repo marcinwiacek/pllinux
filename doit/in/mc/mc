@@ -1,10 +1,14 @@
 #!/app/busybox/current/bin/sh
 DIR=$(dirname $0)
 APP=" --ro-bind /app app "
-APP2=" --ro-bind $DIR/etc/mc etc/mc "
+APP2=" --ro-bind $DIR/etc/mc etc/mc --ro-bind /etc/localtime etc/localtime "
 if [ -d "/etc." ]; then 
   APP=" --bind /app app "; 
   APP2=" --bind $DIR/etc/mc etc/mc "
+fi
+APP3=""
+if [ ! -d "/iso" ]; then
+  APP3=" --chdir $(pwd) ";
 fi
 mkdir /other/app/mc 2> /dev/null
 /app/bwrap/current/bin/bwrap \
@@ -25,7 +29,7 @@ mkdir /other/app/mc 2> /dev/null
     --ro-bind /lib64 lib64 \
     --setenv PS1 "[\t] $USER # " \
     --setenv SHELL /app/busybox/current/bin/sh \
-    --chdir $(pwd) \
+    $APP3 \
     $DIR/bin/mc
 # don't show internal commands from MC in the shell history
 #    --setenv HISTCONTROL ignorespace \
