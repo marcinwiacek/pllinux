@@ -4,8 +4,8 @@ output="/mnt/x";  # directory with EXT4 partition, which will be / for new syste
 package="glibc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
-use_tmpfs=1; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
-isofile="/mnt/host/iso.iso" # boot iso created with package iso (it will build initramfsiso and creating iso file)
+use_tmpfs=0; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
+isofile="/mnt/host/iso.iso" # boot iso created with package iso
 
 # options below shouldn't be probably changed
 out="out"
