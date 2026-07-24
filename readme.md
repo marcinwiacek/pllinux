@@ -70,7 +70,7 @@ One note: main author of PLLINUX was preparing Open Source software before 2000 
   5. add PLLINUX to the GRUB (create [file /etc/grub.d/40_custom](2026/40_custom) with correct UUID for new filesystem get with **sudo blkid**)
   6. (if necessary) increase resolution in /etc/default/grub (GRUB_GFXMODE=1920x1080 or something similar)
   7. execute **update-grub** command
-  8. restart and have fun.
+  8. restart and have fun (users: root/root, user/user, user2/user2)
 
 In this moment (16 Jun 2026) PLLINUX filesystem needs 127MB and place for compiling 27GB. Secure Boot needs to be disabled now, UEFI required.
 
