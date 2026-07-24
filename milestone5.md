@@ -1,3 +1,5 @@
+[Prev page](milestone4.md) [Next page](milestone6.md)
+
 # Milestone 5
 # New packages and options
 
@@ -31,6 +33,7 @@ It reminds my hard work on [Gammu project (till ca. 2004 or so)](https://mwiacek
 
 It was so easier to understand than thousands of lines from automake, etc.
 
-Anyway, I'm not complaining. For now I'm working mainly on machine with 16GB RAM/7840HS and this is still mostly enough.
-There are new elements added (this stabilization phase will continue probably over few days or weeks)
+Anyway, I'm not complaining. For now I'm working mainly on machine with 16GB RAM/7840HS and this is still mostly enough. There are new elements added (this stabilization phase will continue probably over few days or weeks)
 and there is bigger and bigger need of having correct dynamic loader.
+
+[Prev page](milestone4.md) [Next page](milestone6.md)

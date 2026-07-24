@@ -1,3 +1,5 @@
+[Prev page](milestone3.md) [Next page](milestone5.md)
+
 # Milestone 4
 # Packaging versioning discussion
 
@@ -140,3 +142,5 @@ Each repo needs two copies of public key used for signing packages - they must b
 Anyway, first successfull upgrade from remote repo in real PLLINUX was done 9 Jul 2026:
 
 ![first app.sh upgrade](2026/jul_update.png)
+
+[Prev page](milestone3.md) [Next page](milestone5.md)

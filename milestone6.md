@@ -1,3 +1,5 @@
+[Prev page](milestone5.md) [Next page](milestone7.md)
+
 # Milestone 6
 # Hacking ld-linux-x86-64.so.2
 
@@ -62,3 +64,5 @@ etc.
 [Version 4 is better](doit/in/glibc/2_43_patch_ver4.txt), not doesn't resolve case with PATH. And finally... few minutes later we have [version 5](doit/in/glibc/2_43_patch_ver5.txt).
 
 In this moment it covers the most important cases (we don't have only version with "-" and we don't search for dependencies from dependencies).
+
+[Prev page](milestone5.md) [Next page](milestone7.md)

@@ -1,3 +1,5 @@
+[Prev page](milestone1.md) [Next page](milestone3.md)
+
 # Milestone 2
 # Mounting USB devices
 
@@ -45,3 +47,5 @@ Good OS must recognize partition types and propose best option for every of them
 In PLINUX there is created script making first part, in the future for encrypted partitions there will be probably created **password** script / command to enter password and making real mount. System doesn't support NTFS yet - module in Linux kernel is quite limited (it can change with 7.1) and there is required external ntfs-3g package.
 
 One funny limitation: mdev needs /bin/sh link for interpreter - doesn't honor SHELL variable and doesn't show any error, when link doesn't exist.
+
+[Prev page](milestone1.md) [Next page](milestone3.md)

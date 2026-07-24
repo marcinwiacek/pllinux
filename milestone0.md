@@ -1,3 +1,5 @@
+[Prev page](readme.md) [Next page](milestone1.md)
+
 # Milestone 0
 # Let's make Linux great. Again?
 
@@ -104,3 +106,5 @@ The most widely licenses will be probably GPL2 and GPL3 and we want to redirect 
 it's possible for example to repackage binaries from other distros (which can improve development speed before release 1.0).
 
 We want to say again - if some understanding or some actions somewhere are wrong, please contact us (We will treat all legal issues very seriously).
+
+[Prev page](readme.md) [Next page](milestone1.md)

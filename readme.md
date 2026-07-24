@@ -85,3 +85,5 @@ In the future there will be of course created ISO and installer.
 **Contact**
 
 Use for example GitHub or marcin ( at ) mwiacek ( dot ) com. I'm not answering very fast, but in the end it always happens.
+
+[Next page](milestone0.md)

@@ -1,3 +1,5 @@
+[Prev page](milestone0.md) [Next page](milestone2.md)
+
 # Milestone 1
 # Development environment
 
@@ -213,3 +215,5 @@ with non-root users we had to give read/write permissions to the /run/dinitctl.
   * reboot and select correct menu option in your system
   * to login: use root/root, user/user, user2/user2
   * to switching consoles in Virtualbox: right Ctrl+F1, right Ctrl+F2, etc.
+
+[Prev page](milestone0.md) [Next page](milestone2.md)

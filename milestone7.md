@@ -1,3 +1,5 @@
+[Prev page](milestone6.md) [Next page](milestone8.md)
+
 # Milestone 7
 # Creating booting ISO image
 
@@ -71,3 +73,5 @@ What's the boot procedure?
 3. init script from the initramfsiso is copying all apps from the ISO (it needs few sec and maybe won't be done in the future) and creating all elements in the filesystem in the RAM
 4. init script is giving control to the created filesystem
 5. changes done in this filesystem will be of course lost after restart
+
+[Prev page](milestone6.md) [Next page](milestone8.md)
