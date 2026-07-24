@@ -13,8 +13,8 @@ do
      ROOT_DEVICE_ID=${PARAM#root=}
   fi
 done
-if [ "$ROOT_DEVICE_ID" == "" ]; then
-  # we don't have filesystem param
+if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
+  # we don't have filesystem param or we have rsync
   # this looks like booting from iso
   mount -t tmpfs tmpfs /mnt
   mount -t tmpfs tmpfs /run
@@ -23,26 +23,34 @@ if [ "$ROOT_DEVICE_ID" == "" ]; then
   mkdir /mnt/iso
   mount -t iso9660 /dev/sr0 /mnt/iso
 
-#  cd /app
-#  for app in glibc openssl rsync zlib zstd; do ln -s /mnt/iso/app/$app $app; done
+  cd /app
+  for app in glibc openssl rsync zlib zstd; do ln -s /mnt/iso/app/$app $app; done
 
-  cd mnt
-
-  mkdir app
-  for APP_NAME in $(ls /mnt/iso/app); do
-    mkdir /mnt/app/$APP_NAME
-    cd /mnt/app/$APP_NAME
-    for APP_VER in $(ls /mnt/iso/app/$APP_NAME); do
-      if [ "$APP_VER" != "current" ]; then
-#        ln -s ../../iso/app/$APP_NAME/$APP_VER $APP_VER
-        ln -s /iso/app/$APP_NAME/$APP_VER $APP_VER
-        if [ "$(readlink /mnt/iso/app/$APP_NAME/current)" == "$APP_VER" ]; then
-          ln -s $APP_VER current
-        fi
-      fi
-    done
-  done
   cd /mnt
+
+  if [ "$ROOT_DEVICE_ID" = "rsync" ]; then
+    mkdir app
+    echo Copying /app from ISO to the RAM. This will need some time.
+    /app/rsync/current/bin/rsync -a iso/app/ app
+  else
+    ln -s /iso/app app
+  fi
+
+#  mkdir app
+#  for APP_NAME in $(ls /mnt/iso/app); do
+#    mkdir /mnt/app/$APP_NAME
+#    cd /mnt/app/$APP_NAME
+#    for APP_VER in $(ls /mnt/iso/app/$APP_NAME); do
+#      if [ "$APP_VER" != "current" ]; then
+#        ln -s ../../iso/app/$APP_NAME/$APP_VER $APP_VER
+#        ln -s /iso/app/$APP_NAME/$APP_VER $APP_VER
+#        if [ "$(readlink /mnt/iso/app/$APP_NAME/current)" == "$APP_VER" ]; then
+#          ln -s $APP_VER current
+#        fi
+#      fi
+#    done
+#  done
+#  cd /mnt
 
   mkdir bin
   mkdir dev
@@ -110,7 +118,7 @@ if [ "$ROOT_DEVICE_ID" == "" ]; then
   chmod a+x ld-linux-x86-64.so.2
   cd ..
 else
-  # we have filesystem param
+  # we have real filesystem param
   # this looks like booting from disk
   ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | grep ${ROOT_DEVICE_ID#UUID=})
 

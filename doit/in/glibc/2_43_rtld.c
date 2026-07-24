@@ -1371,8 +1371,9 @@ static void* mw_find_pllinux_path(const char *rtldprog) {
 //  _dl_error_printf (rp2);
 
   int prefixLen = 0;
-  if (!strncmp(rp,"/app/",5)) prefixLen = 5;
-  if (!strncmp(rp,"/iso/app/",9)) prefixLen = 9;
+  if (!strncmp(rp,"/app/",5)) prefixLen = 5; //real system
+  if (!strncmp(rp,"/iso/app/",9)) prefixLen = 9; //iso
+  if (!strncmp(rp,"/mnt/iso/app/",13)) prefixLen = 13; //initramfs
   if (!strncmp(rp,"/mnt/x/app/",11)) prefixLen = 11; //used for testing in host. in real compilation will be removed
 
   if (prefixLen==0) return NULL; //no PLLinux

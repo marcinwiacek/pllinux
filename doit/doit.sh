@@ -499,7 +499,8 @@ if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
     mkdir /tmp/initramfs
     cp in/initramfs/init /tmp/initramfs
     mkdir /tmp/initramfs/app
-    for app in busybox busybox glibc openssl rsync zlib zstd; do mkdir /tmp/initramfs/app/$app; rsync -a $output/app/$app/ /tmp/initramfs/app/$app; done
+#    for app in busybox busybox glibc openssl rsync zlib zstd; do mkdir /tmp/initramfs/app/$app; rsync -a $output/app/$app/ /tmp/initramfs/app/$app; done
+    for app in busybox; do mkdir /tmp/initramfs/app/$app; rsync -a $output/app/$app/ /tmp/initramfs/app/$app; done
     mkdir /tmp/initramfs/dev
     mkdir /tmp/initramfs/proc
     mkdir /tmp/initramfs/mnt
