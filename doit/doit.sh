@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="glib"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="xorriso"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -779,55 +779,41 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "autoconf" ]; then
   ver="2.73";
   if should_make autoconf $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/autoconf/autoconf-2.73.tar.xz autoconf autoconf-$ver 0
-    mkdir autoconf-$ver-build
-    if [ "$use_tmpfs" = "1" ]; then
-      sudo mount mount -t tmpfs -o rw,noatime,nosuid autoconf-$ver-build
-    fi
-    cd autoconf-$ver-build
+    download_unpack_source https://ftp.gnu.org/gnu/autoconf/autoconf-2.73.tar.xz autoconf autoconf-$ver 1
+    mkdir $out/autoconf/autoconf-$ver-build
+    cd $out/autoconf/autoconf-$ver-build
     ../autoconf-$ver/configure --prefix=$output/app/autoconf/$prefix$ver
     make all -j$cpu_num
     create_app autoconf $prefix$ver
     make install
-    cd ../../..
-    set_current_app_clean_strip_cd autoconf $prefix$ver
+    set_current_app_clean_strip_cd autoconf $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "automake" ]; then
   ver="1.18";
   if should_make automake $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/automake/automake-$ver.tar.xz automake automake-$ver 0
-    create_app automake $prefix$ver
-    cd out/automake
-    mkdir automake-$ver-build
-    if [ "$use_tmpfs" = "1" ]; then
-      sudo mount mount -t tmpfs -o rw,noatime,nosuid automake-$ver-build
-    fi
-    cd automake-$ver-build
+    download_unpack_source https://ftp.gnu.org/gnu/automake/automake-$ver.tar.xz automake automake-$ver 1
+    mkdir $out/automake/automake-$ver-build
+    cd $out/automake/automake-$ver-build
     ../automake-$ver/configure --prefix=$output/app/automake/$prefix$ver
     make all -j$cpu_num
+    create_app automake $prefix$ver
     make install
-    cd ../../..
-    set_current_app_clean_strip_cd automake $prefix$ver
     remove_duplicates_cd $output/app/automake/$prefix$ver/bin
+    set_current_app_clean_strip_cd automake $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
   ver="1.5.8";
   if should_make xorriso $ver; then
-    download_unpack_source https://www.gnu.org/software/xorriso/xorriso-$ver.pl02.tar.gz xorriso xorriso-$ver 0
-    create_app xorriso $prefix$ver
-    cd out/xorriso
-    mkdir xorriso-$ver-build
-#    if [ "$use_tmpfs" = "1" ]; then
-#      sudo mount mount -t tmpfs -o rw,noatime,nosuid grub-$ver-build
-#    fi
-    cd xorriso-$ver-build
+    download_unpack_source https://www.gnu.org/software/xorriso/xorriso-$ver.pl02.tar.gz xorriso xorriso-$ver 1
+    mkdir $out/xorriso/xorriso-$ver-build
+    cd $out/xorriso/xorisso-$ver-build
     ../xorriso-$ver/configure --prefix=$output/app/xorriso/$prefix$ver
     make -j$cpu_num
+    create_app xorriso $prefix$ver
     make install
-    cd ../../..
-    set_current_app_clean_strip_cd xorriso $prefix$ver
+    set_current_app_clean_strip_cd xorriso $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
