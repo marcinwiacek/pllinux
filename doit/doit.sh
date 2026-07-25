@@ -1,10 +1,10 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="zstd"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="glib"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
-use_tmpfs=1; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
+use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
 isofile="/mnt/host/iso.iso" # boot iso created with package iso
 
 # options below shouldn't be probably changed
@@ -91,8 +91,8 @@ set_current_app_clean_strip_cd() {
   ln -s $version current
 
   if [ -d "$output/app/$packagename/$version/lib" ]; then
-    chmod a-x $output/app/$packagename/$version/lib/*so*
-    chmod a-x $output/app/$packagename/$version/lib/*la*
+    chmod a-x $output/app/$packagename/$version/lib/*.so*
+    chmod a-x $output/app/$packagename/$version/lib/*.la*
   fi
 
   if [ "$stripapp" = "1" ]; then
@@ -343,7 +343,6 @@ if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
   ver="2.43";
   if should_make glibc $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
-    cd ..
     mkdir $out/glibc/glibc-$ver-build
     cd $out/glibc/glibc-$ver-build
     ../glibc-$ver/configure --prefix=$output/app/glibc/$prefix$ver
@@ -351,10 +350,10 @@ if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
     make all -j$cpu_num
     create_app glibc $prefix$ver
     make install
-    set_current_app_clean_strip_cd glibc $prefix$ver 1
     chmod a-x $output/app/glibc/$prefix$ver/lib/audit/*so*
     chmod a-x $output/app/glibc/$prefix$ver/lib/gconv/*so*
     cp $curdir/in/glibc/2_43_patch_ver6.txt $output/app/glibc/$prefix$ver
+    set_current_app_clean_strip_cd glibc $prefix$ver 1
     chmod a+x $output/app/glibc/$prefix$ver/lib/ld-linux-x86-64.so.2
   fi
 fi
@@ -648,7 +647,6 @@ if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
   ver="1.5.7";
   if should_make zstd $ver; then
     download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver 1
-#    ./configure
     make all -j$cpu_num
     create_app zstd $prefix$ver
     cp LICENSE $output/app/zstd/$prefix$ver
@@ -700,7 +698,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "ncurses" ]; then
   ver="6.6";
   if should_make ncurses $ver; then
-    download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver 0
+    download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver 1
     ./configure --prefix=$output/app/ncurses/$prefix$ver --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
     make all -j$cpu_num
     create_app ncurses $prefix$ver
@@ -740,6 +738,7 @@ if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
     make all -j$cpu_num
     create_app slang $prefix$ver
     make install
+    chmod a-x $output/app/slang/$prefix$ver/lib/slang/v2/modules/*.so
     set_current_app_clean_strip_cd slang $prefix$ver 1
   fi
 fi
@@ -824,10 +823,10 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
   ver="2026c";
   if should_make tzdata $ver; then
-    download_unpack_source https://data.iana.org/time-zones/releases/tzdb-$ver.tar.lz tzdb tzdb-$ver 0
+    download_unpack_source https://data.iana.org/time-zones/releases/tzdb-$ver.tar.lz tzdb tzdb-$ver 1
     create_app tzdb $prefix$ver
     make TOPDIR="$output/app/tzdb/$prefix$ver" install
-    set_current_app_clean_strip_cd tzdb $prefix$ver 0
+    set_current_app_clean_strip_cd tzdb $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
