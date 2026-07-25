@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="glibc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="util-linux"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -401,17 +401,19 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "util-linux" ]; then
   ver="2.42";
   if should_make util-linux $ver; then
-    download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver/util-linux-$ver.tar.xz util-linux util-linux-$ver 0
-    create_app util-linux $prefix$ver
-    cd out/util-linux/util-linux-$ver
+    download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
+    cd $out/util-linux/util-linux-$ver
     ./configure --prefix=$output/app/util-linux/$prefix$ver --without-systemd --disable-lsfd --disable-enosys
     make all -j$cpu_num
+    create_app util-linux $prefix$ver
     make install || true
-    cd ../../..
+    cd $curdir
     cp in/util-linux/* $output/app/util-linux/$prefix$ver
-    chmod a-x $output/app/util-linux/$prefix$ver/lib/*
+    chmod a-x $output/app/util-linux/$prefix$ver/lib/*so*
+    chmod a-x $output/app/util-linux/$prefix$ver/lib/*la*
     strip_app util-linux
     set_current_app util-linux $prefix$ver
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then

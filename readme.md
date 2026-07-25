@@ -8,14 +8,15 @@ This is project with operating system built around Linux kernel and Bubblewrap (
 
 **Important points**
 
-  1. providing full possible freedom with free apps and free licenses
-  2. splitting apps and users in different way than in typical Linux distributions, which gives much more security and flexibility (you can provide and show other apps to other users, package scripts can run in the sanbdbox, upgrades and rollbacks are much easier, etc.)
-  3. reproducible and reliable results (dependiences among apps must be always defined and thing running in one installation will work on the other, all systems actions will be done in user specified time, etc.)
-  4. simplicity for devs and users (easy to audit scripts, easy system structure, etc.)
+  1. providing full possible experience and freedom with free apps and free licenses - system will clearly mark all non-free elements, etc.
+  2. simplicity for devs and users - easy to audit scripts, easy system structure, no unnecessary updates for existing apps (like in NixOS), etc.
+  3. splitting apps and users in different way than in typical Linux distributions (much more security and flexibility) - you can provide and show other apps to other users, package scripts run in the sanbdbox without access to user files, 
+upgrades and rollbacks are much easier, etc.
+  4. reproducible and reliable results - apps dependencies must be always clearly defined and things running in one installation will work on the other, all systems actions will be done in clear defined user specified time, etc.
   5. consistency
-  6. decreasing resources usage (using tmpfs where possible, etc.)
+  6. decreasing resources usage to minimum - using tmpfs where possible, etc.
   7. when possible, providing real support for people with disabilities
-  8. when possible, using modern version of tools (for example wget2 instead of wget) or leaving decision to the user (if utils-rs will be packages, there will be always proposed original utils version as well)
+  8. when possible, using modern version of tools (for example wget2 instead of wget) or leaving clear decision to the user (if utils-rs will be packaged, there will be always proposed original utils version as well)
 
 When you think, this is just utopia, look on screens below - is it possible with your Linux?
 
