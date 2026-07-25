@@ -12,9 +12,11 @@ This changed with flash memories. They have limited number of write cycles and t
 2. diagnostic is not provided for some classes of devices (memory cards, etc.) - again: you don't know, if they're failing
 3. modern devices many times cost more, but have lower limits than older one (for example old 1TB SSD could have TBW 2400, new one 200) - nice progress, isn't it?
 (and no: it's more greed of some companies instead of real crysis)
-4. companies creating software for years didn't take care of number of disk writes - there are done thousands of
+4. companies creating software for years didn't take care of number of disk writes - there were and are done thousands of
 operations in the background although you don't make any action
-(it includes collecting unnecessary logs, saving telemetry/spying data, making temporary operations in real disk, etc.)
+(it includes collecting unnecessary logs, saving telemetry/spying data, making temporary operations in real disk, etc.
+and very good example is Google removing Jumbo builds in Android Chrome ending with increasing compilation time from 1 to 4h
+or Android/MacOS saving a lot of garbage in the pendrive)
 5. replacing memory chips can need electronic service (it happens for example with Apple Macbooks)
 
 PLLINUX during development and usage is trying to fight with problem of high usage of disk, for example:
@@ -23,7 +25,7 @@ PLLINUX during development and usage is trying to fight with problem of high usa
   2. compiling smaller software with [doit.sh](doit/doit.sh) script can be done in RAM
   3. downloading files with [doit.sh](doit/doit.sh) is done in /tmp (RAM) and they're copied to download AFTER full download
   4. [app package manager](doit/in/pllinux/helper/app.sh) is downloading and unpacking to the /tmp (RAM)
-  5. packages are or will be cleaned from useless content (in plan adding option just for installing selected locales)
+  5. packages are or will be cleaned from useless content (currently it includes for example eliminating duplicats, in plan adding option for installing selected locales)
 
   2. system boot log is not saved - in the future it will be probably optional or done during system startup fail
 

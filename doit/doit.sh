@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="dinit"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="glibc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -345,24 +345,24 @@ if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
   if should_make kbd $ver; then
     if [ ! -d "/app" ]; then
       echo "KBD is exception. You need link from /app to the PLLINUX /app. This will be removed in the future"
-      olddir=$(pwd)
       cd /
       rm current
       sudo ln -s $output/app app
-      cd $olddir
+      cd $curdir
     fi
     install_host_deps "autoconf libpam0g-dev"
-    download_unpack_source https://www.kernel.org/pub/linux/utils/kbd/kbd-$ver.tar.xz kbd kbd-$ver 0
-    create_app kbd $prefix$ver
-    cd out/kbd/kbd-$ver
+    download_unpack_source https://www.kernel.org/pub/linux/utils/kbd/kbd-$ver.tar.xz kbd kbd-$ver 1
+    cd $out/kbd/kbd-$ver
     make clean
-    ./configure --prefix=$output/app/kbd/$prefix$ver  --datarootdir=/app/kbd/$prefix$ver/share
+    ./configure --prefix=$output/app/kbd/$prefix$ver --datarootdir=/app/kbd/$prefix$ver/share
     make -j$cpu_num
+    create_app kbd $prefix$ver
     make install
-    cd ../../..
+    cd $curdir
     cp in/kbd/* $output/app/kbd/$prefix$ver
     strip_app kbd
     set_current_app kbd $prefix$ver
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
@@ -380,7 +380,9 @@ if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
     strip_app glibc
     set_current_app glibc $prefix$ver
     cp in/glibc/2_43_patch_ver6.txt $output/app/glibc/$prefix$ver
-    find $output/app/glibc/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/glibc/$prefix$ver/lib && chmod a-x {} " \;
+    chmod a-x $output/app/glibc/$prefix$ver/lib/*so*
+    chmod a-x $output/app/glibc/$prefix$ver/lib/audit/*so*
+    chmod a-x $output/app/glibc/$prefix$ver/lib/gconv/*so*
     chmod a+x $output/app/glibc/$prefix$ver/lib/ld-linux-x86-64.so.2
     clean_tmp
   fi
