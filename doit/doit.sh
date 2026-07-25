@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="gcc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="zstd"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -620,13 +620,14 @@ if [ "$package" == "fs" ] || [ "$package" == "wget2" ]; then
     mkdir $output/app/wget2/$prefix$ver/bin
     mkdir $output/app/wget2/$prefix$ver/lib
     mkdir $output/app/wget2/$prefix$ver/ssl
-    cp src/wget2_noinstall $output/app/wget2/$prefix$ver/bin
+    cp src/wget2_noinstall $output/app/wget2/$prefix$ver/bin/wget
     rsync -a libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
-    chmod a-x $output/app/wget2/$prefix$ver/lib/*so*
+    rsync -a $curdir/in/wget2/ $output/app/wget2/$prefix$ver
+
+    #fixme
     cd /etc/ssl/certs
     rsync -a -L . $output/app/wget2/$prefix$ver/ssl
-    rsync -a $curdir/in/wget2/ $output/app/wget2/$prefix$ver
-    mv $output/app/wget2/$prefix$ver/bin/wget2_noinstall $output/app/wget2/$prefix$ver/bin/wget
+
     set_current_app_clean_strip_cd wget2 $prefix$ver 1
   fi
 fi
@@ -647,7 +648,7 @@ if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
   ver="1.5.7";
   if should_make zstd $ver; then
     download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver 1
-    ./configure
+#    ./configure
     make all -j$cpu_num
     create_app zstd $prefix$ver
     cp LICENSE $output/app/zstd/$prefix$ver
@@ -742,25 +743,6 @@ if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
     set_current_app_clean_strip_cd slang $prefix$ver 1
   fi
 fi
-#if [ "$package" == "gpm" ]; then
-#  code seems to be obsolete
-#  ver="1.20.7";
-#  if should_make gpm $ver; then
-#    install_host_deps "libtool"
-#    download_unpack_source https://github.com/telmich/gpm/archive/refs/tags/$ver.tar.gz gpm gpm-$ver 0
-#    create_app gpm $prefix$ver
-#    cd out/gpm/gpm-$ver
-#    ./autogen.sh
-#    autoupdate
-#    ./autogen.sh
-#    ./configure --prefix=$output/app/gpm/$prefix$ver
-#    make all -j$cpu_num
-#    make install
-#    chmod a-x $output/app/slang/$prefix$ver/lib/*
-#    cd ../../..
-#    set_current_app_clean_strip_cd slang $prefix$ver
-#  fi
-#fi
 if [ "$package" == "fs" ] || [ "$package" == "glib" ]; then
   ver="2.89.1";
   if should_make glib $ver; then
@@ -821,28 +803,6 @@ if [ "$package" == "fs" ] || [ "$package" == "automake" ]; then
     remove_duplicates_cd $output/app/automake/$prefix$ver/bin
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
-  #work in progress
-  ver="2.14";
-  if should_make grub $ver; then
-    install_host_deps "autoconf-archive"
-    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-gub-$ver 0
-    create_app grub $prefix$ver
-    cd out/grub
-    mkdir grub-grub-$ver-build
-#    if [ "$use_tmpfs" = "1" ]; then
-#      sudo mount mount -t tmpfs -o rw,noatime,nosuid grub-$ver-build
-#    fi
-    cd grub-grub-$ver
-    autoconf
-    cd grub-grub-$ver-build
-    ../grub-grub-$ver/configure --prefix=$output/app/grub/$prefix$ver
-    make all -j$cpu_num
-    make install
-    cd ../../..
-    set_current_app_clean_strip_cd grub $prefix$ver
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
   ver="1.5.8";
   if should_make xorriso $ver; then
@@ -870,6 +830,41 @@ if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
     set_current_app_clean_strip_cd tzdb $prefix$ver 0
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
+  # >1GB during installation
+  ver="25-ga";
+  rel="25-ga";
+  if should_make jdk $ver; then
+    install_host_deps "autopoint openjdk-25-jdk libasound2-dev libcups2-dev libfontconfig1-dev libx11-dev libxext-dev libxrender-dev libxrandr-dev libxtst-dev libxt-dev"
+    download_unpack_source https://github.com/openjdk/jdk/archive/refs/tags/jdk-$rel.tar.gz jdk jdk-jdk-$ver 1
+    chmod a+x configure
+    ./configure
+    make clean
+    make JOBS=$cpu_num images
+    create_app jdk $prefix$ver
+    rsync -a build/linux-x86_64-server-release/images/jdk/* $output/app/jdk/$prefix$ver
+    set_current_app_clean_strip_cd jdk $prefix$ver 0
+  fi
+fi
+#if [ "$package" == "gpm" ]; then
+#  code seems to be obsolete
+#  ver="1.20.7";
+#  if should_make gpm $ver; then
+#    install_host_deps "libtool"
+#    download_unpack_source https://github.com/telmich/gpm/archive/refs/tags/$ver.tar.gz gpm gpm-$ver 0
+#    create_app gpm $prefix$ver
+#    cd out/gpm/gpm-$ver
+#    ./autogen.sh
+#    autoupdate
+#    ./autogen.sh
+#    ./configure --prefix=$output/app/gpm/$prefix$ver
+#    make all -j$cpu_num
+#    make install
+#    chmod a-x $output/app/slang/$prefix$ver/lib/*
+#    cd ../../..
+#    set_current_app_clean_strip_cd slang $prefix$ver
+#  fi
+#fi
 #if [ "$package" == "groff" ]; then
   # work in progress
   # for displaying man pages
@@ -910,20 +905,26 @@ if [ "$package" == "fs" ] || [ "$package" == "smartmontools" ]; then
     set_current_app_clean_strip_cd smartmontools $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
-  # >1GB during installation
-  ver="25-ga";
-  rel="25-ga";
-  if should_make jdk $ver; then
-    install_host_deps "autopoint openjdk-25-jdk libasound2-dev libcups2-dev libfontconfig1-dev libx11-dev libxext-dev libxrender-dev libxrandr-dev libxtst-dev libxt-dev"
-    download_unpack_source https://github.com/openjdk/jdk/archive/refs/tags/jdk-$rel.tar.gz jdk jdk-jdk-$ver 1
-    chmod a+x configure
-    ./configure
-    make clean
-    make JOBS=$cpu_num images
-    create_app jdk $prefix$ver
-    rsync -a build/linux-x86_64-server-release/images/jdk/* $output/app/jdk/$prefix$ver
-    set_current_app_clean_strip_cd jdk $prefix$ver 0
+if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
+  #work in progress
+  ver="2.14";
+  if should_make grub $ver; then
+    install_host_deps "autoconf-archive"
+    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-gub-$ver 0
+    create_app grub $prefix$ver
+    cd out/grub
+    mkdir grub-grub-$ver-build
+#    if [ "$use_tmpfs" = "1" ]; then
+#      sudo mount mount -t tmpfs -o rw,noatime,nosuid grub-$ver-build
+#    fi
+    cd grub-grub-$ver
+    autoconf
+    cd grub-grub-$ver-build
+    ../grub-grub-$ver/configure --prefix=$output/app/grub/$prefix$ver
+    make all -j$cpu_num
+    make install
+    cd ../../..
+    set_current_app_clean_strip_cd grub $prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
