@@ -566,83 +566,93 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
     clean_tmp
   fi
 fi
+
 # PGP
 if [ "$package" == "libgpg-error" ]; then
   ver="1.61";
   if should_make libgpg-error $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${ver}.tar.bz2 libgpg-error libgpg-error-$ver 0
-    create_app libgpg-error $prefix$ver
-    cd out/libgpg-error/libgpg-error-$ver
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${ver}.tar.bz2 libgpg-error libgpg-error-$ver 1
+    cd $out/libgpg-error/libgpg-error-$ver
     ./configure --prefix=$output/app/libgpg-error/$prefix$ver --enable-install-gpg-error-config
     make all -j$cpu_num
+    create_app libgpg-error $prefix$ver
     make install
-    cd ../../..
+    cd $curdir
     set_current_app libgpg-error $prefix$ver
+    strip_app libgpg-error
+    clean_tmp
   fi
 fi
 # PGP
 if [ "$package" == "libgcrypt" ]; then
   ver="1.12.2";
   if should_make libgcrypt $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${ver}.tar.bz2 libgcrypt libgcrypt-$ver 0
-    create_app libgcrypt $prefix$ver
-    cd out/libgcrypt/libgcrypt-$ver
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${ver}.tar.bz2 libgcrypt libgcrypt-$ver 1
+    cd $out/libgcrypt/libgcrypt-$ver
     ./configure --prefix=$output/app/libgcrypt/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
     make all -j$cpu_num
+    create_app libgcrypt $prefix$ver
     make install
-    cd ../../..
+    cd $curdir
     set_current_app libgcrypt $prefix$ver
+    strip_app libgcrypt
+    clean_tmp
   fi
 fi
 # PGP
 if [ "$package" == "libassuan" ]; then
   ver="3.0.2";
   if should_make libassuan $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/libassuan/libassuan-${ver}.tar.bz2 libassuan libassuan-$ver 0
-    create_app libassuan $prefix$ver
-    cd out/libassuan/libassuan-$ver
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libassuan/libassuan-${ver}.tar.bz2 libassuan libassuan-$ver 1
+    cd $out/libassuan/libassuan-$ver
     ./configure --prefix=$output/app/libassuan/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
     make all -j$cpu_num
+    create_app libassuan $prefix$ver
     make install
-    cd ../../..
+    cd $curdir
     set_current_app libassuan $prefix$ver
+    strip_app libassuan
+    clean_tmp
   fi
 fi
 # PGP
 if [ "$package" == "libksba" ]; then
   ver="1.8.0";
   if should_make libksba $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/libksba/libksba-${ver}.tar.bz2 libksba libksba-$ver 0
-    create_app libksba $prefix$ver
-    cd out/libksba/libksba-$ver
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libksba/libksba-${ver}.tar.bz2 libksba libksba-$ver 1
+    cd $out/libksba/libksba-$ver
     ./configure --prefix=$output/app/libksba/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
     make all -j$cpu_num
+    create_app libksba $prefix$ver
     make install
-    cd ../../..
+    cd $curdir
     set_current_app libksba $prefix$ver
+    strip_app libksba
+    clean_tmp
   fi
 fi
 # PGP
 if [ "$package" == "npth" ]; then
   ver="1.8";
   if should_make npth $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/npth/npth-${ver}.tar.bz2 npth npth-$ver 0
-    create_app npth $prefix$ver
-    cd out/npth/npth-$ver
+    download_unpack_source https://gnupg.org/ftp/gcrypt/npth/npth-${ver}.tar.bz2 npth npth-$ver 1
+    cd $out/npth/npth-$ver
     ./configure --prefix=$output/app/npth/$prefix$ver --enable-install-npth-config
     make all -j$cpu_num
+    create_app npth $prefix$ver
     make install
-    cd ../../..
+    cd $curdir
     set_current_app npth $prefix$ver
+    strip_app npth
+    clean_tmp
   fi
 fi
 # PGP
 if [ "$package" == "gnupg" ]; then
   ver="2.5.21";
   if should_make gnupg $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${ver}.tar.bz2 gnupg gnupg-$ver 0
-    create_app gnupg $prefix$ver
-    cd out/gnupg/gnupg-$ver
+    download_unpack_source https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${ver}.tar.bz2 gnupg gnupg-$ver 1
+    cd $out/gnupg/gnupg-$ver
     ./configure --with-libgpg-error-prefix=$output/app/libgpg-error/current \
       --with-libgcrypt-prefix=$output/app/libgcrypt/current \
       --with-libassuan-prefix=$output/app/libassuan/current \
@@ -650,102 +660,85 @@ if [ "$package" == "gnupg" ]; then
       --with-npth-prefix=$output/app/npth/current \
       --prefix=$output/app/gnupg/$prefix$ver
     make all -j$cpu_num
+    create_app gnupg $prefix$ver
     make install
-    cd ../../..
+    cd $curdir
     set_current_app gnupg $prefix$ver
+    strip_app gnupg
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "openssl" ]; then
-  ver="3.6.3";
-  if should_make openssl $ver; then
-    download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver 0
-    create_app openssl $prefix$ver
-    cd out/openssl/openssl-$ver
-    ./Configure
-    make all -j$cpu_num
-    mkdir $output/app/openssl/$prefix$ver/bin
-    mkdir $output/app/openssl/$prefix$ver/lib
-    cp apps/openssl $output/app/openssl/$prefix$ver/bin
-    rsync -a *.so* $output/app/openssl/$prefix$ver/lib
-    olddir=$(pwd)
-    cd $output/app/openssl/$prefix$ver/lib
-    chmod a-x *
-    cd $olddir
-    cd ../../..
-    rsync -a in/openssl/ $output/app/openssl/$prefix$ver
-    strip_app openssl
-  fi
-  ver="4.0.1";
-  if should_make openssl $ver; then
-    download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver 0
-    create_app openssl $prefix$ver
-    cd out/openssl/openssl-$ver
-    ./Configure
-    make all -j$cpu_num
-    mkdir $output/app/openssl/$prefix$ver/bin
-    mkdir $output/app/openssl/$prefix$ver/lib
-    cp apps/openssl $output/app/openssl/$prefix$ver/bin
-    rsync -a *.so* $output/app/openssl/$prefix$ver/lib
-    olddir=$(pwd)
-    cd $output/app/openssl/$prefix$ver/lib
-    chmod a-x *
-    cd $olddir
-    cd ../../..
-    set_current_app openssl $prefix$ver
-    rsync -a in/openssl/ $output/app/openssl/$prefix$ver
-    strip_app openssl
-  fi
+  for ver in 3.6.3 4.0.1; do 
+    if should_make openssl $ver; then
+      download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver 1
+      cd $out/openssl/openssl-$ver
+      ./Configure
+      make all -j$cpu_num
+      create_app openssl $prefix$ver
+      mkdir $output/app/openssl/$prefix$ver/bin
+      mkdir $output/app/openssl/$prefix$ver/lib
+      cp apps/openssl $output/app/openssl/$prefix$ver/bin
+      rsync -a *.so* $output/app/openssl/$prefix$ver/lib
+      cd $output/app/openssl/$prefix$ver/lib
+      chmod a-x *so*
+      cd $curdir
+      rsync -a in/openssl/ $output/app/openssl/$prefix$ver
+      strip_app openssl
+      clean_tmp
+    fi
+  done
 fi
 if [ "$package" == "fs" ] || [ "$package" == "wget2" ]; then
   ver="2.2.1";
   if should_make wget2 $ver; then
     install_host_deps "lzip"
-    download_unpack_source https://ftp.gnu.org/gnu/wget/wget2-$ver.tar.lz wget2 wget2-$ver 0
-    create_app wget2 $prefix$ver
-    cd out/wget2/wget2-$ver
+    download_unpack_source https://ftp.gnu.org/gnu/wget/wget2-$ver.tar.lz wget2 wget2-$ver 1
+    cd $out/wget2/wget2-$ver
     ./configure
     make all -j$cpu_num
+    create_app wget2 $prefix$ver
     mkdir $output/app/wget2/$prefix$ver/bin
     mkdir $output/app/wget2/$prefix$ver/lib
     mkdir $output/app/wget2/$prefix$ver/ssl
     cp src/wget2_noinstall $output/app/wget2/$prefix$ver/bin
     rsync -a libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
-    chmod a-x $output/app/wget2/$prefix$ver/lib/*
-    cd ../../..
-    olddir=$(pwd)
+    chmod a-x $output/app/wget2/$prefix$ver/lib/*so*
     cd /etc/ssl/certs
     rsync -a -L . $output/app/wget2/$prefix$ver/ssl
-    cd $olddir
+    cd $curdir
     set_current_app wget2 $prefix$ver
     rsync -a in/wget2/ $output/app/wget2/$prefix$ver
     mv $output/app/wget2/$prefix$ver/bin/wget2_noinstall $output/app/wget2/$prefix$ver/bin/wget
     strip_app wget2
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "rsync" ]; then
   ver="3.4.4";
   if should_make rsync $ver; then
-    download_unpack_source https://download.samba.org/pub/rsync/src/rsync-$ver.tar.gz rsync rsync-$ver 0
-    create_app rsync $prefix$ver
-    cd out/rsync/rsync-$ver
+    download_unpack_source https://download.samba.org/pub/rsync/src/rsync-$ver.tar.gz rsync rsync-$ver 1
+    cd $out/rsync/rsync-$ver
     ./configure --disable-xxhash --disable-lz4
     make all -j$cpu_num
+    create_app rsync $prefix$ver
     mkdir $output/app/rsync/$prefix$ver/bin
     cp rsync $output/app/rsync/$prefix$ver/bin
-    cd ../../..
+    cd $curdir
     set_current_app rsync $prefix$ver
     rsync -a in/rsync/ $output/app/rsync/$prefix$ver
     strip_app rsync
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
   ver="1.5.7";
   if should_make zstd $ver; then
-    download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver 0
-    create_app zstd $prefix$ver
-    cd out/zstd/zstd-$ver
+    download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver 1
+    cd $out/zstd/zstd-$ver
     ./configure
     make all -j$cpu_num
+    create_app zstd $prefix$ver
     mkdir $output/app/zstd/$prefix$ver/bin
     cp programs/zstd $output/app/zstd/$prefix$ver/bin
     cp programs/zstd-compress $output/app/zstd/$prefix$ver/bin
@@ -755,52 +748,51 @@ if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
     cp programs/zstdsmall $output/app/zstd/$prefix$ver/bin
     mkdir $output/app/zstd/$prefix$ver/lib
     rsync -a lib/lib* $output/app/zstd/$prefix$ver/lib
-    olddir=$(pwd)
+    cp LICENSE $output/app/zstd/$prefix$ver
     cd $output/app/zstd/$prefix$ver/lib
     rm libzstd.so
     ln -s libzstd.so.$ver libzstd.so
     rm libzstd.so.1
     ln -s libzstd.so.$ver libzstd.so.1
-    chmod a-x *
-    cd $olddir
-    cp LICENSE $output/app/zstd/$prefix$ver
-    cd ../../..
+    chmod a-x *so*
+    cd $curdir
     set_current_app zstd $prefix$ver
-    cp LICENSE $output/app/zlib/$prefix$ver
     rsync -a in/zstd/ $output/app/zstd/$prefix$ver
     strip_app zstd
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "zlib" ]; then
   ver="1.3.2";
   if should_make zlib $ver; then
-    download_unpack_source https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver 0
-    create_app zlib $prefix$ver
-    cd out/zlib/zlib-$ver
+    download_unpack_source https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver 1
+    cd $out/zlib/zlib-$ver
     ./configure
     make all -j$cpu_num
+    create_app zlib $prefix$ver
     mkdir $output/app/zlib/$prefix$ver/lib
     rsync -a libz* $output/app/zlib/$prefix$ver/lib
-    chmod a-x $output/app/zlib/$prefix$ver/lib/*
+    chmod a-x $output/app/zlib/$prefix$ver/lib/*so*
     cp LICENSE $output/app/zlib/$prefix$ver
-    cd ../../..
+    cd $curdir
     set_current_app zlib $prefix$ver
     rsync -a in/zlib/ $output/app/zlib/$prefix$ver
     strip_app zlib
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "pcre2" ]; then
   ver="10.47";
   if should_make pcre2 $ver; then
-    download_unpack_source https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$ver/pcre2-$ver.tar.gz pcre2 pcre2-$ver 0
-    create_app pcre2 $prefix$ver
-    cd out/pcre2/pcre2-$ver
+    download_unpack_source https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$ver/pcre2-$ver.tar.gz pcre2 pcre2-$ver 1
+    cd $out/pcre2/pcre2-$ver
     ./configure --prefix=$output/app/pcre2/$prefix$ver
     make all -j$cpu_num
+    create_app pcre2 $prefix$ver
     make install
     find $output/app/pcre2/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/pcre2/$prefix$ver/lib && chmod a-x {} " \;
-    cd ../../..
-    cp out/pcre2/pcre2-$ver/LICENCE.md $output/app/pcre2/$prefix$ver
+    cd $curdir
+    cp $out/pcre2/pcre2-$ver/LICENCE.md $output/app/pcre2/$prefix$ver
     set_current_app pcre2 $prefix$ver
     rsync -a in/pcre2/ $output/app/pcre2/$prefix$ver
     strip_app pcre2
