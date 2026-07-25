@@ -12,11 +12,10 @@ This is project with operating system built around Linux kernel and Bubblewrap (
   2. simplicity for devs and users - easy to audit scripts & system structure, no unnecessary updates for existing binaries and apps (like in NixOS), etc.
   3. splitting apps and users in different way than in typical Linux distributions (gives much more security and flexibility) - you can provide and show other apps to other users, package scripts run in the sanbdbox without access to user files,
 upgrades and rollbacks are much easier, etc.
-  4. reproducible and reliable results - apps dependencies must be always clearly defined and things running in one installation will work on the other, all systems actions will be done in clearly defined user specified time, etc.
-  5. consistency
-  6. decreasing resources usage to minimum - using tmpfs where possible, eliminating bloat processes, etc.
-  7. when possible, providing real support for people with disabilities
-  8. when possible, using modern version of tools (for example wget2 instead of wget) and leaving decisions to the user (if utils-rs will be packaged, there will be always proposed original utils version as well, etc.)
+  4. reproducible and reliable results and consistency - apps dependencies must be always clearly defined and things running in one installation will work on the other, all systems actions will be done in clearly defined user specified time, etc.
+  5. decreasing resources usage to minimum - using tmpfs where possible, eliminating bloat processes, etc.
+  6. providing real support for people with disabilities
+  7. using modern version of tools (for example wget2 instead of wget) and leaving various decisions to the user without forcing them to anything - if utils-rs will be packaged, there will be always proposed original GNU utils as well, etc.
 
 When you think, this is just utopia, look on screens below - is it possible with your Linux?
 
