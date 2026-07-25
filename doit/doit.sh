@@ -59,6 +59,8 @@ download_unpack_source() {
       cd $out/$packagename
       tar -xvf $curdir/download/$localfile
       cd $unpackeddir
+    else
+      cd $out/$packagename/$unpackeddir
     fi
   else
     if [ ! -d "out/$packagename/$unpackeddir" ]; then
@@ -66,6 +68,8 @@ download_unpack_source() {
       cd out/$packagename
       tar -xvf $curdir/download/$localfile
       cd $unpackeddir
+    else
+      cd out/$packagename/$unpackeddir
     fi
   fi
 }
@@ -340,6 +344,7 @@ if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
+  # GNU C Library, not glib (gtk, gnome)
   ver="2.43";
   if should_make glibc $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
@@ -589,6 +594,7 @@ if [ "$package" == "gnupg" ]; then
     make all -j$cpu_num
     create_app gnupg $prefix$ver
     make install
+    #fixme: some errors
     set_current_app_clean_strip_cd gnupg $prefix$ver 1
   fi
 fi
@@ -743,9 +749,11 @@ if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "glib" ]; then
+  #glib (GTK, gnome), not GNU C library
   ver="2.89.1";
   if should_make glib $ver; then
-    download_unpack_source https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver 1
+    #downloading to disk because of dependencies
+    download_unpack_source https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver 0
     if [ -d "subprojects/packagefiles" ]; then
       cd subprojects
       meson subprojects download --sourcedir ..
@@ -753,8 +761,10 @@ if [ "$package" == "fs" ] || [ "$package" == "glib" ]; then
       rm -r packagecache
       rm -r packagefiles
       cd ..
-      meson setup -Dprefix=$output/app/glib/$prefix$ver --buildtype minsize _build
     fi
+    mkdir $out/glib/$prefix$ver-compile
+    ln -s $out/glib/$prefix$ver-compile _build
+    meson setup -Dprefix=$output/app/glib/$prefix$ver --buildtype minsize _build
     meson compile -C _build
     create_app glib $prefix$ver
     meson install -C _build
