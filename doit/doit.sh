@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="nftables"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="dinit"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -288,7 +288,8 @@ if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
     strip_app nftables
     find_binary_lib $output/app/nftables/$prefix$ver sbin/nft
     rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
-    find $output/app/nftables/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/nftables/$prefix$ver/lib && chmod a-x {} " \;
+    chmod a-x $output/app/nftables/$prefix$ver/lib/*so*
+    chmod a-x $output/app/nftables/$prefix$ver/lib/*la*
     set_current_app nftables $prefix$ver
     clean_tmp
   fi
@@ -297,46 +298,46 @@ if [ "$package" == "fs" ] || [ "$package" == "bwrap" ]; then
   ver="0.11.2";
   if should_make bwrap $ver; then
     install_host_deps "meson libcap-dev"
-    download_unpack_source https://github.com/containers/bubblewrap/releases/download/v$ver/bubblewrap-$ver.tar.xz bwrap bubblewrap-$ver 0
-    create_app bwrap $prefix$ver.tmp
-    mkdir app/bwrap/$prefix$ver.tmp/bin || true
-    cp in/bwrap/*.c out/bwrap/bubblewrap-$ver
-    cd out/bwrap/bubblewrap-$ver
+    download_unpack_source https://github.com/containers/bubblewrap/releases/download/v$ver/bubblewrap-$ver.tar.xz bwrap bubblewrap-$ver 1
+    cp in/bwrap/*.c $out/bwrap/bubblewrap-$ver
+    cd $out/bwrap/bubblewrap-$ver
     meson setup -Ddefault_library=static -Ddefault_both_libraries=static -Dselinux=disabled _builddir
     meson compile -C _builddir
     sed -i 's/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined \/usr\/lib\/x86_64-linux-gnu\/libcap.so/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined -static \/usr\/lib\/x86_64-linux-gnu\/libcap.a/g' _builddir/build.ninja
     meson compile -C _builddir
-    mkdir $output/app/bwrap/$prefix$ver.tmp/bin
-    cp _builddir/bwrap $output/app/bwrap/$prefix$ver.tmp/bin
-    cd ../../..
+    create_app bwrap $prefix$ver
+    mkdir $output/app/bwrap/$prefix$ver/bin
+    cp _builddir/bwrap $output/app/bwrap/$prefix$ver/bin
+    cd $curdir
     strip_app bwrap
     set_current_app bwrap $prefix$ver
     cp in/bwrap/diff $output/app/bwrap/$prefix$ver
     cp in/bwrap/diff2 $output/app/bwrap/$prefix$ver
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "dinit" ]; then
   ver="0.22.0";
   if should_make dinit $ver; then
-    download_unpack_source https://github.com/davmac314/dinit/releases/download/v$ver/dinit-$ver.tar.xz dinit dinit-$ver 0
-    create_app dinit $prefix$ver.tmp
-    mkdir app/dinit/$prefix$ver.tmp/bin || true
-    cd out/dinit/dinit-$ver
+    download_unpack_source https://github.com/davmac314/dinit/releases/download/v$ver/dinit-$ver.tar.xz dinit dinit-$ver 1
+    cd $out/dinit/dinit-$ver
     ./configure --bindir=/app/dinit/current/bin --sbindir=/app/dinit/current/bin
     sed -i 's/LDFLAGS_LIBCAP=-L\/usr\/lib64 -lcap/LDFLAGS_LIBCAP=-static -L\/usr\/lib64 -lcap/g' mconfig
     sed -i 's/$(CXX) -o $(SHUTDOWN_PREFIX)shutdown shutdown.o $(ALL_LDFLAGS)/$(CXX) -static -o $(SHUTDOWN_PREFIX)shutdown shutdown.o $(ALL_LDFLAGS)/g' src/Makefile
     make all -j$cpu_num
-    mkdir $output/app/dinit/$prefix$ver.tmp/bin
-    cp src/dinit $output/app/dinit/$prefix$ver.tmp/bin
-    cp src/dinit-check $output/app/dinit/$prefix$ver.tmp/bin
-    cp src/dinit-monitor $output/app/dinit/$prefix$ver.tmp/bin
-    cp src/dinitctl $output/app/dinit/$prefix$ver.tmp/bin
-    cp src/shutdown $output/app/dinit/$prefix$ver.tmp/bin
-    cd ../../..
-    cp in/dinit/poweroff $output/app/dinit/$prefix$ver.tmp
-    cp in/dinit/reboot $output/app/dinit/$prefix$ver.tmp
+    create_app dinit $prefix$ver
+    mkdir $output/app/dinit/$prefix$ver/bin
+    cp src/dinit $output/app/dinit/$prefix$ver/bin
+    cp src/dinit-check $output/app/dinit/$prefix$ver/bin
+    cp src/dinit-monitor $output/app/dinit/$prefix$ver/bin
+    cp src/dinitctl $output/app/dinit/$prefix$ver/bin
+    cp src/shutdown $output/app/dinit/$prefix$ver/bin
+    cd $curdir
+    cp in/dinit/poweroff $output/app/dinit/$prefix$ver
+    cp in/dinit/reboot $output/app/dinit/$prefix$ver
     strip_app dinit
     set_current_app dinit $prefix$ver
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
