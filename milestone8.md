@@ -7,22 +7,23 @@ Over years disks were magnetic and it was possible to write data again and again
 
 This changed with flash memories. They have limited number of write cycles and there are few problems visible:
 
-1. estimation of number of bytes to write in the form of TBW parameter
-is normally not given for OEM disks or some classes of devices (pendrives, chips in phones, tablets, memory cards, etc.) - you don't know,
-when they can fail
-2. diagnostic is not provided for some classes of devices - again: you don't know, if they're failing
-3. modern devices many times cost more, but have lower limits than older one (for example old 1TB SSD could have TBW 2400, new one 200) - nice progress, isn't it 
+1. estimation of number of bytes to write in the form of TBW parameter is normally not given for OEM disks or some classes of devices 
+(pendrives, chips in phones, tablets, memory cards, etc.) - you don't know, when they can fail
+2. diagnostic is not provided for some classes of devices (memory cards, etc.) - again: you don't know, if they're failing
+3. modern devices many times cost more, but have lower limits than older one (for example old 1TB SSD could have TBW 2400, new one 200) - nice progress, isn't it?
 (and no: it's more greed of some companies instead of real crysis)
 4. companies creating software for years didn't take care of number of disk writes - there are done thousands of
 operations in the background although you don't make any action
-(it includes collecting unnecessary logs, saving telemetry/spying data, making temporary operations in disk, etc.)
+(it includes collecting unnecessary logs, saving telemetry/spying data, making temporary operations in real disk, etc.)
+5. replacing memory chips can need electronic service (it happens for example with Apple Macbooks)
 
-PLLINUX during development and usage is trying to fight with problem of high usage of disk:
+PLLINUX during development and usage is trying to fight with problem of high usage of disk, for example:
 
   1. such directories like /mnt or /tmp are always maintaned in RAM
-  2. compiling software with doit.sh script can be done in RAM
-  3. app package manager is downloading and unpacking to the /tmp (RAM)
-  4. packages are or will be cleaned from useless content (in plan adding option just for installing selected locales)
+  2. compiling smaller software with [doit.sh](doit/doit.sh) script can be done in RAM
+  3. downloading files with [doit.sh](doit/doit.sh) is done in /tmp (RAM) and they're copied to download AFTER full download
+  4. [app package manager](doit/in/pllinux/helper/app.sh) is downloading and unpacking to the /tmp (RAM)
+  5. packages are or will be cleaned from useless content (in plan adding option just for installing selected locales)
 
   2. system boot log is not saved - in the future it will be probably optional or done during system startup fail
 

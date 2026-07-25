@@ -30,8 +30,8 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
 
   if [ "$ROOT_DEVICE_ID" = "rsync" ]; then
     mkdir app
-    echo Copying /app from ISO to the RAM. This will need some time.
-    /app/rsync/current/bin/rsync -a iso/app/ app
+    echo Copying /app from ISO to the RAM. This will need some time (even 20-30 seconds).
+    /app/rsync/current/bin/rsync -a --info=progress2 iso/app/ app
   else
     ln -s /iso/app app
   fi
@@ -56,7 +56,7 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
   mkdir dev
 
   mkdir etc
-  /app/rsync/current/bin/rsync -a iso/etc/ etc
+  /app/rsync/current/bin/rsync -a --info=progress2 iso/etc/ etc
 
   mkdir home
 
@@ -107,12 +107,12 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
   mkdir lib64
   if [ ! -d "etc." ]; then ln -s etc etc.; fi
   if [ ! -d "other" ]; then ln -s home/root other; fi
-  
+
   cd bin
   ln -s /sh sh
   ln -s /app/bash/current/bin/bash bash
   cd ..
-  
+
   cd lib64
   ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
   chmod a+x ld-linux-x86-64.so.2
