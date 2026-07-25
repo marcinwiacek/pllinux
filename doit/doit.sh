@@ -36,7 +36,7 @@ should_make() {
 
 # Download and unpack package
 # todo: checking checksum and package authentity
-download_unpack_source_cd() {
+download_unpack_source() {
   url=$1
   localfile=${url##*/}
   packagename=$2
@@ -58,16 +58,16 @@ download_unpack_source_cd() {
       mkdir $out/$packagename || true
       cd $out/$packagename
       tar -xvf $curdir/download/$localfile
+      cd $unpackeddir
     fi
   else
     if [ ! -d "out/$packagename/$unpackeddir" ]; then
       mkdir out/$packagename || true
       cd out/$packagename
       tar -xvf $curdir/download/$localfile
+      cd $unpackeddir
     fi
   fi
-
-  cd $curdir
 }
 
 #creating directory with the app
@@ -238,7 +238,7 @@ if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
   ver="7.1.3";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
-    download_unpack_source_cd https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver 0
+    download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver 0
     cp in/kernel/.config out/kernel/linux-$ver
     cd out/kernel/linux-$ver
     make -j$cpu_num
@@ -254,16 +254,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "busybox" ]; then
   ver="1.38.0";
   if should_make busybox $ver; then
-    download_unpack_source_cd https://busybox.net/downloads/busybox-$ver.tar.bz2 busybox busybox-$ver 1
-    cp in/busybox/.config $out/busybox/busybox-$ver
-    cd $out/busybox/busybox-$ver
+    download_unpack_source https://busybox.net/downloads/busybox-$ver.tar.bz2 busybox busybox-$ver 1
+    cp $curdir/in/busybox/.config $out/busybox/busybox-$ver
     make -j$cpu_num
     create_app busybox $prefix$ver
     cp .config $curdir/in/busybox # .config will be updated with new header and maybe options
     make CONFIG_PREFIX=$output/app/busybox/$prefix$ver install
     strip_app_cd busybox $prefix$ver
     set_current_app_clean_cd busybox $prefix$ver
-    cp in/busybox/* $output/app/busybox/$prefix$ver
+    cp $curdir/in/busybox/* $output/app/busybox/$prefix$ver
     rm $output/app/busybox/$prefix$ver/linuxrc
   fi
 fi
@@ -276,8 +275,7 @@ if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
       wget -O download/libnftnl11_1.3.1-1_amd64.deb http://mirrors.kernel.org/ubuntu/pool/main/libn/libnftnl/libnftnl11_1.3.1-1_amd64.deb
       sudo apt-get install download/libnftnl11_1.3.1-1_amd64.deb
     fi
-    download_unpack_source_cd https://netfilter.org/projects/nftables/files/nftables-$ver.tar.xz nftables nftables-$ver 1
-    cd $out/nftables/nftables-$ver
+    download_unpack_source https://netfilter.org/projects/nftables/files/nftables-$ver.tar.xz nftables nftables-$ver 1
     ./configure --prefix=$output/app/nftables/$prefix$ver
     make -j$cpu_num
     create_app nftables $prefix$ver
@@ -292,9 +290,8 @@ if [ "$package" == "fs" ] || [ "$package" == "bwrap" ]; then
   ver="0.11.2";
   if should_make bwrap $ver; then
     install_host_deps "meson libcap-dev"
-    download_unpack_source_cd https://github.com/containers/bubblewrap/releases/download/v$ver/bubblewrap-$ver.tar.xz bwrap bubblewrap-$ver 1
-    cp in/bwrap/*.c $out/bwrap/bubblewrap-$ver
-    cd $out/bwrap/bubblewrap-$ver
+    download_unpack_source https://github.com/containers/bubblewrap/releases/download/v$ver/bubblewrap-$ver.tar.xz bwrap bubblewrap-$ver 1
+    cp $curdir/in/bwrap/*.c $out/bwrap/bubblewrap-$ver
     meson setup -Ddefault_library=static -Ddefault_both_libraries=static -Dselinux=disabled _builddir
     meson compile -C _builddir
     sed -i 's/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined \/usr\/lib\/x86_64-linux-gnu\/libcap.so/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined -static \/usr\/lib\/x86_64-linux-gnu\/libcap.a/g' _builddir/build.ninja
@@ -304,15 +301,14 @@ if [ "$package" == "fs" ] || [ "$package" == "bwrap" ]; then
     cp _builddir/bwrap $output/app/bwrap/$prefix$ver/bin
     strip_app_cd bwrap
     set_current_app_clean_cd bwrap $prefix$ver
-    cp in/bwrap/diff $output/app/bwrap/$prefix$ver
-    cp in/bwrap/diff2 $output/app/bwrap/$prefix$ver
+    cp $curdir/in/bwrap/diff $output/app/bwrap/$prefix$ver
+    cp $curdir/in/bwrap/diff2 $output/app/bwrap/$prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "dinit" ]; then
   ver="0.22.0";
   if should_make dinit $ver; then
-    download_unpack_source_cd https://github.com/davmac314/dinit/releases/download/v$ver/dinit-$ver.tar.xz dinit dinit-$ver 1
-    cd $out/dinit/dinit-$ver
+    download_unpack_source https://github.com/davmac314/dinit/releases/download/v$ver/dinit-$ver.tar.xz dinit dinit-$ver 1
     ./configure --bindir=/app/dinit/current/bin --sbindir=/app/dinit/current/bin
     sed -i 's/LDFLAGS_LIBCAP=-L\/usr\/lib64 -lcap/LDFLAGS_LIBCAP=-static -L\/usr\/lib64 -lcap/g' mconfig
     sed -i 's/$(CXX) -o $(SHUTDOWN_PREFIX)shutdown shutdown.o $(ALL_LDFLAGS)/$(CXX) -static -o $(SHUTDOWN_PREFIX)shutdown shutdown.o $(ALL_LDFLAGS)/g' src/Makefile
@@ -326,8 +322,8 @@ if [ "$package" == "fs" ] || [ "$package" == "dinit" ]; then
     cp src/shutdown $output/app/dinit/$prefix$ver/bin
     strip_app_cd dinit
     set_current_app_clean_cd dinit $prefix$ver
-    cp in/dinit/poweroff $output/app/dinit/$prefix$ver
-    cp in/dinit/reboot $output/app/dinit/$prefix$ver
+    cp $curdir/in/dinit/poweroff $output/app/dinit/$prefix$ver
+    cp $curdir/in/dinit/reboot $output/app/dinit/$prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
@@ -340,7 +336,7 @@ if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
       cd $curdir
     fi
     install_host_deps "autoconf libpam0g-dev"
-    download_unpack_source_cd https://www.kernel.org/pub/linux/utils/kbd/kbd-$ver.tar.xz kbd kbd-$ver 1
+    download_unpack_source https://www.kernel.org/pub/linux/utils/kbd/kbd-$ver.tar.xz kbd kbd-$ver 1
     cd $out/kbd/kbd-$ver
     make clean
     ./configure --prefix=$output/app/kbd/$prefix$ver --datarootdir=/app/kbd/$prefix$ver/share
@@ -355,7 +351,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
   ver="2.43";
   if should_make glibc $ver; then
-    download_unpack_source_cd https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
+    download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
     mkdir $out/glibc/glibc-$ver-build
     cd $out/glibc/glibc-$ver-build
     ../glibc-$ver/configure --prefix=$output/app/glibc/$prefix$ver
@@ -373,7 +369,7 @@ if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
 fi
 #if [ "$package" == "all" ] || [ "$package" == "binutils" ]; then
 #  ver="2.46.1";
-#  download_unpack_source_cd https://sourceware.org/pub/binutils/releases/binutils-2.46.1.tar.xz binutils binutils-$ver 0
+#  download_unpack_source https://sourceware.org/pub/binutils/releases/binutils-2.46.1.tar.xz binutils binutils-$ver 0
 #  create_app binutils $prefix$ver
 #  cd out/binutils/binutils-$ver
 #  ./configure
@@ -385,7 +381,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "util-linux" ]; then
   ver="2.42";
   if should_make util-linux $ver; then
-    download_unpack_source_cd https://www.kernel.org/pub/linux/utils/util-linux/v$ver/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
+    download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
     cd $out/util-linux/util-linux-$ver
     ./configure --prefix=$output/app/util-linux/$prefix$ver --without-systemd --disable-lsfd --disable-enosys
     make all -j$cpu_num
@@ -406,7 +402,7 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
       cd $curdir
     fi
     install_host_deps "libglib2.0-dev libslang2-dev libgpm-dev"
-    download_unpack_source_cd https://ftp.osuosl.org/pub/midnightcommander/mc-$ver.tar.xz mc mc-$ver 1
+    download_unpack_source https://ftp.osuosl.org/pub/midnightcommander/mc-$ver.tar.xz mc mc-$ver 1
     cd $out/mc/mc-$ver
     # prefix value is later put into installed and binary files, which makes installation sometimes problematic
     # there were different options tried (even changing string in all files, but... it was not possible in binaries)
@@ -464,7 +460,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "bash" ]; then
   ver="5.3";
   if should_make bash $ver; then
-    download_unpack_source_cd https://ftp.gnu.org/gnu/bash/bash-$ver.tar.gz bash bash-$ver 1
+    download_unpack_source https://ftp.gnu.org/gnu/bash/bash-$ver.tar.gz bash bash-$ver 1
     cd $out/bash/bash-$ver
     ./configure --prefix=$output/app/bash/$prefix$ver
     make all -j$cpu_num
@@ -478,7 +474,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "e2fsprogs" ]; then
   ver="1.47.4";
   if should_make bash $ver; then
-    download_unpack_source_cd https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/snapshot/e2fsprogs-$ver.tar.gz e2fsprogs e2fsprogs-$ver 1
+    download_unpack_source https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/snapshot/e2fsprogs-$ver.tar.gz e2fsprogs e2fsprogs-$ver 1
     cd $out/e2fsprogs/e2fsprogs-$ver
     ./configure LDFLAGS=-static --enable-symlink-install  --enable-relative-symlinks --prefix=$output/app/e2fsprogs/$prefix$ver
     make all -j$cpu_num
@@ -527,7 +523,7 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
   ver="2.55.0";
   if should_make git $ver; then
     install_host_deps "gettext"
-    download_unpack_source_cd https://www.kernel.org/pub/software/scm/git/git-$ver.tar.xz git git-$ver 1
+    download_unpack_source https://www.kernel.org/pub/software/scm/git/git-$ver.tar.xz git git-$ver 1
     cd $out/git/git-$ver
     ./configure
     make all -j$cpu_num NO_RUST=1
@@ -543,8 +539,7 @@ fi
 if [ "$package" == "libgpg-error" ]; then
   ver="1.61";
   if should_make libgpg-error $ver; then
-    download_unpack_source_cd https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${ver}.tar.bz2 libgpg-error libgpg-error-$ver 1
-    cd $out/libgpg-error/libgpg-error-$ver
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${ver}.tar.bz2 libgpg-error libgpg-error-$ver 1
     ./configure --prefix=$output/app/libgpg-error/$prefix$ver --enable-install-gpg-error-config
     make all -j$cpu_num
     create_app libgpg-error $prefix$ver
@@ -557,7 +552,7 @@ fi
 if [ "$package" == "libgcrypt" ]; then
   ver="1.12.2";
   if should_make libgcrypt $ver; then
-    download_unpack_source_cd https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${ver}.tar.bz2 libgcrypt libgcrypt-$ver 1
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${ver}.tar.bz2 libgcrypt libgcrypt-$ver 1
     cd $out/libgcrypt/libgcrypt-$ver
     ./configure --prefix=$output/app/libgcrypt/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
     make all -j$cpu_num
@@ -571,7 +566,7 @@ fi
 if [ "$package" == "libassuan" ]; then
   ver="3.0.2";
   if should_make libassuan $ver; then
-    download_unpack_source_cd https://gnupg.org/ftp/gcrypt/libassuan/libassuan-${ver}.tar.bz2 libassuan libassuan-$ver 1
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libassuan/libassuan-${ver}.tar.bz2 libassuan libassuan-$ver 1
     cd $out/libassuan/libassuan-$ver
     ./configure --prefix=$output/app/libassuan/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
     make all -j$cpu_num
@@ -585,7 +580,7 @@ fi
 if [ "$package" == "libksba" ]; then
   ver="1.8.0";
   if should_make libksba $ver; then
-    download_unpack_source_cd https://gnupg.org/ftp/gcrypt/libksba/libksba-${ver}.tar.bz2 libksba libksba-$ver 1
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libksba/libksba-${ver}.tar.bz2 libksba libksba-$ver 1
     cd $out/libksba/libksba-$ver
     ./configure --prefix=$output/app/libksba/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
     make all -j$cpu_num
@@ -599,7 +594,7 @@ fi
 if [ "$package" == "npth" ]; then
   ver="1.8";
   if should_make npth $ver; then
-    download_unpack_source_cd https://gnupg.org/ftp/gcrypt/npth/npth-${ver}.tar.bz2 npth npth-$ver 1
+    download_unpack_source https://gnupg.org/ftp/gcrypt/npth/npth-${ver}.tar.bz2 npth npth-$ver 1
     cd $out/npth/npth-$ver
     ./configure --prefix=$output/app/npth/$prefix$ver --enable-install-npth-config
     make all -j$cpu_num
@@ -613,7 +608,7 @@ fi
 if [ "$package" == "gnupg" ]; then
   ver="2.5.21";
   if should_make gnupg $ver; then
-    download_unpack_source_cd https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${ver}.tar.bz2 gnupg gnupg-$ver 1
+    download_unpack_source https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${ver}.tar.bz2 gnupg gnupg-$ver 1
     cd $out/gnupg/gnupg-$ver
     ./configure --with-libgpg-error-prefix=$output/app/libgpg-error/current \
       --with-libgcrypt-prefix=$output/app/libgcrypt/current \
@@ -631,7 +626,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "openssl" ]; then
   for ver in 3.6.3 4.0.1; do 
     if should_make openssl $ver; then
-      download_unpack_source_cd https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver 1
+      download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver 1
       cd $out/openssl/openssl-$ver
       ./Configure
       make all -j$cpu_num
@@ -650,7 +645,7 @@ if [ "$package" == "fs" ] || [ "$package" == "wget2" ]; then
   ver="2.2.1";
   if should_make wget2 $ver; then
     install_host_deps "lzip"
-    download_unpack_source_cd https://ftp.gnu.org/gnu/wget/wget2-$ver.tar.lz wget2 wget2-$ver 1
+    download_unpack_source https://ftp.gnu.org/gnu/wget/wget2-$ver.tar.lz wget2 wget2-$ver 1
     cd $out/wget2/wget2-$ver
     ./configure
     make all -j$cpu_num
@@ -674,7 +669,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "rsync" ]; then
   ver="3.4.4";
   if should_make rsync $ver; then
-    download_unpack_source_cd https://download.samba.org/pub/rsync/src/rsync-$ver.tar.gz rsync rsync-$ver 1
+    download_unpack_source https://download.samba.org/pub/rsync/src/rsync-$ver.tar.gz rsync rsync-$ver 1
     cd $out/rsync/rsync-$ver
     ./configure --disable-xxhash --disable-lz4
     make all -j$cpu_num
@@ -691,7 +686,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
   ver="1.5.7";
   if should_make zstd $ver; then
-    download_unpack_source_cd https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver 1
+    download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver 1
     cd $out/zstd/zstd-$ver
     ./configure
     make all -j$cpu_num
@@ -722,7 +717,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "zlib" ]; then
   ver="1.3.2";
   if should_make zlib $ver; then
-    download_unpack_source_cd https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver 1
+    download_unpack_source https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver 1
     cd $out/zlib/zlib-$ver
     ./configure
     make all -j$cpu_num
@@ -741,7 +736,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "pcre2" ]; then
   ver="10.47";
   if should_make pcre2 $ver; then
-    download_unpack_source_cd https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$ver/pcre2-$ver.tar.gz pcre2 pcre2-$ver 1
+    download_unpack_source https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$ver/pcre2-$ver.tar.gz pcre2 pcre2-$ver 1
     cd $out/pcre2/pcre2-$ver
     ./configure --prefix=$output/app/pcre2/$prefix$ver
     make all -j$cpu_num
@@ -758,7 +753,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "ncurses" ]; then
   ver="6.6";
   if should_make ncurses $ver; then
-    download_unpack_source_cd https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver 0
+    download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver 0
     create_app ncurses $prefix$ver
     cd out/ncurses/ncurses-$ver
     ./configure --prefix=$output/app/ncurses/$prefix$ver --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
@@ -776,7 +771,7 @@ if [ "$package" == "fs" ] || [ "$package" == "gcc" ]; then
 #  ver="16.1.0";
   ver="14.4.0";
   if should_make gcc $ver; then
-    download_unpack_source_cd https://ftp.gnu.org/gnu/gcc/gcc-$ver/gcc-$ver.tar.xz gcc gcc-$ver 0
+    download_unpack_source https://ftp.gnu.org/gnu/gcc/gcc-$ver/gcc-$ver.tar.xz gcc gcc-$ver 0
     create_app gcc $prefix$ver
     cd out/gcc/gcc-$ver
     contrib/download_prerequisites
@@ -802,7 +797,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
   ver="2.3.3";
   if should_make slang $ver; then
-    download_unpack_source_cd https://www.jedsoft.org/releases/slang/slang-$ver.tar.bz2 slang slang-$ver 0
+    download_unpack_source https://www.jedsoft.org/releases/slang/slang-$ver.tar.bz2 slang slang-$ver 0
     create_app slang $prefix$ver
     cd out/slang/slang-$ver
     ./configure --prefix=$output/app/slang/$prefix$ver
@@ -818,7 +813,7 @@ fi
 #  ver="1.20.7";
 #  if should_make gpm $ver; then
 #    install_host_deps "libtool"
-#    download_unpack_source_cd https://github.com/telmich/gpm/archive/refs/tags/$ver.tar.gz gpm gpm-$ver 0
+#    download_unpack_source https://github.com/telmich/gpm/archive/refs/tags/$ver.tar.gz gpm gpm-$ver 0
 #    create_app gpm $prefix$ver
 #    cd out/gpm/gpm-$ver
 #    ./autogen.sh
@@ -835,7 +830,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "glib" ]; then
   ver="2.89.1";
   if should_make glib $ver; then
-    download_unpack_source_cd https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver 0
+    download_unpack_source https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver 0
     create_app glib $prefix$ver
     cd out/glib/glib-$ver
     if [ -d "subprojects/packagefiles" ]; then
@@ -862,7 +857,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "autoconf" ]; then
   ver="2.73";
   if should_make autoconf $ver; then
-    download_unpack_source_cd https://ftp.gnu.org/gnu/autoconf/autoconf-2.73.tar.xz autoconf autoconf-$ver 0
+    download_unpack_source https://ftp.gnu.org/gnu/autoconf/autoconf-2.73.tar.xz autoconf autoconf-$ver 0
     create_app autoconf $prefix$ver
     cd out/autoconf
     mkdir autoconf-$ver-build
@@ -880,7 +875,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "automake" ]; then
   ver="1.18";
   if should_make automake $ver; then
-    download_unpack_source_cd https://ftp.gnu.org/gnu/automake/automake-$ver.tar.xz automake automake-$ver 0
+    download_unpack_source https://ftp.gnu.org/gnu/automake/automake-$ver.tar.xz automake automake-$ver 0
     create_app automake $prefix$ver
     cd out/automake
     mkdir automake-$ver-build
@@ -901,7 +896,7 @@ if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
   ver="2.14";
   if should_make grub $ver; then
     install_host_deps "autoconf-archive"
-    download_unpack_source_cd https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-gub-$ver 0
+    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-gub-$ver 0
     create_app grub $prefix$ver
     cd out/grub
     mkdir grub-grub-$ver-build
@@ -921,7 +916,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
   ver="1.5.8";
   if should_make xorriso $ver; then
-    download_unpack_source_cd https://www.gnu.org/software/xorriso/xorriso-$ver.pl02.tar.gz xorriso xorriso-$ver 0
+    download_unpack_source https://www.gnu.org/software/xorriso/xorriso-$ver.pl02.tar.gz xorriso xorriso-$ver 0
     create_app xorriso $prefix$ver
     cd out/xorriso
     mkdir xorriso-$ver-build
@@ -939,7 +934,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
   ver="2026c";
   if should_make tzdata $ver; then
-    download_unpack_source_cd https://data.iana.org/time-zones/releases/tzdb-$ver.tar.lz tzdb tzdb-$ver 0
+    download_unpack_source https://data.iana.org/time-zones/releases/tzdb-$ver.tar.lz tzdb tzdb-$ver 0
     create_app tzdb $prefix$ver
     cd out/tzdb/tzdb-$ver
     make TOPDIR="$output/app/tzdb/$prefix$ver" install
@@ -951,7 +946,7 @@ fi
   # for displaying man pages
 #  ver="1.24.1";
 #  if should_make groff $ver; then
-#    download_unpack_source_cd https://ftp.gnu.org/gnu/groff/groff-$ver.tar.gz groff groff-$ver 0
+#    download_unpack_source https://ftp.gnu.org/gnu/groff/groff-$ver.tar.gz groff groff-$ver 0
 #    create_app groff $prefix$ver
 #    cd out/groff/groff-$ver
 #    ./configure --prefix=$output/app/groff/$prefix$ver
@@ -964,7 +959,7 @@ if [ "$package" == "fs" ] || [ "$package" == "man-db" ]; then
   ver="2.13.1";
   if should_make man-db $ver; then
     install_host_deps "autopoint libpipeline-dev"
-    download_unpack_source_cd https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 man-db man-db-$ver 0
+    download_unpack_source https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 man-db man-db-$ver 0
     create_app man-db $prefix$ver
     cd out/man-db/man-db-$ver
     ./bootstrap
@@ -980,7 +975,7 @@ if [ "$package" == "fs" ] || [ "$package" == "smartmontools" ]; then
   rel="7_5";
   ver="7.5";
   if should_make smartmontools $ver; then
-    download_unpack_source_cd https://github.com/smartmontools/smartmontools/releases/download/RELEASE_$rel/smartmontools-$ver.tar.gz smartmontools smartmontools-$ver 0
+    download_unpack_source https://github.com/smartmontools/smartmontools/releases/download/RELEASE_$rel/smartmontools-$ver.tar.gz smartmontools smartmontools-$ver 0
     create_app smartmontools $prefix$ver
     cd out/smartmontools/smartmontools-$ver
     ./configure --prefix=$output/app/smartmontools/$prefix$ver
@@ -996,7 +991,7 @@ if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
   rel="25-ga";
   if should_make jdk $ver; then
     install_host_deps "autopoint openjdk-25-jdk libasound2-dev libcups2-dev libfontconfig1-dev libx11-dev libxext-dev libxrender-dev libxrandr-dev libxtst-dev libxt-dev"
-    download_unpack_source_cd https://github.com/openjdk/jdk/archive/refs/tags/jdk-$rel.tar.gz jdk jdk-jdk-$ver 0
+    download_unpack_source https://github.com/openjdk/jdk/archive/refs/tags/jdk-$rel.tar.gz jdk jdk-jdk-$ver 0
     create_app jdk $prefix$ver
     cd out/jdk/jdk-jdk-$ver
     chmod a+x configure
@@ -1012,7 +1007,7 @@ if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
   # work in progress
   ver="5.42.2";
   if should_make perl $ver; then
-    download_unpack_source_cd https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 0
+    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 0
     create_app perl $prefix$ver
     cd out/perl/perl-$ver
     ./Configure -d
