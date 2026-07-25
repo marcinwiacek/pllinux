@@ -80,20 +80,12 @@ create_app() {
   if [ -f "$curdir/in/$packagename/readme.md" ]; then cp $curdir/in/$packagename/readme.md $output/app/$packagename/$version; fi
 }
 
-#strip all binaries and libraries (remove debug symbols)
-strip_app_cd() {
+set_current_app_clean_strip_cd() {
   packagename=$1
   version=$2
+  stripapp=$3
 
-  find $output/app/$packagename/$version* -type d -exec bash -c 'cd "{}" && strip * 2> /dev/null ' \;
-  cd $curdir
-}
-
-#set "current" directory to the new installed app
-set_current_app_clean_cd() {
-  packagename=$1
-  version=$2
-
+  #set "current" directory to the new installed app
   cd $output/app/$1
   rm current || true
   ln -s $version current
@@ -102,6 +94,11 @@ set_current_app_clean_cd() {
   if [ -d "$output/app/$packagename/$version/lib" ]; then
     chmod a-x $output/app/$packagename/$version/lib/*so*
     chmod a-x $output/app/$packagename/$version/lib/*la*
+  fi
+
+  if [ "$stripapp" = "1" ]; then
+    #strip all binaries and libraries (remove debug symbols)
+    find $output/app/$packagename/$version* -type d -exec bash -c 'cd "{}" && strip * 2> /dev/null ' \;
   fi
 
   if [ "$use_tmpfs" = "1" ]; then
@@ -247,8 +244,7 @@ if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
     create_app kernel $prefix$ver
     cp in/kernel/.config $output/app/kernel/$prefix$ver
     cp out/kernel/linux-$ver/arch/x86/boot/bzImage $output/app/kernel/$prefix$ver
-    strip_app_cd kernel $prefix$ver
-    set_current_app_clean_cd kernel $prefix$ver
+    set_current_app_clean_strip_cd kernel $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "busybox" ]; then
@@ -260,10 +256,9 @@ if [ "$package" == "fs" ] || [ "$package" == "busybox" ]; then
     create_app busybox $prefix$ver
     cp .config $curdir/in/busybox # .config will be updated with new header and maybe options
     make CONFIG_PREFIX=$output/app/busybox/$prefix$ver install
-    strip_app_cd busybox $prefix$ver
-    set_current_app_clean_cd busybox $prefix$ver
     cp $curdir/in/busybox/* $output/app/busybox/$prefix$ver
     rm $output/app/busybox/$prefix$ver/linuxrc
+    set_current_app_clean_strip_cd busybox $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
@@ -280,10 +275,9 @@ if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
     make -j$cpu_num
     create_app nftables $prefix$ver
     make install
-    strip_app_cd nftables
     find_binary_lib $output/app/nftables/$prefix$ver sbin/nft
-    set_current_app_clean_cd nftables $prefix$ver
     rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
+    set_current_app_clean_strip_cd nftables $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "bwrap" ]; then
@@ -299,10 +293,9 @@ if [ "$package" == "fs" ] || [ "$package" == "bwrap" ]; then
     create_app bwrap $prefix$ver
     mkdir $output/app/bwrap/$prefix$ver/bin
     cp _builddir/bwrap $output/app/bwrap/$prefix$ver/bin
-    strip_app_cd bwrap
-    set_current_app_clean_cd bwrap $prefix$ver
     cp $curdir/in/bwrap/diff $output/app/bwrap/$prefix$ver
     cp $curdir/in/bwrap/diff2 $output/app/bwrap/$prefix$ver
+    set_current_app_clean_strip_cd bwrap $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "dinit" ]; then
@@ -320,10 +313,9 @@ if [ "$package" == "fs" ] || [ "$package" == "dinit" ]; then
     cp src/dinit-monitor $output/app/dinit/$prefix$ver/bin
     cp src/dinitctl $output/app/dinit/$prefix$ver/bin
     cp src/shutdown $output/app/dinit/$prefix$ver/bin
-    strip_app_cd dinit
-    set_current_app_clean_cd dinit $prefix$ver
     cp $curdir/in/dinit/poweroff $output/app/dinit/$prefix$ver
     cp $curdir/in/dinit/reboot $output/app/dinit/$prefix$ver
+    set_current_app_clean_strip_cd dinit $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
@@ -337,21 +329,20 @@ if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
     fi
     install_host_deps "autoconf libpam0g-dev"
     download_unpack_source https://www.kernel.org/pub/linux/utils/kbd/kbd-$ver.tar.xz kbd kbd-$ver 1
-    cd $out/kbd/kbd-$ver
     make clean
     ./configure --prefix=$output/app/kbd/$prefix$ver --datarootdir=/app/kbd/$prefix$ver/share
     make -j$cpu_num
     create_app kbd $prefix$ver
     make install
-    strip_app_cd kbd
-    set_current_app_clean_cd kbd $prefix$ver
-    cp in/kbd/* $output/app/kbd/$prefix$ver
+    cp $curdir/in/kbd/* $output/app/kbd/$prefix$ver
+    set_current_app_clean_strip_cd kbd $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
   ver="2.43";
   if should_make glibc $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
+    cd ..
     mkdir $out/glibc/glibc-$ver-build
     cd $out/glibc/glibc-$ver-build
     ../glibc-$ver/configure --prefix=$output/app/glibc/$prefix$ver
@@ -359,11 +350,10 @@ if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
     make all -j$cpu_num
     create_app glibc $prefix$ver
     make install
-    strip_app_cd glibc
-    set_current_app_clean_cd glibc $prefix$ver
-    cp in/glibc/2_43_patch_ver6.txt $output/app/glibc/$prefix$ver
+    set_current_app_clean_strip_cd glibc $prefix$ver 1
     chmod a-x $output/app/glibc/$prefix$ver/lib/audit/*so*
     chmod a-x $output/app/glibc/$prefix$ver/lib/gconv/*so*
+    cp $curdir/in/glibc/2_43_patch_ver6.txt $output/app/glibc/$prefix$ver
     chmod a+x $output/app/glibc/$prefix$ver/lib/ld-linux-x86-64.so.2
   fi
 fi
@@ -382,14 +372,12 @@ if [ "$package" == "fs" ] || [ "$package" == "util-linux" ]; then
   ver="2.42";
   if should_make util-linux $ver; then
     download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
-    cd $out/util-linux/util-linux-$ver
     ./configure --prefix=$output/app/util-linux/$prefix$ver --without-systemd --disable-lsfd --disable-enosys
     make all -j$cpu_num
     create_app util-linux $prefix$ver
     make install || true
-    strip_app_cd util-linux
-    set_current_app_clean_cd util-linux $prefix$ver
-    cp in/util-linux/* $output/app/util-linux/$prefix$ver
+    cp $curdir/in/util-linux/* $output/app/util-linux/$prefix$ver
+    set_current_app_clean_strip_cd util-linux $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
@@ -403,7 +391,6 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
     fi
     install_host_deps "libglib2.0-dev libslang2-dev libgpm-dev"
     download_unpack_source https://ftp.osuosl.org/pub/midnightcommander/mc-$ver.tar.xz mc mc-$ver 1
-    cd $out/mc/mc-$ver
     # prefix value is later put into installed and binary files, which makes installation sometimes problematic
     # there were different options tried (even changing string in all files, but... it was not possible in binaries)
 #    pwdd=$(pwd)
@@ -452,37 +439,32 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
     mkdir share
     cd share
     ln -s /app/ncurses/current/share/terminfo terminfo
-    strip_app_cd mc
-    set_current_app_clean_cd mc $prefix$ver
-    cp in/mc/mc $output/app/mc/$prefix$ver
+    cp $curdir/in/mc/mc $output/app/mc/$prefix$ver
+    set_current_app_clean_strip_cd mc $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "bash" ]; then
   ver="5.3";
   if should_make bash $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/bash/bash-$ver.tar.gz bash bash-$ver 1
-    cd $out/bash/bash-$ver
     ./configure --prefix=$output/app/bash/$prefix$ver
     make all -j$cpu_num
     create_app bash $prefix$ver
     make install
-    strip_app_cd bash
-    set_current_app_clean_cd bash $prefix$ver
-    cp in/bash/* $output/app/bash/$prefix$ver
+    cp $curdir/in/bash/* $output/app/bash/$prefix$ver
+    set_current_app_clean_strip_cd bash $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "e2fsprogs" ]; then
   ver="1.47.4";
   if should_make bash $ver; then
     download_unpack_source https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/snapshot/e2fsprogs-$ver.tar.gz e2fsprogs e2fsprogs-$ver 1
-    cd $out/e2fsprogs/e2fsprogs-$ver
     ./configure LDFLAGS=-static --enable-symlink-install  --enable-relative-symlinks --prefix=$output/app/e2fsprogs/$prefix$ver
     make all -j$cpu_num
     create_app e2fsprogs $prefix$ver
     make install
-    strip_app_cd e2fsprogs
-    set_current_app_clean_cd e2fsprogs $prefix$ver
-    cp in/e2fsprogs/* $output/app/e2fsprogs/$prefix$ver
+    cp $curdir/in/e2fsprogs/* $output/app/e2fsprogs/$prefix$ver
+    set_current_app_clean_strip_cd e2fsprogs $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
@@ -509,30 +491,28 @@ if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
     cd $out/initramfs
     find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $output/app/initramfs/$prefix$ver/initramfs.gz
 
-    set_current_app_clean_cd initramfs $prefix$ver
+    set_current_app_clean_strip_cd initramfs $prefix$ver 0
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "pllinux" ]; then
   ver="0.1";
   create_app pllinux $prefix$ver
   mkdir $output/app/pllinux/$prefix$ver
-  rsync -a in/pllinux/ $output/app/pllinux/$prefix$ver
-  set_current_app_clean_cd pllinux $prefix$ver
+  rsync -a $curdir/in/pllinux/ $output/app/pllinux/$prefix$ver
+  set_current_app_clean_strip_cd pllinux $prefix$ver 0
 fi
 if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
   ver="2.55.0";
   if should_make git $ver; then
     install_host_deps "gettext"
     download_unpack_source https://www.kernel.org/pub/software/scm/git/git-$ver.tar.xz git git-$ver 1
-    cd $out/git/git-$ver
     ./configure
     make all -j$cpu_num NO_RUST=1
     create_app git $prefix$ver
 #  make install
     mkdir $output/app/git/$prefix$ver/bin
     cp git $output/app/git/$prefix$ver/bin
-    strip_app_cd git
-    set_current_app_clean_cd git $prefix$ver
+    set_current_app_clean_strip_cd git $prefix$ver 1
   fi
 fi
 # PGP
@@ -544,8 +524,7 @@ if [ "$package" == "libgpg-error" ]; then
     make all -j$cpu_num
     create_app libgpg-error $prefix$ver
     make install
-    strip_app_cd libgpg-error
-    set_current_app_clean_cd libgpg-error $prefix$ver
+    set_current_app_clean_strip_cd libgpg-error $prefix$ver 1
   fi
 fi
 # PGP
@@ -553,13 +532,11 @@ if [ "$package" == "libgcrypt" ]; then
   ver="1.12.2";
   if should_make libgcrypt $ver; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${ver}.tar.bz2 libgcrypt libgcrypt-$ver 1
-    cd $out/libgcrypt/libgcrypt-$ver
     ./configure --prefix=$output/app/libgcrypt/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
     make all -j$cpu_num
     create_app libgcrypt $prefix$ver
     make install
-    strip_app_cd libgcrypt
-    set_current_app_clean_cd libgcrypt $prefix$ver
+    set_current_app_clean_strip_cd libgcrypt $prefix$ver 1
   fi
 fi
 # PGP
@@ -567,13 +544,11 @@ if [ "$package" == "libassuan" ]; then
   ver="3.0.2";
   if should_make libassuan $ver; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/libassuan/libassuan-${ver}.tar.bz2 libassuan libassuan-$ver 1
-    cd $out/libassuan/libassuan-$ver
     ./configure --prefix=$output/app/libassuan/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
     make all -j$cpu_num
     create_app libassuan $prefix$ver
     make install
-    strip_app_cd libassuan
-    set_current_app_clean_cd libassuan $prefix$ver
+    set_current_app_clean_strip_cd libassuan $prefix$ver 1
   fi
 fi
 # PGP
@@ -581,13 +556,11 @@ if [ "$package" == "libksba" ]; then
   ver="1.8.0";
   if should_make libksba $ver; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/libksba/libksba-${ver}.tar.bz2 libksba libksba-$ver 1
-    cd $out/libksba/libksba-$ver
     ./configure --prefix=$output/app/libksba/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
     make all -j$cpu_num
     create_app libksba $prefix$ver
     make install
-    strip_app_cd libksba
-    set_current_app_clean_cd libksba $prefix$ver
+    set_current_app_clean_strip_cd libksba $prefix$ver 1
   fi
 fi
 # PGP
@@ -595,13 +568,11 @@ if [ "$package" == "npth" ]; then
   ver="1.8";
   if should_make npth $ver; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/npth/npth-${ver}.tar.bz2 npth npth-$ver 1
-    cd $out/npth/npth-$ver
     ./configure --prefix=$output/app/npth/$prefix$ver --enable-install-npth-config
     make all -j$cpu_num
     create_app npth $prefix$ver
     make install
-    strip_app_cd npth
-    set_current_app_clean_cd npth $prefix$ver
+    set_current_app_clean_strip_cd npth $prefix$ver 1
   fi
 fi
 # PGP
@@ -609,7 +580,6 @@ if [ "$package" == "gnupg" ]; then
   ver="2.5.21";
   if should_make gnupg $ver; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${ver}.tar.bz2 gnupg gnupg-$ver 1
-    cd $out/gnupg/gnupg-$ver
     ./configure --with-libgpg-error-prefix=$output/app/libgpg-error/current \
       --with-libgcrypt-prefix=$output/app/libgcrypt/current \
       --with-libassuan-prefix=$output/app/libassuan/current \
@@ -619,15 +589,13 @@ if [ "$package" == "gnupg" ]; then
     make all -j$cpu_num
     create_app gnupg $prefix$ver
     make install
-    strip_app_cd gnupg
-    set_current_app_clean_cd gnupg $prefix$ver
+    set_current_app_clean_strip_cd gnupg $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "openssl" ]; then
   for ver in 3.6.3 4.0.1; do 
     if should_make openssl $ver; then
       download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver 1
-      cd $out/openssl/openssl-$ver
       ./Configure
       make all -j$cpu_num
       create_app openssl $prefix$ver
@@ -635,9 +603,8 @@ if [ "$package" == "fs" ] || [ "$package" == "openssl" ]; then
       cp apps/openssl $output/app/openssl/$prefix$ver/bin
       mkdir $output/app/openssl/$prefix$ver/lib
       rsync -a *.so* $output/app/openssl/$prefix$ver/lib
-      strip_app_cd openssl
-      set_current_app_clean_cd openssl $prefix$ver
-      rsync -a in/openssl/ $output/app/openssl/$prefix$ver
+      rsync -a $curdir/in/openssl/ $output/app/openssl/$prefix$ver
+      set_current_app_clean_strip_cd openssl $prefix$ver 1
     fi
   done
 fi
@@ -646,7 +613,6 @@ if [ "$package" == "fs" ] || [ "$package" == "wget2" ]; then
   if should_make wget2 $ver; then
     install_host_deps "lzip"
     download_unpack_source https://ftp.gnu.org/gnu/wget/wget2-$ver.tar.lz wget2 wget2-$ver 1
-    cd $out/wget2/wget2-$ver
     ./configure
     make all -j$cpu_num
     create_app wget2 $prefix$ver
@@ -658,39 +624,33 @@ if [ "$package" == "fs" ] || [ "$package" == "wget2" ]; then
     chmod a-x $output/app/wget2/$prefix$ver/lib/*so*
     cd /etc/ssl/certs
     rsync -a -L . $output/app/wget2/$prefix$ver/ssl
-    cd $curdir
-    set_current_app_clean_cd wget2 $prefix$ver
-    rsync -a in/wget2/ $output/app/wget2/$prefix$ver
+    rsync -a $curdir/in/wget2/ $output/app/wget2/$prefix$ver
     mv $output/app/wget2/$prefix$ver/bin/wget2_noinstall $output/app/wget2/$prefix$ver/bin/wget
-    strip_app_cd wget2
-    clean_tmp
+    set_current_app_clean_strip_cd wget2 $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "rsync" ]; then
   ver="3.4.4";
   if should_make rsync $ver; then
     download_unpack_source https://download.samba.org/pub/rsync/src/rsync-$ver.tar.gz rsync rsync-$ver 1
-    cd $out/rsync/rsync-$ver
     ./configure --disable-xxhash --disable-lz4
     make all -j$cpu_num
     create_app rsync $prefix$ver
     mkdir $output/app/rsync/$prefix$ver/bin
     cp rsync $output/app/rsync/$prefix$ver/bin
-    cd $curdir
-    set_current_app_clean_cd rsync $prefix$ver
-    rsync -a in/rsync/ $output/app/rsync/$prefix$ver
-    strip_app_cd rsync
-    clean_tmp
+    rsync -a $curdir/in/rsync/ $output/app/rsync/$prefix$ver
+    set_current_app_clean_strip_cd rsync $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
   ver="1.5.7";
   if should_make zstd $ver; then
     download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver 1
-    cd $out/zstd/zstd-$ver
     ./configure
     make all -j$cpu_num
     create_app zstd $prefix$ver
+    cp LICENSE $output/app/zstd/$prefix$ver
+    rsync -a $curdir/in/zstd/ $output/app/zstd/$prefix$ver
     mkdir $output/app/zstd/$prefix$ver/bin
     cp programs/zstd $output/app/zstd/$prefix$ver/bin
     cp programs/zstd-compress $output/app/zstd/$prefix$ver/bin
@@ -700,80 +660,59 @@ if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
     cp programs/zstdsmall $output/app/zstd/$prefix$ver/bin
     mkdir $output/app/zstd/$prefix$ver/lib
     rsync -a lib/lib* $output/app/zstd/$prefix$ver/lib
-    cp LICENSE $output/app/zstd/$prefix$ver
     cd $output/app/zstd/$prefix$ver/lib
     rm libzstd.so
     ln -s libzstd.so.$ver libzstd.so
     rm libzstd.so.1
     ln -s libzstd.so.$ver libzstd.so.1
-    chmod a-x *so*
-    cd $curdir
-    set_current_app_clean_cd zstd $prefix$ver
-    rsync -a in/zstd/ $output/app/zstd/$prefix$ver
-    strip_app_cd zstd
-    clean_tmp
+    set_current_app_clean_strip_cd zstd $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "zlib" ]; then
   ver="1.3.2";
   if should_make zlib $ver; then
     download_unpack_source https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver 1
-    cd $out/zlib/zlib-$ver
     ./configure
     make all -j$cpu_num
     create_app zlib $prefix$ver
+    cp LICENSE $output/app/zlib/$prefix$ver
+    rsync -a $curdir/in/zlib/ $output/app/zlib/$prefix$ver
     mkdir $output/app/zlib/$prefix$ver/lib
     rsync -a libz* $output/app/zlib/$prefix$ver/lib
-    chmod a-x $output/app/zlib/$prefix$ver/lib/*so*
-    cp LICENSE $output/app/zlib/$prefix$ver
-    cd $curdir
-    set_current_app_clean_cd zlib $prefix$ver
-    rsync -a in/zlib/ $output/app/zlib/$prefix$ver
-    strip_app_cd zlib
-    clean_tmp
+    set_current_app_clean_strip_cd zlib $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "pcre2" ]; then
   ver="10.47";
   if should_make pcre2 $ver; then
     download_unpack_source https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$ver/pcre2-$ver.tar.gz pcre2 pcre2-$ver 1
-    cd $out/pcre2/pcre2-$ver
     ./configure --prefix=$output/app/pcre2/$prefix$ver
     make all -j$cpu_num
     create_app pcre2 $prefix$ver
     make install
-    find $output/app/pcre2/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/pcre2/$prefix$ver/lib && chmod a-x {} " \;
-    cd $curdir
     cp $out/pcre2/pcre2-$ver/LICENCE.md $output/app/pcre2/$prefix$ver
-    set_current_app_clean_cd pcre2 $prefix$ver
-    rsync -a in/pcre2/ $output/app/pcre2/$prefix$ver
-    strip_app_cd pcre2
+    rsync -a $curdir/in/pcre2/ $output/app/pcre2/$prefix$ver
+    set_current_app_clean_strip_cd pcre2 $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "ncurses" ]; then
   ver="6.6";
   if should_make ncurses $ver; then
     download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver 0
-    create_app ncurses $prefix$ver
-    cd out/ncurses/ncurses-$ver
     ./configure --prefix=$output/app/ncurses/$prefix$ver --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
     make all -j$cpu_num
+    create_app ncurses $prefix$ver
     make install
-    find $output/app/ncurses/$prefix$ver/lib/lib -type f,l -exec bash -c "cd $output/app/ncurses/$prefix$ver/lib/lib && chmod a-x {} " \;
-    cd ../../..
-    cp out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
-    set_current_app_clean_cd ncurses $prefix$ver
-    rsync -a in/ncurses/ $output/app/ncurses/$prefix$ver
-#    strip_app_cd ncurses
+    rsync -a $curdir/in/ncurses/ $output/app/ncurses/$prefix$ver
+    cp $out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
+    set_current_app_clean_strip_cd ncurses $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "gcc" ]; then
 #  ver="16.1.0";
   ver="14.4.0";
   if should_make gcc $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/gcc/gcc-$ver/gcc-$ver.tar.xz gcc gcc-$ver 0
-    create_app gcc $prefix$ver
-    cd out/gcc/gcc-$ver
+    download_unpack_source https://ftp.gnu.org/gnu/gcc/gcc-$ver/gcc-$ver.tar.xz gcc gcc-$ver 1
     contrib/download_prerequisites
     cd ..
     mkdir gcc-$ver-build
@@ -783,29 +722,24 @@ if [ "$package" == "fs" ] || [ "$package" == "gcc" ]; then
     cd gcc-$ver-build
     ../gcc-$ver/configure --enable-shared --disable-multilib --prefix= --disable-bootstrap --enable-languages=c,c++
     make all -j$cpu_num
+    create_app gcc $prefix$ver
     make DESTDIR=$output/app/gcc/$prefix$ver install-strip
     rsync -a $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
-    find $output/app/gcc/$prefix$ver/lib/lib -type f,l -exec bash -c "cd $output/app/gcc/$prefix$ver/lib/lib && chmod a-x {} " \;
     rm -r $output/app/gcc/$prefix$ver/lib64
-    cd ../../..
-    set_current_app_clean_cd gcc $prefix$ver
-    strip_app_cd gcc
-    rsync -a in/gcc/ $output/app/gcc/$prefix$ver
+    rsync -a $curdir/in/gcc/ $output/app/gcc/$prefix$ver
     remove_duplicates $output/app/gcc/$prefix$ver/bin
+    set_current_app_clean_strip_cd gcc $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
   ver="2.3.3";
   if should_make slang $ver; then
-    download_unpack_source https://www.jedsoft.org/releases/slang/slang-$ver.tar.bz2 slang slang-$ver 0
-    create_app slang $prefix$ver
-    cd out/slang/slang-$ver
+    download_unpack_source https://www.jedsoft.org/releases/slang/slang-$ver.tar.bz2 slang slang-$ver 1
     ./configure --prefix=$output/app/slang/$prefix$ver
     make all -j$cpu_num
+    create_app slang $prefix$ver
     make install
-    find $output/app/slang/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/slang/$prefix$ver/lib && chmod a-x {} " \;
-    cd ../../..
-    set_current_app_clean_cd slang $prefix$ver
+    set_current_app_clean_strip_cd slang $prefix$ver 1
   fi
 fi
 #if [ "$package" == "gpm" ]; then
@@ -824,15 +758,13 @@ fi
 #    make install
 #    chmod a-x $output/app/slang/$prefix$ver/lib/*
 #    cd ../../..
-#    set_current_app_clean_cd slang $prefix$ver
+#    set_current_app_clean_strip_cd slang $prefix$ver
 #  fi
 #fi
 if [ "$package" == "fs" ] || [ "$package" == "glib" ]; then
   ver="2.89.1";
   if should_make glib $ver; then
-    download_unpack_source https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver 0
-    create_app glib $prefix$ver
-    cd out/glib/glib-$ver
+    download_unpack_source https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver 1
     if [ -d "subprojects/packagefiles" ]; then
       cd subprojects
       meson subprojects download --sourcedir ..
@@ -843,23 +775,20 @@ if [ "$package" == "fs" ] || [ "$package" == "glib" ]; then
       meson setup -Dprefix=$output/app/glib/$prefix$ver --buildtype minsize _build
     fi
     meson compile -C _build
+    create_app glib $prefix$ver
     meson install -C _build
-    cd ../../..
     chmod a+x $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/
     chmod a-x $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/*so*
     rsync -a $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/glib/$prefix$ver/lib
     rm -r $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_cd glib $prefix$ver
-    strip_app_cd glib
-    rsync -a in/glib/ $output/app/glib/$prefix$ver
+    rsync -a $curdir/in/glib/ $output/app/glib/$prefix$ver
+    set_current_app_clean_strip_cd glib $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "autoconf" ]; then
   ver="2.73";
   if should_make autoconf $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/autoconf/autoconf-2.73.tar.xz autoconf autoconf-$ver 0
-    create_app autoconf $prefix$ver
-    cd out/autoconf
     mkdir autoconf-$ver-build
     if [ "$use_tmpfs" = "1" ]; then
       sudo mount mount -t tmpfs -o rw,noatime,nosuid autoconf-$ver-build
@@ -867,9 +796,10 @@ if [ "$package" == "fs" ] || [ "$package" == "autoconf" ]; then
     cd autoconf-$ver-build
     ../autoconf-$ver/configure --prefix=$output/app/autoconf/$prefix$ver
     make all -j$cpu_num
+    create_app autoconf $prefix$ver
     make install
     cd ../../..
-    set_current_app_clean_cd autoconf $prefix$ver
+    set_current_app_clean_strip_cd autoconf $prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "automake" ]; then
@@ -887,7 +817,7 @@ if [ "$package" == "fs" ] || [ "$package" == "automake" ]; then
     make all -j$cpu_num
     make install
     cd ../../..
-    set_current_app_clean_cd automake $prefix$ver
+    set_current_app_clean_strip_cd automake $prefix$ver
     remove_duplicates $output/app/automake/$prefix$ver/bin
   fi
 fi
@@ -910,7 +840,7 @@ if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
     make all -j$cpu_num
     make install
     cd ../../..
-    set_current_app_clean_cd grub $prefix$ver
+    set_current_app_clean_strip_cd grub $prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
@@ -928,7 +858,7 @@ if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
     make -j$cpu_num
     make install
     cd ../../..
-    set_current_app_clean_cd xorriso $prefix$ver
+    set_current_app_clean_strip_cd xorriso $prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
@@ -938,7 +868,7 @@ if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
     create_app tzdb $prefix$ver
     cd out/tzdb/tzdb-$ver
     make TOPDIR="$output/app/tzdb/$prefix$ver" install
-    set_current_app_clean_cd tzdb $prefix$ver
+    set_current_app_clean_strip_cd tzdb $prefix$ver
   fi
 fi
 #if [ "$package" == "groff" ]; then
@@ -967,7 +897,7 @@ if [ "$package" == "fs" ] || [ "$package" == "man-db" ]; then
     make -j$cpu_num
     make install
     cd ../../..
-    set_current_app_clean_cd man-db $prefix$ver
+    set_current_app_clean_strip_cd man-db $prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "smartmontools" ]; then
@@ -982,7 +912,7 @@ if [ "$package" == "fs" ] || [ "$package" == "smartmontools" ]; then
     make -j$cpu_num
     make install
     cd ../../..
-    set_current_app_clean_cd smartmontools $prefix$ver
+    set_current_app_clean_strip_cd smartmontools $prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
@@ -1000,7 +930,7 @@ if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
     make JOBS=$cpu_num images
     rsync -a build/linux-x86_64-server-release/images/jdk/* $output/app/jdk/$prefix$ver
     cd ../../..
-    set_current_app_clean_cd jdk $prefix$ver
+    set_current_app_clean_strip_cd jdk $prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
@@ -1013,7 +943,7 @@ if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
     ./Configure -d
     make -j$cpu_num
     make install
-    set_current_app_clean_cd perl $prefix$ver
+    set_current_app_clean_strip_cd perl $prefix$ver
   fi
 fi
 if [ "$package" == "iso" ]; then
