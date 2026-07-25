@@ -10,7 +10,7 @@ This is project with operating system built around Linux kernel and Bubblewrap (
 
   1. providing full possible experience and freedom with free apps and free licenses - giving them higher priority, when they're so good like other solutions, etc.
   2. simplicity for devs and users - easy to audit scripts & system structure, no unnecessary updates for existing binaries and apps (like in NixOS), etc.
-  3. splitting apps and users in different way than in typical Linux distributions (much more security and flexibility) - you can provide and show other apps to other users, package scripts run in the sanbdbox without access to user files,
+  3. splitting apps and users in different way than in typical Linux distributions (gives much more security and flexibility) - you can provide and show other apps to other users, package scripts run in the sanbdbox without access to user files,
 upgrades and rollbacks are much easier, etc.
   4. reproducible and reliable results - apps dependencies must be always clearly defined and things running in one installation will work on the other, all systems actions will be done in clearly defined user specified time, etc.
   5. consistency
