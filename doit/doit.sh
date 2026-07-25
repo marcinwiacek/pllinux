@@ -290,6 +290,7 @@ if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
     rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
     find $output/app/nftables/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/nftables/$prefix$ver/lib && chmod a-x {} " \;
     set_current_app nftables $prefix$ver
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "bwrap" ]; then
@@ -800,7 +801,7 @@ if [ "$package" == "fs" ] || [ "$package" == "pcre2" ]; then
     ./configure --prefix=$output/app/pcre2/$prefix$ver
     make all -j$cpu_num
     make install
-    chmod a-x $output/app/pcre2/$prefix$ver/lib/*
+    find $output/app/pcre2/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/pcre2/$prefix$ver/lib && chmod a-x {} " \;
     cd ../../..
     cp out/pcre2/pcre2-$ver/LICENCE.md $output/app/pcre2/$prefix$ver
     set_current_app pcre2 $prefix$ver
@@ -817,7 +818,7 @@ if [ "$package" == "fs" ] || [ "$package" == "ncurses" ]; then
     ./configure --prefix=$output/app/ncurses/$prefix$ver --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
     make all -j$cpu_num
     make install
-    chmod a-x $output/app/ncurses/$prefix$ver/lib/lib*
+    find $output/app/ncurses/$prefix$ver/lib/lib -type f,l -exec bash -c "cd $output/app/ncurses/$prefix$ver/lib/lib && chmod a-x {} " \;
     cd ../../..
     cp out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
     set_current_app ncurses $prefix$ver
@@ -843,7 +844,7 @@ if [ "$package" == "fs" ] || [ "$package" == "gcc" ]; then
     make all -j$cpu_num
     make DESTDIR=$output/app/gcc/$prefix$ver install-strip
     rsync -a $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
-    chmod a-x $output/app/gcc/$prefix$ver/lib/lib*
+    find $output/app/gcc/$prefix$ver/lib/lib -type f,l -exec bash -c "cd $output/app/gcc/$prefix$ver/lib/lib && chmod a-x {} " \;
     rm -r $output/app/gcc/$prefix$ver/lib64
     cd ../../..
     set_current_app gcc $prefix$ver
@@ -861,7 +862,7 @@ if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
     ./configure --prefix=$output/app/slang/$prefix$ver
     make all -j$cpu_num
     make install
-    chmod a-x $output/app/slang/$prefix$ver/lib/*
+    find $output/app/slang/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/slang/$prefix$ver/lib && chmod a-x {} " \;
     cd ../../..
     set_current_app slang $prefix$ver
   fi
