@@ -241,14 +241,12 @@ if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
     download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver 0
-    cp in/kernel/.config out/kernel/linux-$ver
-    cd out/kernel/linux-$ver
+    cp $curdir/in/kernel/.config $out/kernel/linux-$ver
     make -j$cpu_num
-    cd ../../..
-    cp out/kernel/linux-$ver/.config in/kernel # .config will be updated with new header and maybe options
+    cp $out/kernel/linux-$ver/.config $curdir/in/kernel # .config will be updated with new header and maybe options
     create_app kernel $prefix$ver
-    cp in/kernel/.config $output/app/kernel/$prefix$ver
-    cp out/kernel/linux-$ver/arch/x86/boot/bzImage $output/app/kernel/$prefix$ver
+    cp $in/kernel/.config $output/app/kernel/$prefix$ver
+    cp $out/kernel/linux-$ver/arch/x86/boot/bzImage $output/app/kernel/$prefix$ver
     set_current_app_clean_strip_cd kernel $prefix$ver 1
   fi
 fi
@@ -514,7 +512,7 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
     ./configure
     make all -j$cpu_num NO_RUST=1
     create_app git $prefix$ver
-#  make install
+#  fixme:make install
     mkdir $output/app/git/$prefix$ver/bin
     cp git $output/app/git/$prefix$ver/bin
     set_current_app_clean_strip_cd git $prefix$ver 1
@@ -841,6 +839,12 @@ if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
     set_current_app_clean_strip_cd jdk $prefix$ver 0
   fi
 fi
+if [ "$package" == "iso" ]; then
+  mkdir $output/boot
+  mkdir $output/boot/grub
+  cp $curdir/in/boot/* $output/boot/grub
+  sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
+fi
 #if [ "$package" == "gpm" ]; then
 #  code seems to be obsolete
 #  ver="1.20.7";
@@ -909,9 +913,6 @@ if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
     create_app grub $prefix$ver
     cd out/grub
     mkdir grub-grub-$ver-build
-#    if [ "$use_tmpfs" = "1" ]; then
-#      sudo mount mount -t tmpfs -o rw,noatime,nosuid grub-$ver-build
-#    fi
     cd grub-grub-$ver
     autoconf
     cd grub-grub-$ver-build
@@ -933,10 +934,4 @@ if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
     make install
     set_current_app_clean_strip_cd perl $prefix$ver 1
   fi
-fi
-if [ "$package" == "iso" ]; then
-  mkdir $output/boot
-  mkdir $output/boot/grub
-  cp $curdir/in/boot/* $output/boot/grub
-  sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
 fi
