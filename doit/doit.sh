@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="libgpg-error"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="gcc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -89,7 +89,6 @@ set_current_app_clean_strip_cd() {
   cd $output/app/$1
   rm current || true
   ln -s $version current
-  cd $curdir
 
   if [ -d "$output/app/$packagename/$version/lib" ]; then
     chmod a-x $output/app/$packagename/$version/lib/*so*
@@ -105,6 +104,8 @@ set_current_app_clean_strip_cd() {
     rm -r -f $out
     mkdir $out 2> /dev/null
   fi
+
+  cd $curdir
 }
 
 #install host system dependiencies, when required
@@ -140,7 +141,7 @@ create_readme() {
   fi
 }
 
-remove_duplicates() {
+remove_duplicates_cd() {
   cd $1
   while true; do
     DOITAGAIN="0"
@@ -712,22 +713,21 @@ if [ "$package" == "fs" ] || [ "$package" == "gcc" ]; then
 #  ver="16.1.0";
   ver="14.4.0";
   if should_make gcc $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/gcc/gcc-$ver/gcc-$ver.tar.xz gcc gcc-$ver 1
+    # we unpack and download prerequisities to the normal disk (to allow compilation offline)
+    # compilation can be done in tmpfs (ca. 4,3 GB)
+    download_unpack_source https://ftp.gnu.org/gnu/gcc/gcc-$ver/gcc-$ver.tar.xz gcc gcc-$ver 0
     contrib/download_prerequisites
-    cd ..
+    cd $out
     mkdir gcc-$ver-build
-    if [ "$use_tmpfs" = "1" ]; then
-      sudo mount mount -t tmpfs -o rw,noatime,nosuid gcc-$ver-build
-    fi
     cd gcc-$ver-build
-    ../gcc-$ver/configure --enable-shared --disable-multilib --prefix= --disable-bootstrap --enable-languages=c,c++
+    $curdir/out/gcc/gcc-$ver/configure --enable-shared --disable-multilib --prefix= --disable-bootstrap --enable-languages=c,c++
     make all -j$cpu_num
     create_app gcc $prefix$ver
     make DESTDIR=$output/app/gcc/$prefix$ver install-strip
     rsync -a $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
     rm -r $output/app/gcc/$prefix$ver/lib64
     rsync -a $curdir/in/gcc/ $output/app/gcc/$prefix$ver
-    remove_duplicates $output/app/gcc/$prefix$ver/bin
+    remove_duplicates_cd $output/app/gcc/$prefix$ver/bin
     set_current_app_clean_strip_cd gcc $prefix$ver 1
   fi
 fi
@@ -818,7 +818,7 @@ if [ "$package" == "fs" ] || [ "$package" == "automake" ]; then
     make install
     cd ../../..
     set_current_app_clean_strip_cd automake $prefix$ver
-    remove_duplicates $output/app/automake/$prefix$ver/bin
+    remove_duplicates_cd $output/app/automake/$prefix$ver/bin
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
@@ -866,9 +866,8 @@ if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
   if should_make tzdata $ver; then
     download_unpack_source https://data.iana.org/time-zones/releases/tzdb-$ver.tar.lz tzdb tzdb-$ver 0
     create_app tzdb $prefix$ver
-    cd out/tzdb/tzdb-$ver
     make TOPDIR="$output/app/tzdb/$prefix$ver" install
-    set_current_app_clean_strip_cd tzdb $prefix$ver
+    set_current_app_clean_strip_cd tzdb $prefix$ver 0
   fi
 fi
 #if [ "$package" == "groff" ]; then
@@ -889,15 +888,13 @@ if [ "$package" == "fs" ] || [ "$package" == "man-db" ]; then
   ver="2.13.1";
   if should_make man-db $ver; then
     install_host_deps "autopoint libpipeline-dev"
-    download_unpack_source https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 man-db man-db-$ver 0
-    create_app man-db $prefix$ver
-    cd out/man-db/man-db-$ver
+    download_unpack_source https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 man-db man-db-$ver 1
     ./bootstrap
     ./configure --prefix=$output/app/man-db/$prefix$ver
     make -j$cpu_num
+    create_app man-db $prefix$ver
     make install
-    cd ../../..
-    set_current_app_clean_strip_cd man-db $prefix$ver
+    set_current_app_clean_strip_cd man-db $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "smartmontools" ]; then
@@ -905,14 +902,12 @@ if [ "$package" == "fs" ] || [ "$package" == "smartmontools" ]; then
   rel="7_5";
   ver="7.5";
   if should_make smartmontools $ver; then
-    download_unpack_source https://github.com/smartmontools/smartmontools/releases/download/RELEASE_$rel/smartmontools-$ver.tar.gz smartmontools smartmontools-$ver 0
-    create_app smartmontools $prefix$ver
-    cd out/smartmontools/smartmontools-$ver
+    download_unpack_source https://github.com/smartmontools/smartmontools/releases/download/RELEASE_$rel/smartmontools-$ver.tar.gz smartmontools smartmontools-$ver 1
     ./configure --prefix=$output/app/smartmontools/$prefix$ver
     make -j$cpu_num
+    create_app smartmontools $prefix$ver
     make install
-    cd ../../..
-    set_current_app_clean_strip_cd smartmontools $prefix$ver
+    set_current_app_clean_strip_cd smartmontools $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
@@ -921,34 +916,31 @@ if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
   rel="25-ga";
   if should_make jdk $ver; then
     install_host_deps "autopoint openjdk-25-jdk libasound2-dev libcups2-dev libfontconfig1-dev libx11-dev libxext-dev libxrender-dev libxrandr-dev libxtst-dev libxt-dev"
-    download_unpack_source https://github.com/openjdk/jdk/archive/refs/tags/jdk-$rel.tar.gz jdk jdk-jdk-$ver 0
-    create_app jdk $prefix$ver
-    cd out/jdk/jdk-jdk-$ver
+    download_unpack_source https://github.com/openjdk/jdk/archive/refs/tags/jdk-$rel.tar.gz jdk jdk-jdk-$ver 1
     chmod a+x configure
     ./configure
     make clean
     make JOBS=$cpu_num images
+    create_app jdk $prefix$ver
     rsync -a build/linux-x86_64-server-release/images/jdk/* $output/app/jdk/$prefix$ver
-    cd ../../..
-    set_current_app_clean_strip_cd jdk $prefix$ver
+    set_current_app_clean_strip_cd jdk $prefix$ver 0
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
   # work in progress
   ver="5.42.2";
   if should_make perl $ver; then
-    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 0
-    create_app perl $prefix$ver
-    cd out/perl/perl-$ver
+    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 1
     ./Configure -d
     make -j$cpu_num
+    create_app perl $prefix$ver
     make install
-    set_current_app_clean_strip_cd perl $prefix$ver
+    set_current_app_clean_strip_cd perl $prefix$ver 1
   fi
 fi
 if [ "$package" == "iso" ]; then
   mkdir $output/boot
   mkdir $output/boot/grub
-  cp in/boot/* $output/boot/grub
+  cp $curdir/in/boot/* $output/boot/grub
   sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
 fi
