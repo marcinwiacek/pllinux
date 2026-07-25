@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="busybox"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="nftables"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -278,18 +278,17 @@ if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
       wget -O download/libnftnl11_1.3.1-1_amd64.deb http://mirrors.kernel.org/ubuntu/pool/main/libn/libnftnl/libnftnl11_1.3.1-1_amd64.deb
       sudo apt-get install download/libnftnl11_1.3.1-1_amd64.deb
     fi
-    download_unpack_source https://netfilter.org/projects/nftables/files/nftables-$ver.tar.xz nftables nftables-$ver 0
-    create_app nftables $prefix$ver
-    cd out/nftables/nftables-$ver
+    download_unpack_source https://netfilter.org/projects/nftables/files/nftables-$ver.tar.xz nftables nftables-$ver 1
+    cd $out/nftables/nftables-$ver
     ./configure --prefix=$output/app/nftables/$prefix$ver
     make -j$cpu_num
+    create_app nftables $prefix$ver
     make install
-    cd ../../..
-    cp in/nftables/nft $output/app/nftables/$prefix$ver
+    cd $curdir
     strip_app nftables
     find_binary_lib $output/app/nftables/$prefix$ver sbin/nft
     rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
-    chmod a-x $output/app/nftables/$prefix$ver/lib/*
+    find $output/app/nftables/$prefix$ver/lib -type f,l -exec bash -c "cd $output/app/nftables/$prefix$ver/lib && chmod a-x {} " \;
     set_current_app nftables $prefix$ver
   fi
 fi
