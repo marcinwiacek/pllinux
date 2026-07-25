@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="bash"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="initramfs"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk; 0 - save all to disk
@@ -500,45 +500,44 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "e2fsprogs" ]; then
   ver="1.47.4";
   if should_make bash $ver; then
-    download_unpack_source https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/snapshot/e2fsprogs-$ver.tar.gz e2fsprogs e2fsprogs-$ver 0
-    create_app e2fsprogs $prefix$ver
-    cd out/e2fsprogs/e2fsprogs-$ver
+    download_unpack_source https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/snapshot/e2fsprogs-$ver.tar.gz e2fsprogs e2fsprogs-$ver 1
+    cd $out/e2fsprogs/e2fsprogs-$ver
     ./configure LDFLAGS=-static --enable-symlink-install  --enable-relative-symlinks --prefix=$output/app/e2fsprogs/$prefix$ver
     make all -j$cpu_num
+    create_app e2fsprogs $prefix$ver
     make install
-    cd ../../..
+    cd $curdir
     cp in/e2fsprogs/* $output/app/e2fsprogs/$prefix$ver
     strip_app e2fsprogs
     set_current_app e2fsprogs $prefix$ver
+    clean_tmp
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
   ver="0.1";
   if should_make initramfs $ver; then
     create_app initramfs $prefix$ver
-    olddir=$(pwd)
-    mkdir /tmp/initramfs
-    cp in/initramfs/init /tmp/initramfs
-    mkdir /tmp/initramfs/app
-#    for app in busybox busybox glibc openssl rsync zlib zstd; do mkdir /tmp/initramfs/app/$app; rsync -a $output/app/$app/ /tmp/initramfs/app/$app; done
-    for app in busybox; do mkdir /tmp/initramfs/app/$app; rsync -a $output/app/$app/ /tmp/initramfs/app/$app; done
-    mkdir /tmp/initramfs/dev
-    mkdir /tmp/initramfs/proc
-    mkdir /tmp/initramfs/mnt
-    mkdir /tmp/initramfs/run
-    mkdir /tmp/initramfs/sys
+    mkdir $out/initramfs
+    cp in/initramfs/init $out/initramfs
+    mkdir $out/initramfs/app
+    for app in busybox; do mkdir $out/initramfs/app/$app; rsync -a $output/app/$app/ $out/initramfs/app/$app; done
+    mkdir $out/initramfs/dev
+    mkdir $out/initramfs/proc
+    mkdir $out/initramfs/mnt
+    mkdir $out/initramfs/run
+    mkdir $out/initramfs/sys
 
-    mkdir /tmp/initramfs/etc
-    mkdir /tmp/initramfs/lib64
+    mkdir $out/initramfs/etc
+    mkdir $out/initramfs/lib64
 
-    cd /tmp/initramfs/lib64
+    cd $out/initramfs/lib64
     ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
     chmod a+x ld-linux-x86-64.so.2
 
-    cd /tmp/initramfs
+    cd $out/initramfs
     find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $output/app/initramfs/$prefix$ver/initramfs.gz
-    rm -r /tmp/initramfs
-    cd $olddir
+    rm -r -f $out/initramfs
+    cd $curdir
     set_current_app initramfs $prefix$ver
   fi
 fi
