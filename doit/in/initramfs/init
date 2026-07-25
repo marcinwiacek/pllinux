@@ -13,6 +13,8 @@ do
      ROOT_DEVICE_ID=${PARAM#root=}
   fi
 done
+#ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | grep ${ROOT_DEVICE_ID#UUID=})
+
 if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
   # we don't have filesystem param or we have rsync
   # this looks like booting from iso
@@ -30,7 +32,7 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
 
   if [ "$ROOT_DEVICE_ID" = "rsync" ]; then
     mkdir app
-    echo Copying /app from ISO to the RAM. This will need some time (even 20-30 seconds).
+    echo "Copying /app from ISO to the RAM. This will need some time (even 20-30 seconds)"
     /app/rsync/current/bin/rsync -a --info=progress2 iso/app/ app
   else
     ln -s /iso/app app
@@ -120,8 +122,6 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
 else
   # we have real filesystem param
   # this looks like booting from disk
-  ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | grep ${ROOT_DEVICE_ID#UUID=})
-
   mount -r -t ext4 $ROOT_DEVICE_ID /mnt > /dev/null 2>&1
   cd /mnt
 fi
