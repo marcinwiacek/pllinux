@@ -892,20 +892,20 @@ fi
 #    set_current_app_clean_strip_cd slang $prefix$ver
 #  fi
 #fi
-if [ "$package" == "fs" ] || [ "$package" == "man-db" ]; then
+#if [ "$package" == "fs" ] || [ "$package" == "man-db" ]; then
   #work in progress
-  ver="2.13.1";
-  if should_make man-db $ver; then
-    install_host_deps "autopoint libpipeline-dev"
-    download_unpack_source https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 man-db man-db-$ver 1
-    ./bootstrap
-    ./configure --prefix=$output/app/man-db/$prefix$ver
-    make -j$cpu_num
-    create_app man-db $prefix$ver
-    make install
-    set_current_app_clean_strip_cd man-db $prefix$ver 1
-  fi
-fi
+#  ver="2.13.1";
+#  if should_make man-db $ver; then
+#    install_host_deps "autopoint libpipeline-dev"
+#    download_unpack_source https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 man-db man-db-$ver 1
+#    ./bootstrap
+#    ./configure --prefix=$output/app/man-db/$prefix$ver
+#    make -j$cpu_num
+#    create_app man-db $prefix$ver
+#    make install
+#    set_current_app_clean_strip_cd man-db $prefix$ver 1
+#  fi
+#fi
 if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
   #work in progress
   ver="2.14";
