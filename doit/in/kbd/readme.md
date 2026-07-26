@@ -8,6 +8,7 @@ https://kbd-project.org/
 
 **Deps**
 glibc current
+zlib current
 
 **PATH**
 bin
