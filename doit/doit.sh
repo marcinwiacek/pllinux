@@ -858,7 +858,7 @@ if [ "$package" == "groff" ]; then
     make all -j$cpu_num
     create_app groff $prefix$ver
     make install
-    set_current_app_clean_strip_cd groff $prefix$ver 1
+#    set_current_app_clean_strip_cd groff $prefix$ver 1
   fi
 fi
 #if [ "$package" == "gpm" ]; then
