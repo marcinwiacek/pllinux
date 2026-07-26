@@ -12,6 +12,7 @@
 # OR
 # green [time] user:folder amber git branch name $
 export PS1="\e[32m[\t] $USER:\w\$(if [ -f "/app/git/current/bin/git" ] && git rev-parse --git-dir > /dev/null 2>&1; then echo -n \" \e[33m\";git branch --show-current; fi) $ \e[m"
+#export PS1="\e[32m[\t] $USER:\w $ \e[m"
 
 processesall=0
 for ARG in "$@"
@@ -142,7 +143,11 @@ else
       IFS=" " read -r APP_NAME APP_VER << EOF
 $DEP
 EOF
-      PARAMS="$PARAMS --ro-bind app/${APP_NAME}/${APP_VER} app/${APP_NAME}/${APP_VER} "
+      if [ ! -d "/app/${APP_NAME}/${APP_VER}" ]; then
+        echo "You don't have app ${APP_NAME} ${APP_VER} in the /app (from dependency). Skipping. Some apps can not work."
+      else
+        PARAMS="$PARAMS --ro-bind app/${APP_NAME}/${APP_VER} app/${APP_NAME}/${APP_VER} "
+      fi
     fi
   done
 fi
