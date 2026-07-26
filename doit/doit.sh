@@ -937,3 +937,5 @@ if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
     set_current_app_clean_strip_cd perl $prefix$ver 1
   fi
 fi
+# rhboot/shim
+# musl libc
