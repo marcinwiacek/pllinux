@@ -686,7 +686,7 @@ if [ "$package" == "fs" ] || [ "$package" == "zlib" ]; then
     rsync -a $curdir/in/zlib/ $output/app/zlib/$prefix$ver
     mkdir $output/app/zlib/$prefix$ver/lib
     rsync -a libz* $output/app/zlib/$prefix$ver/lib
-    set_current_app_clean_strip_cd zlib $prefix$ver 0
+    set_current_app_clean_strip_cd zlib $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "pcre2" ]; then

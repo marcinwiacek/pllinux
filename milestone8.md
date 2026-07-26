@@ -22,16 +22,25 @@ or Android/MacOS saving a lot of garbage in the pendrive)
 PLLINUX during development and usage is trying to fight with problem of high usage of disk, for example:
 
   1. such directories like /mnt or /tmp are always maintaned in RAM
-  2. compiling smaller software with [doit.sh](doit/doit.sh) script can be done in RAM
+  2. compiling smaller software with [doit.sh](doit/doit.sh) script can be done and is done in RAM
   3. downloading files with [doit.sh](doit/doit.sh) is done in /tmp (RAM) and they're copied to download AFTER full download
   4. [app package manager](doit/in/pllinux/helper/app.sh) is downloading and unpacking to the /tmp (RAM)
-  5. packages are or will be cleaned from useless content (currently it includes for example eliminating duplicats, in plan adding option for installing selected locales)
+  5. packages are or will be cleaned from useless content (currently it includes for example eliminating duplicats and stripping binaries,
+in plan I have adding option for installing selected locales)
 
-  2. system boot log is not saved - in the future it will be probably optional or done during system startup fail
+  7. system boot log is not saved - in the future it will be probably optional or done during system startup fail
+
+# Localization
 
 # Logging
 
+dmesg - kernel messages
+
+# Mounting CD-ROM and memory cards
+
 # Manual pages
+
+Realized with groff and some script. Man-db is not required.
 
 # Sound
 
