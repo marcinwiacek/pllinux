@@ -40,7 +40,16 @@ dmesg - kernel messages
 
 # Manual pages
 
-Realized with groff and some script. Man-db is not required.
+Realized with groff and [some script](doit/in/groff/man). Man-db is not required. Combination of groff and other displaying tools can give different results:
+![Alt text](2026/jul_man_less)
+
+(with less)
+
+![Alt text](2026/jul_man_more)
+
+(with more)
+
+For now first step is done, for the future there must be resolved all displaying issues, support for packed files and links.
 
 # Sound
 
