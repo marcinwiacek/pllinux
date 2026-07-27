@@ -1,14 +1,12 @@
 **License**
 
 **PATH**
-bin
+usr/local/bin
 
 **Deps**
 
 **Description**
 
 **Project**
-https://www.gnu.org/software/autoconf/
 
 **Man**
-share/man/man1
