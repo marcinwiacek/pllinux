@@ -4,6 +4,7 @@
 usr/local/bin
 
 **Deps**
+libxcrypt current
 
 **Description**
 
