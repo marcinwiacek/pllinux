@@ -41,11 +41,11 @@ dmesg - kernel messages
 # Manual pages
 
 Realized with groff and [some script](doit/in/groff/man). Man-db is not required. Combination of groff and other displaying tools can give different results:
-![Alt text](2026/jul_man_less)
+![Alt text](2026/jul_man_less.png)
 
 (with less)
 
-![Alt text](2026/jul_man_more)
+![Alt text](2026/jul_man_more.png)
 
 (with more)
 
