@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="gcc"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="grub"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -919,18 +919,18 @@ if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
   ver="2.14";
   if should_make grub $ver; then
     install_host_deps "autoconf-archive"
-    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-gub-$ver 0
-    create_app grub $prefix$ver
-    cd out/grub
+    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
+    cd $out/grub
     mkdir grub-grub-$ver-build
     cd grub-grub-$ver
     autoconf
+    cd ..
     cd grub-grub-$ver-build
     ../grub-grub-$ver/configure --prefix=$output/app/grub/$prefix$ver
     make all -j$cpu_num
+    create_app grub $prefix$ver
     make install
-    cd ../../..
-    set_current_app_clean_strip_cd grub $prefix$ver
+#    set_current_app_clean_strip_cd grub $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
