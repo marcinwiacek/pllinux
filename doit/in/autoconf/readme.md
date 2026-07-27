@@ -1,4 +1,5 @@
 **License**
+GPL3+
 
 **PATH**
 bin
