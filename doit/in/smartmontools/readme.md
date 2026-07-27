@@ -10,3 +10,6 @@ glibc current
 
 **PATH**
 sbin
+
+**Man**
+share/man/man5:share/man/man8

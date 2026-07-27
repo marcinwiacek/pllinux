@@ -9,3 +9,6 @@ https://www.jedsoft.org/slang/
 
 **PATH**
 bin
+
+**Man**
+share/man/man1

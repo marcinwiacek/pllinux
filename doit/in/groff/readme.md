@@ -4,7 +4,7 @@
 
 **Description**
 
-**PATH**
+**PATH_First**
 .:bin
 
 **Deps**
@@ -12,6 +12,4 @@ gcc current
 glibc current
 
 **Man**
-share/man1
-share/man5
-share/man7
+share/man/man1:share/man/man5:share/man/man7

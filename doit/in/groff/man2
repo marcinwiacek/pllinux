@@ -1,1 +1,0 @@
-groff -M /app/groff/current/share/groff/current/tmac -F /app/groff/current/share/groff/current/font -Tascii -man $@ | more

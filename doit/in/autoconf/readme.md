@@ -10,3 +10,6 @@ bin
 
 **Project**
 https://www.gnu.org/software/autoconf/
+
+**Man**
+share/man/man1

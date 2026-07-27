@@ -10,3 +10,6 @@ glibc current
 
 **Project**
 https://www.gnupg.org/software/libgpg-error/index.html
+
+**man**
+share/man/man1

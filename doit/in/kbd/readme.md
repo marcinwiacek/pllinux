@@ -12,3 +12,6 @@ zlib current
 
 **PATH**
 bin
+
+**Man**
+share/man/man1:share/man/man5:share/man/man8

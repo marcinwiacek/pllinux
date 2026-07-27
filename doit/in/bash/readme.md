@@ -16,3 +16,6 @@ bin/bash
 **Deps**
 glibc current
 ncurses current
+
+**Man**
+share/man/man1

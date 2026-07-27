@@ -20,3 +20,6 @@ slang current
 
 **Network**
 none
+
+**Man**
+share/man/man1

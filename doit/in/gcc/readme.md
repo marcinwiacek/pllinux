@@ -12,3 +12,6 @@ zstd current
 
 **Project**
 https://gcc.gnu.org
+
+**Man**
+share/man/man1:share/man/man7

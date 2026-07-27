@@ -10,3 +10,6 @@ glibc current
 
 **Project**
 https://www.gnupg.org/software/libgcrypt/index.html
+
+**Man**
+share/man/man1

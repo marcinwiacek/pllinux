@@ -10,3 +10,6 @@ bin
 
 **Deps**
 glibc current
+
+**Man**
+share/man/man1:share/man/man3

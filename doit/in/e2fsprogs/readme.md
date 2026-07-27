@@ -11,3 +11,6 @@ glibc current
 
 **Project**
 https://e2fsprogs.sourceforge.net/
+
+**Man**
+share/man/man1:share/man/man5:share/man/man8

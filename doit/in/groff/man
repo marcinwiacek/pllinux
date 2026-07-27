@@ -1,0 +1,30 @@
+#!/app/busybox/current/bin/sh
+
+APP_LIST=$(/app/busybox/current/bin/ls /app)
+for APP_NAME in $APP_LIST; do
+  if [ -e "/app/${APP_NAME}/current/readme.md" ]; then
+    sectionMan=0
+    while read -r line; do
+      if [ "$line" = "**Man**" ]; then
+        sectionMan=1
+      elif [ "$line" = "" ]; then
+        sectionMan=0;
+      elif [ "$sectionMan" = 1 ]; then
+        IFS=":"
+        for folder in $line; do
+          if [ -d "/app/${APP_NAME}/current/$folder" ]; then
+            for nr in 1 2 3 4 5 6 7 8 9; do
+              if [ -e "/app/${APP_NAME}/current/$folder/$1.$nr" ]; then
+                groff -E -C -S -M /app/groff/current/share/groff/current/tmac \
+                   -F /app/groff/current/share/groff/current/font -Tascii -man \
+                   "/app/${APP_NAME}/current/$folder/$1.$nr" \
+                   | less -R -M -S
+                exit
+              fi
+            done
+          fi
+        done
+      fi
+    done < /app/${APP_NAME}/current/readme.md
+  fi
+done
