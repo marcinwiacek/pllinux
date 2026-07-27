@@ -855,6 +855,7 @@ if [ "$package" == "iso" ]; then
   mkdir $output/boot/grub
   cp $curdir/in/boot/* $output/boot/grub
   sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
+  rm -r $output/boot
 fi
 if [ "$package" == "groff" ]; then
   # for displaying man pages
