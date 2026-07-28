@@ -28,14 +28,18 @@ fi
 /app/busybox/current/bin/echo /app/busybox/current/sbin/mdev > /proc/sys/kernel/hotplug
 /app/busybox/current/sbin/mdev -s
 
+#export LANG=pl_PL.utf8
+
 # console font
-/app/kbd/current/bin/setfont -C /dev/tty1 sun12x22.psfu.gz 2> /dev/null
-/app/kbd/current/bin/setfont -C /dev/tty2 sun12x22.psfu.gz 2> /dev/null
-/app/kbd/current/bin/setfont -C /dev/tty3 sun12x22.psfu.gz 2> /dev/null
-/app/kbd/current/bin/setfont -C /dev/tty4 sun12x22.psfu.gz 2> /dev/null
+#/app/kbd/current/bin/setfont -C /dev/tty1 sun12x22.psfu.gz 2> /dev/null
+#/app/kbd/current/bin/setfont -C /dev/tty2 sun12x22.psfu.gz 2> /dev/null
+#/app/kbd/current/bin/setfont -C /dev/tty3 sun12x22.psfu.gz 2> /dev/null
+#/app/kbd/current/bin/setfont -C /dev/tty4 sun12x22.psfu.gz 2> /dev/null
+#/app/kbd/current/bin/setfont -C /dev/tty1 lat9u-16.psfu.gz 2> /dev/null
+#/app/kbd/current/bin/setfont -C /dev/tty1 solar24x32.psfu.gz 2> /dev/null
 
 # keyboard
-/app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/qwerty/pl2.map.gz
+#/app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/qwerty/pl4.map.gz
 
 # localtime
 ln -s /app/tzdb/current/usr/share/zoneinfo/Europe/Warsaw /etc/localtime 2> /dev/null
@@ -45,3 +49,5 @@ ln -s /app/tzdb/current/usr/share/zoneinfo/Europe/Warsaw /etc/localtime 2> /dev/
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl
+
+exec /etc/boot

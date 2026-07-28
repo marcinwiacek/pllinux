@@ -39,6 +39,7 @@ for APP_NAME in $APP_LIST; do
   fi
 done
 
+#export LANG=pl_PL.utf8
 export PATH=$path
 export SHELL=/app/busybox/current/bin/sh
 export HOME=/other/app/sh

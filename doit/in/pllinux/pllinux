@@ -1,38 +1,43 @@
+/etc/boot
 OPT=""
+KEYB=""
 while true; do
   if [ "$KEYB" = "" ] || [ "$OPT" = "def" ]; then
-    echo "What national characters do you want to see or write? (please provide two characters ISO code like like us, pl, etc.)"
+    echo "What national characters do you want to see or write? (pls provide two characters ISO code like like us, pl, etc.)"
     read lang
-    KEYB=""
-    SCR=""
+    KEYB="qwerty/pl4.map.gz"
+    FONT="sun12x22.psfu.gz"
     if [ $lang = "pl" ]; then
-      KEYB="pl1.map.gz"
-      SCR="Lat-GrkCyr-8x16.psfu.gz"
+      KEYB="qwerty/pl1.map.gz"
+      FONT="LatGrkCyr-8x16.psfu.gz"
     fi
   fi
-  echo "Keyboard $KEYB, screen font $SCR"
-  setfont
-  setscreen
-  echo "Write some text to check or quit (no saving) or keyb (set keyboard) or scr (set font) or save (save & exit) or def (set default)"
+  /app/kbd/current/bin/setfont -C /dev/tty1 $FONT
+  /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB
+  echo "Keyboard $KEYB, screen font $FONT"
+  echo "Write some text to check or quit (no saving) or keyb (set keyboard) or font (set font) or save (save & exit) or def (set default)"
   read OPT
   case $OPT in
     keyb)
-      ls ....
-      ls ....
-      ls ....
-      input x
-      if [ -e "" ]; then
-        KEYB=$x
-      elif [ -e "" ]; then
+      ls /app/kbd/current/share/keymaps/i386/qwerty
+      ls /app/kbd/current/share/keymaps/i386/azerty
+      ls /app/kbd/current/share/keymaps/i386/qwertz
+      read x
+      if [ -e "/app/kbd/current/share/keymaps/i386/qwerty/$x" ]; then
+        KEYB="qwerty/$x"
+      elif [ -e "/app/kbd/current/share/keymaps/i386/azerty/$x" ]; then
+        KEYB="azerty/$x"
+      elif [ -e "/app/kbd/current/share/keymaps/i386/qwertz/$x" ]; then
+        KEYB="qwertz/$x"
       else
         echo Keyboard file $x not found. Ignoring.
       fi
       ;;
-    scr)
-      ls ....
-      input x
-      if [ -e "" ]; then
-        SRC=$x
+    font)
+      ls /app/kbd/current/share/consolefonts
+      read x
+      if [ -e "/app/kbd/current/share/consolefonts/$x" ]; then
+        FONT="$x"
       else
         echo Screen font file $x not found. Ignoring.
       fi
@@ -45,5 +50,11 @@ while true; do
       ;;
   esac
 done
-echo
-echo
+echo "KEYB=$KEYB" > /etc/boot
+echo "FONT=$FONT" >> /etc/boot
+echo "/app/kbd/current/bin/setfont -C /dev/tty1 $FONT 2> /dev/null" >> /etc/boot
+echo "/app/kbd/current/bin/setfont -C /dev/tty2 $FONT 2> /dev/null" >> /etc/boot
+echo "/app/kbd/current/bin/setfont -C /dev/tty3 $FONT 2> /dev/null" >> /etc/boot
+echo "/app/kbd/current/bin/setfont -C /dev/tty4 $FONT 2> /dev/null" >> /etc/boot
+echo "/app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB" >> /etc/boot
+chmod a+x /etc/boot
