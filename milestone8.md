@@ -28,7 +28,18 @@ PLLINUX during development and usage is trying to fight with problem of high usa
   5. packages are or will be cleaned from useless content (currently it includes for example eliminating duplicats and stripping binaries,
 in plan I have adding option for installing selected locales)
 
-  7. system boot log is not saved - in the future it will be probably optional or done during system startup fail
+# Manual pages
+
+Realized with groff and [some script](doit/in/groff/man). Man-db is not required. Combination of groff and other displaying tools can give different results:
+![Alt text](2026/jul_man_less.png)
+
+(with less)
+
+![Alt text](2026/jul_man_more.png)
+
+(with more)
+
+For now first step is done, for the future there must be resolved all displaying issues, support for packed files and links.
 
 # Localization
 
@@ -52,21 +63,15 @@ But what about displaying and typing national characters? boot.sh from PLLinux h
     # keyboard
     /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/qwerty/pl1.map.gz
 
-and it didn't work.
-
-# Manual pages
-
-Realized with groff and [some script](doit/in/groff/man). Man-db is not required. Combination of groff and other displaying tools can give different results:
-![Alt text](2026/jul_man_less.png)
-
-(with less)
-
-![Alt text](2026/jul_man_more.png)
-
-(with more)
-
-For now first step is done, for the future there must be resolved all displaying issues, support for packed files and links.
+and it didn't work. The solution was changing font - it was found, that it's highest time to help user in this. We require some configurator in this moment.
 
 # Configurator
+
+Initially simple shell script, which makes two things:
+
+1. gives series of questions and is creating system config file
+2. takes system config file and makes updates according to it
+
+This design helps with preparing automated installations in the future.
 
 [Prev page](milestone7.md) [Next page](milestone9.md)
