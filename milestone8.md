@@ -72,6 +72,7 @@ Initially simple shell script, which makes two things:
 1. gives series of questions and is creating system config file
 2. takes system config file and makes updates according to it
 
-This design helps with preparing automated installations in the future.
+This design helps with preparing automated installations in the future. Script is named nomen omen pllinux (which seems to be very logical, similiar
+to the name of the script managing apps called app)
 
 [Prev page](milestone7.md) [Next page](milestone9.md)
