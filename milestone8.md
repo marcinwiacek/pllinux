@@ -1,4 +1,4 @@
-[Prev page](milestone7.md) [Next page]
+[Prev page](milestone7.md) [Next page](milestone9.md)
 
 # Milestone 8
 # SSD writes
@@ -54,18 +54,6 @@ But what about displaying and typing national characters? boot.sh from PLLinux h
 
 and it didn't work.
 
-# Logging
-
-dmesg - kernel messages
-
-# Mounting CD-ROM and memory cards
-
-In the Linux CD-ROM is handled with SCSI
-
-echo 0 0 0 > /sys/class/scsi_host/host*/scan
-
-echo - - - > /sys/class/scsi_host/host*/scan
-
 # Manual pages
 
 Realized with groff and [some script](doit/in/groff/man). Man-db is not required. Combination of groff and other displaying tools can give different results:
@@ -79,6 +67,6 @@ Realized with groff and [some script](doit/in/groff/man). Man-db is not required
 
 For now first step is done, for the future there must be resolved all displaying issues, support for packed files and links.
 
-# Sound
+# Configurator
 
-# CPU microcode and kernel packages
+[Prev page](milestone7.md) [Next page](milestone9.md)
