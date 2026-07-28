@@ -1,0 +1,49 @@
+OPT=""
+while true; do
+  if [ "$KEYB" = "" ] || [ "$OPT" = "def" ]; then
+    echo "What national characters do you want to see or write? (please provide two characters ISO code like like us, pl, etc.)"
+    read lang
+    KEYB=""
+    SCR=""
+    if [ $lang = "pl" ]; then
+      KEYB="pl1.map.gz"
+      SCR="Lat-GrkCyr-8x16.psfu.gz"
+    fi
+  fi
+  echo "Keyboard $KEYB, screen font $SCR"
+  setfont
+  setscreen
+  echo "Write some text to check or quit (no saving) or keyb (set keyboard) or scr (set font) or save (save & exit) or def (set default)"
+  read OPT
+  case $OPT in
+    keyb)
+      ls ....
+      ls ....
+      ls ....
+      input x
+      if [ -e "" ]; then
+        KEYB=$x
+      elif [ -e "" ]; then
+      else
+        echo Keyboard file $x not found. Ignoring.
+      fi
+      ;;
+    scr)
+      ls ....
+      input x
+      if [ -e "" ]; then
+        SRC=$x
+      else
+        echo Screen font file $x not found. Ignoring.
+      fi
+      ;;
+    quit)
+      return
+      ;;
+    save)
+      break;
+      ;;
+  esac
+done
+echo
+echo

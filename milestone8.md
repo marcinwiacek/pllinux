@@ -32,11 +32,39 @@ in plan I have adding option for installing selected locales)
 
 # Localization
 
+Many applications in PLLINUX are using Glibc. It has got command **locale -a** for showing all available locales, to generate new one you need to make something like:
+
+**localedef -i pl_PL -c -f UTF-8 pl_PL.UTF-8**
+
+This is creating file **locale-archive** in the **/app/glibc/.../lib/locale** (making this is ideal case for script running during installing glibc package). Later it's enough to make something like
+
+**export LANG=pl_PL.utf8**
+
+and applications will start displaying in your favourite language (if localization was prepared and it's setup in correct folder).
+
+But what about displaying and typing national characters? boot.sh from PLLinux has got initially lines:
+
+    # console font
+    /app/kbd/current/bin/setfont -C /dev/tty1 sun12x22.psfu.gz 2> /dev/null
+    /app/kbd/current/bin/setfont -C /dev/tty2 sun12x22.psfu.gz 2> /dev/null
+    /app/kbd/current/bin/setfont -C /dev/tty3 sun12x22.psfu.gz 2> /dev/null
+    /app/kbd/current/bin/setfont -C /dev/tty4 sun12x22.psfu.gz 2> /dev/null
+    # keyboard
+    /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/qwerty/pl1.map.gz
+
+and it didn't work.
+
 # Logging
 
 dmesg - kernel messages
 
 # Mounting CD-ROM and memory cards
+
+In the Linux CD-ROM is handled with SCSI
+
+echo 0 0 0 > /sys/class/scsi_host/host*/scan
+
+echo - - - > /sys/class/scsi_host/host*/scan
 
 # Manual pages
 
