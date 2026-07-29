@@ -1,5 +1,5 @@
 **License**
-Excluding busybox and script from busybox - I don't care
+Excluding script dhcp4.sh from busybox - I don't care
 
 **Project**
 [GitHub](https://github.com/marcinwiacek/pllinux)
