@@ -69,10 +69,11 @@ and it didn't work. The solution was changing font - it was found, that it's hig
 
 Initially simple shell script, which makes two things:
 
-1. gives series of questions and is creating system config file
-2. takes system config file and makes updates according to it
+1. gives series of questions and is creating [system config file /etc/pllinux.cfg](doit/in/etc/pllinux.cfg)
+2. takes system config file and makes updates based on it
 
-This design helps with preparing automated installations in the future. Script is named nomen omen pllinux (which seems to be very logical, similiar
-to the name of the script managing apps called app)
+This design helps with preparing automated installations in the future. [New script is named nomen omen pllinux](doit/in/pllinux/pllinux) (which seems to be very logical especially that [script managing /app is called app.sh and called from app command](doit/in/pllinux/helper/app.sh))
+
+Note: during playing with some options it was found, that Polish keyboard layouts are not very good.
 
 [Prev page](milestone7.md) [Next page](milestone9.md)
