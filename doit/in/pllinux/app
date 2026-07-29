@@ -1,7 +1,5 @@
 #!/app/busybox/current/bin/sh
-#DIR=$(dirname $0)
-#echo $DIR
-#ls $DIR
+# Starting app.sh without access to user files
 /app/bwrap/current/bin/bwrap \
     --unshare-all \
     --share-net \
