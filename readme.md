@@ -18,6 +18,7 @@ upgrades and rollbacks are much easier, etc.
   7. using modern version of tools (for example wget2 instead of wget) and leaving various decisions to the user without forcing them to anything - if utils-rs will be packaged, there will be always proposed original GNU utils as well, etc.
 
 When this is not enough, I invite to reading short text [Why PLLinux?](https://mwiacek.com/www/?q=node/642).
+
 When you still think, this is just utopia, look on screens below - is it possible with your Linux?
 
 ![Memory](2026/jun_mc_root.png)
