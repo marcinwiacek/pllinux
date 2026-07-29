@@ -45,7 +45,7 @@ Currently in early alpha. Some things are done and many still todo:
  9. [Milestone 9 - logging, sound, CPU microcode and kernel packages]
  10. Milestone 10 - dbus? AppArmor? SeLinux?
  11. Milestone 11 - more packages, software compiling, etc.
- 12. Milestone 12 - installation
+ 12. Milestone 12 - installation, Secure Boot/Shim
  14. Milestone 14 - graphic UI
  15. Milestone 15 - big party?
 
