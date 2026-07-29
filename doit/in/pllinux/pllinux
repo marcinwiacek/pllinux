@@ -1,4 +1,10 @@
-# Part of PLLINUX. Version from 28 July 2026. Creating system cfg from cfg file or asking user and creating cfg file.
+# Part of PLLINUX. Version from 30 July 2026. Creating system cfg from cfg file or asking user and creating cfg file.
+
+# some default values
+TIMEZONE="UTC"
+KEYB="qwerty/pl4.map.gz"
+FONT="sun12x22.psfu.gz"
+OPT="def"
 
 CFGFILE="/etc/pllinux.cfg"
 if [ "$1" != "" ]; then
@@ -12,25 +18,35 @@ EOF
     case $PARAM_NAME in
     *KEYB* )
       /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$PARAM_VALUE
+      KEYB=$PARAM_VALUE
+      OPT=""
       ;;
     *FONT* )
       /app/kbd/current/bin/setfont -C /dev/tty1 $PARAM_VALUE 2> /dev/null
       /app/kbd/current/bin/setfont -C /dev/tty2 $PARAM_VALUE 2> /dev/null
       /app/kbd/current/bin/setfont -C /dev/tty3 $PARAM_VALUE 2> /dev/null
       /app/kbd/current/bin/setfont -C /dev/tty4 $PARAM_VALUE 2> /dev/null
+      FONT=$PARAM_VALUE
+      OPT=""
       ;;
     *TIMEZONE* )
       CURRENT=$(realpath /etc/localtime)
+#      echo $CURRENT
       # save SSD writes
-      if [ "$CURRENT" != "/app/tzdb/current/usr/share/zoneinfo/$PARAM_VALUE" ]; then
-        echo Setting timezone
-        ln -s /app/tzdb/current/usr/share/zoneinfo/$PARAM_VALUE /etc/localtime
-      else
-        echo Skipping setting timezone
-      fi
+      case $CURRENT in
+        *$PARAM_VALUE* )
+#          echo Skipping setting timezone
+          ;;
+        * )
+          echo Setting timezone $PARAM_VALUE
+          rm /etc/localtime
+          ln -s /app/tzdb/current/usr/share/zoneinfo/$PARAM_VALUE /etc/localtime
+      esac
+      TIMEZONE=$PARAM_VALUE
       ;;
     *LANG* )
       export LANG=$PARAM_VALUE
+      LANG=$PARAM_VALUE
       ;;
     esac
   done < $CFGFILE
@@ -39,9 +55,8 @@ if [ "$1" != "" ]; then
   exit
 fi
 
-OPT="def"
 while true; do
-  echo "Step 1/3 - keyboard and screen font"
+  echo "Step 1/2 - keyboard and screen font"
   if [ "$OPT" = "def" ]; then
     echo "  What national characters do you want to see or write? (pls provide two characters ISO code like us, pl, etc.)"
     read lang
@@ -62,10 +77,10 @@ while true; do
       ls /app/kbd/current/share/keymaps/i386/qwerty
       ls /app/kbd/current/share/keymaps/i386/azerty
       ls /app/kbd/current/share/keymaps/i386/qwertz
-      echo "  Write one of displayed keyboard names"
+      echo "  Please give keyboard name"
       read x
       if [ "$x" = "" ]; then
-        echo "Value cannot be empty"
+        echo "  Value cannot be empty. Ignoring"
       elif [ -e "/app/kbd/current/share/keymaps/i386/qwerty/$x" ]; then
         KEYB="qwerty/$x"
       elif [ -e "/app/kbd/current/share/keymaps/i386/azerty/$x" ]; then
@@ -73,19 +88,19 @@ while true; do
       elif [ -e "/app/kbd/current/share/keymaps/i386/qwertz/$x" ]; then
         KEYB="qwertz/$x"
       else
-        echo Keyboard file \"$x\" not found. Ignoring.
+        echo "  Keyboard file \"$x\" not found. Ignoring."
       fi
       ;;
     font)
       ls /app/kbd/current/share/consolefonts
-      echo "  Write one of displayed fonts"
+      echo "  Please give font name"
       read x
       if [ "$x" = "" ]; then
-        echo "Value cannot be empty"
+        echo "  Value cannot be empty. Ignoring"
       elif [ -e "/app/kbd/current/share/consolefonts/$x" ]; then
         FONT="$x"
       else
-        echo Screen font file \"$x\" not found. Ignoring.
+        echo "  Screen font file \"$x\" not found. Ignoring."
       fi
       ;;
     quit)
@@ -96,12 +111,9 @@ while true; do
       ;;
   esac
 done
-echo "KEYB=$KEYB" > /etc/pllinux.cfg
-echo "FONT=$FONT" >> /etc/pllinux.cfg
 
-TIMEZONE="UTC";
 while true; do
-  echo "Step 2/3 - timezone"
+  echo "Step 2/2 - timezone"
   echo "  Selected timezone $TIMEZONE";
   ls /app/tzdb/current/usr/share/zoneinfo
   echo "  Please enter region or timezone name or \"quit\" (no saving) or \"save\" (save & go further)"
@@ -113,9 +125,9 @@ while true; do
     save)
       break;
       ;;
-    *)     
-      if [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz" ]; then
-        TIMEZONE=$tz
+    *)
+      if [ "$tz" = "" ]; then
+        echo "  Value cannot be empty. Ignoring"
       elif [ -d "/app/tzdb/current/usr/share/zoneinfo/$tz" ]; then
         ls /app/tzdb/current/usr/share/zoneinfo/$tz
         echo "  Please enter timezone name or \"quit\" (no saving) or \"save\" (save & go further)"
@@ -127,20 +139,30 @@ while true; do
           save)
             break;
             ;;
-          *)     
-            if [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz/$tz2" ]; then
+          *)
+            if [ "$tz2" = "" ]; then
+              echo "  Value cannot be empty. Ignoring"
+            elif [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz/$tz2" ]; then
               TIMEZONE=$tz/$tz2
             else
               echo "  Timezone file \"$tz/$tz2\" not found. Ignoring"
-            fi  
+            fi
             ;;
         esac
+      elif [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz" ]; then
+        TIMEZONE=$tz
+      else
+        echo "  Timezone file \"$tz\" not found. Ignoring"
+      fi
       ;;
   esac
 done
+
+echo "# Created by script pllinux version from 30 Jul 2026" > /etc/pllinux.cfg
+echo "KEYB=$KEYB" >> /etc/pllinux.cfg
+echo "FONT=$FONT" >> /etc/pllinux.cfg
 echo "TIMEZONE=$TIMEZONE" >> /etc/pllinux.cfg
 
 #localedef -i pl_PL -c -f UTF-8 pl_PL.UTF-8
-
 localedef -i en_US -c -f UTF-8 en_US.UTF-8
-echo "LANG=en_US.UFT-8" >> /etc/pllinux.cfg
+echo "LANG=en_US.UTF-8" >> /etc/pllinux.cfg
