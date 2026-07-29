@@ -8,9 +8,11 @@ Excluding script from busybox - I don't care
 Some crucial scripts and services for PLLINUX.
 
 **Deps**
-util-linux current
+busybox current
 bwrap current
+kbd current
 tzdb current
+util-linux current
 
 **Services**
 boot
