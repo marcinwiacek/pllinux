@@ -19,6 +19,19 @@ EOF
       /app/kbd/current/bin/setfont -C /dev/tty3 $PARAM_VALUE 2> /dev/null
       /app/kbd/current/bin/setfont -C /dev/tty4 $PARAM_VALUE 2> /dev/null
       ;;
+    *TIMEZONE* )
+      CURRENT=$(realpath /etc/localtime)
+      # save SSD writes
+      if [ "$CURRENT" != "/app/tzdb/current/usr/share/zoneinfo/$PARAM_VALUE" ]; then
+        echo Setting timezone
+        ln -s /app/tzdb/current/usr/share/zoneinfo/$PARAM_VALUE /etc/localtime
+      else
+        echo Skipping setting timezone
+      fi
+      ;;
+    *LANG* )
+      export LANG=$PARAM_VALUE
+      ;;
     esac
   done < $CFGFILE
 fi
@@ -28,7 +41,7 @@ fi
 
 OPT="def"
 while true; do
-  echo "Step 1/1 - keyboard and screen font"
+  echo "Step 1/3 - keyboard and screen font"
   if [ "$OPT" = "def" ]; then
     echo "  What national characters do you want to see or write? (pls provide two characters ISO code like us, pl, etc.)"
     read lang
@@ -39,7 +52,7 @@ while true; do
       FONT="LatGrkCyr-8x16.psfu.gz"
     fi
   fi
-  echo "  Keyboard $KEYB, screen font $FONT"
+  echo "  Selected keyboard $KEYB, screen font $FONT"
   /app/kbd/current/bin/setfont -C /dev/tty1 $FONT
   /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB
   echo "  Write some text to check or \"quit\" (no saving) or \"keyb\" (set keyboard) or \"font\" (set font) or \"save\" (save & go further) or \"def\" (set default)"
@@ -85,3 +98,49 @@ while true; do
 done
 echo "KEYB=$KEYB" > /etc/pllinux.cfg
 echo "FONT=$FONT" >> /etc/pllinux.cfg
+
+TIMEZONE="UTC";
+while true; do
+  echo "Step 2/3 - timezone"
+  echo "  Selected timezone $TIMEZONE";
+  ls /app/tzdb/current/usr/share/zoneinfo
+  echo "  Please enter region or timezone name or \"quit\" (no saving) or \"save\" (save & go further)"
+  read tz
+  case $tz in
+    quit)
+      return
+      ;;
+    save)
+      break;
+      ;;
+    *)     
+      if [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz" ]; then
+        TIMEZONE=$tz
+      elif [ -d "/app/tzdb/current/usr/share/zoneinfo/$tz" ]; then
+        ls /app/tzdb/current/usr/share/zoneinfo/$tz
+        echo "  Please enter timezone name or \"quit\" (no saving) or \"save\" (save & go further)"
+        read tz2
+        case $tz2 in
+          quit)
+            return
+            ;;
+          save)
+            break;
+            ;;
+          *)     
+            if [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz/$tz2" ]; then
+              TIMEZONE=$tz/$tz2
+            else
+              echo "  Timezone file \"$tz/$tz2\" not found. Ignoring"
+            fi  
+            ;;
+        esac
+      ;;
+  esac
+done
+echo "TIMEZONE=$TIMEZONE" >> /etc/pllinux.cfg
+
+#localedef -i pl_PL -c -f UTF-8 pl_PL.UTF-8
+
+localedef -i en_US -c -f UTF-8 en_US.UTF-8
+echo "LANG=en_US.UFT-8" >> /etc/pllinux.cfg
