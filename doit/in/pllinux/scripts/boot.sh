@@ -34,4 +34,4 @@ fi
 # firewall rules
 /app/nftables/current/sbin/nft -f /etc/network/nftables/inet-filter.nft
 
-/app/pllinux/current/pllinux /etc/pllinux.cfg
+/app/pllinux/current/pllinux /etc/pllinux.conf

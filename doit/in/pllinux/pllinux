@@ -8,7 +8,7 @@ FONT="sun12x22.psfu.gz"
 LANG="en_US.UTF-8"
 OPT="def"
 
-CFGFILE="/etc/pllinux.cfg"
+CFGFILE="/etc/pllinux.conf"
 if [ "$1" != "" ]; then
   CFGFILE="$1"
 fi
@@ -202,11 +202,11 @@ while true; do
 done
 
 #FIXME: dont save, when file is not updated. Save SSD
-echo "# Created by script pllinux version from 2 Aug 2026" > /etc/pllinux.cfg
-echo "KEYB=$KEYB" >> /etc/pllinux.cfg
-echo "FONT=$FONT" >> /etc/pllinux.cfg
-echo "TIMEZONE=$TIMEZONE" >> /etc/pllinux.cfg
+echo "# Created by script pllinux version from 2 Aug 2026" > /etc/pllinux.conf
+echo "KEYB=$KEYB" >> /etc/pllinux.conf
+echo "FONT=$FONT" >> /etc/pllinux.conf
+echo "TIMEZONE=$TIMEZONE" >> /etc/pllinux.conf
 
 #localedef -i pl_PL -c -f UTF-8 pl_PL.UTF-8
 localedef -i en_US -c -f UTF-8 en_US.UTF-8
-echo "LANG=en_US.UTF-8" >> /etc/pllinux.cfg
+echo "LANG=en_US.UTF-8" >> /etc/pllinux.conf
