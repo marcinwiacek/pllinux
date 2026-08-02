@@ -19,6 +19,13 @@ for APP_NAME in $APP_LIST; do
                    -F /app/groff/current/share/groff/current/font -Tascii -man \
                    "/app/${APP_NAME}/current/$folder/$1.$nr" \
                    | less -R -M -S
+#                   | more
+                exit
+              elif [ -e "/app/${APP_NAME}/current/$folder/$1.$nr.gz" ]; then
+                gunzip -c "/app/${APP_NAME}/current/$folder/$1.$nr.gz" | \
+                groff -E -C -S -M /app/groff/current/share/groff/current/tmac \
+                   -F /app/groff/current/share/groff/current/font -Tascii -man \
+                   | less -R -M -S
                 exit
               fi
             done
