@@ -1,4 +1,4 @@
-[Next page](milestone0.md)
+[Next page](yz_milestone0.md)
 
 *"...I'm doing a (free) operating system (just a hobby, won't be big and
 professional like GNU) for Intel and AMD CPU clones. This has been
@@ -35,16 +35,16 @@ When you still think, this is just utopia, look on screens below - is it possibl
 
 Currently in early alpha. Some things are done and many still todo:
 
- 0. [Milestone 0 - more deep initial info](milestone0.md)
- 1. [Milestone 1 - development environment, booting process, filesystem structure, core components, rebooting](milestone1.md)
- 2. [Milestone 2 - mounting USB devices](milestone2.md)
- 3. [Milestone 3 - app folder structure, network, dynamic linking and interpreters (again), packages, system in this moment](milestone3.md)
- 4. [Milestone 4 - real packet manager](milestone4.md)
- 5. [Milestone 5 - new packages and options](milestone5.md)
- 6. [Milestone 6 - hacking ld-linux-x86-64.ld.so2 / dynamic loader searching for apps inside /app](milestone6.md)
- 7. [Milestone 7 - Creating booting ISO image](milestone7.md)
- 8. [Milestone 8 - SSD writes, localization, manual pages, configurator](milestone8.md)
- 9. [Milestone 9 - logging, sound, CPU microcode and kernel packages]
+ 0. [Milestone 0 - more deep initial info](yz_milestone0.md)
+ 1. [Milestone 1 - development environment, booting process, filesystem structure, core components, rebooting](yy_milestone1.md)
+ 2. [Milestone 2 - mounting USB devices](yx_milestone2.md)
+ 3. [Milestone 3 - app folder structure, network, dynamic linking and interpreters (again), packages, system in this moment](yw_milestone3.md)
+ 4. [Milestone 4 - real packet manager](yv_milestone4.md)
+ 5. [Milestone 5 - new packages and options](yu_milestone5.md)
+ 6. [Milestone 6 - hacking ld-linux-x86-64.ld.so2 / dynamic loader searching for apps inside /app](yt_milestone6.md)
+ 7. [Milestone 7 - Creating booting ISO image](ys_milestone7.md)
+ 8. [Milestone 8 - SSD writes, localization, manual pages, configurator](yr_milestone8.md)
+ 9. [Milestone 9 - scheduler, logging, sound, CPU microcode and kernel packages]
  10. Milestone 10 - dbus? AppArmor? SeLinux?
  11. Milestone 11 - more packages, software compiling and matrioszka (compiling PLLinux from PLLinux), etc.
  12. Milestone 12 - installation with partitioning, Secure Boot and shim
@@ -90,4 +90,4 @@ In the future there will be of course created ISO and installer.
 
 Use for example GitHub or marcin ( at ) mwiacek ( dot ) com. I'm not answering very fast, but in the end it always happens.
 
-[Next page](milestone0.md)
+[Next page](yz_milestone0.md)

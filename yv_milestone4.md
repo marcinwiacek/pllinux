@@ -1,4 +1,4 @@
-[Prev page](milestone3.md) [Next page](milestone5.md)
+[Prev page](yw_milestone3.md) [Next page](yu_milestone5.md)
 
 # Milestone 4
 # Packaging versioning discussion
@@ -143,4 +143,4 @@ Anyway, first successfull upgrade from remote repo in real PLLINUX was done 9 Ju
 
 ![first app.sh upgrade](2026/jul_update.png)
 
-[Prev page](milestone3.md) [Next page](milestone5.md)
+[Prev page](yw_milestone3.md) [Next page](yu_milestone5.md)

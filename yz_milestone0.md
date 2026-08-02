@@ -1,4 +1,4 @@
-[Prev page](readme.md) [Next page](milestone1.md)
+[Prev page](readme.md) [Next page](yy_milestone1.md)
 
 # Milestone 0
 # Let's make Linux great. Again?
@@ -107,4 +107,4 @@ it's possible for example to repackage binaries from other distros (which can im
 
 We want to say again - if some understanding or some actions somewhere are wrong, please contact us (We will treat all legal issues very seriously).
 
-[Prev page](readme.md) [Next page](milestone1.md)
+[Prev page](readme.md) [Next page](yy_milestone1.md)

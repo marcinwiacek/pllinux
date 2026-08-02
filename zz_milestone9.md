@@ -1,6 +1,8 @@
-[Prev page](milestone8.md) [Next page]
+[Prev page](yr_milestone8.md) [Next page]
 
 # Milestone 9
+# Scheduler
+
 # Logging
 
 dmesg - kernel messages
@@ -16,3 +18,5 @@ echo - - - > /sys/class/scsi_host/host*/scan
 # Sound
 
 # CPU microcode and kernel packages
+
+[Prev page](yr_milestone8.md) [Next page]

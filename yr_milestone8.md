@@ -1,4 +1,4 @@
-[Prev page](milestone7.md) [Next page](milestone9.md)
+[Prev page](ys_milestone7.md) [Next page](zz_milestone9.md)
 
 # Milestone 8
 # SSD writes
@@ -76,4 +76,4 @@ This design helps with preparing automated installations in the future. [New scr
 
 Note: during playing with some options it was found, that Polish keyboard layouts are not very good.
 
-[Prev page](milestone7.md) [Next page](milestone9.md)
+[Prev page](ys_milestone7.md) [Next page](zz_milestone9.md)
