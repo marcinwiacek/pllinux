@@ -1,9 +1,11 @@
-# Part of PLLINUX. Version from 30 July 2026. Creating system cfg from cfg file or asking user and creating cfg file.
+#!/app/busybox/current/bin/sh
+# Part of PLLINUX. Version from 2 Aug 2026. Creating system cfg from cfg file or asking user and creating cfg file.
 
 # some default values
 TIMEZONE="UTC"
 KEYB="qwerty/pl4.map.gz"
 FONT="sun12x22.psfu.gz"
+LANG="en_US.UTF-8"
 OPT="def"
 
 CFGFILE="/etc/pllinux.cfg"
@@ -55,110 +57,152 @@ if [ "$1" != "" ]; then
   exit
 fi
 
-while true; do
-  echo "Step 1/2 - keyboard and screen font"
-  if [ "$OPT" = "def" ]; then
-    echo "  What national characters do you want to see or write? (pls provide two characters ISO code like us, pl, etc.)"
-    read lang
-    KEYB="qwerty/pl4.map.gz"
-    FONT="sun12x22.psfu.gz"
-    if [ $lang = "pl" ]; then
-      KEYB="qwerty/pl1.map.gz"
-      FONT="LatGrkCyr-8x16.psfu.gz"
+set_keyboard_font() {
+  KEYB2=$KEYB
+  FONT2=$FONT
+  while true; do
+    if [ "$OPT" = "def" ]; then
+      echo "  What national characters do you want to see or write? (pls provide two characters ISO code like us, pl, etc.)"
+      read lang
+      if [ ${#lang} != 2 ]; then
+        echo "  Unknown country code. Ignoring."
+      else
+        KEYB2="qwerty/pl4.map.gz"
+        FONT2="sun12x22.psfu.gz"
+        if [ $lang = "pl" ]; then
+          KEYB2="qwerty/pl1.map.gz"
+          FONT2="LatGrkCyr-8x16.psfu.gz"
+        fi
+      fi
     fi
-  fi
-  echo "  Selected keyboard $KEYB, screen font $FONT"
+    echo "  Selected keyboard $KEYB2, screen font $FONT2"
+    /app/kbd/current/bin/setfont -C /dev/tty1 $FONT2
+    /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB2
+    echo "  Write some text to check or \"back\" (no saving & back to main menu) or \"keyb\" (set keyboard) or \"font\" (set font) or \"save\" (save & back to main menu) or \"def\" (set default)"
+    read OPT
+    case $OPT in
+      keyb)
+        ls /app/kbd/current/share/keymaps/i386/qwerty
+        ls /app/kbd/current/share/keymaps/i386/azerty
+        ls /app/kbd/current/share/keymaps/i386/qwertz
+        echo "  Please give keyboard name"
+        read x
+        if [ "$x" = "" ]; then
+          echo "  Value cannot be empty. Ignoring"
+        elif [ -e "/app/kbd/current/share/keymaps/i386/qwerty/$x" ]; then
+          KEYB2="qwerty/$x"
+        elif [ -e "/app/kbd/current/share/keymaps/i386/azerty/$x" ]; then
+          KEYB2="azerty/$x"
+        elif [ -e "/app/kbd/current/share/keymaps/i386/qwertz/$x" ]; then
+          KEYB2="qwertz/$x"
+        else
+          echo "  Keyboard file \"$x\" not found. Ignoring."
+        fi
+        ;;
+      font)
+        ls /app/kbd/current/share/consolefonts
+        echo "  Please give font name"
+        read x
+        if [ "$x" = "" ]; then
+          echo "  Value cannot be empty. Ignoring"
+        elif [ -e "/app/kbd/current/share/consolefonts/$x" ]; then
+          FONT2="$x"
+        else
+          echo "  Screen font file \"$x\" not found. Ignoring."
+        fi
+        ;;
+      back)
+        KEYB2=$KEYB
+        FONT2=$FONT
+        break;
+        ;;
+      save)
+        break;
+        ;;
+    esac
+  done
+  KEYB=$KEYB2
+  FONT=$FONT2
   /app/kbd/current/bin/setfont -C /dev/tty1 $FONT
   /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB
-  echo "  Write some text to check or \"quit\" (no saving) or \"keyb\" (set keyboard) or \"font\" (set font) or \"save\" (save & go further) or \"def\" (set default)"
-  read OPT
-  case $OPT in
-    keyb)
-      ls /app/kbd/current/share/keymaps/i386/qwerty
-      ls /app/kbd/current/share/keymaps/i386/azerty
-      ls /app/kbd/current/share/keymaps/i386/qwertz
-      echo "  Please give keyboard name"
-      read x
-      if [ "$x" = "" ]; then
-        echo "  Value cannot be empty. Ignoring"
-      elif [ -e "/app/kbd/current/share/keymaps/i386/qwerty/$x" ]; then
-        KEYB="qwerty/$x"
-      elif [ -e "/app/kbd/current/share/keymaps/i386/azerty/$x" ]; then
-        KEYB="azerty/$x"
-      elif [ -e "/app/kbd/current/share/keymaps/i386/qwertz/$x" ]; then
-        KEYB="qwertz/$x"
-      else
-        echo "  Keyboard file \"$x\" not found. Ignoring."
-      fi
-      ;;
-    font)
-      ls /app/kbd/current/share/consolefonts
-      echo "  Please give font name"
-      read x
-      if [ "$x" = "" ]; then
-        echo "  Value cannot be empty. Ignoring"
-      elif [ -e "/app/kbd/current/share/consolefonts/$x" ]; then
-        FONT="$x"
-      else
-        echo "  Screen font file \"$x\" not found. Ignoring."
-      fi
-      ;;
-    quit)
-      return
-      ;;
-    save)
-      break;
-      ;;
-  esac
-done
+}
+
+set_time_zone() {
+  TIMEZONE2=$TIMEZONE
+  while true; do
+    echo "  Selected timezone $TIMEZONE2";
+    ls /app/tzdb/current/usr/share/zoneinfo
+    echo "  Please enter region or timezone name or \"back\" (no saving) or \"save\" (save & go further)"
+    read tz
+    case $tz in
+      back)
+        TIMEZONE2=$TIMEZONE
+        break
+        ;;
+      save)
+        break;
+        ;;
+      *)
+        if [ "$tz" = "" ]; then
+          echo "  Value cannot be empty. Ignoring"
+        elif [ -d "/app/tzdb/current/usr/share/zoneinfo/$tz" ]; then
+          ls /app/tzdb/current/usr/share/zoneinfo/$tz
+          echo "  Please enter timezone name or \"back\" (no saving & back to main menu) or \"save\" (save & back to main menu)"
+          read tz2
+          case $tz2 in
+            back)
+              TIMEZONE2=$TIMEZONE
+              break;
+              ;;
+            save)
+              break;
+              ;;
+            *)
+              if [ "$tz2" = "" ]; then
+                echo "  Value cannot be empty. Ignoring"
+              elif [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz/$tz2" ]; then
+                TIMEZONE2=$tz/$tz2
+              else
+                echo "  Timezone file \"$tz/$tz2\" not found. Ignoring"
+              fi
+              ;;
+          esac
+        elif [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz" ]; then
+          TIMEZONE2=$tz
+        else
+          echo "  Timezone file \"$tz\" not found. Ignoring"
+        fi
+        ;;
+    esac
+  done
+  TIMEZONE=$TIMEZONE2
+}
 
 while true; do
-  echo "Step 2/2 - timezone"
-  echo "  Selected timezone $TIMEZONE";
-  ls /app/tzdb/current/usr/share/zoneinfo
-  echo "  Please enter region or timezone name or \"quit\" (no saving) or \"save\" (save & go further)"
-  read tz
-  case $tz in
-    quit)
+  echo "Selected keyboard $KEYB, screen font $FONT, timezone $TIMEZONE, app language $LANG"
+  echo "Enter \"save\" (save to disk & quit) or \"quit\" (quit without changes) or \"input\" (set keyboard and font) or \"zone\" (set timezone)"
+  read cmd
+  case $cmd in
+    *input* )
+      set_keyboard_font
+      ;;
+    *zone* )
+      set_time_zone
+      ;;
+    *quit* )
       return
       ;;
-    save)
+    *save* )
       break;
       ;;
     *)
-      if [ "$tz" = "" ]; then
-        echo "  Value cannot be empty. Ignoring"
-      elif [ -d "/app/tzdb/current/usr/share/zoneinfo/$tz" ]; then
-        ls /app/tzdb/current/usr/share/zoneinfo/$tz
-        echo "  Please enter timezone name or \"quit\" (no saving) or \"save\" (save & go further)"
-        read tz2
-        case $tz2 in
-          quit)
-            return
-            ;;
-          save)
-            break;
-            ;;
-          *)
-            if [ "$tz2" = "" ]; then
-              echo "  Value cannot be empty. Ignoring"
-            elif [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz/$tz2" ]; then
-              TIMEZONE=$tz/$tz2
-            else
-              echo "  Timezone file \"$tz/$tz2\" not found. Ignoring"
-            fi
-            ;;
-        esac
-      elif [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz" ]; then
-        TIMEZONE=$tz
-      else
-        echo "  Timezone file \"$tz\" not found. Ignoring"
-      fi
+      echo "Unknown option. Ignoring"
       ;;
   esac
 done
 
-echo "# Created by script pllinux version from 30 Jul 2026" > /etc/pllinux.cfg
+#FIXME: dont save, when file is not updated. Save SSD
+echo "# Created by script pllinux version from 2 Aug 2026" > /etc/pllinux.cfg
 echo "KEYB=$KEYB" >> /etc/pllinux.cfg
 echo "FONT=$FONT" >> /etc/pllinux.cfg
 echo "TIMEZONE=$TIMEZONE" >> /etc/pllinux.cfg
