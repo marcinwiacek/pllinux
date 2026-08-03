@@ -529,7 +529,7 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
   fi
 fi
 # PGP
-if [ "$package" == "libgpg-error" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "libgpg-error" ]; then
   ver="1.61";
   if should_make libgpg-error $ver; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${ver}.tar.bz2 libgpg-error libgpg-error-$ver 1
@@ -541,7 +541,7 @@ if [ "$package" == "libgpg-error" ]; then
   fi
 fi
 # PGP
-if [ "$package" == "libgcrypt" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "libgcrypt" ]; then
   ver="1.12.2";
   if should_make libgcrypt $ver; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${ver}.tar.bz2 libgcrypt libgcrypt-$ver 1
@@ -553,7 +553,7 @@ if [ "$package" == "libgcrypt" ]; then
   fi
 fi
 # PGP
-if [ "$package" == "libassuan" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "libassuan" ]; then
   ver="3.0.2";
   if should_make libassuan $ver; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/libassuan/libassuan-${ver}.tar.bz2 libassuan libassuan-$ver 1
@@ -565,7 +565,7 @@ if [ "$package" == "libassuan" ]; then
   fi
 fi
 # PGP
-if [ "$package" == "libksba" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "libksba" ]; then
   ver="1.8.0";
   if should_make libksba $ver; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/libksba/libksba-${ver}.tar.bz2 libksba libksba-$ver 1
@@ -577,7 +577,7 @@ if [ "$package" == "libksba" ]; then
   fi
 fi
 # PGP
-if [ "$package" == "npth" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "npth" ]; then
   ver="1.8";
   if should_make npth $ver; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/npth/npth-${ver}.tar.bz2 npth npth-$ver 1
@@ -589,7 +589,7 @@ if [ "$package" == "npth" ]; then
   fi
 fi
 # PGP
-if [ "$package" == "gnupg" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "gnupg" ]; then
   ver="2.5.21";
   if should_make gnupg $ver; then
     download_unpack_source https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${ver}.tar.bz2 gnupg gnupg-$ver 1
@@ -857,7 +857,7 @@ if [ "$package" == "iso" ]; then
   sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
   rm -r $output/boot
 fi
-if [ "$package" == "groff" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "groff" ]; then
   # for displaying man pages
   ver="1.24.1";
   if should_make groff $ver; then
