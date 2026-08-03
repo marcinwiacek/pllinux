@@ -1,6 +1,8 @@
 #!/app/busybox/current/bin/sh
 export PATH=/app/busybox/current/bin:/app/busybox/current/sbin
 
+#export LD_PLLINUX_DEBUG=1
+
 # check root filesystem and make it rw
 KERNEL_PARAMS=$(/app/busybox/current/bin/cat /proc/cmdline $X | /app/busybox/current/bin/tr " ")
 ROOT_DEVICE_ID=""

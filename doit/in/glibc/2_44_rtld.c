@@ -1339,8 +1339,11 @@ _dl_start_args_adjust (int skip_args, int skip_env)
 }
 
 //mw
+bool pllinux_debug = false;
+
+//mw
 static void* mw_find_pllinux_path(const char *rtldprog) {
-  _dl_error_printf ("PLLINUX ");
+  if (pllinux_debug) _dl_error_printf ("PLLINUX ");
   char *rp = (char *)malloc(1000);
 
   char rp2[3];
@@ -1357,7 +1360,7 @@ static void* mw_find_pllinux_path(const char *rtldprog) {
     strcpy(rp,rtldprog);
   }
 
-  _dl_error_printf (rp);
+  if (pllinux_debug) _dl_error_printf (rp);
 //  _dl_error_printf (rp2);
 
   int prefixLen = 0;
@@ -1434,14 +1437,16 @@ static void* mw_find_pllinux_path(const char *rtldprog) {
     }
   }
 
-  rp2[0]='-';
-  rp2[1]=0;
-  _dl_error_printf (rp2);
-  _dl_error_printf(finalstr);
-  rp2[0]='-';
-  rp2[1]=10;
-  rp2[2]=0;
-  _dl_error_printf (rp2);
+  if (pllinux_debug) {
+    rp2[0]='-';
+    rp2[1]=0;
+    _dl_error_printf (rp2);
+    _dl_error_printf(finalstr);
+    rp2[0]='-';
+    rp2[1]=10;
+    rp2[2]=0;
+    _dl_error_printf (rp2);
+  }
 
   return finalstr;
 }
@@ -2672,6 +2677,13 @@ process_envvars_secure (struct dl_main_state *state)
 	  if (memcmp (envline, "PRELOAD", 7) == 0)
 	    state->preloadlist = &envline[8];
 	  break;
+
+        //mw
+	case 13:
+	  if (memcmp (envline, "PLLINUX_DEBUG", 13) == 0)
+              pllinux_debug = true;
+	  break;
+
 	}
     }
 
@@ -2794,6 +2806,8 @@ process_envvars_default (struct dl_main_state *state)
 	    GLRO(dl_origin_path) = &envline[12];
 	  break;
 
+
+
 	case 12:
 	  /* The library search path.  */
 	  if (memcmp (envline, "LIBRARY_PATH", 12) == 0)
@@ -2812,6 +2826,12 @@ process_envvars_default (struct dl_main_state *state)
 
 	  if (memcmp (envline, "DYNAMIC_WEAK", 12) == 0)
 	    GLRO(dl_dynamic_weak) = 1;
+	  break;
+
+        //mw
+	case 13:
+	  if (memcmp (envline, "PLLINUX_DEBUG", 13) == 0)
+              pllinux_debug = true;
 	  break;
 
 	case 14:
