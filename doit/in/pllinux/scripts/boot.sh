@@ -18,6 +18,11 @@ if [ "$ROOT_DEVICE_ID" != "" ] && [ "$ROOT_DEVICE_ID" != "rsync" ]; then
   /app/busybox/current/bin/mount -o remount $ROOT_DEVICE_ID /
 fi
 
+if [ ! -x /app/glibc/current/lib/ld-linux-x86-64.so.2 ]; then
+  echo "/app/glibc/current/lib/ld-linux-x86-64.so.2 not executable. Fixing"
+  chmod a+x /app/glibc/current/lib/ld-linux-x86-64.so.2
+fi
+
 # allow propagating /mnt mount into bwrap sandboxes
 /app/util-linux/current/bin/mount --make-shared /mnt
 
