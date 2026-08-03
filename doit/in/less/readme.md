@@ -6,6 +6,7 @@ bin
 
 **Deps**
 glibc current
+ncurses current
 
 **Description**
 
