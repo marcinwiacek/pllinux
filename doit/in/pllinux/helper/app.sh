@@ -730,9 +730,13 @@ EOF
         echo "Creating backup file ${APP_NAME}_${APP_VER}.tar"
         rm -r /tmp/app 2> /dev/null
         mkdir /tmp/app
-        tar cfJ /tmp/app/${APP_NAME}_${APP_VER}.tar.xz --exclude dynamic -C ${DIR}app/${APP_NAME}/${APP_VER} .
+#        tar cfJ /tmp/app/${APP_NAME}_${APP_VER}.tar.xz --exclude dynamic -C ${DIR}app/${APP_NAME}/${APP_VER} .
+        echo -n "  First part: "
+        tar cf - --exclude dynamic -C ${DIR}app/${APP_NAME}/${APP_VER} . -P | xz -v > /tmp/app/${APP_NAME}_${APP_VER}.tar.xz
         openssl dgst -sign app.privkey -keyform PEM -sha256 -out /tmp/app/${APP_NAME}_${APP_VER}.tar.xz.sig -binary /tmp/app/${APP_NAME}_${APP_VER}.tar.xz
-        tar cfJ ${APP_NAME}_${APP_VER}.tar -C /tmp/app .
+        echo -n "  Second part: "
+#        tar cfJ ${APP_NAME}_${APP_VER}.tar -C /tmp/app .
+        tar cf - -C /tmp/app . -P | xz -v -1 > ${APP_NAME}_${APP_VER}.tar
         rm -r /tmp/app
       else
         echo "No app $APP_NAME $APP_VER. Probably not resolved dependency in some other app. Skipping"
