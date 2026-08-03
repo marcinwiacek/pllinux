@@ -1,4 +1,4 @@
-[Prev page](yy_milestone1.md) [Next page](yw_milestone3.md)
+[Prev page](file_yy_milestone1.md) [Next page](file_yw_milestone3.md)
 
 # Milestone 2
 # Mounting USB devices
@@ -48,4 +48,4 @@ In PLINUX there is created script making first part, in the future for encrypted
 
 One funny limitation: mdev needs /bin/sh link for interpreter - doesn't honor SHELL variable and doesn't show any error, when link doesn't exist.
 
-[Prev page](yy_milestone1.md) [Next page](yw_milestone3.md)
+[Prev page](file_yy_milestone1.md) [Next page](file_yw_milestone3.md)

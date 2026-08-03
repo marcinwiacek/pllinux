@@ -1,4 +1,4 @@
-[Prev page](yz_milestone0.md) [Next page](yx_milestone2.md)
+[Prev page](file_yz_milestone0.md) [Next page](file_yx_milestone2.md)
 
 # Milestone 1
 # Development environment
@@ -216,4 +216,4 @@ with non-root users we had to give read/write permissions to the /run/dinitctl.
   * to login: use root/root, user/user, user2/user2
   * to switching consoles in Virtualbox: right Ctrl+F1, right Ctrl+F2, etc.
 
-[Prev page](yz_milestone0.md) [Next page](yx_milestone2.md)
+[Prev page](file_yz_milestone0.md) [Next page](file_yx_milestone2.md)

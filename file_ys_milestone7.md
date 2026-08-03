@@ -1,4 +1,4 @@
-[Prev page](yt_milestone6.md) [Next page](yr_milestone8.md)
+[Prev page](file_yt_milestone6.md) [Next page](file_yr_milestone8.md)
 
 # Milestone 7
 # Creating booting ISO image
@@ -85,4 +85,4 @@ Option, where every app is linked to the application from the /mnt/iso/app seems
 
 It was not further investigated. In the end ISO is created with two boot menu options (one for rw /app, one for ro /app). This required some cosmetic changes in dynamic loader (it should recognize PLLINUX app running from app folder in different locations). Additionally code was moved from initramfsiso into main initramfs. Mission complete in this moment.
 
-[Prev page](yt_milestone6.md) [Next page](yr_milestone8.md)
+[Prev page](file_yt_milestone6.md) [Next page](file_yr_milestone8.md)

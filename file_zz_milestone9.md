@@ -1,4 +1,4 @@
-[Prev page](yr_milestone8.md) [Next page]
+[Prev page](file_yr_milestone8.md) [Next page]
 
 # Milestone 9
 # Scheduler
@@ -19,4 +19,4 @@ echo - - - > /sys/class/scsi_host/host*/scan
 
 # CPU microcode and kernel packages
 
-[Prev page](yr_milestone8.md) [Next page]
+[Prev page](file_yr_milestone8.md) [Next page]

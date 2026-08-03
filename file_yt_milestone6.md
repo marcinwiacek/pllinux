@@ -1,4 +1,4 @@
-[Prev page](yu_milestone5.md) [Next page](ys_milestone7.md)
+[Prev page](file_yu_milestone5.md) [Next page](file_ys_milestone7.md)
 
 # Milestone 6
 # Hacking ld-linux-x86-64.so.2
@@ -65,4 +65,4 @@ etc.
 
 In this moment it covers the most important cases (we don't have only version with "-" and we don't search for dependencies from dependencies).
 
-[Prev page](yu_milestone5.md) [Next page](ys_milestone7.md)
+[Prev page](file_yu_milestone5.md) [Next page](file_ys_milestone7.md)

@@ -1,4 +1,4 @@
-[Prev page](yx_milestone2.md) [Next page](yv_milestone4.md)
+[Prev page](file_yx_milestone2.md) [Next page](file_yv_milestone4.md)
 
 # Milestone 3
 # App folder structure
@@ -121,4 +121,4 @@ Generally in this moment system boots, has access to the internet with firewall 
 
 Everything, what created human, has got issues. The problem is, that various things in GNU systems are overcomplicated and without projects like PLLINUX they will stay with us forever - for example I would like to be more than happy to see dynamical loader in the form of normal binary (not library) - it would be easier to replace it with something more adequate to PLLINUX (it could be even shell script running "real" dynamic loader with options)
 
-[Prev page](yx_milestone2.md) [Next page](yv_milestone4.md)
+[Prev page](file_yx_milestone2.md) [Next page](file_yv_milestone4.md)

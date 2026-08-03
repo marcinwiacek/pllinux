@@ -1,4 +1,4 @@
-[Prev page](yv_milestone4.md) [Next page](yt_milestone6.md)
+[Prev page](file_yv_milestone4.md) [Next page](file_yt_milestone6.md)
 
 # Milestone 5
 # New packages and options
@@ -36,4 +36,4 @@ It was so easier to understand than thousands of lines from automake, etc.
 Anyway, I'm not complaining. For now I'm working mainly on machine with 16GB RAM/7840HS and this is still mostly enough. There are new elements added (this stabilization phase will continue probably over few days or weeks)
 and there is bigger and bigger need of having correct dynamic loader.
 
-[Prev page](yv_milestone4.md) [Next page](yt_milestone6.md)
+[Prev page](file_yv_milestone4.md) [Next page](file_yt_milestone6.md)
