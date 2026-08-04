@@ -154,7 +154,7 @@ fi
 PARAMS="$PARAMS --setenv PATH $path "
 PARAMS="$PARAMS --setenv SHELL $shell "
 PARAMS="$PARAMS --setenv TERMINFO /app/ncurses/current/share/terminfo "
-#PARAMS="$PARAMS --setenv LANG en_US.UTF-8 "
+PARAMS="$PARAMS --setenv LANG $(/app/busybox/current/bin/printenv LANG) "
 IFS="/"
 LAST=""
 for PART in $shell

@@ -722,6 +722,19 @@ if [ "$package" == "fs" ] || [ "$package" == "ncurses" ]; then
     set_current_app_clean_strip_cd ncurses $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "ncursesw" ]; then
+  ver="6.6";
+  if should_make ncursesw $ver; then
+    download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncursesw ncurses-$ver 1
+    ./configure --prefix=$output/app/ncursesw/$prefix$ver --with-shared  --with-termlib  --with-ticlib --with-develop --with-cxx-shared --with-trace --with-versioned-syms
+    make all -j$cpu_num
+    create_app ncursesw $prefix$ver
+    make install
+    rsync -a $curdir/in/ncurses/ $output/app/ncursesw/$prefix$ver
+    cp $out/ncursesw/ncurses-$ver/COPYING $output/app/ncursesw/$prefix$ver
+    set_current_app_clean_strip_cd ncursesw $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "gcc" ]; then
 #  ver="16.1.0";
   ver="14.4.0";
@@ -888,6 +901,7 @@ if [ "$package" == "dialog" ]; then
   ver="1.3-20260721";
   if should_make dialog $ver; then
     download_unpack_source https://invisible-island.net/archives/dialog/dialog-$ver.tgz dialog dialog-$ver 1
+#    ./configure --prefix=/app/dialog/$prefix$ver --enable-widec --with-ncursesw
     ./configure --prefix=/app/dialog/$prefix$ver
     make all -j$cpu_num
     create_app dialog $prefix$ver

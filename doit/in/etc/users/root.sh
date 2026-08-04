@@ -39,10 +39,13 @@ for APP_NAME in $APP_LIST; do
   fi
 done
 
-#export LANG=pl_PL.utf8
+export
+
+export LANG=$(/app/busybox/current/bin/printenv LANG)
 export PATH=$path
 export SHELL=/app/busybox/current/bin/sh
 export HOME=/other/app/sh
+export TERMINFO=/app/ncurses/current/share/terminfo
 mkdir $HOME 2> /dev/null
 
 # red [time] user:folder #
