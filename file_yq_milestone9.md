@@ -25,7 +25,7 @@ It's just beginning, but for now it will be done with dialog command / applicati
 
 And some of you are maybe familiar with older Debian and other installers - they're done with similar approach. 
 
-Does it mean, that PLLinux the same way? (one line console, console menus, text graphic installers, graphic installer) 
+Does it mean, that PLLinux the same way? (one-line console, console menu, text graphic installers, graphic installer)
 
 We will see, from history: have you seen Linux terminal in the old printer working as output device? [teletype as a linux terminal](https://www.youtube.com/watch?v=AwqryPuwl_w)
 
