@@ -41,7 +41,7 @@ done
 
 export
 
-export LANG=$(/app/busybox/current/bin/printenv LANG)
+export LANG=$(/app/pllinux/current/pllinux /etc/pllinux.conf LANG)
 export PATH=$path
 export SHELL=/app/busybox/current/bin/sh
 export HOME=/other/app/sh
