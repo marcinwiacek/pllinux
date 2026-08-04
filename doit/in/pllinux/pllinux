@@ -6,7 +6,6 @@ TIMEZONE="UTC"
 KEYB="qwerty/pl4.map.gz"
 FONT="sun12x22.psfu.gz"
 LANG="en_US.UTF-8"
-OPT="def"
 
 CFGFILE="/etc/pllinux.conf"
 if [ "$1" != "" ]; then
@@ -33,11 +32,9 @@ EOF
       ;;
     *TIMEZONE* )
       CURRENT=$(realpath /etc/localtime)
-#      echo $CURRENT
-      # save SSD writes
       case $CURRENT in
         *$PARAM_VALUE* )
-#          echo Skipping setting timezone
+          # save SSD writes. Don't make link when it's there.
           ;;
         * )
           echo Setting timezone $PARAM_VALUE
@@ -61,65 +58,110 @@ set_keyboard_font() {
   KEYB2=$KEYB
   FONT2=$FONT
   while true; do
-    if [ "$OPT" = "def" ]; then
-      echo "  What national characters do you want to see or write? (pls provide two characters ISO code like us, pl, etc.)"
-      read lang
-      if [ ${#lang} != 2 ]; then
-        echo "  Unknown country code. Ignoring."
-      else
-        KEYB2="qwerty/pl4.map.gz"
-        FONT2="sun12x22.psfu.gz"
-        if [ $lang = "pl" ]; then
-          KEYB2="qwerty/pl1.map.gz"
-          FONT2="LatGrkCyr-8x16.psfu.gz"
-        fi
-      fi
-    fi
-    echo "  Selected keyboard $KEYB2, screen font $FONT2"
     /app/kbd/current/bin/setfont -C /dev/tty1 $FONT2
     /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB2
-    echo "  Write some text to check or \"back\" (no saving & back to main menu) or \"keyb\" (set keyboard) or \"font\" (set font) or \"save\" (save & back to main menu) or \"def\" (set default)"
-    read OPT
-    case $OPT in
-      keyb)
-        ls /app/kbd/current/share/keymaps/i386/qwerty
-        ls /app/kbd/current/share/keymaps/i386/azerty
-        ls /app/kbd/current/share/keymaps/i386/qwertz
-        echo "  Please give keyboard name"
-        read x
-        if [ "$x" = "" ]; then
-          echo "  Value cannot be empty. Ignoring"
-        elif [ -e "/app/kbd/current/share/keymaps/i386/qwerty/$x" ]; then
-          KEYB2="qwerty/$x"
-        elif [ -e "/app/kbd/current/share/keymaps/i386/azerty/$x" ]; then
-          KEYB2="azerty/$x"
-        elif [ -e "/app/kbd/current/share/keymaps/i386/qwertz/$x" ]; then
-          KEYB2="qwertz/$x"
-        else
-          echo "  Keyboard file \"$x\" not found. Ignoring."
+    cmd=$(dialog --stdout --backtitle "PLLinux/Keyboard and font" --cancel-label "Back" \
+           --menu "Keyboard $KEYB2, font $FONT2" 0 0 5 \
+           1 "Check" \
+           2 "Set default" \
+           3 "Set font" \
+           4 "Set keyboard" \
+           5 "Save and back")
+    if [ $? == 0 ]; then
+      case $cmd in
+      1) $(dialog --stdout --backtitle "PLLinux/Keyboard and font/Check" --cancel-label "Back" \
+                --inputbox "Please test your keyboard layout" 15 30) ;;
+      2)  cmd=$(dialog --stdout --backtitle "PLLinux/Keyboard and font/set default" --cancel-label "Back" \
+           --menu "Set proposed option for the concrete language" 0 0 5 \
+           1 "PL" 2 "Other")
+           if [ $? == 0 ]; then
+             case $cmd in
+               1) KEYB2="qwerty/pl1.map.gz"
+                  FONT2="LatGrkCyr-8x16.psfu.gz"
+                  ;;
+               *) KEYB2="qwerty/pl4.map.gz"
+                  FONT2="sun12x22.psfu.gz"
+                  ;;
+             esac
+           fi
+        ;;
+      3) 
+         list=""
+         listnr=1
+        for NAME in $(ls /app/kbd/current/share/consolefonts); do
+          case $NAME in
+            README*)
+              ;;
+            *)
+              list="$list $listnr $NAME"
+              listnr=$(($listnr+1))
+              ;;
+          esac
+        done
+        cmd=$(dialog --stdout --backtitle "PLLinux/Keyboard and font/set font" --cancel-label "Back" \
+           --menu "Select font" 0 0 10 $list)
+        if [ $? == 0 ]; then
+          listnr=1
+          for NAME in $(ls /app/kbd/current/share/consolefonts); do
+            case $NAME in
+              README*)
+                ;;
+              *)
+                if [ $listnr = $cmd ]; then
+                  FONT2="$NAME"
+                fi
+                listnr=$(($listnr+1))
+                ;;
+            esac
+          done
         fi
         ;;
-      font)
-        ls /app/kbd/current/share/consolefonts
-        echo "  Please give font name"
-        read x
-        if [ "$x" = "" ]; then
-          echo "  Value cannot be empty. Ignoring"
-        elif [ -e "/app/kbd/current/share/consolefonts/$x" ]; then
-          FONT2="$x"
-        else
-          echo "  Screen font file \"$x\" not found. Ignoring."
-        fi
+      4)
+         list=""
+         listnr=1
+        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwerty); do
+              list="$list $listnr qwerty/$NAME"
+              listnr=$(($listnr+1))
+        done
+        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwertz); do
+              list="$list $listnr qwertz/$NAME"
+              listnr=$(($listnr+1))
+        done
+        for NAME in $(ls /app/kbd/current/share/keymaps/i386/azerty); do
+              list="$list $listnr azerty/$NAME"
+              listnr=$(($listnr+1))
+        done
+        cmd=$(dialog --stdout --backtitle "PLLinux/Keyboard and font/set keyboard" --cancel-label "Back" \
+           --menu "Select keyboard" 0 0 10 $list)
+         listnr=1
+        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwerty); do
+                if [ $listnr = $cmd ]; then
+                  KEYB2="qwerty/$NAME"
+                fi
+              listnr=$(($listnr+1))
+        done
+        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwertz); do
+                if [ $listnr = $cmd ]; then
+                  KEYB2="qwertz/$NAME"
+                fi
+              listnr=$(($listnr+1))
+        done
+        for NAME in $(ls /app/kbd/current/share/keymaps/i386/azerty); do
+                if [ $listnr = $cmd ]; then
+                  KEYB2="azerty/$NAME"
+                fi
+              listnr=$(($listnr+1))
+        done
         ;;
-      back)
-        KEYB2=$KEYB
-        FONT2=$FONT
+      5)
         break;
         ;;
-      save)
-        break;
-        ;;
-    esac
+      esac
+    else
+      KEYB2=$KEYB
+      FONT2=$FONT
+      return
+    fi
   done
   KEYB=$KEYB2
   FONT=$FONT2
@@ -128,77 +170,55 @@ set_keyboard_font() {
 }
 
 set_time_zone() {
-  TIMEZONE2=$TIMEZONE
-  while true; do
-    echo "  Selected timezone $TIMEZONE2";
-    ls /app/tzdb/current/usr/share/zoneinfo
-    echo "  Please enter region or timezone name or \"back\" (no saving) or \"save\" (save & go further)"
-    read tz
-    case $tz in
-      back)
-        TIMEZONE2=$TIMEZONE
-        break
-        ;;
-      save)
-        break;
-        ;;
-      *)
-        if [ "$tz" = "" ]; then
-          echo "  Value cannot be empty. Ignoring"
-        elif [ -d "/app/tzdb/current/usr/share/zoneinfo/$tz" ]; then
-          ls /app/tzdb/current/usr/share/zoneinfo/$tz
-          echo "  Please enter timezone name or \"back\" (no saving & back to main menu) or \"save\" (save & back to main menu)"
-          read tz2
-          case $tz2 in
-            back)
-              TIMEZONE2=$TIMEZONE
-              break;
-              ;;
-            save)
-              break;
-              ;;
-            *)
-              if [ "$tz2" = "" ]; then
-                echo "  Value cannot be empty. Ignoring"
-              elif [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz/$tz2" ]; then
-                TIMEZONE2=$tz/$tz2
-              else
-                echo "  Timezone file \"$tz/$tz2\" not found. Ignoring"
-              fi
-              ;;
-          esac
-        elif [ -e "/app/tzdb/current/usr/share/zoneinfo/$tz" ]; then
-          TIMEZONE2=$tz
+    list=""
+    listnr=1
+    for NAME in $(ls /app/tzdb/current/usr/share/zoneinfo); do
+      if [ -d "/app/tzdb/current/usr/share/zoneinfo/$NAME" ]; then
+        for NAME2 in $(ls /app/tzdb/current/usr/share/zoneinfo/$NAME); do
+          list="$list $listnr $NAME/$NAME2"
+          listnr=$(($listnr+1))
+        done
+      else
+        list="$list $listnr $NAME"
+        listnr=$(($listnr+1))
+      fi
+    done
+    cmd=$(dialog --stdout --backtitle "PLLinux/set timezone" --cancel-label "Back" \
+           --menu "Selected timezone $TIMEZONE. Please select new value" 0 0 10 $list)
+    if [ $? == 0 ]; then
+      listnr=1
+      for NAME in $(ls /app/tzdb/current/usr/share/zoneinfo); do
+        if [ -d "/app/tzdb/current/usr/share/zoneinfo/$NAME" ]; then
+          for NAME2 in $(ls /app/tzdb/current/usr/share/zoneinfo/$NAME); do
+            if [ $listnr = $cmd ]; then
+              TIMEZONE=$NAME/$NAME2
+            fi
+            listnr=$(($listnr+1))
+          done
         else
-          echo "  Timezone file \"$tz\" not found. Ignoring"
+          if [ $listnr = $cmd ]; then
+            TIMEZONE=$NAME
+          fi
+          listnr=$(($listnr+1))
         fi
-        ;;
-    esac
-  done
-  TIMEZONE=$TIMEZONE2
+      done
+    fi
 }
 
 while true; do
-  echo "Selected keyboard $KEYB, screen font $FONT, timezone $TIMEZONE, app language $LANG"
-  echo "Enter \"save\" (save to disk & quit) or \"quit\" (quit without changes) or \"input\" (set keyboard and font) or \"zone\" (set timezone)"
-  read cmd
-  case $cmd in
-    *input* )
-      set_keyboard_font
-      ;;
-    *zone* )
-      set_time_zone
-      ;;
-    *quit* )
-      return
-      ;;
-    *save* )
-      break;
-      ;;
-    *)
-      echo "Unknown option. Ignoring"
-      ;;
-  esac
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 4 \
+       1 "Keyboard and font - $KEYB, $FONT" \
+       2 "Set timezone      - $TIMEZONE" \
+       3 "Save and exit")
+  if [ $? == 0 ]; then
+    case $cmd in
+    1) set_keyboard_font ;;
+    2) set_time_zone ;;
+    3) break ;;
+    esac
+  else
+    return
+  fi
 done
 
 #FIXME: dont save, when file is not updated. Save SSD
