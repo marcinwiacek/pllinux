@@ -1,5 +1,5 @@
 **License**
-Excluding script dhcp4.sh from busybox - I don't care
+Excluding modified script dhcp4.sh from busybox - I don't care
 
 **Project**
 [GitHub](https://github.com/marcinwiacek/pllinux)
@@ -10,6 +10,7 @@ Some crucial scripts and services for PLLINUX.
 **Deps**
 busybox current
 bwrap current
+dialog current
 kbd current
 tzdb current
 util-linux current

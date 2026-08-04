@@ -2,6 +2,7 @@
 export PATH=/app/busybox/current/bin:/app/busybox/current/sbin
 
 #export LD_PLLINUX_DEBUG=1
+export TERMINFO=/app/ncurses/current/share/terminfo
 
 # check root filesystem and make it rw
 KERNEL_PARAMS=$(/app/busybox/current/bin/cat /proc/cmdline $X | /app/busybox/current/bin/tr " ")

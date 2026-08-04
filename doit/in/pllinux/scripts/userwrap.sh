@@ -12,7 +12,7 @@
 # OR
 # green [time] user:folder amber git branch name $
 export PS1="\e[32m[\t] $USER:\w\$(if [ -f "/app/git/current/bin/git" ] && git rev-parse --git-dir > /dev/null 2>&1; then echo -n \" \e[33m\";git branch --show-current; fi) $ \e[m"
-#export PS1="\e[32m[\t] $USER:\w $ \e[m"
+# export PS1="\e[32m[\t] $USER:\w $ \e[m"
 
 processesall=0
 for ARG in "$@"
@@ -153,6 +153,8 @@ EOF
 fi
 PARAMS="$PARAMS --setenv PATH $path "
 PARAMS="$PARAMS --setenv SHELL $shell "
+PARAMS="$PARAMS --setenv TERMINFO /app/ncurses/current/share/terminfo "
+#PARAMS="$PARAMS --setenv LANG en_US.UTF-8 "
 IFS="/"
 LAST=""
 for PART in $shell
