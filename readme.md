@@ -44,12 +44,13 @@ Currently in early alpha. Some things are done and many still todo:
  6. [Milestone 6 - hacking ld-linux-x86-64.ld.so2 / dynamic loader searching for apps inside /app](file_yt_milestone6.md)
  7. [Milestone 7 - Creating booting ISO image](file_ys_milestone7.md)
  8. [Milestone 8 - SSD writes, localization, manual pages, configurator](file_yr_milestone8.md)
- 9. [Milestone 9 - scheduler, logging, sound, CPU microcode and kernel packages]
- 10. Milestone 10 - dbus? AppArmor? SeLinux?
- 11. Milestone 11 - more packages, software compiling and matrioszka (compiling PLLinux from PLLinux), etc.
- 12. Milestone 12 - installation with partitioning, Secure Boot and shim
- 14. Milestone 14 - graphic UI
- 15. Milestone 15 - big party?
+ 9. [Milestone 9 - correct man, configurator with dialog](file_yq_milestone9.md)
+ 10. [Milestone 10 - scheduler, logging, sound, CPU microcode and kernel packages]
+ 11. Milestone 11 - dbus? AppArmor? SeLinux?
+ 12. Milestone 12 - more packages, software compiling and matrioszka (compiling PLLinux from PLLinux), etc.
+ 14. Milestone 14 - installation with partitioning, Secure Boot and shim
+ 15. Milestone 15 - graphic UI
+ 16. Milestone 16 - big party?
 
 This can change without earlier notice.
 
