@@ -210,6 +210,17 @@ set_time_zone() {
     fi
 }
 
+add_new_user() {
+    cmd=$(dialog --stdout --backtitle "PLLinux/set users/add new user" --cancel-label "Back" \
+           --menu "Edit users" 0 0 10 1 "x")
+}
+
+set_existing_user() {
+    cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user" --cancel-label "Back" \
+           --menu "Edit users" 0 0 10 1 "x")
+}
+
+
 set_users() {
   while true; do
     listnr=1
@@ -225,7 +236,19 @@ EOF
     cmd=$(dialog --stdout --backtitle "PLLinux/set users" --cancel-label "Back" \
            --menu "Edit users" 0 0 10 $list)
     if [ $? = 0 ]; then
-      echo x
+      listnr=1
+      while read -r line; do
+        IFS=":" read -r USER_NAME OTHER << EOF
+$line
+EOF
+        if [ $listnr = $cmd ]; then
+          set_existing_user $USER_NAME
+        fi
+        listnr=$(($listnr+1))
+    done < "${DIR}etc/passwd"
+        if [ $listnr = $cmd ]; then
+          add_new_user
+        fi
     else
       break;
     fi
