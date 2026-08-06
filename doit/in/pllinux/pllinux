@@ -215,9 +215,54 @@ add_new_user() {
            --menu "Edit users" 0 0 10 1 "x")
 }
 
+set_existing_user_apps() {
+  USER_APPS=""
+  while read -r line; do
+    IFS="=" read -r PARAM_NAME PARAM_VALUE << EOF
+$line
+EOF
+    case $PARAM_NAME in
+    $1_APPS* )
+      USER_APPS=$PARAM_VALUE
+      ;;
+    esac
+  done < $DIR$CFGFILE
+
+    listnr=1
+ list=""
+ for APP_NAME in $(ls ${DIR}app); do
+   for APP_VERSION in $(ls ${DIR}app/$APP_NAME); do
+      list="$list $APP_NAME $APP_VERSION "
+      case $USER_APPS in
+        *$APP_NAME\ $APP_VERSION*)
+           list="$list on "
+           ;;
+        *)
+           list="$list off "
+           ;;
+      esac
+   done
+ done
+#   while true; do
+#echo "$list"
+#read x
+#  done
+      cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/set apps" --cancel-label "Back" \
+           --checklist "Set apps for the user $1, existing $USER_APPS" 0 0 10 $list)
+}
+
 set_existing_user() {
-    cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user" --cancel-label "Back" \
-           --menu "Edit users" 0 0 10 1 "x")
+   while true; do
+      cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1" --cancel-label "Back" \
+           --menu "Edit user $1" 0 0 10 1 "Set apps")
+      if [ $? == 0 ]; then
+        case $cmd in
+          1) set_existing_user_apps $1
+        esac
+      else
+        break
+      fi
+   done
 }
 
 
@@ -261,7 +306,7 @@ KEYB="qwerty/pl4.map.gz"
 FONT="sun12x22.psfu.gz"
 LANG="en_US.UTF-8"
 
-CFGFILE="/etc/pllinux.conf"
+CFGFILE="etc/pllinux.conf"
 if [ "$1" != "" ]; then
   CFGFILE="$1"
 fi
