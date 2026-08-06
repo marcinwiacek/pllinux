@@ -1,6 +1,11 @@
 #!/app/busybox/current/bin/sh
 # Part of PLLINUX. Version from 2 Aug 2026. Creating system cfg from cfg file or asking user and creating cfg file.
 
+DIR="/" # path with / in the end. In real system /
+if [ -d "/mnt/x" ]; then
+  DIR="/mnt/x/"
+fi
+
 set_config() {
 if [ -e "$CFGFILE" ]; then
   while read -r line; do
@@ -185,7 +190,7 @@ set_time_zone() {
     done
     cmd=$(dialog --stdout --backtitle "PLLinux/set timezone" --cancel-label "Back" \
            --menu "Selected timezone $TIMEZONE. Please select new value" 0 0 10 $list)
-    if [ $? == 0 ]; then
+    if [ $? = 0 ]; then
       listnr=1
       for NAME in $(ls /app/tzdb/current/usr/share/zoneinfo); do
         if [ -d "/app/tzdb/current/usr/share/zoneinfo/$NAME" ]; then
@@ -203,6 +208,28 @@ set_time_zone() {
         fi
       done
     fi
+}
+
+set_users() {
+  while true; do
+    listnr=1
+    list=""
+    while read -r line; do
+      IFS=":" read -r USER_NAME OTHER << EOF
+$line
+EOF
+      list="$list $listnr $USER_NAME"
+      listnr=$(($listnr+1))
+    done < "${DIR}etc/passwd"
+    list="$list $listnr Add"
+    cmd=$(dialog --stdout --backtitle "PLLinux/set users" --cancel-label "Back" \
+           --menu "Edit users" 0 0 10 $list)
+    if [ $? = 0 ]; then
+      echo x
+    else
+      break;
+    fi
+  done
 }
 
 # some default values
@@ -227,12 +254,14 @@ while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 4 \
        1 "Keyboard and font - $KEYB, $FONT" \
        2 "Set timezone      - $TIMEZONE" \
-       3 "Save and exit")
+       3 "Users" \
+       4 "Save and exit")
   if [ $? == 0 ]; then
     case $cmd in
     1) set_keyboard_font ;;
     2) set_time_zone ;;
-    3) break ;;
+    3) set_users ;;
+    4) break ;;
     esac
   else
     return
