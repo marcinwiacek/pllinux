@@ -232,7 +232,7 @@ EOF
  list=""
  for APP_NAME in $(ls ${DIR}app); do
    for APP_VERSION in $(ls ${DIR}app/$APP_NAME); do
-      list="$list ${APP_NAME}_${APP_VERSION} x "
+      list="$list ${APP_NAME}:${APP_VERSION} x "
       case $USER_APPS in
         *$APP_NAME\ $APP_VERSION*)
            list="$list on "
@@ -249,7 +249,27 @@ EOF
 #read x
       cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/set apps" --cancel-label "Back" \
            --checklist "Set apps for the user $1, existing $USER_APPS" 0 0 10 $list)
-dialog --inputbox "$cmd" 10 32 "abc"
+list=""
+    if [ $? = 0 ]; then
+echo "$cmd"
+      IFS=" "
+      for APP in $cmd; do
+echo $APP
+    IFS=":" read -r APP_NAME APP_VER << EOF
+$APP
+EOF
+          if [ "$list" != "" ]; then
+            list="${list}:"
+          fi
+          list="${list}${APP_NAME} ${APP_VER}"
+#        IFS=" "
+      done
+echo "$list"
+exit
+#dialog --inputbox "$list" 10 32 "abc"
+    else
+      break
+    fi
   done
 
 }
