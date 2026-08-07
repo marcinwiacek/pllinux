@@ -228,10 +228,10 @@ EOF
     esac
   done < $DIR$CFGFILE
 
-    listnr=1
- list=""
- for APP_NAME in $(ls ${DIR}app); do
-   for APP_VERSION in $(ls ${DIR}app/$APP_NAME); do
+  listnr=1
+  list=""
+  for APP_NAME in $(ls ${DIR}app); do
+    for APP_VERSION in $(ls ${DIR}app/$APP_NAME); do
       list="$list ${APP_NAME}:${APP_VERSION} x "
       case $USER_APPS in
         *$APP_NAME\ $APP_VERSION*)
@@ -241,37 +241,30 @@ EOF
            list="$list off "
            ;;
       esac
-   done
- done
+    done
+  done
 
-   while true; do
-#echo "$list"
-#read x
-      cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/set apps" --cancel-label "Back" \
+  while true; do
+    cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/set apps" --cancel-label "Back" \
            --checklist "Set apps for the user $1, existing $USER_APPS" 0 0 10 $list)
-list=""
+    list=""
     if [ $? = 0 ]; then
-echo "$cmd"
       IFS=" "
       for APP in $cmd; do
-echo $APP
-    IFS=":" read -r APP_NAME APP_VER << EOF
+        IFS=":" read -r APP_NAME APP_VER << EOF
 $APP
 EOF
-          if [ "$list" != "" ]; then
-            list="${list}:"
-          fi
-          list="${list}${APP_NAME} ${APP_VER}"
-#        IFS=" "
+        if [ "$list" != "" ]; then
+          list="${list}:"
+        fi
+        list="${list}${APP_NAME} ${APP_VER}"
       done
 echo "$list"
-exit
-#dialog --inputbox "$list" 10 32 "abc"
+      exit
     else
       break
     fi
   done
-
 }
 
 set_existing_user() {
