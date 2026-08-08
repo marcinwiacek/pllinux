@@ -457,15 +457,26 @@ set_keyboard_font_user() {
 }
 
 change_user_feature() {
-    for FEATURE in $USER_FEATURES; do
-    done
+echo $USER_FEATURES $1 >> /tmp/x
     case $USER_FEATURES in
-    *$1*) USER_FEATURES=${USER_FEATURES//$1} ;;
+    *$1*)
+      NEW_FEAT=""
+IFS=" "
+      for FEATURE in $USER_FEATURES; do
+        if [ "$FEATURE" != "$1" ]; then
+          NEW_FEAT="$NEW_FEAT $FEATURE"
+        fi
+      done
+IFS=$IFSORIG
+      USER_FEATURES="$NEW_FEAT" ;;
     *) USER_FEATURES="${USER_FEATURES} $1" ;;
     esac
+echo $USER_FEATURES >> /tmp/x
 }
 
 set_existing_user() {
+    get_value_from_conf_file "$1_FEATURES"
+    USER_FEATURES="$CONF_FILE_VALUE"
   while true; do
     get_value_from_conf_file "$1_KEYB"
     USER_KEYB="$CONF_FILE_VALUE"
@@ -477,8 +488,6 @@ set_existing_user() {
     if [ "$USER_FONT" = "" ]; then
       USER_FONT="$FONT"
     fi
-    get_value_from_conf_file "$1_FEATURES"
-    USER_FEATURES="$CONF_FILE_VALUE"
     case $USER_FEATURES in
     *network*) USER_NETWORK="yes" ;; *) USER_NETWORK="no" ;;
     esac
