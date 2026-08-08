@@ -502,12 +502,13 @@ set_existing_user() {
     esac
 
     cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1" --cancel-label "Back" \
-           --menu "Edit user $1" 0 0 10 1 "Available apps" \
+           --menu "Set user $1" 0 0 10 1 "Available apps" \
                    2 "Access to all processes   - $USER_PROCESSES" \
                    3 "Access to /mnt            - $USER_MNT" \
                    4 "Access to network         - $USER_NETWORK" \
                    5 "System reset and shutdown - $USER_RESET" \
-                   6 "Keyboard and font         - $USER_KEYB and $USER_FONT" )
+                   6 "Keyboard and font         - $USER_KEYB and $USER_FONT" \
+                   7 "Save and exit" )
     if [ $? = 0 ]; then
       case $cmd in
         1) set_existing_user_apps $1 ;;
@@ -516,6 +517,9 @@ set_existing_user() {
         4) change_user_feature network ;;
         5) change_user_feature reset ;;
         6) set_keyboard_font_user $1 ;;
+        7)     change_value_in_conf_file "$1_FEATURES" "$USER_FEATURES"
+            break ;;
+
       esac
     else
       break
