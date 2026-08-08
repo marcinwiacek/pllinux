@@ -6,6 +6,26 @@ if [ -d "/mnt/x" ]; then
   DIR="/mnt/x/"
 fi
 
+IFSORIG=$IFS
+
+# some default values
+TIMEZONE="UTC"
+KEYB="qwerty/pl4.map.gz"
+FONT="sun12x22.psfu.gz"
+LANG="en_US.UTF-8"
+
+CFGFILE="etc/pllinux.conf"
+if [ "$1" != "" ]; then
+  CFGFILE="$1"
+fi
+set_config
+if [ "$1" != "" ]; then
+  if [ "$2" = "LANG" ]; then
+    echo $LANG
+  fi
+  exit
+fi
+
 set_config() {
 if [ -e "$CFGFILE" ]; then
   while read -r line; do
@@ -215,32 +235,51 @@ add_new_user() {
            --menu "Edit users" 0 0 10 1 "x")
 }
 
-set_existing_user_apps() {
-  USER_APPS=""
+change_value_in_conf_file() {
+  file_content=$(cat ${DIR}$CFGFILE)
+  echo "# Created by script pllinux version from 2 Aug 2026" > ${DIR}$CFGFILE
+  while IFS= read -r line; do
+    IFS="=" read -r PARAM_NAME PARAM_VALUE << EOF
+$line
+EOF
+    if [ "$PARAM_NAME" != "$1" ] && [ ${line:0:1} != "#" ]; then
+      echo "$line" >> ${DIR}$CFGFILE
+    fi
+  done <<< "$file_content"
+  echo "$1=$2" >> ${DIR}$CFGFILE
+  IFS=$IFSORIG
+}
+
+get_value_from_conf_file() {
+  CONF_FILE_VALUE=""
   while read -r line; do
     IFS="=" read -r PARAM_NAME PARAM_VALUE << EOF
 $line
 EOF
     case $PARAM_NAME in
-    $1_APPS* )
-      USER_APPS=$PARAM_VALUE
+    $1* )
+      CONF_FILE_VALUE=$PARAM_VALUE
       ;;
     esac
   done < $DIR$CFGFILE
+  IFS=$IFSORIG
+}
 
-  listnr=1
+set_existing_user_apps() {
+  get_value_from_conf_file "$1_APPS"
+  USER_APPS="$CONF_FILE_VALUE"
   list=""
   for APP_NAME in $(ls ${DIR}app); do
-    for APP_VERSION in $(ls ${DIR}app/$APP_NAME); do
+    for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
       list="$list ${APP_NAME}:${APP_VERSION} x "
-      case $USER_APPS in
-        *$APP_NAME\ $APP_VERSION*)
-           list="$list on "
-           ;;
-        *)
-           list="$list off "
-           ;;
-      esac
+        case $USER_APPS in
+          *${APP_NAME}\ ${APP_VERSION}*)
+             list="$list on "
+             ;;
+          *)
+             list="$list off "
+             ;;
+        esac
     done
   done
 
@@ -259,11 +298,9 @@ EOF
         fi
         list="${list}${APP_NAME} ${APP_VER}"
       done
-echo "$list"
-      exit
-    else
-      break
+      change_value_in_conf_file "$1_APPS" "$list"
     fi
+    break
   done
 }
 
@@ -316,23 +353,6 @@ EOF
   done
 }
 
-# some default values
-TIMEZONE="UTC"
-KEYB="qwerty/pl4.map.gz"
-FONT="sun12x22.psfu.gz"
-LANG="en_US.UTF-8"
-
-CFGFILE="etc/pllinux.conf"
-if [ "$1" != "" ]; then
-  CFGFILE="$1"
-fi
-set_config
-if [ "$1" != "" ]; then
-  if [ "$2" = "LANG" ]; then
-    echo $LANG
-  fi
-  exit
-fi
 
 while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 4 \
