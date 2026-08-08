@@ -456,6 +456,15 @@ set_keyboard_font_user() {
   /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB
 }
 
+change_user_feature() {
+    for FEATURE in $USER_FEATURES; do
+    done
+    case $USER_FEATURES in
+    *$1*) USER_FEATURES=${USER_FEATURES//$1} ;;
+    *) USER_FEATURES="${USER_FEATURES} $1" ;;
+    esac
+}
+
 set_existing_user() {
   while true; do
     get_value_from_conf_file "$1_KEYB"
@@ -471,31 +480,32 @@ set_existing_user() {
     get_value_from_conf_file "$1_FEATURES"
     USER_FEATURES="$CONF_FILE_VALUE"
     case $USER_FEATURES in
-    *mnt*) USER_MNT="yes" ;;
-    *) USER_MNT="no" ;;
+    *network*) USER_NETWORK="yes" ;; *) USER_NETWORK="no" ;;
     esac
     case $USER_FEATURES in
-    *net*) USER_NET="yes" ;;
-    *) USER_NET="no" ;;
+    *processes*) USER_PROCESSES="yes" ;; *) USER_PROCESSES="no" ;;
     esac
     case $USER_FEATURES in
-    *processes*) USER_ALL_PROCESSES="yes" ;;
-    *) USER_ALL_PROCESSES="no" ;;
+    *mnt*) USER_MNT="yes" ;; *) USER_MNT="no" ;;
     esac
     case $USER_FEATURES in
-    *reset*) USER_RESET="yes" ;;
-    *) USER_RESET="no" ;;
+    *reset*) USER_RESET="yes" ;; *) USER_RESET="no" ;;
     esac
+
     cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1" --cancel-label "Back" \
            --menu "Edit user $1" 0 0 10 1 "Available apps" \
-                   2 "Access to all processes - $USER_ALL_PROCESSES" \
-                   3 "Access to /mnt          - $USER_MNT" \
-                   4 "Access to network       - $USER_NET" \
-                   5 "Reset and shutdown      - $USER_RESET" \
-                   6 "Keyboard and font       - $USER_KEYB and $USER_FONT" )
+                   2 "Access to all processes   - $USER_PROCESSES" \
+                   3 "Access to /mnt            - $USER_MNT" \
+                   4 "Access to network         - $USER_NETWORK" \
+                   5 "System reset and shutdown - $USER_RESET" \
+                   6 "Keyboard and font         - $USER_KEYB and $USER_FONT" )
     if [ $? = 0 ]; then
       case $cmd in
         1) set_existing_user_apps $1 ;;
+        2) change_user_feature processes ;;
+        3) change_user_feature mnt ;;
+        4) change_user_feature network ;;
+        5) change_user_feature reset ;;
         6) set_keyboard_font_user $1 ;;
       esac
     else
