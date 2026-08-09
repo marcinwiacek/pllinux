@@ -53,30 +53,24 @@ EOF
       case $PARAM_NAME in
       KEYB* )
         /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$PARAM_VALUE
-        KEYB="$PARAM_VALUE"
-        OPT=""
-        ;;
+        KEYB="$PARAM_VALUE" ;;
       FONT* )
-        /app/kbd/current/bin/setfont -C /dev/tty1 $PARAM_VALUE 2> /dev/null
-        /app/kbd/current/bin/setfont -C /dev/tty2 $PARAM_VALUE 2> /dev/null
-        /app/kbd/current/bin/setfont -C /dev/tty3 $PARAM_VALUE 2> /dev/null
-        /app/kbd/current/bin/setfont -C /dev/tty4 $PARAM_VALUE 2> /dev/null
-        FONT="$PARAM_VALUE"
-        OPT=""
-        ;;
+        for DEVDEV in 1 2 3 4; do
+          /app/kbd/current/bin/setfont -C /dev/tty$DEVDEV $PARAM_VALUE 2> /dev/null
+        done
+        FONT="$PARAM_VALUE" ;;
       TIMEZONE* )
         CURRENT=$(/app/busybox/current/bin/realpath /etc/localtime)
         case $CURRENT in
-          *$PARAM_VALUE* )
+          *$PARAM_VALUE*)
             # save SSD writes. Don't make link when it's there.
             ;;
-          * )
+          *)
             echo Setting timezone $PARAM_VALUE
             rm /etc/localtime
             ln -s /app/tzdb/current/usr/share/zoneinfo/$PARAM_VALUE /etc/localtime
         esac
-        TIMEZONE=$PARAM_VALUE
-        ;;
+        TIMEZONE=$PARAM_VALUE ;;
       LANG* )
         list=$(/app/glibc/current/bin/locale -a)
         case $list in
@@ -86,11 +80,9 @@ EOF
             echo Generating locale
             mkdir /app/glibc/current/lib/locale
             #localedef -i pl_PL -c -f UTF-8 pl_PL.UTF-8
-            localedef -i en_US -c -f UTF-8 en_US.UTF-8
-            ;;
+            localedef -i en_US -c -f UTF-8 en_US.UTF-8 ;;
         esac
-        LANG=$PARAM_VALUE
-        ;;
+        LANG=$PARAM_VALUE ;;
       esac
     done < $DIR$CFGFILE
   fi
@@ -99,14 +91,16 @@ EOF
 set_keyboard_font_general_or_user() {
   if [ "$1" = "" ]; then
     PROMPT="PLLinux";
+    PROMPT2="";
   else
     PROMPT="PLLinux/set users/set user $1";
+    PROMPT2=" for $1";
   fi
   while true; do
     /app/kbd/current/bin/setfont -C /dev/tty1 $NEW_FONT
     /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$NEW_KEYB
     cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font" --cancel-label "Back" \
-           --menu "Set display and typing" 0 0 5 \
+           --menu "Set display and typing$PROMPT2" 0 0 5 \
            1 "Check" \
            2 "Set default" \
            3 "Set font     - $NEW_FONT" \
@@ -116,100 +110,77 @@ set_keyboard_font_general_or_user() {
       case $cmd in
       1) $(dialog --stdout --backtitle "$PROMPT/keyboard and font/check" --cancel-label "Back" \
                 --inputbox "Please test your keyboard layout" 15 30) ;;
-      2)  cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set default" --cancel-label "Back" \
-           --menu "Set proposed option for the concrete language" 0 0 5 \
-           1 "PL" 2 "Other")
+      2) cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set default" --cancel-label "Back" \
+           --menu "Set proposed option for concrete language" 0 0 5 \
+             1 "PL" 2 "Other")
            if [ $? == 0 ]; then
+             NEW_KEYB="qwerty/pl4.map.gz"
+             NEW_FONT="sun12x22.psfu.gz"
              case $cmd in
                1) NEW_KEYB="qwerty/pl1.map.gz"
-                  NEW_FONT="LatGrkCyr-8x16.psfu.gz"
-                  ;;
-               *) NEW_KEYB="qwerty/pl4.map.gz"
-                  NEW_FONT="sun12x22.psfu.gz"
-                  ;;
+                  NEW_FONT="LatGrkCyr-8x16.psfu.gz" ;;
              esac
            fi
-        ;;
-      3) 
-         list=""
+           ;;
+      3) list=""
          listnr=1
-        for NAME in $(ls /app/kbd/current/share/consolefonts); do
-          case $NAME in
-            README*)
-              ;;
-            *)
-              list="$list $listnr $NAME"
-              listnr=$(($listnr+1))
-              ;;
-          esac
-        done
-        cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set font" --cancel-label "Back" \
-           --menu "Select font" 0 0 10 $list)
-        if [ $? == 0 ]; then
-          listnr=1
-          for NAME in $(ls /app/kbd/current/share/consolefonts); do
-            case $NAME in
-              README*)
+         for NAME in $(ls /app/kbd/current/share/consolefonts); do
+           case $NAME in
+             README*)
                 ;;
-              *)
-                if [ $listnr = $cmd ]; then
-                  NEW_FONT="$NAME"
-                fi
+             *) list="$list $listnr $NAME"
                 listnr=$(($listnr+1))
                 ;;
-            esac
-          done
-        fi
-        ;;
-      4)
-         list=""
+           esac
+         done
+         cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set font" --cancel-label "Back" \
+           --menu "Select font" 0 0 10 $list)
+         if [ $? == 0 ]; then
+           listnr=1
+           for NAME in $(ls /app/kbd/current/share/consolefonts); do
+             case $NAME in
+               README*)
+                  ;;
+               *) if [ $listnr = $cmd ]; then
+                    NEW_FONT="$NAME"
+                  fi
+                  listnr=$(($listnr+1))
+                  ;;
+             esac
+           done
+         fi
+         ;;
+      4) list=""
          listnr=1
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwerty); do
-              list="$list $listnr qwerty/$NAME"
-              listnr=$(($listnr+1))
-        done
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwertz); do
-              list="$list $listnr qwertz/$NAME"
-              listnr=$(($listnr+1))
-        done
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/azerty); do
-              list="$list $listnr azerty/$NAME"
-              listnr=$(($listnr+1))
-        done
-        cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set keyboard" --cancel-label "Back" \
-           --menu "Select keyboard" 0 0 10 $list)
+         for DIRDIR in qwerty qwertz azerty; do
+           for NAME in $(ls /app/kbd/current/share/keymaps/i386/$DIRDIR); do
+             list="$list $listnr $DIRDIR/$NAME"
+             listnr=$(($listnr+1))
+           done
+         done
+         cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set keyboard" --cancel-label "Back" \
+                 --menu "Select keyboard" 0 0 10 $list)
          listnr=1
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwerty); do
-                if [ $listnr = $cmd ]; then
-                  NEW_KEYB="qwerty/$NAME"
-                fi
-              listnr=$(($listnr+1))
-        done
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwertz); do
-                if [ $listnr = $cmd ]; then
-                  NEW_KEYB="qwertz/$NAME"
-                fi
-              listnr=$(($listnr+1))
-        done
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/azerty); do
-                if [ $listnr = $cmd ]; then
-                  NEW_KEYB="azerty/$NAME"
-                fi
-              listnr=$(($listnr+1))
-        done
-        ;;
-      5)
-        if [ "$1" = "" ]; then
-          change_value_in_conf_file "FONT" "$NEW_FONT"
-          change_value_in_conf_file "KEYB" "$NEW_KEYB"
-          FONT=$NEW_FONT
-          KEYB=$NEW_KEYB
-        else
-          change_value_in_conf_file "$1_FONT" "$NEW_FONT"
-          change_value_in_conf_file "$1_KEYB" "$NEW_KEYB"
-        fi
-        break;
-        ;;
+         for DIRDIR in qwerty qwertz azerty; do
+           for NAME in $(ls /app/kbd/current/share/keymaps/i386/$DIRDIR); do
+             if [ $listnr = $cmd ]; then
+               NEW_KEYB="$DIRDIR/$NAME"
+             fi
+             listnr=$(($listnr+1))
+           done
+         done
+         ;;
+      5) if [ "$1" = "" ]; then
+           change_value_in_conf_file "FONT" "$NEW_FONT"
+           change_value_in_conf_file "KEYB" "$NEW_KEYB"
+           FONT=$NEW_FONT
+           KEYB=$NEW_KEYB
+         else
+           change_value_in_conf_file "$1_FONT" "$NEW_FONT"
+           change_value_in_conf_file "$1_KEYB" "$NEW_KEYB"
+         fi
+         break;
+         ;;
       esac
     else
       break;
@@ -220,45 +191,45 @@ set_keyboard_font_general_or_user() {
 }
 
 set_time_zone() {
-    list=""
+  list=""
+  listnr=1
+  for NAME in $(ls /app/tzdb/current/usr/share/zoneinfo); do
+    if [ -d "/app/tzdb/current/usr/share/zoneinfo/$NAME" ]; then
+      for NAME2 in $(ls /app/tzdb/current/usr/share/zoneinfo/$NAME); do
+        list="$list $listnr $NAME/$NAME2"
+        listnr=$(($listnr+1))
+      done
+    else
+      list="$list $listnr $NAME"
+      listnr=$(($listnr+1))
+    fi
+  done
+  cmd=$(dialog --stdout --backtitle "PLLinux/set timezone" --cancel-label "Back" \
+           --menu "Selected timezone $TIMEZONE. Please select new value" 0 0 10 $list)
+  if [ $? = 0 ]; then
     listnr=1
     for NAME in $(ls /app/tzdb/current/usr/share/zoneinfo); do
       if [ -d "/app/tzdb/current/usr/share/zoneinfo/$NAME" ]; then
         for NAME2 in $(ls /app/tzdb/current/usr/share/zoneinfo/$NAME); do
-          list="$list $listnr $NAME/$NAME2"
-          listnr=$(($listnr+1))
-        done
-      else
-        list="$list $listnr $NAME"
-        listnr=$(($listnr+1))
-      fi
-    done
-    cmd=$(dialog --stdout --backtitle "PLLinux/set timezone" --cancel-label "Back" \
-           --menu "Selected timezone $TIMEZONE. Please select new value" 0 0 10 $list)
-    if [ $? = 0 ]; then
-      listnr=1
-      for NAME in $(ls /app/tzdb/current/usr/share/zoneinfo); do
-        if [ -d "/app/tzdb/current/usr/share/zoneinfo/$NAME" ]; then
-          for NAME2 in $(ls /app/tzdb/current/usr/share/zoneinfo/$NAME); do
-            if [ $listnr = $cmd ]; then
-              TIMEZONE=$NAME/$NAME2
-              change_value_in_conf_file "TIMEZONE" "$TIMEZONE"
-            fi
-            listnr=$(($listnr+1))
-          done
-        else
           if [ $listnr = $cmd ]; then
-            TIMEZONE=$NAME
+            TIMEZONE=$NAME/$NAME2
             change_value_in_conf_file "TIMEZONE" "$TIMEZONE"
           fi
           listnr=$(($listnr+1))
+        done
+      else
+        if [ $listnr = $cmd ]; then
+          TIMEZONE=$NAME
+          change_value_in_conf_file "TIMEZONE" "$TIMEZONE"
         fi
-      done
-    fi
+        listnr=$(($listnr+1))
+      fi
+    done
+  fi
 }
 
 add_new_user() {
-    cmd=$(dialog --stdout --backtitle "PLLinux/set users/add new user" --cancel-label "Back" \
+  cmd=$(dialog --stdout --backtitle "PLLinux/set users/add new user" --cancel-label "Back" \
            --menu "Add new user" 0 0 10 1 "x")
 }
 
@@ -282,7 +253,7 @@ set_existing_user_apps() {
   done
 
   cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/available apps" --cancel-label "Back" \
-         --checklist "Set available apps for the $1, \"x\" shows earlier setup" 0 0 10 $list)
+         --checklist "Set available apps for $1, \"x\" shows earlier setup" 0 0 10 $list)
 
   if [ $? = 0 ]; then
     list=""
@@ -305,20 +276,20 @@ set_existing_user_features() {
   get_value_from_conf_file "$1_FEATURES"
   USER_FEATURES="$CONF_FILE_VALUE"
   case $USER_FEATURES in
-  *network*) USER_NETWORK="x on" ;; *) USER_NETWORK="- off" ;;
+    *network*) USER_NETWORK="x on" ;; *) USER_NETWORK="- off" ;;
   esac
   case $USER_FEATURES in
-  *processes*) USER_PROCESSES="x on" ;; *) USER_PROCESSES="- off" ;;
+    *processes*) USER_PROCESSES="x on" ;; *) USER_PROCESSES="- off" ;;
   esac
   case $USER_FEATURES in
-  *mnt*) USER_MNT="x on" ;; *) USER_MNT="- off" ;;
+    *mnt*) USER_MNT="x on" ;; *) USER_MNT="- off" ;;
   esac
   case $USER_FEATURES in
-  *reset*) USER_RESET="x on" ;; *) USER_RESET="- off" ;;
+    *reset*) USER_RESET="x on" ;; *) USER_RESET="- off" ;;
   esac
 
   cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/features" --cancel-label "Back" \
-         --checklist "Set features for the $1, \"x\" shows previous setup" 0 0 10 \
+         --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 \
                    "Access to all user processes"   $USER_PROCESSES \
                    "Access to /mnt"            $USER_MNT \
                    "Access to the network"     $USER_NETWORK \
@@ -326,18 +297,11 @@ set_existing_user_features() {
 
   if [ $? = 0 ]; then
     USER_FEATURES="";
-    case $cmd in
-    *processes*) USER_FEATURES="processes" ;;
-    esac
-    case $cmd in
-    */mnt*) USER_FEATURES="$USER_FEATURES mnt" ;;
-    esac
-    case $cmd in
-    *network*) USER_FEATURES="$USER_FEATURES network" ;;
-    esac
-    case $cmd in
-    *reset*) USER_FEATURES="$USER_FEATURES reset" ;;
-    esac
+    for FEATFEAT in processes mnt network reset; do
+      case $cmd in
+        *$FEATFEAT*) USER_FEATURES="$USER_FEATURES $FEATFEAT" ;;
+      esac
+    done
     change_value_in_conf_file "$1_FEATURES" "$USER_FEATURES"
   fi
 }
@@ -362,18 +326,17 @@ set_existing_user() {
       case $cmd in
         1) set_existing_user_apps $1 ;;
         2) set_existing_user_features $1 ;;
-        3) 
-  get_value_from_conf_file "$1_KEYB"
-  NEW_KEYB="$CONF_FILE_VALUE"
-  if [ "$NEW_KEYB" = "" ]; then
-    NEW_KEYB="$KEYB"
-  fi
-  get_value_from_conf_file "$1_FONT"
-  NEW_FONT="$CONF_FILE_VALUE"
-  if [ "$NEW_FONT" = "" ]; then
-    NEW_FONT="$FONT"
-  fi
-set_keyboard_font_general_or_user $1 ;;
+        3) get_value_from_conf_file "$1_KEYB"
+           NEW_KEYB="$CONF_FILE_VALUE"
+           if [ "$NEW_KEYB" = "" ]; then
+             NEW_KEYB="$KEYB"
+           fi
+           get_value_from_conf_file "$1_FONT"
+           NEW_FONT="$CONF_FILE_VALUE"
+           if [ "$NEW_FONT" = "" ]; then
+             NEW_FONT="$FONT"
+           fi
+           set_keyboard_font_general_or_user $1 ;;
         5) set_existing_user_password $1 ;;
       esac
     else
@@ -432,7 +395,6 @@ if [ "$1" != "" ]; then
   exit
 fi
 
-
 while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 5 \
        1 "Apps (todo)" \
@@ -442,10 +404,9 @@ while true; do
        5 "Users" )
   if [ $? == 0 ]; then
     case $cmd in
-    3) 
-  NEW_KEYB="$KEYB"
-  NEW_FONT="$FONT"
-set_keyboard_font_general_or_user "" ;;
+    3) NEW_KEYB="$KEYB"
+       NEW_FONT="$FONT"
+       set_keyboard_font_general_or_user "" ;;
     4) set_time_zone ;;
     5) set_users ;;
     esac
@@ -453,5 +414,6 @@ set_keyboard_font_general_or_user "" ;;
     break
   fi
 done
+
 clear
 set_general_config
