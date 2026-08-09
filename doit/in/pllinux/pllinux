@@ -253,7 +253,7 @@ set_time_zone() {
 
 add_new_user() {
     cmd=$(dialog --stdout --backtitle "PLLinux/set users/add new user" --cancel-label "Back" \
-           --menu "Edit users" 0 0 10 1 "x")
+           --menu "Add new user" 0 0 10 1 "x")
 }
 
 set_existing_user_apps() {
@@ -408,7 +408,7 @@ set_existing_user_keyboard_font() {
         ;;
       esac
     else
-      return
+      break;
     fi
   done
   /app/kbd/current/bin/setfont -C /dev/tty1 $FONT
@@ -457,44 +457,27 @@ set_existing_user_features() {
 }
 
 set_existing_user_password() {
+  IFS=$IFSORIG
   clear
   passwd $1
-  echo "Enter any key to continue..."
-  read x
-}
-
-change_user_feature() {
-  case $USER_FEATURES in
-    *$1*)
-       NEW_FEAT=""
-       IFS=" "
-       for FEATURE in $USER_FEATURES; do
-         if [ "$FEATURE" != "$1" ]; then
-           NEW_FEAT="$NEW_FEAT $FEATURE"
-         fi
-       done
-       IFS=$IFSORIG
-       USER_FEATURES="$NEW_FEAT"
-       ;;
-    *) USER_FEATURES="${USER_FEATURES} $1"
-       ;;
-  esac
+  echo "Press any key to continue..."
+  read
 }
 
 set_existing_user() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1" --cancel-label "Back" \
-           --menu "Set user $1" 0 0 10 1 "Available apps" \
+           --menu "Set user $1" 0 0 6 1 "Available apps" \
                    2 "Features" \
                    3 "Keyboard and font" \
-                   4 "Language" \
+                   4 "Language (todo)" \
                    5 "Password" )
-    if [ $? = 0 ]; then
+    if [ $? == 0 ]; then
       case $cmd in
         1) set_existing_user_apps $1 ;;
         2) set_existing_user_features $1 ;;
         3) set_existing_user_keyboard_font $1 ;;
-        4) set_existing_user_password $1 ;;
+        5) set_existing_user_password $1 ;;
       esac
     else
       break
@@ -515,20 +498,24 @@ EOF
     done < "${DIR}etc/passwd"
     list="$list $listnr Add(todo)"
     cmd=$(dialog --stdout --backtitle "PLLinux/set users" --cancel-label "Back" \
-           --menu "Edit users" 0 0 10 $list)
-    if [ $? = 0 ]; then
+           --menu "Set users" 0 0 10 $list)
+    if [ $? == 0 ]; then
+      USRUSR=""
       listnr=1
       while read -r line; do
         IFS=":" read -r USER_NAME OTHER << EOF
 $line
 EOF
         if [ $listnr = $cmd ]; then
-          set_existing_user $USER_NAME
+          USRUSR="$USER_NAME"
+          break;
         fi
         listnr=$(($listnr+1))
       done < "${DIR}etc/passwd"
-      if [ $listnr = $cmd ]; then
+      if [ "$USRUSR" = "" ]; then
         add_new_user
+      else
+        set_existing_user $USRUSR
       fi
     else
       break;
@@ -548,8 +535,9 @@ if [ "$1" != "" ]; then
   exit
 fi
 
+
 while true; do
-  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 4 \
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 5 \
        1 "Apps (todo)" \
        2 "App language (todo) - $LANG" \
        3 "Keyboard and font   - $KEYB, $FONT" \
@@ -562,8 +550,8 @@ while true; do
     5) set_users ;;
     esac
   else
-    return
+    break
   fi
 done
-
+clear
 set_general_config
