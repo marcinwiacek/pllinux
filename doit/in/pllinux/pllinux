@@ -1,5 +1,5 @@
 #!/app/busybox/current/bin/sh
-# Part of PLLINUX. Version from 9 Aug 2026. Creating system cfg from cfg file or asking user and creating conf file.
+# Part of PLLINUX. Version from 9 Aug 2026. Creating system cfg from conf file or asking user and creating conf file.
 
 DIR="/" # path with / in the end. In real system /
 if [ -d "/mnt/x" ]; then
@@ -456,6 +456,13 @@ set_existing_user_features() {
   fi
 }
 
+set_existing_user_password() {
+  clear
+  passwd $1
+  echo "Enter any key to continue..."
+  read x
+}
+
 change_user_feature() {
   case $USER_FEATURES in
     *$1*)
@@ -480,12 +487,14 @@ set_existing_user() {
            --menu "Set user $1" 0 0 10 1 "Available apps" \
                    2 "Features" \
                    3 "Keyboard and font" \
-                   4 "Language" )
+                   4 "Language" \
+                   5 "Password" )
     if [ $? = 0 ]; then
       case $cmd in
         1) set_existing_user_apps $1 ;;
         2) set_existing_user_features $1 ;;
         3) set_existing_user_keyboard_font $1 ;;
+        4) set_existing_user_password $1 ;;
       esac
     else
       break
@@ -504,7 +513,7 @@ EOF
       list="$list $listnr $USER_NAME"
       listnr=$(($listnr+1))
     done < "${DIR}etc/passwd"
-    list="$list $listnr Add"
+    list="$list $listnr Add(todo)"
     cmd=$(dialog --stdout --backtitle "PLLinux/set users" --cancel-label "Back" \
            --menu "Edit users" 0 0 10 $list)
     if [ $? = 0 ]; then
@@ -541,15 +550,16 @@ fi
 
 while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 4 \
-       1 "App language      - $LANG" \
-       2 "Keyboard and font - $KEYB, $FONT" \
-       3 "Timezone          - $TIMEZONE" \
-       4 "Users" )
+       1 "Apps (todo)" \
+       2 "App language (todo) - $LANG" \
+       3 "Keyboard and font   - $KEYB, $FONT" \
+       4 "Timezone            - $TIMEZONE" \
+       5 "Users" )
   if [ $? == 0 ]; then
     case $cmd in
-    2) set_keyboard_font ;;
-    3) set_time_zone ;;
-    4) set_users ;;
+    3) set_keyboard_font ;;
+    4) set_time_zone ;;
+    5) set_users ;;
     esac
   else
     return
