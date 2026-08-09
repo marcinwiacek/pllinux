@@ -96,33 +96,36 @@ EOF
   fi
 }
 
-set_keyboard_font() {
-  KEYB2=$KEYB
-  FONT2=$FONT
+set_keyboard_font_general_or_user() {
+  if [ "$1" = "" ]; then
+    PROMPT="PLLinux";
+  else
+    PROMPT="PLLinux/set users/set user $1";
+  fi
   while true; do
-    /app/kbd/current/bin/setfont -C /dev/tty1 $FONT2
-    /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB2
-    cmd=$(dialog --stdout --backtitle "PLLinux/Keyboard and font" --cancel-label "Back" \
-           --menu "Keyboard $KEYB2, font $FONT2" 0 0 5 \
+    /app/kbd/current/bin/setfont -C /dev/tty1 $NEW_FONT
+    /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$NEW_KEYB
+    cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font" --cancel-label "Back" \
+           --menu "Set display and typing" 0 0 5 \
            1 "Check" \
            2 "Set default" \
-           3 "Set font" \
-           4 "Set keyboard" \
+           3 "Set font     - $NEW_FONT" \
+           4 "Set keyboard - $NEW_KEYB" \
            5 "Save and back")
     if [ $? == 0 ]; then
       case $cmd in
-      1) $(dialog --stdout --backtitle "PLLinux/Keyboard and font/Check" --cancel-label "Back" \
+      1) $(dialog --stdout --backtitle "$PROMPT/keyboard and font/check" --cancel-label "Back" \
                 --inputbox "Please test your keyboard layout" 15 30) ;;
-      2)  cmd=$(dialog --stdout --backtitle "PLLinux/Keyboard and font/set default" --cancel-label "Back" \
+      2)  cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set default" --cancel-label "Back" \
            --menu "Set proposed option for the concrete language" 0 0 5 \
            1 "PL" 2 "Other")
            if [ $? == 0 ]; then
              case $cmd in
-               1) KEYB2="qwerty/pl1.map.gz"
-                  FONT2="LatGrkCyr-8x16.psfu.gz"
+               1) NEW_KEYB="qwerty/pl1.map.gz"
+                  NEW_FONT="LatGrkCyr-8x16.psfu.gz"
                   ;;
-               *) KEYB2="qwerty/pl4.map.gz"
-                  FONT2="sun12x22.psfu.gz"
+               *) NEW_KEYB="qwerty/pl4.map.gz"
+                  NEW_FONT="sun12x22.psfu.gz"
                   ;;
              esac
            fi
@@ -140,7 +143,7 @@ set_keyboard_font() {
               ;;
           esac
         done
-        cmd=$(dialog --stdout --backtitle "PLLinux/Keyboard and font/set font" --cancel-label "Back" \
+        cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set font" --cancel-label "Back" \
            --menu "Select font" 0 0 10 $list)
         if [ $? == 0 ]; then
           listnr=1
@@ -150,7 +153,7 @@ set_keyboard_font() {
                 ;;
               *)
                 if [ $listnr = $cmd ]; then
-                  FONT2="$NAME"
+                  NEW_FONT="$NAME"
                 fi
                 listnr=$(($listnr+1))
                 ;;
@@ -173,42 +176,45 @@ set_keyboard_font() {
               list="$list $listnr azerty/$NAME"
               listnr=$(($listnr+1))
         done
-        cmd=$(dialog --stdout --backtitle "PLLinux/Keyboard and font/set keyboard" --cancel-label "Back" \
+        cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set keyboard" --cancel-label "Back" \
            --menu "Select keyboard" 0 0 10 $list)
          listnr=1
         for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwerty); do
                 if [ $listnr = $cmd ]; then
-                  KEYB2="qwerty/$NAME"
+                  NEW_KEYB="qwerty/$NAME"
                 fi
               listnr=$(($listnr+1))
         done
         for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwertz); do
                 if [ $listnr = $cmd ]; then
-                  KEYB2="qwertz/$NAME"
+                  NEW_KEYB="qwertz/$NAME"
                 fi
               listnr=$(($listnr+1))
         done
         for NAME in $(ls /app/kbd/current/share/keymaps/i386/azerty); do
                 if [ $listnr = $cmd ]; then
-                  KEYB2="azerty/$NAME"
+                  NEW_KEYB="azerty/$NAME"
                 fi
               listnr=$(($listnr+1))
         done
         ;;
       5)
-        change_value_in_conf_file "KEYB" "$KEYB2"
-        change_value_in_conf_file "FONT" "$FONT2"
+        if [ "$1" = "" ]; then
+          change_value_in_conf_file "FONT" "$NEW_FONT"
+          change_value_in_conf_file "KEYB" "$NEW_KEYB"
+          FONT=$NEW_FONT
+          KEYB=$NEW_KEYB
+        else
+          change_value_in_conf_file "$1_FONT" "$NEW_FONT"
+          change_value_in_conf_file "$1_KEYB" "$NEW_KEYB"
+        fi
         break;
         ;;
       esac
     else
-      KEYB2=$KEYB
-      FONT2=$FONT
-      return
+      break;
     fi
   done
-  KEYB=$KEYB2
-  FONT=$FONT2
   /app/kbd/current/bin/setfont -C /dev/tty1 $FONT
   /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB
 }
@@ -294,126 +300,6 @@ EOF
   fi
 }
 
-set_existing_user_keyboard_font() {
-  get_value_from_conf_file "$1_KEYB"
-  USER_KEYB="$CONF_FILE_VALUE"
-  if [ "$USER_KEYB" = "" ]; then
-    USER_KEYB="$KEYB"
-  fi
-  get_value_from_conf_file "$1_FONT"
-  USER_FONT="$CONF_FILE_VALUE"
-  if [ "$USER_FONT" = "" ]; then
-    USER_FONT="$FONT"
-  fi
-  while true; do
-    /app/kbd/current/bin/setfont -C /dev/tty1 $USER_FONT
-    /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$USER_KEYB
-    cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/keyboard and font" --cancel-label "Back" \
-           --menu "Set display and typing for $1" 0 0 5 \
-           1 "Check" \
-           2 "Set default" \
-           3 "Set font     - $USER_FONT" \
-           4 "Set keyboard - $USER_KEYB" \
-           5 "Save and back")
-    if [ $? == 0 ]; then
-      case $cmd in
-      1) $(dialog --stdout --backtitle "PLLinux/set users/set user $1/keyboard and font/check" --cancel-label "Back" \
-                --inputbox "Please test your keyboard layout" 15 30) ;;
-      2)  cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/keyboard and font/set default" --cancel-label "Back" \
-           --menu "Set proposed option for the concrete language" 0 0 5 \
-           1 "PL" 2 "Other")
-           if [ $? == 0 ]; then
-             case $cmd in
-               1) USER_KEYB="qwerty/pl1.map.gz"
-                  USER_FONT="LatGrkCyr-8x16.psfu.gz"
-                  ;;
-               *) USER_KEYB="qwerty/pl4.map.gz"
-                  USER_FONT="sun12x22.psfu.gz"
-                  ;;
-             esac
-           fi
-        ;;
-      3) 
-         list=""
-         listnr=1
-        for NAME in $(ls /app/kbd/current/share/consolefonts); do
-          case $NAME in
-            README*)
-              ;;
-            *)
-              list="$list $listnr $NAME"
-              listnr=$(($listnr+1))
-              ;;
-          esac
-        done
-        cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/keyboard and font/set font" --cancel-label "Back" \
-           --menu "Select font" 0 0 10 $list)
-        if [ $? == 0 ]; then
-          listnr=1
-          for NAME in $(ls /app/kbd/current/share/consolefonts); do
-            case $NAME in
-              README*)
-                ;;
-              *)
-                if [ $listnr = $cmd ]; then
-                  USER_FONT="$NAME"
-                fi
-                listnr=$(($listnr+1))
-                ;;
-            esac
-          done
-        fi
-        ;;
-      4)
-         list=""
-         listnr=1
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwerty); do
-              list="$list $listnr qwerty/$NAME"
-              listnr=$(($listnr+1))
-        done
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwertz); do
-              list="$list $listnr qwertz/$NAME"
-              listnr=$(($listnr+1))
-        done
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/azerty); do
-              list="$list $listnr azerty/$NAME"
-              listnr=$(($listnr+1))
-        done
-        cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/keyboard and font/set keyboard" --cancel-label "Back" \
-           --menu "Select keyboard" 0 0 10 $list)
-         listnr=1
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwerty); do
-                if [ $listnr = $cmd ]; then
-                  USER_KEYB="qwerty/$NAME"
-                fi
-              listnr=$(($listnr+1))
-        done
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/qwertz); do
-                if [ $listnr = $cmd ]; then
-                  USER_KEYB="qwertz/$NAME"
-                fi
-              listnr=$(($listnr+1))
-        done
-        for NAME in $(ls /app/kbd/current/share/keymaps/i386/azerty); do
-                if [ $listnr = $cmd ]; then
-                  USER_KEYB="azerty/$NAME"
-                fi
-              listnr=$(($listnr+1))
-        done
-        ;;
-      5)
-        change_value_in_conf_file "$1_FONT" "$USER_FONT"
-        change_value_in_conf_file "$1_KEYB" "$USER_KEYB"
-        break;
-        ;;
-      esac
-    else
-      break;
-    fi
-  done
-  /app/kbd/current/bin/setfont -C /dev/tty1 $FONT
-  /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB
-}
 
 set_existing_user_features() {
   get_value_from_conf_file "$1_FEATURES"
@@ -476,7 +362,18 @@ set_existing_user() {
       case $cmd in
         1) set_existing_user_apps $1 ;;
         2) set_existing_user_features $1 ;;
-        3) set_existing_user_keyboard_font $1 ;;
+        3) 
+  get_value_from_conf_file "$1_KEYB"
+  NEW_KEYB="$CONF_FILE_VALUE"
+  if [ "$NEW_KEYB" = "" ]; then
+    NEW_KEYB="$KEYB"
+  fi
+  get_value_from_conf_file "$1_FONT"
+  NEW_FONT="$CONF_FILE_VALUE"
+  if [ "$NEW_FONT" = "" ]; then
+    NEW_FONT="$FONT"
+  fi
+set_keyboard_font_general_or_user $1 ;;
         5) set_existing_user_password $1 ;;
       esac
     else
@@ -545,7 +442,10 @@ while true; do
        5 "Users" )
   if [ $? == 0 ]; then
     case $cmd in
-    3) set_keyboard_font ;;
+    3) 
+  NEW_KEYB="$KEYB"
+  NEW_FONT="$FONT"
+set_keyboard_font_general_or_user "" ;;
     4) set_time_zone ;;
     5) set_users ;;
     esac
