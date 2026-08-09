@@ -266,43 +266,6 @@ EOF
   IFS=$IFSORIG
 }
 
-# getting app dependencies from app readme.md
-find_app_deps() {
-  local DIR=$1
-  local SECTION=$2
-  local GET_CURRENT=$3
-  if [ -e "$DIR/readme.md" ]; then
-     sectionDeps=0
-     while read -r line; do
-       if [ "$line" = "**$SECTION**" ]; then
-         sectionDeps=1
-       elif [ "$line" = "" ]; then
-         sectionDeps=0;
-       elif [ "$sectionDeps" = 1 ]; then
-         case $DEPS in
-           *$line* )
-              ;;
-           * )
-              SAVE=1
-              case $line in
-                *current* )
-                    SAVE=$GET_CURRENT
-                    ;;
-              esac
-              if [ "$SAVE" == "1" ]; then
-                complete=0
-                if [ "$DEPS" != "" ]; then
-                  DEPS="$DEPS:"
-                fi
-                DEPS="$DEPS$line"
-              fi
-              ;;
-         esac
-       fi
-     done < $DIR/readme.md
-  fi
-}
-
 set_existing_user_apps() {
   get_value_from_conf_file "$1_APPS"
   USER_APPS="$CONF_FILE_VALUE"
@@ -313,7 +276,7 @@ set_existing_user_apps() {
       list="$list ${APP_NAME}:${APP_VERSION} "
       case $USER_APPS in
         *${APP_NAME}\ ${APP_VERSION}*)
-          list="$list existing on "
+          list="$list x on "
           ;;
         *)
           list="$list - off "
@@ -323,7 +286,7 @@ set_existing_user_apps() {
   done
 
   cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/available apps" --cancel-label "Back" \
-         --checklist "Set apps for the user $1, existing shows previously setup apps" 0 0 10 $list)
+         --checklist "Set available apps for the user $1, \"x\" shows earlier setup" 0 0 10 $list)
 
   if [ $? = 0 ]; then
     list=""
@@ -348,11 +311,11 @@ set_keyboard_font_user() {
     /app/kbd/current/bin/setfont -C /dev/tty1 $FONT2
     /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB2
     cmd=$(dialog --stdout --backtitle "PLLinux/Keyboard and font" --cancel-label "Back" \
-           --menu "Keyboard $KEYB2, font $FONT2" 0 0 5 \
+           --menu "Set display and typing for user" 0 0 5 \
            1 "Check" \
            2 "Set default" \
-           3 "Set font" \
-           4 "Set keyboard" \
+           3 "Set font     - $FONT2" \
+           4 "Set keyboard - $KEYB" \
            5 "Save and back")
     if [ $? == 0 ]; then
       case $cmd in
@@ -456,6 +419,47 @@ set_keyboard_font_user() {
   /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$KEYB
 }
 
+set_existing_user_features() {
+  get_value_from_conf_file "$1_FEATURES"
+  USER_FEATURES="$CONF_FILE_VALUE"
+  case $USER_FEATURES in
+  *network*) USER_NETWORK="x on" ;; *) USER_NETWORK="- off" ;;
+  esac
+  case $USER_FEATURES in
+  *processes*) USER_PROCESSES="x on" ;; *) USER_PROCESSES="- off" ;;
+  esac
+  case $USER_FEATURES in
+  *mnt*) USER_MNT="x on" ;; *) USER_MNT="- off" ;;
+  esac
+  case $USER_FEATURES in
+  *reset*) USER_RESET="x on" ;; *) USER_RESET="- off" ;;
+  esac
+
+  cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/features" --cancel-label "Back" \
+         --checklist "Set features for the $1, \"x\" shows previous setup" 0 0 10 \
+                   "Access to all user processes"   $USER_PROCESSES \
+                   "Access to /mnt"            $USER_MNT \
+                   "Access to the network"     $USER_NETWORK \
+                   "System reset and shutdown" $USER_RESET)
+
+  if [ $? = 0 ]; then
+    USER_FEATURES="";
+    case $cmd in
+    *processes*) USER_FEATURES="processes" ;;
+    esac
+    case $cmd in
+    */mnt*) USER_FEATURES="$USER_FEATURES mnt" ;;
+    esac
+    case $cmd in
+    *network*) USER_FEATURES="$USER_FEATURES network" ;;
+    esac
+    case $cmd in
+    *reset*) USER_FEATURES="$USER_FEATURES reset" ;;
+    esac
+    change_value_in_conf_file "$1_FEATURES" "$USER_FEATURES"
+  fi
+}
+
 change_user_feature() {
   case $USER_FEATURES in
     *$1*)
@@ -475,50 +479,17 @@ change_user_feature() {
 }
 
 set_existing_user() {
-  get_value_from_conf_file "$1_FEATURES"
-  USER_FEATURES="$CONF_FILE_VALUE"
   while true; do
-    get_value_from_conf_file "$1_KEYB"
-    USER_KEYB="$CONF_FILE_VALUE"
-    if [ "$USER_KEYB" = "" ]; then
-      USER_KEYB="$KEYB"
-    fi
-    get_value_from_conf_file "$1_FONT"
-    USER_FONT="$CONF_FILE_VALUE"
-    if [ "$USER_FONT" = "" ]; then
-      USER_FONT="$FONT"
-    fi
-    case $USER_FEATURES in
-    *network*) USER_NETWORK="yes" ;; *) USER_NETWORK="no" ;;
-    esac
-    case $USER_FEATURES in
-    *processes*) USER_PROCESSES="yes" ;; *) USER_PROCESSES="no" ;;
-    esac
-    case $USER_FEATURES in
-    *mnt*) USER_MNT="yes" ;; *) USER_MNT="no" ;;
-    esac
-    case $USER_FEATURES in
-    *reset*) USER_RESET="yes" ;; *) USER_RESET="no" ;;
-    esac
-
     cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1" --cancel-label "Back" \
            --menu "Set user $1" 0 0 10 1 "Available apps" \
-                   2 "Access to all processes   - $USER_PROCESSES" \
-                   3 "Access to /mnt            - $USER_MNT" \
-                   4 "Access to network         - $USER_NETWORK" \
-                   5 "System reset and shutdown - $USER_RESET" \
-                   6 "Keyboard and font         - $USER_KEYB and $USER_FONT" \
-                   7 "Save and exit" )
+                   2 "Features" \
+                   3 "Keyboard and font" \
+                   4 "Language" )
     if [ $? = 0 ]; then
       case $cmd in
         1) set_existing_user_apps $1 ;;
-        2) change_user_feature processes ;;
-        3) change_user_feature mnt ;;
-        4) change_user_feature network ;;
-        5) change_user_feature reset ;;
-        6) set_keyboard_font_user $1 ;;
-        7) change_value_in_conf_file "$1_FEATURES" "$USER_FEATURES"
-           break ;;
+        2) set_existing_user_features $1 ;;
+        3) set_keyboard_font_user $1 ;;
       esac
     else
       break
@@ -550,10 +521,10 @@ EOF
           set_existing_user $USER_NAME
         fi
         listnr=$(($listnr+1))
-    done < "${DIR}etc/passwd"
-        if [ $listnr = $cmd ]; then
-          add_new_user
-        fi
+      done < "${DIR}etc/passwd"
+      if [ $listnr = $cmd ]; then
+        add_new_user
+      fi
     else
       break;
     fi
@@ -562,16 +533,15 @@ EOF
 
 while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 4 \
-       1 "Keyboard and font - $KEYB, $FONT" \
-       2 "Set timezone      - $TIMEZONE" \
-       3 "Users" \
-       4 "Save and exit")
+       1 "Language          - $LANG" \
+       2 "Keyboard and font - $KEYB, $FONT" \
+       3 "Timezone          - $TIMEZONE" \
+       4 "Users" )
   if [ $? == 0 ]; then
     case $cmd in
-    1) set_keyboard_font ;;
-    2) set_time_zone ;;
-    3) set_users ;;
-    4) break ;;
+    2) set_keyboard_font ;;
+    3) set_time_zone ;;
+    4) set_users ;;
     esac
   else
     return
