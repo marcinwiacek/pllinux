@@ -39,7 +39,7 @@ for APP_NAME in $APP_LIST; do
   fi
 done
 
-export
+#export
 
 export LANG=$(/app/pllinux/current/pllinux /etc/pllinux.conf LANG)
 export PATH=$path

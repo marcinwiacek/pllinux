@@ -14,6 +14,8 @@
 export PS1="\e[32m[\t] $USER:\w\$(if [ -f "/app/git/current/bin/git" ] && git rev-parse --git-dir > /dev/null 2>&1; then echo -n \" \e[33m\";git branch --show-current; fi) $ \e[m"
 # export PS1="\e[32m[\t] $USER:\w $ \e[m"
 
+echo "$@"
+
 processesall=0
 for ARG in "$@"
 do
@@ -163,7 +165,10 @@ do
 done
 PARAMS="$PARAMS --setenv HOME /other/app/$LAST "
 PARAMS="$PARAMS -- $LAST"
-#echo "$PARAMS"
+echo "$PARAMS"
 cd /
 IFS=" "
+if [ "$LAST" = "" ]; then
+  echo "User doesn't have app with shell (like busybox)"
+fi
 /app/bwrap/current/bin/bwrap $PARAMS
