@@ -309,7 +309,11 @@ set_existing_user_features() {
 set_existing_user_password() {
   IFS=$IFSORIG
   clear
-  passwd $1
+  if [ -d "/mnt/x" ]; then
+    echo "Not possible in host system"
+  else
+    passwd $1
+  fi
   echo "Press any key to continue..."
   read
 }
