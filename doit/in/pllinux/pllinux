@@ -286,7 +286,7 @@ set_existing_user_apps() {
   done
 
   cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/available apps" --cancel-label "Back" \
-         --checklist "Set available apps for the user $1, \"x\" shows earlier setup" 0 0 10 $list)
+         --checklist "Set available apps for the $1, \"x\" shows earlier setup" 0 0 10 $list)
 
   if [ $? = 0 ]; then
     list=""
