@@ -1,5 +1,5 @@
 #!/app/busybox/current/bin/sh
-# Part of PLLINUX. Version from 2 Aug 2026. Creating system cfg from cfg file or asking user and creating cfg file.
+# Part of PLLINUX. Version from 9 Aug 2026. Creating system cfg from cfg file or asking user and creating conf file.
 
 DIR="/" # path with / in the end. In real system /
 if [ -d "/mnt/x" ]; then
@@ -555,12 +555,5 @@ while true; do
     return
   fi
 done
-
-#FIXME: dont save, when file is not updated. Save SSD
-#echo "# Created by script pllinux version from 2 Aug 2026" > /etc/pllinux.conf
-#echo "KEYB=$KEYB" >> /etc/pllinux.conf
-#echo "FONT=$FONT" >> /etc/pllinux.conf
-#echo "TIMEZONE=$TIMEZONE" >> /etc/pllinux.conf
-#echo "LANG=en_US.utf8" >> /etc/pllinux.conf
 
 set_general_config
