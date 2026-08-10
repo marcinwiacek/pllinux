@@ -14,7 +14,13 @@ KEYB="qwerty/pl4.map.gz"
 FONT="sun12x22.psfu.gz"
 LANG="en_US.UTF-8"
 
+FIRST_SAVE=1
+
 change_value_in_conf_file() {
+  if [ "$FIRST_SAVE" = "1" ]; then
+     cp ${DIR}$CFGFILE ${DIR}${CFGFILE}-
+     FIRST_SAVE=0
+  fi
   file_content=$(cat ${DIR}$CFGFILE)
   echo "# Created by script pllinux version from 2 Aug 2026" > ${DIR}$CFGFILE
   while IFS= read -r line; do
@@ -361,6 +367,8 @@ EOF
       listnr=$(($listnr+1))
     done < "${DIR}etc/passwd"
     list="$list $listnr Add(todo)"
+    listnr=$(($listnr+1))
+    list="$list $listnr Delete(todo)"
     cmd=$(dialog --stdout --backtitle "PLLinux/set users" --cancel-label "Back" \
            --menu "Set users" 0 0 10 $list)
     if [ $? == 0 ]; then
