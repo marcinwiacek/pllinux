@@ -14,7 +14,7 @@
 export PS1="\e[32m[\t] $USER:\w\$(if [ -f "/app/git/current/bin/git" ] && git rev-parse --git-dir > /dev/null 2>&1; then echo -n \" \e[33m\";git branch --show-current; fi) $ \e[m"
 # export PS1="\e[32m[\t] $USER:\w $ \e[m"
 
-echo "$@"
+#echo "$@"
 
 processesall=0
 for ARG in "$@"
@@ -50,7 +50,7 @@ do
      deps="$deps:dinit current"; 
      PARAMS="$PARAMS --bind run run "
   fi
-  if [ "$ARG" = "processes" ] || [ "$ARG" = "processesall" ]; then 
+  if [ "$ARG" = "proc" ] || [ "$ARG" = "processesall" ]; then 
      PARAMS="$PARAMS --proc proc "
   fi
   if [ "$ARG" = "mnt" ]; then PARAMS="$PARAMS --bind mnt mnt " ; fi
@@ -165,7 +165,7 @@ do
 done
 PARAMS="$PARAMS --setenv HOME /other/app/$LAST "
 PARAMS="$PARAMS -- $LAST"
-echo "$PARAMS"
+#echo "$PARAMS"
 cd /
 IFS=" "
 if [ "$LAST" = "" ]; then

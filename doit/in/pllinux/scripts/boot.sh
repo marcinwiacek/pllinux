@@ -31,7 +31,7 @@ fi
 /app/util-linux/current/bin/mount mount -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
 /app/busybox/current/bin/chmod a+rw /dev/null
 
-/app/busybox/current/bin/chmod a+rw /dev/tty1
+#/app/busybox/current/bin/chmod a+rw /dev/tty1
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl

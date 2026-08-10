@@ -282,28 +282,32 @@ set_existing_user_features() {
   get_value_from_conf_file "$1_FEATURES"
   USER_FEATURES="$CONF_FILE_VALUE"
   case $USER_FEATURES in
-    *network*) USER_NETWORK="x on" ;; *) USER_NETWORK="- off" ;;
+    *\ network*) USER_NETWORK="x on" ;; *) USER_NETWORK="- off" ;;
   esac
   case $USER_FEATURES in
-    *processes*) USER_PROCESSES="x on" ;; *) USER_PROCESSES="- off" ;;
+    *\ proc*) USER_PROCESSES="x on" ;; *) USER_PROCESSES="- off" ;;
   esac
   case $USER_FEATURES in
-    *mnt*) USER_MNT="x on" ;; *) USER_MNT="- off" ;;
+    *\ allprocesses*) USER_ALL_PROCESSES="x on" ;; *) USER_ALL_PROCESSES="- off" ;;
   esac
   case $USER_FEATURES in
-    *reset*) USER_RESET="x on" ;; *) USER_RESET="- off" ;;
+    *\ mnt*) USER_MNT="x on" ;; *) USER_MNT="- off" ;;
+  esac
+  case $USER_FEATURES in
+    *\ reset*) USER_RESET="x on" ;; *) USER_RESET="- off" ;;
   esac
 
   cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/features" --cancel-label "Back" \
          --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 \
-                   "Access to all user processes"   $USER_PROCESSES \
-                   "Access to /mnt"            $USER_MNT \
-                   "Access to the network"     $USER_NETWORK \
-                   "System reset and shutdown" $USER_RESET)
+                   "Access to /proc"              $USER_PROCESSES \
+                   "Access to allprocesses"       $USER_ALL_PROCESSES \
+                   "Access to /mnt"               $USER_MNT \
+                   "Access to the network"        $USER_NETWORK \
+                   "System reset and shutdown"    $USER_RESET)
 
   if [ $? = 0 ]; then
     USER_FEATURES="";
-    for FEATFEAT in processes mnt network reset; do
+    for FEATFEAT in proc allprocesses mnt network reset; do
       case $cmd in
         *$FEATFEAT*) USER_FEATURES="$USER_FEATURES $FEATFEAT" ;;
       esac

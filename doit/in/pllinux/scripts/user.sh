@@ -1,8 +1,7 @@
 #!/app/busybox/current/bin/sh
 
 CONS=$(/app/busybox/current/bin/tty)
-
-echo User $USER on console  $CONS
+echo User $USER on console $CONS
 
 FEATURES=""
 APPS=""
@@ -18,12 +17,8 @@ EOF
     ${USER}_APPS )
       APPS="$PARAM_VALUE" ;;
     ${USER}_KEYB )
-echo $PARAM_VALUE
       /app/kbd/current/bin/loadkeys -C $CONS /app/kbd/current/share/keymaps/i386/$PARAM_VALUE ;;
-#      /app/kbd/current/bin/loadkeys -C $(/app/busybox/current/bin/tty) /app/kbd/current/share/keymaps/i386/$PARAM_VALUE ;;
     ${USER}_FONT )
-#      /app/kbd/current/bin/setfont -C $(/app/busybox/current/bin/tty) $PARAM_VALUE ;;
-echo $PARAM_VALUE
       /app/kbd/current/bin/setfont -C $CONS $PARAM_VALUE ;;
     esac
   done < "/etc/pllinux.conf"
@@ -35,4 +30,3 @@ else
 #/app/pllinux/current/scripts/userwrap.sh mnt reset net processes "app mc current:util-linux current:busybox current:openssl current:groff current"
   /app/pllinux/current/scripts/userwrap.sh "app $APPS"
 fi
-
