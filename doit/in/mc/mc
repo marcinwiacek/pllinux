@@ -18,7 +18,7 @@ mkdir /other/app/mc 2> /dev/null
     --proc proc \
     --tmpfs tmp \
     --bind-try /run run \
-    --bind /mnt mnt \
+    --bind-try /mnt mnt \
     --bind /home home \
     --bind-try /other other \
     --bind-try /etc. etc \
