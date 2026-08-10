@@ -3,6 +3,7 @@
 /app/bwrap/current/bin/bwrap \
     --unshare-all \
     --share-net \
+    --ro-bind /etc/app.repos /etc/app.repos \
     --ro-bind /etc/resolv.conf /etc/resolv.conf \
     --tmpfs tmp \
     --bind /app app \

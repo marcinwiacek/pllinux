@@ -58,12 +58,16 @@ $line
 EOF
       case $PARAM_NAME in
       KEYB* )
-        /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$PARAM_VALUE
+        if [ "$1" = "1" ]; then
+           /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$PARAM_VALUE
+        fi
         KEYB="$PARAM_VALUE" ;;
       FONT* )
-        for DEVDEV in 1 2 3 4; do
-          /app/kbd/current/bin/setfont -C /dev/tty$DEVDEV $PARAM_VALUE 2> /dev/null
-        done
+        if [ "$1" = "1" ]; then
+          for DEVDEV in 1 2 3 4; do
+            /app/kbd/current/bin/setfont -C /dev/tty$DEVDEV $PARAM_VALUE 2> /dev/null
+          done
+        fi
         FONT="$PARAM_VALUE" ;;
       TIMEZONE* )
         CURRENT=$(/app/busybox/current/bin/realpath /etc/localtime)
@@ -400,21 +404,21 @@ EOF
 }
 
 CFGFILE="etc/pllinux.conf"
-if [ "$1" != "" ]; then
-  CFGFILE="$1"
-fi
-set_general_config
-if [ "$1" != "" ]; then
-  if [ "$2" = "LANG" ]; then
-    echo $LANG
-  fi
-  if [ "$2" = "KEYB" ]; then
-    echo $KEYB
-  fi
-  if [ "$2" = "FONT" ]; then
-    echo $FONT
-  fi
+if [ "$1" = "BOOT" ]; then
+  set_general_config 1
   exit
+else
+  set_general_config 0
+  if [ "$1" = "LANG" ]; then
+    echo $LANG
+    exit
+  elif [ "$1" = "KEYB" ]; then
+    echo $KEYB
+    exit
+  elif [ "$1" = "FONT" ]; then
+    echo $FONT
+    exit
+  fi
 fi
 
 while true; do
@@ -438,4 +442,4 @@ while true; do
 done
 
 clear
-set_general_config
+set_general_config 0

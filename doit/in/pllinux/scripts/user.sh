@@ -30,3 +30,6 @@ else
 #/app/pllinux/current/scripts/userwrap.sh mnt reset net processes "app mc current:util-linux current:busybox current:openssl current:groff current"
   /app/pllinux/current/scripts/userwrap.sh "app $APPS"
 fi
+/app/kbd/current/bin/setfont -C $CONS $(/app/pllinux/current/pllinux FONT)
+/app/kbd/current/bin/loadkeys -C $CONS /app/kbd/current/share/keymaps/i386/$(/app/pllinux/current/pllinux KEYB)
+

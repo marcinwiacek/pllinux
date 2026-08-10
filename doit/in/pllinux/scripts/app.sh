@@ -198,7 +198,7 @@ EOF
         fi
       fi
     fi
-  done < "app.repos"
+  done < "${DIR}etc/app.repos"
 #  echo "$REPO_UPDATES"
 }
 
@@ -772,7 +772,7 @@ elif [ "$1" = "help" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
   echo "help                        - this info"
   echo
   echo "Repo list:"
-  echo "$(cat app.repos)"
+  echo "$(cat ${DIR}etc/app.repos)"
 else
   MASK=""
   if [ "$1" = "available" ] || [ "$1" = "updates" ]; then
