@@ -8,3 +8,6 @@ https://davmac.org/projects/dinit/
 
 **License**
 Apache 2.0
+
+**Deps**
+gcc current
