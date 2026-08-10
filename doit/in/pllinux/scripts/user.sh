@@ -1,6 +1,8 @@
 #!/app/busybox/current/bin/sh
 
-echo User $USER on console $(/app/busybox/current/bin/tty)
+CONS=$(/app/busybox/current/bin/tty)
+
+echo User $USER on console  $CONS
 
 FEATURES=""
 APPS=""
@@ -15,10 +17,14 @@ EOF
       FEATURES="$PARAM_VALUE" ;;
     ${USER}_APPS )
       APPS="$PARAM_VALUE" ;;
-#    ${USER}_KEYB )
+    ${USER}_KEYB )
+echo $PARAM_VALUE
+      /app/kbd/current/bin/loadkeys -C $CONS /app/kbd/current/share/keymaps/i386/$PARAM_VALUE ;;
 #      /app/kbd/current/bin/loadkeys -C $(/app/busybox/current/bin/tty) /app/kbd/current/share/keymaps/i386/$PARAM_VALUE ;;
-#    ${USER}_FONT )
-#      /app/kbd/current/bin/setfont -C $(/app/busybox/current/bin/tty) $PARAM_VALUE 2> /dev/null ;;
+    ${USER}_FONT )
+#      /app/kbd/current/bin/setfont -C $(/app/busybox/current/bin/tty) $PARAM_VALUE ;;
+echo $PARAM_VALUE
+      /app/kbd/current/bin/setfont -C $CONS $PARAM_VALUE ;;
     esac
   done < "/etc/pllinux.conf"
 fi

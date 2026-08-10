@@ -404,6 +404,12 @@ if [ "$1" != "" ]; then
   if [ "$2" = "LANG" ]; then
     echo $LANG
   fi
+  if [ "$2" = "KEYB" ]; then
+    echo $KEYB
+  fi
+  if [ "$2" = "FONT" ]; then
+    echo $FONT
+  fi
   exit
 fi
 
