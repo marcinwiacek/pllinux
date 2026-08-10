@@ -1,7 +1,8 @@
 #!/app/busybox/current/bin/sh
+#Script for logging normal user from console
 
 CONS=$(/app/busybox/current/bin/tty)
-echo User $USER on console $CONS
+#echo User $USER on console $CONS
 
 FEATURES=""
 APPS=""
@@ -28,7 +29,7 @@ if [ "$APPS" = "" ]; then
   echo User $USER does not have any apps
 else
 #/app/pllinux/current/scripts/userwrap.sh mnt reset net processes "app mc current:util-linux current:busybox current:openssl current:groff current"
-  /app/pllinux/current/scripts/userwrap.sh "app $APPS"
+  /app/pllinux/current/scripts/userwrap.sh $FEATURES "app $APPS"
 fi
 /app/kbd/current/bin/setfont -C $CONS $(/app/pllinux/current/pllinux FONT)
 /app/kbd/current/bin/loadkeys -C $CONS /app/kbd/current/share/keymaps/i386/$(/app/pllinux/current/pllinux KEYB)

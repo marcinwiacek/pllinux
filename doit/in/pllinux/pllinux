@@ -292,7 +292,7 @@ set_existing_user_features() {
     *\ proc*) USER_PROCESSES="x on" ;; *) USER_PROCESSES="- off" ;;
   esac
   case $USER_FEATURES in
-    *\ allprocesses*) USER_ALL_PROCESSES="x on" ;; *) USER_ALL_PROCESSES="- off" ;;
+    *\ processesall*) USER_ALL_PROCESSES="x on" ;; *) USER_ALL_PROCESSES="- off" ;;
   esac
   case $USER_FEATURES in
     *\ mnt*) USER_MNT="x on" ;; *) USER_MNT="- off" ;;
@@ -311,7 +311,7 @@ set_existing_user_features() {
 
   if [ $? = 0 ]; then
     USER_FEATURES="";
-    for FEATFEAT in proc allprocesses mnt network reset; do
+    for FEATFEAT in proc processesall mnt network reset; do
       case $cmd in
         *$FEATFEAT*) USER_FEATURES="$USER_FEATURES $FEATFEAT" ;;
       esac

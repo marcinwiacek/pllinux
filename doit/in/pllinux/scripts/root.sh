@@ -1,4 +1,6 @@
 #!/app/busybox/current/bin/sh
+# Script for logging root from console
+
 cd /
 
 APP_LIST=$(/app/busybox/current/bin/ls /app)

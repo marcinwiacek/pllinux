@@ -1,4 +1,6 @@
 #!/app/busybox/current/bin/sh
+# Script for running during system start from boot service (started from init from initramfs)
+
 export PATH=/app/busybox/current/bin:/app/busybox/current/sbin
 
 #export LD_PLLINUX_DEBUG=1
@@ -27,9 +29,7 @@ fi
 # allow propagating /mnt mount into bwrap sandboxes
 /app/util-linux/current/bin/mount --make-shared /mnt
 
-# just permissions
 /app/util-linux/current/bin/mount mount -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
-/app/busybox/current/bin/chmod a+rw /dev/null
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl
@@ -41,5 +41,8 @@ fi
 
 # firewall rules
 /app/nftables/current/sbin/nft -f /etc/network/nftables/inet-filter.nft
+
+# just permissions
+/app/busybox/current/bin/chmod a+rw /dev/null
 
 /app/pllinux/current/pllinux BOOT
