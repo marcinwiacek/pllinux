@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="dialog"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="cryptsetup"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -945,6 +945,60 @@ if [ "$package" == "fs" ] || [ "$package" == "libxcrypt" ]; then
     create_app libxcrypt $prefix$ver
     make install
     set_current_app_clean_strip_cd libxcrypt $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "readline" ]; then
+  ver="8.3";
+  if should_make readline $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/readline/readline-$ver.tar.gz readline readline-$ver 1
+    mkdir $out/readline/readline-$ver-build
+    cd $out/readline/readline-$ver-build
+    ../readline-$ver/configure --prefix=$output/app/readline/$prefix$ver
+    make -j$cpu_num
+    create_app readline $prefix$ver
+    make install
+    set_current_app_clean_strip_cd readline $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "lvm2" ]; then
+  ver="2.03.42";
+  if should_make lvm2 $ver; then
+    install_host_deps "libaio-dev"
+    download_unpack_source https://sourceware.org/pub/lvm2/releases/LVM2.$ver.tgz lvm2 LVM2.$ver 1
+    ./configure --prefix=$output/app/lvm2/$prefix$ver
+    make -j$cpu_num
+    create_app lvm2 $prefix$ver
+    #it's broken, doesn't respect --prefix and tries to copy to /etc/lvm
+    make install
+    cd $output/app/lvm2/lib
+    ln -s libdevmapper.so.1.02.1 libdevmapper.so.1.02 # cross fingers this version works
+    set_current_app_clean_strip_cd lvm2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "parted" ]; then
+  ver="3.7";
+  if should_make parted $ver; then
+    install_host_deps "libdevmapper-dev libreadline-dev"
+    download_unpack_source https://ftp.gnu.org/gnu/parted/parted-$ver.tar.xz parted parted-$ver 1
+    mkdir $out/parted/parted-$ver-build
+    cd $out/parted/parted-$ver-build
+    ../parted-$ver/configure --prefix=$output/app/parted/$prefix$ver
+    make -j$cpu_num
+    create_app parted $prefix$ver
+    make install
+    set_current_app_clean_strip_cd parted $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "cryptsetup" ]; then
+  ver="2.8.7";
+  if should_make cryptsetup $ver; then
+    install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
+    download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver.tar.xz cryptsetup cryptsetup-$ver 1
+    ./configure --prefix=$output/app/cryptsetup/$prefix$ver
+    make -j$cpu_num
+    create_app cryptsetup $prefix$ver
+    make install
+    set_current_app_clean_strip_cd cryptsetup $prefix$ver 1
   fi
 fi
 #if [ "$package" == "gpm" ]; then
