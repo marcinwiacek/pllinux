@@ -281,19 +281,23 @@ set_existing_user_apps() {
 
   cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/available apps" --cancel-label "Back" \
          --visit-items \
-         --buildlist "Set apps for $1 - available on left, selected on right" 0 0 10 $list)
+         --buildlist "Set apps for $1 - non available on left, available on right" 0 0 10 $list)
 
   if [ $? = 0 ]; then
     list=""
-    IFS=" "
-    for APP in $cmd; do
-      IFS=":" read -r APP_NAME APP_VER << EOF
-$APP
-EOF
-      if [ "$list" != "" ]; then
-        list="${list}:"
-      fi
-      list="${list}${APP_NAME} ${APP_VER}"
+    listnr=1
+    cmd=" $cmd "
+    for APP_NAME in $(ls ${DIR}app); do
+      for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
+        case $cmd in
+        *\ $listnr\ *)
+          if [ "$list" != "" ]; then
+            list="${list}:"
+          fi
+          list="${list}${APP_NAME} ${APP_VERSION}"
+        esac
+        listnr=$(($listnr+1))
+      done
     done
     change_value_in_conf_file "$1_APPS" "$list"
   fi
