@@ -139,11 +139,15 @@ set_keyboard_font_general_or_user() {
              README*)
                 ;;
              *) list="$list $listnr $NAME"
+                if [ "$NEW_FONT" == "$NAME" ]; then
+                  DEFAULT_NUM=$listnr
+                fi
                 listnr=$(($listnr+1))
                 ;;
            esac
          done
          cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set font" --cancel-label "Back" \
+           --default-item $DEFAULT_NUM \
            --menu "Select font" 0 0 10 $list)
          if [ $? == 0 ]; then
            listnr=1
@@ -165,10 +169,14 @@ set_keyboard_font_general_or_user() {
          for DIRDIR in qwerty qwertz azerty; do
            for NAME in $(ls /app/kbd/current/share/keymaps/i386/$DIRDIR); do
              list="$list $listnr $DIRDIR/$NAME"
+             if [ "$NEW_KEYB" == "$DIRDIR/$NAME" ]; then
+               DEFAULT_NUM=$listnr
+             fi
              listnr=$(($listnr+1))
            done
          done
          cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set keyboard" --cancel-label "Back" \
+                 --default-item $DEFAULT_NUM \
                  --menu "Select keyboard" 0 0 10 $list)
          listnr=1
          for DIRDIR in qwerty qwertz azerty; do
@@ -207,14 +215,21 @@ set_time_zone() {
     if [ -d "/app/tzdb/current/usr/share/zoneinfo/$NAME" ]; then
       for NAME2 in $(ls /app/tzdb/current/usr/share/zoneinfo/$NAME); do
         list="$list $listnr $NAME/$NAME2"
+        if [ "$TIMEZONE" == "$NAME/$NAME2" ]; then
+          DEFAULT_NUM=$listnr
+        fi
         listnr=$(($listnr+1))
       done
     else
       list="$list $listnr $NAME"
+      if [ "$TIMEZONE" == "$NAME" ]; then
+        DEFAULT_NUM=$listnr
+      fi
       listnr=$(($listnr+1))
     fi
   done
   cmd=$(dialog --stdout --backtitle "PLLinux/set timezone" --cancel-label "Back" \
+           --default-item $DEFAULT_NUM \
            --menu "Selected timezone $TIMEZONE. Please select new value" 0 0 10 $list)
   if [ $? = 0 ]; then
     listnr=1
