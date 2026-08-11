@@ -7,8 +7,11 @@ sbin
 **Deps**
 readline current
 lvm2 current
+libselinux current
 ncurses current
+pcre2 current
 util-linux current
+gcc current
 
 **Description**
 
