@@ -258,6 +258,24 @@ add_new_user() {
            --menu "Add new user" 0 0 10 1 "x")
 }
 
+find_app_description() {
+  APP_DESC=""
+  if [ -e "$1/readme.md" ]; then
+     sectionDescription=0
+     while read -r line; do
+       if [ "$line" = "**Description**" ]; then
+         sectionDescription=1
+       elif [ "$line" = "" ]; then
+         sectionDescription=0;
+       elif [ "$sectionDescription" = 1 ]; then
+         if [ "$APP_DESC" == "" ]; then
+           APP_DESC=$line
+         fi
+       fi
+     done < $1/readme.md
+  fi
+}
+
 set_existing_user_apps() {
   get_value_from_conf_file "$1_APPS"
   USER_APPS="$CONF_FILE_VALUE"
@@ -267,21 +285,25 @@ set_existing_user_apps() {
   for APP_NAME in $(ls ${DIR}app); do
     for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
       list="$list $listnr ${APP_NAME}:${APP_VERSION} "
+      find_app_description ${DIR}app/${APP_NAME}/${APP_VERSION}
+APP_DESC=abc\ def
       case $USER_APPS in
         *${APP_NAME}\ ${APP_VERSION}*)
-          list="$list on "
+          list="$list on \\\"$APP_DESC\\\" "
           ;;
         *)
-          list="$list off "
+          list="$list off \\\"$APP_DESC\\\" "
           ;;
       esac
       listnr=$(($listnr+1))
     done
   done
 
+echo $list>>/tmp/x
+
   cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/available apps" --cancel-label "Back" \
-         --visit-items \
-         --buildlist "Set apps for $1 - non available on left, available on right" 0 0 10 $list)
+         --visit-items --item-help --separator "|" \
+         --buildlist "Set apps for $1 - non available on left, available on right" 0 0 10 0 "abcde" off "la la la" $list) 2>> /tmp/y
 
   if [ $? = 0 ]; then
     list=""
