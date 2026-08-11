@@ -269,19 +269,15 @@ set_existing_user_apps() {
       list="$list $listnr ${APP_NAME}:${APP_VERSION} "
       case $USER_APPS in
         *${APP_NAME}\ ${APP_VERSION}*)
-          list="$list  on "
+          list="$list on "
           ;;
         *)
-          list="$list  off "
+          list="$list off "
           ;;
       esac
-          listnr=$(($listnr+1))
-
+      listnr=$(($listnr+1))
     done
   done
-
-  echo "dialog --stdout --backtitle \"PLLinux/set users/set user $1/available apps\" --cancel-label \"Back\" \
-         --build-list \"Set apps for $1, \"x\" shows earlier setup\" 0 0 10 $list" >> /tmp/x
 
   cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/available apps" --cancel-label "Back" \
          --visit-items \
