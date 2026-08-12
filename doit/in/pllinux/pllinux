@@ -291,9 +291,10 @@ all_apps() {
     listnr=1
   for APP_NAME in $(ls ${DIR}app); do
     for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
-      echo  "$listnr "
-      echo  "${APP_NAME}:${APP_VERSION} "
-      case $USER_APPS in
+      if [ "$APP_VERSION" == "current" ]; then
+        echo  "$listnr "
+        echo  "${APP_NAME}:${APP_VERSION} "
+        case $USER_APPS in
         *${APP_NAME}\ ${APP_VERSION}*)
           echo  "on "
           echo  $(find_app_description ${DIR}app/${APP_NAME}/${APP_VERSION})
@@ -302,8 +303,28 @@ all_apps() {
           echo  "off "
           echo  $(find_app_description ${DIR}app/${APP_NAME}/${APP_VERSION})
           ;;
-      esac
-      listnr=$(($listnr+1))
+        esac
+        listnr=$(($listnr+1))
+      fi
+    done
+  done
+  for APP_NAME in $(ls ${DIR}app); do
+    for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
+      if [ "$APP_VERSION" != "current" ]; then
+        echo  "$listnr "
+        echo  "${APP_NAME}:${APP_VERSION} "
+        case $USER_APPS in
+        *${APP_NAME}\ ${APP_VERSION}*)
+          echo  "on "
+          echo  $(find_app_description ${DIR}app/${APP_NAME}/${APP_VERSION})
+          ;;
+        *)
+          echo  "off "
+          echo  $(find_app_description ${DIR}app/${APP_NAME}/${APP_VERSION})
+          ;;
+        esac
+        listnr=$(($listnr+1))
+      fi
     done
   done
 }
@@ -323,14 +344,30 @@ set_existing_user_apps() {
     cmd=" $cmd "
     for APP_NAME in $(ls ${DIR}app); do
       for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
-        case $cmd in
-        *\ $listnr\ *)
-          if [ "$list" != "" ]; then
-            list="${list}:"
-          fi
-          list="${list}${APP_NAME} ${APP_VERSION}"
-        esac
-        listnr=$(($listnr+1))
+        if [ "$APP_VERSION" == "current" ]; then
+          case $cmd in
+          *\ $listnr\ *)
+            if [ "$list" != "" ]; then
+              list="${list}:"
+            fi
+            list="${list}${APP_NAME} ${APP_VERSION}"
+          esac
+          listnr=$(($listnr+1))
+        fi
+      done
+    done
+    for APP_NAME in $(ls ${DIR}app); do
+      for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
+        if [ "$APP_VERSION" != "current" ]; then
+          case $cmd in
+          *\ $listnr\ *)
+            if [ "$list" != "" ]; then
+              list="${list}:"
+            fi
+            list="${list}${APP_NAME} ${APP_VERSION}"
+          esac
+          listnr=$(($listnr+1))
+        fi
       done
     done
     change_value_in_conf_file "$1_APPS" "$list"
