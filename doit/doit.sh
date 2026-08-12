@@ -902,7 +902,6 @@ if [ "$package" == "dialog" ]; then
   if should_make dialog $ver; then
     download_unpack_source https://invisible-island.net/archives/dialog/dialog-$ver.tgz dialog dialog-$ver 1
     ./configure --prefix=/app/dialog/$prefix$ver --enable-widec --with-ncursesw
-#    ./configure --prefix=/app/dialog/$prefix$ver
     make all -j$cpu_num
     create_app dialog $prefix$ver
     make install
