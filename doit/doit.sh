@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="libselinux"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="ncursesw"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -726,7 +726,7 @@ if [ "$package" == "fs" ] || [ "$package" == "ncursesw" ]; then
   ver="6.6";
   if should_make ncursesw $ver; then
     download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncursesw ncurses-$ver 1
-    ./configure --prefix=$output/app/ncursesw/$prefix$ver --with-shared  --with-termlib  --with-ticlib --with-develop --with-cxx-shared --with-trace --with-versioned-syms
+    ./configure --prefix=$output/app/ncursesw/$prefix$ver --enable-widec --with-shared  --with-termlib  --with-ticlib --with-develop --with-cxx-shared --with-trace --with-versioned-syms
     make all -j$cpu_num
     create_app ncursesw $prefix$ver
     make install
@@ -1010,6 +1010,22 @@ if [ "$package" == "fs" ] || [ "$package" == "libselinux" ]; then
     cd $output/app/libselinux/$prefix$ver/lib
     ln -s libselinux.so.1 libselinux.so
     set_current_app_clean_strip_cd libselinux $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "gptfdisk" ]; then
+  ver="1.0.10";
+  if should_make gptfdisk $ver; then
+    download_unpack_source https://sourceforge.net/projects/gptfdisk/files/gptfdisk/$ver/gptfdisk-$ver.tar.gz/download gptfdisk gptfdisk-$ver 1
+    make -j$cpu_num 
+    create_app gptfdisk $prefix$ver
+    mkdir $output/app/gptfdisk/$prefix$ver/bin
+    mkdir $output/app/gptfdisk/$prefix$ver/man
+    cp cgdisk $output/app/gptfdisk/$prefix$ver/bin
+    cp gdisk $output/app/gptfdisk/$prefix$ver/bin
+    cp sgdisk $output/app/gptfdisk/$prefix$ver/bin
+    cp fixparts $output/app/gptfdisk/$prefix$ver/bin
+    cp *.8 $output/app/gptfdisk/$prefix$ver/man
+    set_current_app_clean_strip_cd gptfdisk $prefix$ver 1
   fi
 fi
 #if [ "$package" == "gpm" ]; then

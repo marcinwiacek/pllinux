@@ -4,6 +4,7 @@ GPL2
 **Deps**
 glibc current
 ncurses current
+ncursesw current
 
 **Project**
 https://github.com/util-linux/util-linux
