@@ -726,7 +726,7 @@ if [ "$package" == "fs" ] || [ "$package" == "ncursesw" ]; then
   ver="6.6";
   if should_make ncursesw $ver; then
     download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncursesw ncurses-$ver 1
-    ./configure --prefix=$output/app/ncursesw/$prefix$ver --enable-widec --with-shared  --with-termlib  --with-ticlib --with-develop --with-cxx-shared --with-trace --with-versioned-syms
+    ./configure --prefix=$output/app/ncursesw/$prefix$ver --with-shared  --with-termlib  --with-ticlib --enable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
     make all -j$cpu_num
     create_app ncursesw $prefix$ver
     make install
