@@ -259,7 +259,7 @@ add_new_user() {
 }
 
 find_app_description() {
-  APP_DESC=""
+  fl=1
   if [ -e "$1/readme.md" ]; then
      sectionDescription=0
      while read -r line; do
@@ -269,41 +269,53 @@ find_app_description() {
          sectionDescription=0;
        elif [ "$sectionDescription" = 1 ]; then
          if [ "$APP_DESC" == "" ]; then
-           APP_DESC=$line
+           if [ "$fl" = "1" ]; then
+             case $line in
+             *\"*) ;;
+             *)
+               echo \"$line\"
+               ;;
+             esac
+             fl=0
+           fi
          fi
        fi
      done < $1/readme.md
   fi
+  if [ "$fl" = "1" ]; then
+    echo \"\"
+  fi
+}
+
+all_apps() {
+    listnr=1
+  for APP_NAME in $(ls ${DIR}app); do
+    for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
+      echo  "$listnr "
+      echo  "${APP_NAME}:${APP_VERSION} "
+      case $USER_APPS in
+        *${APP_NAME}\ ${APP_VERSION}*)
+          echo  "on "
+          echo  $(find_app_description ${DIR}app/${APP_NAME}/${APP_VERSION})
+          ;;
+        *)
+          echo  "off "
+          echo  $(find_app_description ${DIR}app/${APP_NAME}/${APP_VERSION})
+          ;;
+      esac
+      listnr=$(($listnr+1))
+    done
+  done
 }
 
 set_existing_user_apps() {
   get_value_from_conf_file "$1_APPS"
   USER_APPS="$CONF_FILE_VALUE"
 
-  list=""
-    listnr=1
-  for APP_NAME in $(ls ${DIR}app); do
-    for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
-      list="$list $listnr ${APP_NAME}:${APP_VERSION} "
-      find_app_description ${DIR}app/${APP_NAME}/${APP_VERSION}
-APP_DESC=abc\ def
-      case $USER_APPS in
-        *${APP_NAME}\ ${APP_VERSION}*)
-          list="$list on \\\"$APP_DESC\\\" "
-          ;;
-        *)
-          list="$list off \\\"$APP_DESC\\\" "
-          ;;
-      esac
-      listnr=$(($listnr+1))
-    done
-  done
-
-echo $list>>/tmp/x
-
-  cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/available apps" --cancel-label "Back" \
-         --visit-items --item-help --separator "|" \
-         --buildlist "Set apps for $1 - non available on left, available on right" 0 0 10 0 "abcde" off "la la la" $list) 2>> /tmp/y
+  abc=$( echo dialog --stdout --backtitle \"PLLinux/set users/set user $1/available apps\" --cancel-label "Back" \
+         --visit-items --item-help   \
+         --buildlist \"Set apps for $1 - non available on left, available on right\" 0 0 10 $(all_apps))
+  cmd=$(eval $abc)
 
   if [ $? = 0 ]; then
     list=""
