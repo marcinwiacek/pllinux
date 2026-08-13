@@ -496,6 +496,100 @@ EOF
   done
 }
 
+format_install2() {
+  dialog --yesno "Really? This is LAST WARNING. $1 will be cleaned from previous data. THIS CANNOT BE REVERSED" 20 40
+    if [ $? == 0 ]; then
+      clear
+    fi
+}
+
+format_install() {
+  dialog --yesno "Do you want to format and use partition $1 for new installation? THIS CANNOT BE REVERSED" 20 40
+    if [ $? == 0 ]; then
+       format_install2 $1
+    fi
+}
+
+process_one_disk() {
+  while true; do
+    disks=$(parted -l -m 2> /dev/null)
+    thisdisk=0
+    list=""
+    listnr=1
+    while read -r line; do
+    echo $line $thisdisk >> /tmp/xx
+      if [ "$thisdisk" = "0" ]; then
+        case $line in
+          $1*) thisdisk=1
+        esac
+      else
+        if [ "$line" = "" ]; then
+          thisdisk=0
+        else
+          IFS=":" read -r PART_NUMER PART_START PART_END PART_SIZE PART_SYSTEM PART_OTHER << EOF
+$line
+EOF
+          list="$list $listnr Formatinstall${PART_SYSTEM}_${PART_SIZE} "
+          listnr=$(($listnr+1))
+        fi
+    fi
+  done <<< "$disks"
+    cmd=$(dialog --stdout --backtitle "PLLinux/install to other disk/device $1" --cancel-label "Back" \
+           --menu "Disk $1" 0 0 6 $list $listnr "Partition disk with cfdisk" )
+    if [ $? == 0 ]; then
+      if [ "$cmd" = "$listnr" ]; then
+        cfdisk $1
+      else
+        format_install $1p$cmd
+      fi
+    else
+      break
+    fi
+  done
+}
+
+install_to() {
+  defnum=1
+  while true; do
+    disks=$(parted -l -m 2> /dev/null | grep /dev)
+    if [ "$disks" = "" ]; then
+      dialog --msgbox "No disks detected. Looks like running from mc sandbox or other lack of rights" 10 30
+      return
+    fi
+    listnr=1
+    list=""
+    while read -r line; do
+      IFS=":" read -r DEV_NAME OTHER << EOF
+$line
+EOF
+      list="$list $listnr $DEV_NAME "
+      listnr=$(($listnr+1))
+    done <<< "$disks"
+    cmd=$(dialog --stdout --backtitle "PLLinux/install to other disk" --cancel-label "Back" \
+           --default-item $defnum \
+           --menu "Install PLLinux to other partition or disk" 0 0 6 $list )
+    if [ $? == 0 ]; then
+        listnr=1
+        list=""
+        DEVDEV=""
+        while read -r line; do
+          IFS=":" read -r DEV_NAME OTHER << EOF
+$line
+EOF
+          if [ "$listnr" == "$cmd" ]; then
+            DEVDEV=$DEV_NAME
+            defnum=$listnr
+          fi
+          listnr=$(($listnr+1))
+        done <<< "$disks"
+        # this must be called after while
+        process_one_disk $DEVDEV
+    else
+      break
+    fi
+  done
+}
+
 CFGFILE="etc/pllinux.conf"
 if [ "$1" = "BOOT" ]; then
   set_general_config 1
@@ -515,12 +609,13 @@ else
 fi
 
 while true; do
-  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 5 \
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 6 \
        1 "Apps (todo)" \
        2 "App language (todo) - $LANG" \
        3 "Keyboard and font   - $KEYB, $FONT" \
        4 "Timezone            - $TIMEZONE" \
-       5 "Users" )
+       5 "Users" \
+       6 "Install to other partition" )
   if [ $? == 0 ]; then
     case $cmd in
     3) NEW_KEYB="$KEYB"
@@ -528,6 +623,7 @@ while true; do
        set_keyboard_font_general_or_user "" ;;
     4) set_time_zone ;;
     5) set_users ;;
+    6) install_to ;;
     esac
   else
     break
