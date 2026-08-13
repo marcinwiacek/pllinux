@@ -501,16 +501,22 @@ format_install2() {
     if [ $? == 0 ]; then
       clear
 
+mkfs -V -t ext4 $1
+
+mkdir /mnt/install
+/app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync $1 /mnt/install
+
+cd /mnt/install
 
         mkdir app
-        echo "Copying /app from ISO to the RAM. This will need some time (even 20-30 seconds)"
-        /app/rsync/current/bin/rsync -a --info=progress2 iso/app/ app
+        echo "Copying /app. This will need some time (even 20-30 seconds)"
+        /app/rsync/current/bin/rsync -a --info=progress2 /app/ app
 
       mkdir bin
       mkdir dev
 
       mkdir etc
-      /app/rsync/current/bin/rsync -a --info=progress2 iso/etc/ etc
+      /app/rsync/current/bin/rsync -a --info=progress2 /etc/ etc
 
       mkdir home
 
@@ -571,6 +577,9 @@ format_install2() {
       ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
       chmod a+x ld-linux-x86-64.so.2
       cd ..
+
+ /app/busybox/current/bin/umount -f .mnt/install
+rmdir /mnt/install
 
     fi
 }
