@@ -12,3 +12,6 @@ https://rsync.samba.org
 
 **PATH**
 bin
+
+**Man**
+share/man/man1:share/man/man5

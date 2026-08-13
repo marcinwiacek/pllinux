@@ -648,12 +648,10 @@ if [ "$package" == "fs" ] || [ "$package" == "rsync" ]; then
   ver="3.5.0";
   if should_make rsync $ver; then
     download_unpack_source https://download.samba.org/pub/rsync/src/rsync-$ver.tar.gz rsync rsync-$ver 1
-    ./configure --disable-xxhash --disable-lz4
+    ./configure --disable-xxhash --disable-lz4 --prefix=$output/app/rsync/$prefix$ver
     make all -j$cpu_num
     create_app rsync $prefix$ver
-    mkdir $output/app/rsync/$prefix$ver/bin
-    cp rsync $output/app/rsync/$prefix$ver/bin
-    rsync -a $curdir/in/rsync/ $output/app/rsync/$prefix$ver
+    make install
     set_current_app_clean_strip_cd rsync $prefix$ver 1
   fi
 fi
