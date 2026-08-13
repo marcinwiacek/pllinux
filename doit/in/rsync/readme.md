@@ -3,6 +3,7 @@ glibc current
 openssl 260725_3.6.3
 zlib current
 zstd current
+popt current
 
 **License**
 GPL3+

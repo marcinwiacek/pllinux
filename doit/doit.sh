@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="rsync"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="popt"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -642,6 +642,18 @@ if [ "$package" == "fs" ] || [ "$package" == "wget2" ]; then
     rsync -a -L . $output/app/wget2/$prefix$ver/ssl
 
     set_current_app_clean_strip_cd wget2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "popt" ]; then
+  ver="1.19";
+  if should_make popt $ver; then
+    download_unpack_source https://github.com/rpm-software-management/popt/archive/refs/tags/popt-$ver-release.tar.gz popt popt-popt-$ver-release 1
+    ./autogen.sh
+    ./configure --prefix=$output/app/popt/$prefix$ver
+    make all -j$cpu_num
+    create_app popt $prefix$ver
+    make install
+    set_current_app_clean_strip_cd popt $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "rsync" ]; then
