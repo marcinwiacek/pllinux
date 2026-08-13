@@ -5,6 +5,7 @@ bin
 
 **Deps**
 glibc current
+libgpg-error current
 
 **Description**
 
