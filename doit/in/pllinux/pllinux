@@ -580,14 +580,35 @@ format_install2() {
 
       /app/busybox/current/bin/umount -f .mnt/install
       rmdir /mnt/install
+
+      UUID=$(/app/busybox/current/sbin/blkid | grep $1)
+      for PAR in $UUID; do
+        case $PAR in
+        *UUID*)
+          ROOT_DEVICE_ID=${PAR#UUID=\"}
+          ROOT_DEVICE_ID=${ROOT_DEVICE_ID%\"}
+          ;;
+        esac
+      done
+
+      echo #!/bin/sh > /tmp/41_custom
+      echo exec tail -n +3 $0 >> /tmp/41_custom
+      echo menuentry 'PLLINUX' --class ubuntu --class gnu-linux --class gnu --class os \$menuentry_id_option 'PL2' { >> /tmp/41_custom
+      echo   echo 'Loading PLLINUX ...' >> tmp/41_custom
+      echo   linux /app/kernel/current/bzImage root=UUID=$ROOT_DEVICE_ID rw >> /tmp/41_custom
+      echo   initrd /app/initramfs/current/initramfs.gz >> /tmp/41_custom
+      echo } >> /tmp/41_custom
+
+      echo System cloned into $1 partition. Example GRUB file for starting it saved in the /tmp/41_custom file.
+      read x
     fi
 }
 
 format_install() {
   dialog --yesno "Do you want to format and use partition $1 for new installation? THIS CANNOT BE REVERSED" 20 40
-    if [ $? == 0 ]; then
-       format_install2 $1
-    fi
+  if [ $? == 0 ]; then
+    format_install2 $1
+  fi
 }
 
 process_one_disk() {
@@ -633,7 +654,7 @@ install_to() {
   while true; do
     disks=$(parted -l -m 2> /dev/null | grep /dev)
     if [ "$disks" = "" ]; then
-      dialog --msgbox "No disks detected. Looks like running from mc sandbox or other lack of rights" 10 30
+      dialog --msgbox "No disks detected. Looks like running from mc sandbox or lack of rights/permissions." 10 30
       return
     fi
     listnr=1

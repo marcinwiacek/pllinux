@@ -16,7 +16,7 @@ mkdir /other/app/mc 2> /dev/null
     --dev dev \
     --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
     --proc proc \
-    --tmpfs tmp \
+    --bind /tmp tmp \
     --bind-try /run run \
     --bind-try /mnt mnt \
     --bind /home home \
@@ -33,3 +33,4 @@ mkdir /other/app/mc 2> /dev/null
 # don't show internal commands from MC in the shell history
 #    --setenv HISTCONTROL ignorespace \
 #    --ro-bind $DIR/usr usr \
+#    --tmpfs tmp \
