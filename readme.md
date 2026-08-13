@@ -63,6 +63,7 @@ One note: main author of PLLINUX was preparing Open Source software before 2000 
   3. 9 July 2026 - package manager and [first package online in the freshmeat.net / sourceforge.net](https://sourceforge.net/projects/pllinux/files/)
   4. 18 July 2026 - first version of own dynamic loader IS WORKING!
   5. 22 July 2026 - creating first working ISO
+  6. 13 Aug 2026 - system first time cloned itself ("installed") from PLLinux administration script. This is huge step into full working installation process - we have disk partitioning, selecting partition for installation and installing, we still need setting up UEFI partition/menu and encryption for main filesystem.
 
 **Building and starting**
 
