@@ -14,7 +14,7 @@ util-linux current
 gcc current
 
 **Description**
-Core part of PLLINUX. Partition editor.
+Core part of PLLINUX. Disk partition editor.
 
 **Project**
 https://www.gnu.org/software/parted/

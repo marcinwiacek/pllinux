@@ -10,7 +10,7 @@ ncursesw current
 gcc current
 
 **Description**
-Core part of PLLINUX. GPT (GUID Partition Table) partitioning tools.
+Core part of PLLINUX. GPT (GUID Partition Table) disk partitioning tools.
 
 **Project**
 https://sourceforge.net/projects/gptfdisk/
