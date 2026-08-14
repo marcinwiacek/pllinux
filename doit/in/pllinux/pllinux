@@ -707,20 +707,21 @@ get_time_info() {
 }
 
 task_schedule() {
-  SMINUTE="*"
-  SHOUR="*"
-  SDAY="*"
-  SMONTH="*"
-  SDOW="*"
+  SMINUTE='*'
+  SHOUR=*
+  SDAY=*
+  SMONTH=*
+  SDOW='*'
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
       --form "Pls provide values, you can put intervals or separate values with comma, star means no setup" 0 0 8 \
-      "Minute (1-59)" 1 1 "$SMINUTE" 1 20 15 0 \
-      "Hour (0-23)" 2 1 "$SHOUR" 2 20 15 0 \
-      "Month day (1-31)" 3 1 "$SDAY" 3 20 15 0 \
-      "Month (1-12)" 4 1 "$SMONTH" 4 20 15 0 \
-      "Day of week (0-6)" 5 1 "$SDOW" 5 20 15 0 )
+      "Minute (1-59)" 1 1 '*' 1 20 15 0 \
+      "Hour (0-23)" 2 1 "*" 2 20 15 0 \
+      "Month day (1-31)" 3 1 "*" 3 20 15 0 \
+      "Month (1-12)" 4 1 "*" 4 20 15 0 \
+      "Day of week (0-6)" 5 1 "*" 5 20 15 0 )
     if [ $? == 0 ]; then
+echo $cmd >> /tmp/x
       case $cmd in
       1) ;;
       2) ;;
