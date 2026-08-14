@@ -15,6 +15,23 @@ for APP_NAME in $APP_LIST; do
           if [ -d "/app/${APP_NAME}/current/$folder" ]; then
             for nr in 1 2 3 4 5 6 7 8 9; do
               if [ -e "/app/${APP_NAME}/current/$folder/$1.$nr" ]; then
+                # search for redirection in file. It's ".so filename" string in the first line
+                while read -r line2; do
+                  case $line2 in
+                  *.so\ man*)
+                    IFS=" " read -r HEAD FILENAME << EOF
+$line2
+EOF
+                    if [ -e "/app/${APP_NAME}/current/$folder/../$FILENAME" ]; then
+                      groff -E -C -S -M /app/groff/current/share/groff/current/tmac \
+                        -F /app/groff/current/share/groff/current/font -Tascii -man \
+                        "/app/${APP_NAME}/current/$folder/../$FILENAME" \
+                      | less -R -M -S
+                      return
+                    fi
+                  esac
+                  break
+                done < "/app/${APP_NAME}/current/$folder/$1.$nr"
                 groff -E -C -S -M /app/groff/current/share/groff/current/tmac \
                    -F /app/groff/current/share/groff/current/font -Tascii -man \
                    "/app/${APP_NAME}/current/$folder/$1.$nr" \

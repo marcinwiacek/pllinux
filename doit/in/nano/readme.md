@@ -4,6 +4,8 @@
 bin
 
 **Deps**
+ncurses current
+ncursesw current
 
 **Description**
 Console text editor.
