@@ -16,3 +16,6 @@ bin
 
 **Man**
 share/man/man1:share/man/man5
+
+**Description**
+Core part of PLLINUX. Tool for synchronizing directories.

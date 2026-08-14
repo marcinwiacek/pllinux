@@ -5,6 +5,7 @@ GPL3
 [midnight-commander.org](midnight-commander.org)
 
 **Description**
+Midnight Commander - clone of Norton Commander.
 
 **Deps**
 bwrap current

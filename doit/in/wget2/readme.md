@@ -13,3 +13,6 @@ https://www.gnu.org/software/wget/ or https://gitlab.com/gnuwget/wget2
 
 **PATH_First**
 bin
+
+**Description**
+Core part of PLLINUX. File downloader.

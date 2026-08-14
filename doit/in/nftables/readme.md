@@ -13,3 +13,6 @@ ncurses current
 
 **Man**
 share/man/man3:share/man/man5:share/man/man8
+
+**Description**
+Core part of PLLINUX. Firewall tool.
