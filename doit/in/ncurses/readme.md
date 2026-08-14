@@ -4,6 +4,7 @@
 https://invisible-island.net/ncurses
 
 **Description**
+Core part of PLLINUX. Library for creating text interfaces in terminal. In 'normal' or 'wide character' version.
 
 **Deps**
 glibc current
