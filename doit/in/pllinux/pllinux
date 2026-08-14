@@ -819,7 +819,7 @@ while true; do
        2 "Background services (todo)" \
        3 "Logs (todo)" \
        4 "Swap memory file (todo)" \
-       5 "Task scheduler" \
+       5 "Task scheduler (wip)" \
        6 "Users" \
        7 "App language (todo) - $LANG" \
        8 "Keyboard and font   - $KEYB, $FONT" \
