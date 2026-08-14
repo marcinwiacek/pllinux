@@ -750,7 +750,7 @@ task_command() {
   done
 }
 
-tasks() {
+task() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
        1 "Schedule" \
@@ -760,6 +760,32 @@ tasks() {
       case $cmd in
       1) task_schedule ;;
       2) task_command ;;
+      3) break ;;
+      esac
+    else
+      break;
+    fi
+  done
+}
+
+tasks() {
+  while true; do
+    listnr=1
+    list=""
+    while read -r line; do
+      IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
+$line
+EOF
+      list="$list $listnr abc"
+      listnr=$(($listnr+1))
+    done < "${DIR}etc/tasks"
+    list="$list $listnr Add(todo)"
+    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
+       $list )
+    if [ $? == 0 ]; then
+      case $cmd in
+      1) task_schedule
+         task_command ;;
       3) break ;;
       esac
     else
