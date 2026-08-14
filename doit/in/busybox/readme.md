@@ -8,9 +8,9 @@ bin:sbin
 bin/sh
 
 **Description**
-Compiled from source with static linking and some path and minor changes.
+Core part of PLLINUX. 'The Swiss Army Knife of Embedded Linux' - combines many UNIX utilities into a single small executable.
 
-Core part of PLLINUX
+Compiled from source with static linking and some path and minor config changes (no code updates)
 
 **Project**
 https://busybox.net

@@ -1,5 +1,7 @@
 **Description**
-Statically linked with support for /mnt. Core part of PLLINUX.
+Core part of PLLINUX. 'Low-level unprivileged sandboxing tool used by Flatpak and similar projects'
+
+Statically linked with support for /mnt.
 
 **PATH**
 bin

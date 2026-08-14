@@ -9,6 +9,7 @@ glibc current
 zstd current
 
 **Description**
+Core part of PLLINUX (libraries). Compiler.
 
 **Project**
 https://gcc.gnu.org

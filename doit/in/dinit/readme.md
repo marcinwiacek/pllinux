@@ -2,6 +2,7 @@
 .
 
 **Description**
+Core part of PLLINUX. Service and init manager.
 
 **Project**
 https://davmac.org/projects/dinit/

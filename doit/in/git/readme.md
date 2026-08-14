@@ -9,6 +9,7 @@ glibc current
 zlib current
 
 **Description**
+Tools for devs for handling (mainly) code repositories.
 
 **Project**
 https://git-scm.com/
