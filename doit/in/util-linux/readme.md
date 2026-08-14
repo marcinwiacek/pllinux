@@ -3,6 +3,7 @@ GPL2
 
 **Deps**
 glibc current
+ncursesw current
 ncurses current
 ncursesw current
 
@@ -11,3 +12,6 @@ https://github.com/util-linux/util-linux
 
 **PATH_First**
 bin:sbin
+
+**Description**
+Core part of PLLINUX. Tools for Linux kernel distributed by Linux Kernel Organization.
