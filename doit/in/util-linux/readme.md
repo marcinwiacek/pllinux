@@ -3,7 +3,6 @@ GPL2
 
 **Deps**
 glibc current
-ncursesw current
 ncurses current
 ncursesw current
 
