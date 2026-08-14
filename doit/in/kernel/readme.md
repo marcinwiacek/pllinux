@@ -5,4 +5,4 @@ GPL-2.0 with Linux-syscall-note, other licenses may apply.
 kernel.org
 
 **Description**
-Compiled from source by Marcin Wiącek
+Core part of PLLINUX. Linux kernel.

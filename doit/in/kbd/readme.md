@@ -2,6 +2,7 @@
 GPL2+
 
 **Description**
+Core part of PLLINUX. 'Linux console keyboard and font tools'
 
 **Project**
 https://kbd-project.org/

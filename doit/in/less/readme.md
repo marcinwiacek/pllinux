@@ -9,6 +9,7 @@ glibc current
 ncurses current
 
 **Description**
+File pager used for example during displaying man pages (better than busybox version).
 
 **Project**
 https://greenwoodsoftware.com/less/download.html
