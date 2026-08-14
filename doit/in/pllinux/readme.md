@@ -5,13 +5,15 @@ Excluding modified script dhcp4.sh from busybox - I don't care
 [GitHub](https://github.com/marcinwiacek/pllinux)
 
 **Description**
-Some crucial scripts and services for PLLINUX.
+Core part of PLLINUX. Some crucial scripts and services.
 
 **Deps**
 busybox current
 bwrap current
 dialog current
+gptfdisk current
 kbd current
+parted current
 tzdb current
 util-linux current
 
