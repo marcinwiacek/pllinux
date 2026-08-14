@@ -693,6 +693,64 @@ EOF
   done
 }
 
+function get_time_info() {
+  if [ "$1" == "*" ]; then
+    echo "not set"
+  else
+    case $1 in
+    */*)
+      echo "every $1" ;;
+    *)
+      echo "at $1" ;;
+    esac
+  fi
+}
+
+function task_schedule() {
+  MINUTE="*"
+  HOUR="*"
+  DAY="*"
+  MONTH="*"
+  DOW="*"
+  while true; do
+    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
+       1 "Minute - $(get_time_info $MINUTE)" \
+       2 "Hour - $(get_time_info $HOUR)"\
+       3 "Month day - $(get_time_info $DAY)" \
+       4 "Month - $(get_time_info $MONTH)" \
+       5 "Week day" \
+       6 "Save and exit")
+    if [ $? == 0 ]; then
+      case $cmd in
+      1) ;;
+      2) ;;
+      3) ;;
+      6) break ;;
+      esac
+    else
+      break;
+    fi
+  done
+}
+
+function tasks() {
+  while true; do
+    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
+       1 "Schedule" \
+       2 "Command" \
+       3 "Save and exit")
+    if [ $? == 0 ]; then
+      case $cmd in
+      1) task_schedule ;;
+      2) ;;
+      3) break ;;
+      esac
+    else
+      break;
+    fi
+  done
+}
+
 CFGFILE="etc/pllinux.conf"
 if [ "$1" = "BOOT" ]; then
   set_general_config 1
@@ -712,13 +770,15 @@ else
 fi
 
 while true; do
-  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 6 \
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
        1 "Apps (todo)" \
        2 "App language (todo) - $LANG" \
        3 "Keyboard and font   - $KEYB, $FONT" \
        4 "Timezone            - $TIMEZONE" \
        5 "Users" \
-       6 "Install to other partition" )
+       6 "Swap memory file (todo)" \
+       7 "Task scheduler" \
+       8 "Install to other partition" )
   if [ $? == 0 ]; then
     case $cmd in
     3) NEW_KEYB="$KEYB"
@@ -726,7 +786,8 @@ while true; do
        set_keyboard_font_general_or_user "" ;;
     4) set_time_zone ;;
     5) set_users ;;
-    6) install_to ;;
+    7) tasks ;;
+    8) install_to ;;
     esac
   else
     break
