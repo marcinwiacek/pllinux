@@ -9,7 +9,7 @@ ncurses current
 ncursesw current
 
 **Description**
-Core part of PLLINUX. Ncurses tool for creating text dialogs.
+Core part of PLLINUX. Ncurses based tool for creating text dialogs and interfaces.
 
 **Project**
 https://invisible-island.net/dialog/
