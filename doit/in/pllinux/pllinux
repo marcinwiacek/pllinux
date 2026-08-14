@@ -288,7 +288,7 @@ find_app_description() {
 }
 
 all_apps() {
-    listnr=1
+  listnr=1
   for APP_NAME in $(ls ${DIR}app); do
     for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
       if [ "$APP_VERSION" == "current" ]; then
@@ -693,8 +693,8 @@ EOF
   done
 }
 
-function get_time_info() {
-  if [ "$1" == "*" ]; then
+get_time_info() {
+  if [ "$1" = "\*" ]; then
     echo "not set"
   else
     case $1 in
@@ -706,18 +706,18 @@ function get_time_info() {
   fi
 }
 
-function task_schedule() {
-  MINUTE="*"
-  HOUR="*"
-  DAY="*"
-  MONTH="*"
-  DOW="*"
+task_schedule() {
+  SMINUTE="\*"
+  SHOUR="\*"
+  SDAY="\*"
+  SMONTH="\*"
+  SDOW="\*"
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
-       1 "Minute - $(get_time_info $MINUTE)" \
-       2 "Hour - $(get_time_info $HOUR)"\
-       3 "Month day - $(get_time_info $DAY)" \
-       4 "Month - $(get_time_info $MONTH)" \
+       1 "Minute - $(get_time_info $SMINUTE)" \
+       2 "Hour - $(get_time_info $SHOUR)"\
+       3 "Month day - $(get_time_info $SDAY)" \
+       4 "Month - $(get_time_info $SMONTH)" \
        5 "Week day" \
        6 "Save and exit")
     if [ $? == 0 ]; then
@@ -733,7 +733,7 @@ function task_schedule() {
   done
 }
 
-function tasks() {
+tasks() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
        1 "Schedule" \
