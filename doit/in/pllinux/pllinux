@@ -707,19 +707,36 @@ get_time_info() {
 }
 
 task_schedule() {
-  SMINUTE="\*"
-  SHOUR="\*"
-  SDAY="\*"
-  SMONTH="\*"
-  SDOW="\*"
+  SMINUTE="*"
+  SHOUR="*"
+  SDAY="*"
+  SMONTH="*"
+  SDOW="*"
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
-       1 "Minute - $(get_time_info $SMINUTE)" \
-       2 "Hour - $(get_time_info $SHOUR)"\
-       3 "Month day - $(get_time_info $SDAY)" \
-       4 "Month - $(get_time_info $SMONTH)" \
-       5 "Week day" \
-       6 "Save and exit")
+    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
+      --form "Pls provide values, you can put intervals or separate values with comma, star means no setup" 0 0 8 \
+      "Minute (1-59)" 1 1 "$SMINUTE" 1 20 15 0 \
+      "Hour (0-23)" 2 1 "$SHOUR" 2 20 15 0 \
+      "Month day (1-31)" 3 1 "$SDAY" 3 20 15 0 \
+      "Month (1-12)" 4 1 "$SMONTH" 4 20 15 0 \
+      "Day of week (0-6)" 5 1 "$SDOW" 5 20 15 0 )
+    if [ $? == 0 ]; then
+      case $cmd in
+      1) ;;
+      2) ;;
+      3) ;;
+      6) break ;;
+      esac
+    else
+      break;
+    fi
+  done
+}
+
+task_command() {
+  while true; do
+    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
+      --inputbox "Pls enter command" 15 100 )
     if [ $? == 0 ]; then
       case $cmd in
       1) ;;
@@ -742,7 +759,7 @@ tasks() {
     if [ $? == 0 ]; then
       case $cmd in
       1) task_schedule ;;
-      2) ;;
+      2) task_command ;;
       3) break ;;
       esac
     else
