@@ -883,27 +883,28 @@ else
 fi
 
 while true; do
-  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 10 \
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 11 \
        1 "Apps (todo)" \
        2 "Background services" \
        3 "Logs (todo)" \
-       4 "Swap memory file (todo)" \
-       5 "Task scheduler (wip)" \
-       6 "Users" \
-       7 "App language (todo) - $LANG" \
-       8 "Keyboard and font   - $KEYB, $FONT" \
-       9 "Timezone            - $TIMEZONE" \
-       10 "Install to other partition" )
+       4 "Network (todo)" \
+       5 "Swap memory file (todo)" \
+       6 "Task scheduler (wip)" \
+       7 "Users" \
+       8 "App language (todo) - $LANG" \
+       9 "Keyboard and font   - $KEYB, $FONT" \
+       10 "Timezone            - $TIMEZONE" \
+       11 "Install to other partition" )
   if [ $? == 0 ]; then
     case $cmd in
     2) services ;;
-    5) tasks ;;
-    6) set_users ;;
-    8) NEW_KEYB="$KEYB"
+    6) tasks ;;
+    7) set_users ;;
+    9) NEW_KEYB="$KEYB"
        NEW_FONT="$FONT"
        set_keyboard_font_general_or_user "" ;;
-    9) set_time_zone ;;
-    10) install_to ;;
+    10) set_time_zone ;;
+    11) install_to ;;
     esac
   else
     break
