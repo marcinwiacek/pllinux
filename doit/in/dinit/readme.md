@@ -1,5 +1,5 @@
 **PATH_First**
-.
+.:bin
 
 **Description**
 Core part of PLLINUX. Service and init manager.
