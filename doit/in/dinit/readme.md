@@ -13,3 +13,6 @@ Apache 2.0
 **Deps**
 gcc current
 glibc current
+
+**Man**
+man/man.5:man/man.8

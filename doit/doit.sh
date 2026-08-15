@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="bwrap"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="dinit"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -333,6 +333,11 @@ if [ "$package" == "fs" ] || [ "$package" == "dinit" ]; then
     cp src/shutdown $output/app/dinit/$prefix$ver/bin
     cp $curdir/in/dinit/poweroff $output/app/dinit/$prefix$ver
     cp $curdir/in/dinit/reboot $output/app/dinit/$prefix$ver
+    mkdir $output/app/dinit/$prefix$ver/man
+    mkdir $output/app/dinit/$prefix$ver/man/man.5
+    cp doc/manpages/*.5 $output/app/dinit/$prefix$ver/man/man.5
+    mkdir $output/app/dinit/$prefix$ver/man/man.8
+    cp doc/manpages/*.8 $output/app/dinit/$prefix$ver/man/man.8
     set_current_app_clean_strip_cd dinit $prefix$ver 1
   fi
 fi
