@@ -395,11 +395,12 @@ if [ "$package" == "fs" ] || [ "$package" == "util-linux" ]; then
   ver="2.42";
   if should_make util-linux $ver; then
     download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
-    ./configure --prefix=$output/app/util-linux/$prefix$ver --without-systemd --disable-lsfd --disable-enosys
+    ./configure --prefix=$output/app/util-linux/$prefix$ver --without-systemd --disable-lsfd --disable-enosys \
+        --disable-bash-completion  --disable-makeinstall-chown  --disable-makeinstall-setuid  --disable-makeinstall-tty-setgid
     make all -j$cpu_num
     create_app util-linux $prefix$ver
     #fakeroot
-    #fixme: tries to remove files from /usr/share... doesn't respect --prefix
+    #fixme: without --disable-makeinstall... tries to remove files from /usr/share... doesn't respect --prefix
     make install || true
     cp $curdir/in/util-linux/* $output/app/util-linux/$prefix$ver
     set_current_app_clean_strip_cd util-linux $prefix$ver 1

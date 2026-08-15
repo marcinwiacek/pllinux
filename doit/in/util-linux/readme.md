@@ -14,3 +14,6 @@ bin:sbin
 
 **Description**
 Core part of PLLINUX. Tools for Linux kernel distributed by Linux Kernel Organization.
+
+**Man**
+share/man/man1:share/man/man3:share/man/man5:share/man/man8
