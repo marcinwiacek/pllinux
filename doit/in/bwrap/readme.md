@@ -11,3 +11,6 @@ https://github.com/containers/bubblewrap
 
 **License**
 LGPL2+
+
+**Man**
+man
