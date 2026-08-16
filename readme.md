@@ -49,9 +49,9 @@ Currently in early alpha. Some things are done and many still todo:
  11. Milestone 11 - dbus? AppArmor? SeLinux?
  12. Milestone 12 - more packages, software compiling and matrioszka (compiling PLLinux from PLLinux), etc.
  14. Milestone 14 - installation with Secure Boot and shim
- 15. Milestone 15 - packages with optional config (for example installing some localization only or removing a files) and impossible (deleting to trash)
- 16. Milestone 15 - graphic UI
- 17. Milestone 16 - big party?
+ 15. Milestone 15 - packages with optional config (for example installing some localization only or removing a files) and impossible things (deleting to trash)
+ 16. Milestone 16 - graphic UI
+ 17. Milestone 17 - big party?
 
 This can change without earlier notice.
 
