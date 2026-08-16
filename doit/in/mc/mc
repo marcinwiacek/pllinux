@@ -30,6 +30,8 @@ mkdir /other/app/mc 2> /dev/null
     --setenv SHELL /app/busybox/current/bin/sh \
     $APP3 \
     $DIR/bin/mc
+    # no clean before running command in options
+# -u will disable subshell
 # don't show internal commands from MC in the shell history
 #    --setenv HISTCONTROL ignorespace \
 #    --ro-bind $DIR/usr usr \
