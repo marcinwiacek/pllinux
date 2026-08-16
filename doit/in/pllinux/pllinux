@@ -868,22 +868,64 @@ EOF
   done
 }
 
+show_one_disk_smartctl() {
+    disks=$(smartctl -a $1)
+      dialog --msgbox "$disks" 100 100
+}
+
+disks() {
+  defnum=1
+  while true; do
+    disks=$(parted -l -m 2> /dev/null | grep /dev)
+    if [ "$disks" = "" ]; then
+      dialog --msgbox "No disks detected. Looks like running from mc sandbox or lack of rights/permissions." 10 30
+      return
+    fi
+    listnr=1
+    list=""
+    while read -r line; do
+      IFS=":" read -r DEV_NAME OTHER << EOF
+$line
+EOF
+      list="$list $listnr $DEV_NAME "
+      listnr=$(($listnr+1))
+    done <<< "$disks"
+    cmd=$(dialog --stdout --backtitle "PLLinux/install to other disk" --cancel-label "Back" \
+           --default-item $defnum \
+           --menu "Show disk properties" 0 0 6 $list )
+    if [ $? == 0 ]; then
+        listnr=1
+        list=""
+        DEVDEV=""
+        while read -r line; do
+          IFS=":" read -r DEV_NAME OTHER << EOF
+$line
+EOF
+          if [ "$listnr" == "$cmd" ]; then
+            DEVDEV=$DEV_NAME
+            defnum=$listnr
+          fi
+          listnr=$(($listnr+1))
+        done <<< "$disks"
+        # this must be called after while
+        show_one_disk_smartctl $DEVDEV
+    else
+      break
+    fi
+  done
+}
+
 devices() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\device manager" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
        1 disks 2 BIOS/UEFI 3 PCI )
-#    if [ $? = 0 ]; then
-#      case $cmd in
-#      1) cmd2=$(dinitctl stop $1)
-#         dialog --msgbox "$cmd2" 10 30 ;;
-#      2) cmd2=$(dinitctl start $1)
-#         dialog --msgbox "$cmd2" 10 30 ;;
-#      3) cmd2=$(dinitctl restart $1)
-#         dialog --msgbox "$cmd2" 10 30 ;;
-#      esac
-#    else
-#      break;
-#    fi
+    if [ $? = 0 ]; then
+      case $cmd in
+      1) disks ;;
+      esac
+    else
+      break;
+    fi
   done
 }
 
@@ -924,7 +966,7 @@ while true; do
     case $cmd in
     2) services ;;
     3) tasks ;;
-    3) devices ;;
+    4) devices ;;
     8) set_users ;;
     10) NEW_KEYB="$KEYB"
        NEW_FONT="$FONT"
