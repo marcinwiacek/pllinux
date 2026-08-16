@@ -830,7 +830,7 @@ EOF
           break
         done < "/etc/dinit.d/$SERVICE_NAME"
         echo " $listnr "
-        echo \"$SERVICE_NAME $(dinitctl is-started $SERVICE_NAME) \"
+        echo \"$SERVICE_NAME - $(dinitctl is-started $SERVICE_NAME) \"
         echo \"$DESC\"
         listnr=$(($listnr+1))
       fi
@@ -868,21 +868,6 @@ EOF
   done
 }
 
-show_pci() {
-    disks=$(lspci -vvv)
-      dialog --msgbox "$disks" 100 100
-}
-
-show_bios() {
-    disks=$(dmidecode)
-      dialog --msgbox "$disks" 100 100
-}
-
-show_one_disk_smartctl() {
-    disks=$(smartctl -a $1)
-      dialog --msgbox "$disks" 100 100
-}
-
 disks() {
   defnum=1
   while true; do
@@ -918,7 +903,7 @@ EOF
           listnr=$(($listnr+1))
         done <<< "$disks"
         # this must be called after while
-        show_one_disk_smartctl $DEVDEV
+        dialog --msgbox "$(smartctl -a $DEVDEV)" 100 100
     else
       break
     fi
@@ -932,8 +917,8 @@ devices() {
     if [ $? = 0 ]; then
       case $cmd in
       1) disks ;;
-      2) show_bios ;;
-      3) show_pci ;;
+      2) dialog --msgbox "$(dmidecode)" 100 100 ;;
+      3) dialog --msgbox "$(lspci -vvv)" 100 100 ;;
       esac
     else
       break;
