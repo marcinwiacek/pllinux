@@ -1077,7 +1077,7 @@ if [ "$package" == "fs" ] || [ "$package" == "pciutils" ]; then
   if should_make pciutils $ver; then
     download_unpack_source https://github.com/pciutils/pciutils/releases/download/v3.15.0/pciutils-$ver.tar.gz pciutils pciutils-$ver 1
     sed -i 's/HWDB=/HWDB=no/g' Makefile
-    make -j$cpu_num
+    make PREFIX=/app/pciutils/$prefix$ver -j$cpu_num
     create_app pciutils $prefix$ver
     make PREFIX=$output/app/pciutils/$prefix$ver install
     set_current_app_clean_strip_cd pciutils $prefix$ver 1
