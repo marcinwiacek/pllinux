@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="pciutils"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="gptfdisk"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1026,7 +1026,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "gptfdisk" ]; then
   ver="1.0.10";
   if should_make gptfdisk $ver; then
-    download_unpack_source https://sourceforge.net/projects/gptfdisk/files/gptfdisk/$ver/gptfdisk-$ver.tar.gz/download gptfdisk gptfdisk-$ver 1
+    download_unpack_source https://sourceforge.net/projects/gptfdisk/files/gptfdisk/$ver/gptfdisk-$ver.tar.gz/download gptfdisk-$ver gptfdisk-$ver 1
     make -j$cpu_num 
     create_app gptfdisk $prefix$ver
     mkdir $output/app/gptfdisk/$prefix$ver/bin
