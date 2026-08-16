@@ -1087,6 +1087,7 @@ if [ "$package" == "fs" ] || [ "$package" == "pciutils" ]; then
   ver="3.15.0";
   if should_make pciutils $ver; then
     download_unpack_source https://github.com/pciutils/pciutils/releases/download/v3.15.0/pciutils-$ver.tar.gz pciutils pciutils-$ver 1
+    sed -i 's/HWDB=/HWDB=no/g' Makefile
     make all -j$cpu_num
     create_app pciutils $prefix$ver
     #changing variable in Makefile could also make the trick

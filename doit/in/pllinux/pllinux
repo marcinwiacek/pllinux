@@ -830,7 +830,7 @@ EOF
           break
         done < "/etc/dinit.d/$SERVICE_NAME"
         echo " $listnr "
-        echo "$SERVICE_NAME "
+        echo \"$SERVICE_NAME $(dinitctl is-started $SERVICE_NAME) \"
         echo \"$DESC\"
         listnr=$(($listnr+1))
       fi
@@ -866,6 +866,16 @@ EOF
       break;
     fi
   done
+}
+
+show_pci() {
+    disks=$(lspci -vvv)
+      dialog --msgbox "$disks" 100 100
+}
+
+show_bios() {
+    disks=$(dmidecode)
+      dialog --msgbox "$disks" 100 100
 }
 
 show_one_disk_smartctl() {
@@ -922,6 +932,8 @@ devices() {
     if [ $? = 0 ]; then
       case $cmd in
       1) disks ;;
+      2) show_bios ;;
+      3) show_pci ;;
       esac
     else
       break;
