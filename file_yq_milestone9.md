@@ -29,4 +29,10 @@ Does it mean, that PLLinux the same way? (one-line console, console menu, text g
 
 We will see, from history: have you seen Linux terminal in the old printer working as output device? [teletype as a linux terminal](https://www.youtube.com/watch?v=AwqryPuwl_w)
 
+Works need a lot of elements, but this is done step by step. With next builds of PLLinux command there are added new things, for example:
+
+![Alt text](2026/aug_pllinux.jpg)
+
+![Alt text](2026/aug_pllinux2.jpg)
+
 [Prev page](file_yr_milestone8.md) [Next page](file_zz_milestone10.md)

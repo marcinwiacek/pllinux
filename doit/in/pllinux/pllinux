@@ -838,9 +838,13 @@ EOF
 }
 
 services() {
+    if [ ! -d "/etc/dinit.d" ]; then
+      dialog --msgbox "No services detected. Looks like running from host or lack of rights/permissions." 10 30
+      return
+    fi
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux/background services\" --cancel-label \"Quit\" --item-help \
-       --menu \"Welcome to the PLLinux configuration\" 0 0 8 \
+       --menu \"Services support is provided by dinit package\" 0 0 8 \
        $(all_services))
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
@@ -864,6 +868,25 @@ EOF
   done
 }
 
+devices() {
+  while true; do
+    cmd=$(dialog --stdout --backtitle "PLLinux\device manager" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
+       1 disks 2 BIOS/UEFI 3 PCI )
+#    if [ $? = 0 ]; then
+#      case $cmd in
+#      1) cmd2=$(dinitctl stop $1)
+#         dialog --msgbox "$cmd2" 10 30 ;;
+#      2) cmd2=$(dinitctl start $1)
+#         dialog --msgbox "$cmd2" 10 30 ;;
+#      3) cmd2=$(dinitctl restart $1)
+#         dialog --msgbox "$cmd2" 10 30 ;;
+#      esac
+#    else
+#      break;
+#    fi
+  done
+}
+
 CFGFILE="etc/pllinux.conf"
 if [ "$1" = "BOOT" ]; then
   set_general_config 1
@@ -883,28 +906,31 @@ else
 fi
 
 while true; do
-  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 11 \
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 14 \
        1 "Apps (todo)" \
        2 "Background services" \
-       3 "Logs (todo)" \
-       4 "Network (todo)" \
-       5 "Swap memory file (todo)" \
-       6 "Task scheduler (wip)" \
-       7 "Users" \
-       8 "App language (todo) - $LANG" \
-       9 "Keyboard and font   - $KEYB, $FONT" \
-       10 "Timezone            - $TIMEZONE" \
-       11 "Install to other partition" )
+       3 "Background tasks scheduler (wip)" \
+       4 "Device manager (todo)" \
+       5 "Logs (todo)" \
+       6 "Network (todo)" \
+       7 "Swap file (todo)" \
+       8 "Users" \
+       9 "App language (todo) - $LANG" \
+       10 "Keyboard and font   - $KEYB, $FONT" \
+       11 "Timezone            - $TIMEZONE" \
+       12 "Partition encryption password (todo)" \
+       14 "Install to other partition" )
   if [ $? == 0 ]; then
     case $cmd in
     2) services ;;
-    6) tasks ;;
-    7) set_users ;;
-    9) NEW_KEYB="$KEYB"
+    3) tasks ;;
+    3) devices ;;
+    8) set_users ;;
+    10) NEW_KEYB="$KEYB"
        NEW_FONT="$FONT"
        set_keyboard_font_general_or_user "" ;;
-    10) set_time_zone ;;
-    11) install_to ;;
+    11) set_time_zone ;;
+    14) install_to ;;
     esac
   else
     break
