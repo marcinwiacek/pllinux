@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="read-edid"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="pciutils"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1059,6 +1059,9 @@ if [ "$package" == "fs" ] || [ "$package" == "dmidecode" ]; then
     mkdir $output/app/dmidecode/$prefix$ver/bin
     mkdir $output/app/dmidecode/$prefix$ver/man
     mkdir $output/app/dmidecode/$prefix$ver/completion
+#    for binentry in example lspci pcilmr setpci update-pciids update-pciids.sh; do
+#      cp $binentry $output/app/pciutils/$prefix$ver/bin
+#    done
     cp biosdecode $output/app/dmidecode/$prefix$ver/bin
     cp dmidecode $output/app/dmidecode/$prefix$ver/bin
     cp ownership $output/app/dmidecode/$prefix$ver/bin
@@ -1076,15 +1079,7 @@ if [ "$package" == "fs" ] || [ "$package" == "pciutils" ]; then
     sed -i 's/HWDB=/HWDB=no/g' Makefile
     make -j$cpu_num
     create_app pciutils $prefix$ver
-    #changing variable in Makefile could also make the trick
-    mkdir $output/app/pciutils/$prefix$ver/bin
-    for binentry in example lspci pcilmr setpci update-pciids update-pciids.sh; do
-      cp $binentry $output/app/pciutils/$prefix$ver/bin
-    done
-    mkdir $output/app/pciutils/$prefix$ver/man
-    cp *.5 $output/app/pciutils/$prefix$ver/man
-    cp *.7 $output/app/pciutils/$prefix$ver/man
-    cp *.8 $output/app/pciutils/$prefix$ver/man
+    make PREFIX=$output/app/pciutils/$prefix$ver install
     set_current_app_clean_strip_cd pciutils $prefix$ver 1
   fi
 fi
@@ -1188,3 +1183,15 @@ if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
 fi
 # rhboot/shim
 # musl libc
+if [ "$package" == "fs" ] || [ "$package" == "pciids" ]; then
+  # https://pci-ids.ucw.cz/
+  # could be used by pciutils
+  ver="20260815";
+  if should_make pciids $ver; then
+    download_unpack_source https://pci-ids.ucw.cz/v2.2/pci.ids.xz pci.ids.$ver pci.ids 1
+    create_app pciids $prefix$ver
+    cd $curdir
+    cp download/pci.ids.$ver-pci.ids.xz $output/app/pciids/$prefix$ver
+    set_current_app_clean_strip_cd pciids $prefix$ver 1
+  fi
+fi

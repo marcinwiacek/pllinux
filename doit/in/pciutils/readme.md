@@ -1,7 +1,7 @@
 **License**
 
 **PATH_First**
-bin
+bin:sbin
 
 **Deps**
 zlib current
@@ -11,4 +11,5 @@ zlib current
 **Project**
 
 **Man**
-man
+man/man5:man/man7:man/man8
+
