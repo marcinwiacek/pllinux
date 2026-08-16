@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="pciutils"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="read-edid"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -945,19 +945,6 @@ if [ "$package" == "fs" ] || [ "$package" == "smartmontools" ]; then
     set_current_app_clean_strip_cd smartmontools $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
-  # work in progress
-  ver="5.42.2";
-  if should_make perl $ver; then
-    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 1
-    ./Configure -d #-Dprefix=$output/app/perl/$prefix$ver
-    make -j$cpu_num
-    create_app perl $prefix$ver
-    ./perl -Ilib -I. installperl --destdir=$output/app/perl/$prefix$ver
-    remove_duplicates_cd $output/app/perl/$prefix$ver/usr/local/bin
-    set_current_app_clean_strip_cd perl $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "libxcrypt" ]; then
   ver="4.5.2";
   if should_make libxcrypt $ver; then
@@ -1067,7 +1054,6 @@ if [ "$package" == "fs" ] || [ "$package" == "dmidecode" ]; then
   ver="3.7";
   if should_make dmidecode $ver; then
     download_unpack_source https://download.savannah.gnu.org/releases/dmidecode/dmidecode-$ver.tar.xz dmidecode dmidecode-$ver 1
-#    ./configure --prefix=$output/app/dmidecode/$prefix$ver
     make all -j$cpu_num
     create_app dmidecode $prefix$ver
     mkdir $output/app/dmidecode/$prefix$ver/bin
@@ -1088,7 +1074,7 @@ if [ "$package" == "fs" ] || [ "$package" == "pciutils" ]; then
   if should_make pciutils $ver; then
     download_unpack_source https://github.com/pciutils/pciutils/releases/download/v3.15.0/pciutils-$ver.tar.gz pciutils pciutils-$ver 1
     sed -i 's/HWDB=/HWDB=no/g' Makefile
-    make all -j$cpu_num
+    make -j$cpu_num
     create_app pciutils $prefix$ver
     #changing variable in Makefile could also make the trick
     mkdir $output/app/pciutils/$prefix$ver/bin
@@ -1100,6 +1086,25 @@ if [ "$package" == "fs" ] || [ "$package" == "pciutils" ]; then
     cp *.7 $output/app/pciutils/$prefix$ver/man
     cp *.8 $output/app/pciutils/$prefix$ver/man
     set_current_app_clean_strip_cd pciutils $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "read-edid" ]; then
+  #work in progress
+  ver="3.0.2";
+  if should_make read-edid $ver; then
+    install_host_deps "cmake"
+    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-3.0.2.tar.gz read-edid read-edid-$ver 1
+    cmake .
+    create_app read-edid $prefix$ver
+    mkdir $output/app/read-edid/$prefix$ver/bin
+#    for binentry in example lspci pcilmr setpci update-pciids update-pciids.sh; do
+#      cp $binentry $output/app/pciutils/$prefix$ver/bin
+#    done
+#    mkdir $output/app/pciutils/$prefix$ver/man
+#    cp *.5 $output/app/pciutils/$prefix$ver/man
+#    cp *.7 $output/app/pciutils/$prefix$ver/man
+#    cp *.8 $output/app/pciutils/$prefix$ver/man
+#    set_current_app_clean_strip_cd pciutils $prefix$ver 1
   fi
 fi
 #if [ "$package" == "gpm" ]; then
@@ -1136,6 +1141,7 @@ fi
 #  fi
 #fi
 if [ "$package" == "fs" ] || [ "$package" == "syslog-ng" ]; then
+  #work in progress
   ver="4.12.0";
   if should_make syslog-ng $ver; then
     download_unpack_source https://github.com/syslog-ng/syslog-ng/releases/download/syslog-ng-$ver/syslog-ng-$ver.tar.gz syslog-ng syslog-ng-$ver 1
@@ -1165,6 +1171,19 @@ if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
     create_app grub $prefix$ver
     make install
 #    set_current_app_clean_strip_cd grub $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
+  # work in progress
+  ver="5.42.2";
+  if should_make perl $ver; then
+    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 1
+    ./Configure -d #-Dprefix=$output/app/perl/$prefix$ver
+    make -j$cpu_num
+    create_app perl $prefix$ver
+    ./perl -Ilib -I. installperl --destdir=$output/app/perl/$prefix$ver
+    remove_duplicates_cd $output/app/perl/$prefix$ver/usr/local/bin
+    set_current_app_clean_strip_cd perl $prefix$ver 1
   fi
 fi
 # rhboot/shim
