@@ -51,12 +51,13 @@ Currently in early alpha. Some things are done and many still todo:
  14. Milestone 14 - installation with Secure Boot and shim
  15. Milestone 15 - packages with optional config (for example installing some localization only or removing a files), 
 impossible things (like deleting to trash or firewall per process), quotas, managed installation
- 16. Milestone 16 - graphic UI
- 17. Milestone 17 - big party?
+ 16. Milestone 16 - predictable network devices names
+ 17. Milestone 17 - graphic UI
+ 18. Milestone 18 - big party?
 
 This can change without earlier notice.
 
-One note: main author of PLLINUX was preparing Open Source software before 2000 year already and some gaps in current builds are connected mainly with time available for the project.
+One note: main author of PLLINUX was preparing Open Source software before year 2000 and some gaps in current builds are connected mainly with time available for the project.
 
 **Important dates**
 
