@@ -8,6 +8,8 @@ fi
 
 IFSORIG=$IFS
 
+SYSTEM_APPS="dialog:gcc:glib:glibc:gptfdisk:groff:ncurses:ncursesw:rsync:wget2:parted:busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:ldso:libc:libtinfo:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
+
 # some default values
 TIMEZONE="UTC"
 KEYB="qwerty/pl4.map.gz"
@@ -508,7 +510,7 @@ format_install2() {
       cd /mnt/install
 
       mkdir app
-      echo "Copying /app. This will need some time (even 20-30 seconds)"
+      echo "Copying /app. This will need some time (even 20-30 seconds or more)"
       /app/rsync/current/bin/rsync -a --info=progress2 /app/ app
 
       mkdir bin
@@ -706,11 +708,7 @@ get_time_info() {
 }
 
 task_schedule() {
-  SMINUTE="*"
-  SHOUR="*"
-  SDAY="*"
-  SMONTH="*"
-  SDOW="*"
+  STASK=0
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
       --form "Pls provide values, you can put intervals or separate values with comma, star means no setup" 0 0 8 \
@@ -731,6 +729,7 @@ task_schedule() {
         5) SDOW="$line" ;;
         esac
         linenr=$(($linenr+1))
+  STASK=1
       done <<< "$cmd"
       break
     else
@@ -740,10 +739,13 @@ task_schedule() {
 }
 
 task_command() {
+  STASK=0
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
-      --inputbox "Pls enter command" 15 100 )
+      --inputbox "Pls enter command" 15 100 "$SCOM" )
     if [ $? == 0 ]; then
+  STASK=1
+      SCMD="$cmd"
       break;
     else
       break;
@@ -777,17 +779,54 @@ tasks() {
       IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
 $line
 EOF
-      list="$list $listnr abc"
+      list="$list $listnr $TASK_COMMAND"
       listnr=$(($listnr+1))
     done < "${DIR}etc/tasks"
     list="$list $listnr Add(todo)"
-    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
+    cmd=$(dialog --stdout --backtitle "PLLinux\Background tasks scheduler" --cancel-label "Back" \
+       --menu "Commands run in the background in the specified time" 0 0 8 \
        $list )
     if [ $? == 0 ]; then
       case $cmd in
-      1) task_schedule
-         task_command ;;
-      3) break ;;
+      $listnr)
+        SMINUTE="*"
+        SHOUR="*"
+        SDAY="*"
+        SMONTH="*"
+        SDOW="*"
+        SCOM=""
+        task_schedule
+        if [ $STASK = 1 ]; then
+          task_command
+        fi
+        if [ $STASK = 1 ]; then
+          echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/tasks
+        fi
+        ;;
+      *)
+        listnr=1
+        while read -r line; do
+          IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
+$line
+EOF
+          if [ "$listnr" = "$cmd" ]; then
+            SMINUTE="$TASK_MIN"
+            SHOUR="$TASK_HOUR"
+            SDAY="$TASK_DOM"
+            SMONTH="$TASK_MONTH"
+            SDOW="$TASK_DOW"
+            SCOM="$TASK_COMMAND"
+          fi
+          listnr=$(($listnr+1))
+        done < "${DIR}etc/tasks"
+        task_schedule
+        if [ $STASK = 1 ]; then
+          task_command
+        fi
+#        if [ $STASK = 1 ]; then
+#          echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/tasks
+#        fi
+        ;;
       esac
     else
       break;
@@ -797,7 +836,8 @@ EOF
 
 service() {
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
+    cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Quit" \
+       --menu "Welcome to the PLLinux configuration" 0 0 8 \
        1 stop 2 start 3 restart )
     if [ $? = 0 ]; then
       case $cmd in
@@ -913,13 +953,81 @@ EOF
 
 devices() {
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux\device manager" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
-       1 disks 2 BIOS/UEFI 3 PCI )
+    cmd=$(dialog --stdout --backtitle "PLLinux\device manager" --cancel-label "Quit" --menu "Welcome to the device manager" 0 0 8 \
+       1 disks 2 UEFI 3 PCI )
     if [ $? = 0 ]; then
       case $cmd in
       1) disks ;;
-      2) dialog --msgbox "$(dmidecode)" 100 100 ;;
-      3) dialog --msgbox "$(lspci -vvv)" 100 100 ;;
+      2) dialog --backtitle "PLLinux\device manager\UEFI" --msgbox "$(dmidecode)" 100 90 ;;
+      3) dialog --backtitle "PLLinux\device manager\PCI" --msgbox "$(lspci -vvv)" 100 90 ;;
+      esac
+    else
+      break;
+    fi
+  done
+}
+
+all_system_apps() {
+  listnr=1
+#  for APP_NAME in $(ls ${DIR}app); do
+#    for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
+#      if [ "$APP_VERSION" == "current" ]; then
+#        echo  "$listnr "
+#        echo  "${APP_NAME}:${APP_VERSION} "
+#          echo  "off "
+#          echo  $(find_app_description ${DIR}app/${APP_NAME}/${APP_VERSION})
+#        listnr=$(($listnr+1))
+#      fi
+#    done
+#  done
+  for APP_NAME in $(ls ${DIR}app); do
+    appnum=0
+    case $SYSTEM_APPS in
+      *${APP_NAME}*)
+        for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
+          appnum=$(($appnum+1))
+        done
+      ;;
+    esac
+    #cannot delete system apps when there is only one version installed
+    if [ "$appnum" != 2 ]; then
+      for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
+        if [ "$APP_VERSION" != "current" ]; then
+          echo  "$listnr "
+          CURRENT=$(realpath ${DIR}app/${APP_NAME}/current)
+          if [ "$CURRENT" = "${DIR}app/${APP_NAME}/${APP_VERSION}" ]; then
+            echo  \"${APP_NAME}:${APP_VERSION} - current - $(du ${DIR}app/${APP_NAME}/${APP_VERSION} -s -h -c -S | grep total)\"
+          else
+            echo  \"${APP_NAME}:${APP_VERSION} - $(du ${DIR}app/${APP_NAME}/${APP_VERSION} -s -h -c -S | grep total)\"
+          fi
+          echo  " off "
+          echo  $(find_app_description ${DIR}app/${APP_NAME}/${APP_VERSION})
+          listnr=$(($listnr+1))
+        fi
+      done
+    fi
+  done
+}
+
+delete_system_apps() {
+  abc=$( echo dialog --stdout --backtitle \"PLLinux/set users/set user $1/available apps\" --cancel-label "Back" \
+         --visit-items --item-help   \
+         --buildlist \"Marking apps for deleting - installed on left, marked for delete on right\" 0 0 10 $(all_system_apps))
+  cmd=$(eval $abc)
+
+  if [ $? = 0 ]; then
+    list=""
+    listnr=1
+  fi
+}
+
+set_system_apps() {
+  while true; do
+    cmd=$(dialog --stdout --backtitle "PLLinux\apps" --cancel-label "Back" --menu "Apps installed in the /app" 0 0 8 \
+       1 delete 2 install )
+    if [ $? = 0 ]; then
+      case $cmd in
+      1) delete_system_apps ;;
       esac
     else
       break;
@@ -962,6 +1070,7 @@ while true; do
        14 "Install to other partition" )
   if [ $? == 0 ]; then
     case $cmd in
+    1) set_system_apps ;;
     2) services ;;
     3) tasks ;;
     4) devices ;;

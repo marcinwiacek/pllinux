@@ -1,5 +1,6 @@
 #!/app/busybox/current/bin/sh
 
+FOUND_PATH=""
 APP_LIST=$(/app/busybox/current/bin/ls /app)
 for APP_NAME in $APP_LIST; do
   if [ -e "/app/${APP_NAME}/current/readme.md" ]; then
@@ -13,6 +14,13 @@ for APP_NAME in $APP_LIST; do
         IFS=":"
         for folder in $line; do
           if [ -d "/app/${APP_NAME}/current/$folder" ]; then
+            lsls=$(ls "/app/${APP_NAME}/current/$folder" | grep $1)
+            if [ "$lsls" != "" ]; then
+              if [ "$FOUND_PATH" != "" ]; then
+                FOUND_PATH="$FOUND_PATH "
+              fi
+              FOUND_PATH="$FOUND_PATH$lsls"
+            fi
             for nr in 1 2 3 4 5 6 7 8 9; do
               if [ -e "/app/${APP_NAME}/current/$folder/$1.$nr" ]; then
                 # search for redirection in file. It's ".so filename" string in the first line
@@ -52,3 +60,6 @@ EOF
     done < /app/${APP_NAME}/current/readme.md
   fi
 done
+echo "$1 not found. Some other pages with this string"
+echo
+echo "$FOUND_PATH"
