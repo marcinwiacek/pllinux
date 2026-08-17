@@ -771,21 +771,26 @@ task() {
   done
 }
 
-tasks() {
-  while true; do
+tasks_list() {
     listnr=1
-    list=""
     while read -r line; do
       IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
 $line
 EOF
-      list="$list $listnr $TASK_COMMAND"
+      echo "$listnr "
+      echo \"$TASK_COMMAND\"
       listnr=$(($listnr+1))
     done < "${DIR}etc/tasks"
-    list="$list $listnr Add(todo)"
-    cmd=$(dialog --stdout --backtitle "PLLinux\Background tasks scheduler" --cancel-label "Back" \
-       --menu "Commands run in the background in the specified time" 0 0 8 \
-       $list )
+    echo " $listnr "
+    echo "Add\(todo\)"
+}
+
+tasks() {
+  while true; do
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\Background tasks scheduler\" --cancel-label "Back" \
+       --menu \"Commands run in the background in the specified time\" 0 0 8 \
+       $(tasks_list) )
+    cmd=$(eval $abc)
     if [ $? == 0 ]; then
       case $cmd in
       $listnr)
