@@ -560,6 +560,7 @@ EOF
         IFS=" " read -r APP_NAME5 APP_VER5 NEW_REPO5 << EOF
 $NEW_DEPS
 EOF
+#fixme: dont install with check + check if version in repo is older than installed
         if [ ! -d "${DIR}app/${APP_NAME}/${APP_VER5}" ]; then
           DEPS="${APP_NAME} ${APP_VER5}"
           install_single_app 0
