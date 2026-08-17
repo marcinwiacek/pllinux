@@ -710,8 +710,8 @@ get_time_info() {
 task_schedule() {
   STASK=0
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
-      --form "Pls provide values, you can put intervals or separate values with comma, star means no setup" 0 0 8 \
+    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
+      --form "Pls provide values, you can put intervals or separate values with comma, star means no setup, spaces will be deleted" 0 0 8 \
       "Minute (1-59)" 1 1 "$SMINUTE" 1 20 15 0 \
       "Hour (0-23)" 2 1 "$SHOUR" 2 20 15 0 \
       "Month day (1-31)" 3 1 "$SDAY" 3 20 15 0 \
@@ -729,7 +729,7 @@ task_schedule() {
         5) SDOW="$line" ;;
         esac
         linenr=$(($linenr+1))
-  STASK=1
+        STASK=1
       done <<< "$cmd"
       break
     else
@@ -741,30 +741,12 @@ task_schedule() {
 task_command() {
   STASK=0
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
+    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
       --inputbox "Pls enter command" 15 100 "$SCOM" )
     if [ $? == 0 ]; then
-  STASK=1
+      STASK=1
       SCMD="$cmd"
       break;
-    else
-      break;
-    fi
-  done
-}
-
-task() {
-  while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 8 \
-       1 "Schedule" \
-       2 "Command" \
-       3 "Save and exit")
-    if [ $? == 0 ]; then
-      case $cmd in
-      1) task_schedule ;;
-      2) task_command ;;
-      3) break ;;
-      esac
     else
       break;
     fi
@@ -841,7 +823,7 @@ EOF
 
 service() {
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Quit" \
+    cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
        --menu "Welcome to the PLLinux configuration" 0 0 8 \
        1 stop 2 start 3 restart )
     if [ $? = 0 ]; then
@@ -958,7 +940,7 @@ EOF
 
 devices() {
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux\device manager" --cancel-label "Quit" --menu "Welcome to the device manager" 0 0 8 \
+    cmd=$(dialog --stdout --backtitle "PLLinux\device manager" --cancel-label "Back" --menu "Welcome to the device manager" 0 0 8 \
        1 disks 2 UEFI 3 PCI )
     if [ $? = 0 ]; then
       case $cmd in
@@ -1028,7 +1010,7 @@ delete_system_apps() {
 
 set_system_apps() {
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux\apps" --cancel-label "Back" --menu "Apps installed in the /app" 0 0 8 \
+    cmd=$(dialog --stdout --backtitle "PLLinux\apps" --cancel-label "Back" --menu "Manage apps in the /app" 0 0 8 \
        1 delete 2 install )
     if [ $? = 0 ]; then
       case $cmd in
