@@ -1108,6 +1108,7 @@ fi
 #  fi
 #fi
 #if [ "$package" == "fs" ] || [ "$package" == "man-db" ]; then
+  #we don't need it in this moment? groff enough?
   #work in progress
 #  ver="2.13.1";
 #  if should_make man-db $ver; then
@@ -1137,6 +1138,7 @@ fi
 #fi
 #if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
   #work in progress
+  #any alternative?
 #  ver="2.14";
 #  if should_make grub $ver; then
 #    install_host_deps "autoconf-archive"
@@ -1171,7 +1173,7 @@ fi
 # musl libc
 #if [ "$package" == "fs" ] || [ "$package" == "pciids" ]; then
   # https://pci-ids.ucw.cz/
-  # could be used by pciutils
+  # could be used by pciutils, they have own version inside
 #  ver="20260815";
 #  if should_make pciids $ver; then
 #    download_unpack_source https://pci-ids.ucw.cz/v2.2/pci.ids.xz pci.ids.$ver pci.ids 1
