@@ -763,51 +763,80 @@ $line
 EOF
       SCHEDULE=""
       IFS=","
-      for PERIOD in "$TASK_DOW"; do
-        case $PERIOD in
-        0) SCHEDULE="$SCHEDULE Mon" ;;
-        1) SCHEDULE="$SCHEDULE Tue" ;;
-        2) SCHEDULE="$SCHEDULE Wed" ;;
-        3) SCHEDULE="$SCHEDULE Thu" ;;
-        4) SCHEDULE="$SCHEDULE Fri" ;;
-        5) SCHEDULE="$SCHEDULE Sat" ;;
-        6) SCHEDULE="$SCHEDULE Sun" ;;
-        esac
-      done
-      for PERIOD in "$TASK_DOM"; do
-        if [ "$PERIOD" != "*" ]; then
-          SCHEDULE="$SCHEDULE $PERIOD"
-        fi
-      done
-      for PERIOD in "$TASK_MONTH"; do
-        case $PERIOD in
-        1) SCHEDULE="$SCHEDULE Jan" ;;
-        2) SCHEDULE="$SCHEDULE Feb" ;;
-        3) SCHEDULE="$SCHEDULE Mar" ;;
-        4) SCHEDULE="$SCHEDULE Apr" ;;
-        5) SCHEDULE="$SCHEDULE May" ;;
-        6) SCHEDULE="$SCHEDULE Jun" ;;
-        7) SCHEDULE="$SCHEDULE Jul" ;;
-        8) SCHEDULE="$SCHEDULE Aug" ;;
-        9) SCHEDULE="$SCHEDULE Sep" ;;
-        10) SCHEDULE="$SCHEDULE Oct" ;;
-        11) SCHEDULE="$SCHEDULE Nov" ;;
-        12) SCHEDULE="$SCHEDULE Dec" ;;
-        esac
-      done
-      for PERIOD in $TASK_HOUR; do
-        if [ "$PERIOD" != "*" ]; then
-          SCHEDULE="${SCHEDULE} hour ${PERIOD}"
-          for PERIOD2 in "$TASK_MIN"; do
-            if [ "$PERIOD2" != "*" ]; then
-               SCHEDULE="${SCHEDULE}:${PERIOD2}"
+      if [ "${TASK_DOW}" != "*" ]; then
+        for PERIOD in "$TASK_DOW"; do
+          case $PERIOD in
+          0) SCHEDULE="$SCHEDULE every Mon" ;;
+          1) SCHEDULE="$SCHEDULE every Tue" ;;
+          2) SCHEDULE="$SCHEDULE every Wed" ;;
+          3) SCHEDULE="$SCHEDULE every Thu" ;;
+          4) SCHEDULE="$SCHEDULE every Fri" ;;
+          5) SCHEDULE="$SCHEDULE every Sat" ;;
+          6) SCHEDULE="$SCHEDULE every Sun" ;;
+          esac
+        done
+      else
+        SCHEDULE="$SCHEDULE every week day"
+      fi
+      if [ "${TASK_DOM}" != "*" ]; then
+        for PERIOD in "$TASK_DOM"; do
+          if [ "$PERIOD" != "*" ]; then
+            if [ "${TASK_MONTH}" != "*" ]; then
+              for PERIOD2 in "$TASK_MONTH"; do
+                case $PERIOD2 in
+                1) SCHEDULE="$SCHEDULE $PERIOD Jan" ;;
+                2) SCHEDULE="$SCHEDULE $PERIOD Feb" ;;
+                3) SCHEDULE="$SCHEDULE $PERIOD Mar" ;;
+                4) SCHEDULE="$SCHEDULE $PERIOD Apr" ;;
+                5) SCHEDULE="$SCHEDULE $PERIOD May" ;;
+                6) SCHEDULE="$SCHEDULE $PERIOD Jun" ;;
+                7) SCHEDULE="$SCHEDULE $PERIOD Jul" ;;
+                8) SCHEDULE="$SCHEDULE $PERIOD Aug" ;;
+                9) SCHEDULE="$SCHEDULE $PERIOD Sep" ;;
+                10) SCHEDULE="$SCHEDULE $PERIOD Oct" ;;
+                11) SCHEDULE="$SCHEDULE $PERIOD Nov" ;;
+                12) SCHEDULE="$SCHEDULE $PERIOD Dec" ;;
+                esac
+              done
+            else
+              SCHEDULE="$SCHEDULE every month day $PERIOD"
             fi
-          done
+          fi
+        done
+      else
+        SCHEDULE="$SCHEDULE every month day"
+      fi
+      if [ "${TASK_HOUR}" != "*" ]; then
+        for PERIOD in ${TASK_HOUR}; do
+          if [ "$PERIOD" != "*" ]; then
+            SCHEDULE="${SCHEDULE} hour ${PERIOD}"
+            if [ "${TASK_MIN}" != "*" ]; then
+              for PERIOD2 in "${TASK_MIN}"; do
+                if [ "$PERIOD2" != "*" ]; then
+                   SCHEDULE="${SCHEDULE}:${PERIOD2}"
+                fi
+              done
+            else
+              SCHEDULE="${SCHEDULE} every min"
+            fi
+          fi
+        done
+      else
+        if [ "${TASK_MIN}" != "*" ]; then
+            for PERIOD2 in "${TASK_MIN}"; do
+              if [ "$PERIOD2" != "*" ]; then
+                 SCHEDULE="${SCHEDULE} every hour min ${PERIOD2}"
+              fi
+            done
         fi
-      done
+      fi
+      if [ "${SCHEDULE}" == "" ]; then
+        SCHEDULE=" every min of every day"
+      fi
+      SCHEDULE="${SCHEDULE/every week day every month day/every day}"
       IFS=$IFSORIG
       echo "$listnr "
-      echo \"Every $SCHEDULE - $TASK_COMMAND\"
+      echo \"${SCHEDULE:1} - $TASK_COMMAND\"
       listnr=$(($listnr+1))
     done < "${DIR}etc/tasks"
     echo " $listnr "
