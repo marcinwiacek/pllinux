@@ -761,8 +761,53 @@ tasks_list() {
       IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
 $line
 EOF
+      SCHEDULE=""
+      IFS=","
+      for PERIOD in "$TASK_DOW"; do
+        case $PERIOD in
+        0) SCHEDULE="$SCHEDULE Mon" ;;
+        1) SCHEDULE="$SCHEDULE Tue" ;;
+        2) SCHEDULE="$SCHEDULE Wed" ;;
+        3) SCHEDULE="$SCHEDULE Thu" ;;
+        4) SCHEDULE="$SCHEDULE Fri" ;;
+        5) SCHEDULE="$SCHEDULE Sat" ;;
+        6) SCHEDULE="$SCHEDULE Sun" ;;
+        esac
+      done
+      for PERIOD in "$TASK_DOM"; do
+        if [ "$PERIOD" != "*" ]; then
+          SCHEDULE="$SCHEDULE $PERIOD"
+        fi
+      done
+      for PERIOD in "$TASK_MONTH"; do
+        case $PERIOD in
+        1) SCHEDULE="$SCHEDULE Jan" ;;
+        2) SCHEDULE="$SCHEDULE Feb" ;;
+        3) SCHEDULE="$SCHEDULE Mar" ;;
+        4) SCHEDULE="$SCHEDULE Apr" ;;
+        5) SCHEDULE="$SCHEDULE May" ;;
+        6) SCHEDULE="$SCHEDULE Jun" ;;
+        7) SCHEDULE="$SCHEDULE Jul" ;;
+        8) SCHEDULE="$SCHEDULE Aug" ;;
+        9) SCHEDULE="$SCHEDULE Sep" ;;
+        10) SCHEDULE="$SCHEDULE Oct" ;;
+        11) SCHEDULE="$SCHEDULE Nov" ;;
+        12) SCHEDULE="$SCHEDULE Dec" ;;
+        esac
+      done
+      for PERIOD in $TASK_HOUR; do
+        if [ "$PERIOD" != "*" ]; then
+          SCHEDULE="${SCHEDULE} hour ${PERIOD}"
+          for PERIOD2 in "$TASK_MIN"; do
+            if [ "$PERIOD2" != "*" ]; then
+               SCHEDULE="${SCHEDULE}:${PERIOD2}"
+            fi
+          done
+        fi
+      done
+      IFS=$IFSORIG
       echo "$listnr "
-      echo \"$TASK_COMMAND\"
+      echo \"Every $SCHEDULE - $TASK_COMMAND\"
       listnr=$(($listnr+1))
     done < "${DIR}etc/tasks"
     echo " $listnr "
