@@ -719,7 +719,6 @@ task_schedule() {
       "Month day (1-31)" 3 1 "$SDAY" 3 20 15 0 \
       "Month (1-12)" 4 1 "$SMONTH" 4 20 15 0 \
       "Day of week (0-6)" 5 1 "$SDOW" 5 20 15 0 )
-      echo "$cmd" >> /tmp/x
     if [ $? == 0 ]; then
       linenr=1
       while read -r line; do
@@ -847,12 +846,15 @@ EOF
 }
 
 tasks() {
+  listnr3=1
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\background tasks scheduler\" --cancel-label "Back" \
+           --default-item $listnr3 \
        --menu \"Commands run in the background in the specified time\" 0 0 8 \
        $(tasks_list) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
+      listnr3=$cmd
       case $cmd in
       $listnr)
         SMINUTE="*"
@@ -885,7 +887,6 @@ EOF
           fi
           listnr=$(($listnr+1))
         done < "${DIR}etc/tasks"
-listnr3=$listnr
         task_schedule $listnr3
         if [ $STASK = 1 ]; then
           task_command
