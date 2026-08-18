@@ -326,18 +326,17 @@ if [ "$package" == "fs" ] || [ "$package" == "dinit" ]; then
     make all -j$cpu_num
     create_app dinit $prefix$ver
     mkdir $output/app/dinit/$prefix$ver/bin
-    cp src/dinit $output/app/dinit/$prefix$ver/bin
-    cp src/dinit-check $output/app/dinit/$prefix$ver/bin
-    cp src/dinit-monitor $output/app/dinit/$prefix$ver/bin
-    cp src/dinitctl $output/app/dinit/$prefix$ver/bin
-    cp src/shutdown $output/app/dinit/$prefix$ver/bin
-    cp $curdir/in/dinit/poweroff $output/app/dinit/$prefix$ver
-    cp $curdir/in/dinit/reboot $output/app/dinit/$prefix$ver
+    for binentry in dinit dinit-check dinit-monitor dinitctl shutdown; do
+      cp src/$binentry $output/app/dinit/$prefix$ver/bin
+    done
+    for binentry in poweroff reboot; do
+      cp $curdir/in/dinit/$binentry $output/app/dinit/$prefix$ver
+    done
     mkdir $output/app/dinit/$prefix$ver/man
-    mkdir $output/app/dinit/$prefix$ver/man/man.5
-    cp doc/manpages/*.5 $output/app/dinit/$prefix$ver/man/man.5
-    mkdir $output/app/dinit/$prefix$ver/man/man.8
-    cp doc/manpages/*.8 $output/app/dinit/$prefix$ver/man/man.8
+    for manentry in 5 8; do
+      mkdir $output/app/dinit/$prefix$ver/man/man.$manentry
+      cp doc/manpages/*.$manentry $output/app/dinit/$prefix$ver/man/man.$manentry
+    done
     set_current_app_clean_strip_cd dinit $prefix$ver 1
   fi
 fi
@@ -501,17 +500,10 @@ if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
     mkdir $out/initramfs
     cp $curdir/in/initramfs/init $out/initramfs
 
-    mkdir $out/initramfs/app
+    for folderentry in app dev proc mnt run sys etc lib64; do mkdir $out/initramfs/$folderentry; done
+
     for app in busybox; do mkdir $out/initramfs/app/$app; rsync -a $output/app/$app/ $out/initramfs/app/$app; done
 
-    mkdir $out/initramfs/dev
-    mkdir $out/initramfs/proc
-    mkdir $out/initramfs/mnt
-    mkdir $out/initramfs/run
-    mkdir $out/initramfs/sys
-    mkdir $out/initramfs/etc
-
-    mkdir $out/initramfs/lib64
     cd $out/initramfs/lib64
     ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
     chmod a+x ld-linux-x86-64.so.2
@@ -628,9 +620,10 @@ if [ "$package" == "fs" ] || [ "$package" == "openssl" ]; then
       ./Configure
       make all -j$cpu_num
       create_app openssl $prefix$ver
-      mkdir $output/app/openssl/$prefix$ver/bin
+      for folderentry in bin lib; do
+        mkdir $output/app/openssl/$prefix$ver/$folderentry
+      done
       cp apps/openssl $output/app/openssl/$prefix$ver/bin
-      mkdir $output/app/openssl/$prefix$ver/lib
       rsync -a *.so* $output/app/openssl/$prefix$ver/lib
       rsync -a $curdir/in/openssl/ $output/app/openssl/$prefix$ver
       set_current_app_clean_strip_cd openssl $prefix$ver 1
@@ -645,9 +638,9 @@ if [ "$package" == "fs" ] || [ "$package" == "wget2" ]; then
     ./configure
     make all -j$cpu_num
     create_app wget2 $prefix$ver
-    mkdir $output/app/wget2/$prefix$ver/bin
-    mkdir $output/app/wget2/$prefix$ver/lib
-    mkdir $output/app/wget2/$prefix$ver/ssl
+    for folderentry in bin lib ssl; do
+      mkdir $output/app/wget2/$prefix$ver/$folderentry
+    done
     cp src/wget2_noinstall $output/app/wget2/$prefix$ver/bin/wget
     rsync -a libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
     rsync -a $curdir/in/wget2/ $output/app/wget2/$prefix$ver
@@ -691,12 +684,9 @@ if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
     cp LICENSE $output/app/zstd/$prefix$ver
     rsync -a $curdir/in/zstd/ $output/app/zstd/$prefix$ver
     mkdir $output/app/zstd/$prefix$ver/bin
-    cp programs/zstd $output/app/zstd/$prefix$ver/bin
-    cp programs/zstd-compress $output/app/zstd/$prefix$ver/bin
-    cp programs/zstd-decompress $output/app/zstd/$prefix$ver/bin
-    cp programs/zstd-small $output/app/zstd/$prefix$ver/bin
-    cp programs/zstdgrep $output/app/zstd/$prefix$ver/bin
-    cp programs/zstdsmall $output/app/zstd/$prefix$ver/bin
+    for binrentry in zstd zstd-compress zstd-decompress zstd-small zstdgrep zstdsmall; do
+      cp programs/$binentry $output/app/zstd/$prefix$ver/bin
+    done
     mkdir $output/app/zstd/$prefix$ver/lib
     rsync -a lib/lib* $output/app/zstd/$prefix$ver/lib
     cd $output/app/zstd/$prefix$ver/lib
@@ -1029,12 +1019,12 @@ if [ "$package" == "fs" ] || [ "$package" == "gptfdisk" ]; then
     download_unpack_source https://sourceforge.net/projects/gptfdisk/files/gptfdisk/$ver/gptfdisk-$ver.tar.gz/download gptfdisk-$ver gptfdisk-$ver 1
     make -j$cpu_num 
     create_app gptfdisk $prefix$ver
-    mkdir $output/app/gptfdisk/$prefix$ver/bin
-    mkdir $output/app/gptfdisk/$prefix$ver/man
-    cp cgdisk $output/app/gptfdisk/$prefix$ver/bin
-    cp gdisk $output/app/gptfdisk/$prefix$ver/bin
-    cp sgdisk $output/app/gptfdisk/$prefix$ver/bin
-    cp fixparts $output/app/gptfdisk/$prefix$ver/bin
+    for folderentry in bin man; do
+      mkdir $output/app/gptfdisk/$prefix$ver/$folderentry
+    done
+    for binentry in cgdisk gdisk sgdisk fixparts; do
+      cp $binentry $output/app/gptfdisk/$prefix$ver/bin
+    done
     cp *.8 $output/app/gptfdisk/$prefix$ver/man
     set_current_app_clean_strip_cd gptfdisk $prefix$ver 1
   fi
@@ -1056,19 +1046,15 @@ if [ "$package" == "fs" ] || [ "$package" == "dmidecode" ]; then
     download_unpack_source https://download.savannah.gnu.org/releases/dmidecode/dmidecode-$ver.tar.xz dmidecode dmidecode-$ver 1
     make all -j$cpu_num
     create_app dmidecode $prefix$ver
-    mkdir $output/app/dmidecode/$prefix$ver/bin
-    mkdir $output/app/dmidecode/$prefix$ver/man
-    mkdir $output/app/dmidecode/$prefix$ver/completion
-#    for binentry in example lspci pcilmr setpci update-pciids update-pciids.sh; do
-#      cp $binentry $output/app/pciutils/$prefix$ver/bin
-#    done
-    cp biosdecode $output/app/dmidecode/$prefix$ver/bin
-    cp dmidecode $output/app/dmidecode/$prefix$ver/bin
-    cp ownership $output/app/dmidecode/$prefix$ver/bin
-    cp vpddecode $output/app/dmidecode/$prefix$ver/bin
+#    make install - this could work with changing DESTDIR maybe
+    for folderentry in bin man completion; do
+      mkdir $output/app/dmidecode/$prefix$ver/$folderentry
+    done
+    for binentry in biosdecode dmidecode ownership vpddecode; do
+      cp $binentry $output/app/dmidecode/$prefix$ver/bin
+    done
     cp completion/* $output/app/dmidecode/$prefix$ver/completion
     cp man/*.8 $output/app/dmidecode/$prefix$ver/man
-#    make install - this could work with changing DESTDIR maybe
     set_current_app_clean_strip_cd dmidecode $prefix$ver 1
   fi
 fi
@@ -1083,15 +1069,15 @@ if [ "$package" == "fs" ] || [ "$package" == "pciutils" ]; then
     set_current_app_clean_strip_cd pciutils $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "read-edid" ]; then
+#if [ "$package" == "fs" ] || [ "$package" == "read-edid" ]; then
   #work in progress
-  ver="3.0.2";
-  if should_make read-edid $ver; then
-    install_host_deps "cmake"
-    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-3.0.2.tar.gz read-edid read-edid-$ver 1
-    cmake .
-    create_app read-edid $prefix$ver
-    mkdir $output/app/read-edid/$prefix$ver/bin
+#  ver="3.0.2";
+#  if should_make read-edid $ver; then
+#    install_host_deps "cmake"
+#    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-3.0.2.tar.gz read-edid read-edid-$ver 1
+#    cmake .
+#    create_app read-edid $prefix$ver
+#    mkdir $output/app/read-edid/$prefix$ver/bin
 #    for binentry in example lspci pcilmr setpci update-pciids update-pciids.sh; do
 #      cp $binentry $output/app/pciutils/$prefix$ver/bin
 #    done
@@ -1100,8 +1086,8 @@ if [ "$package" == "fs" ] || [ "$package" == "read-edid" ]; then
 #    cp *.7 $output/app/pciutils/$prefix$ver/man
 #    cp *.8 $output/app/pciutils/$prefix$ver/man
 #    set_current_app_clean_strip_cd pciutils $prefix$ver 1
-  fi
-fi
+#  fi
+#fi
 #if [ "$package" == "gpm" ]; then
 #  code seems to be obsolete
 #  ver="1.20.7";
@@ -1135,63 +1121,63 @@ fi
 #    set_current_app_clean_strip_cd man-db $prefix$ver 1
 #  fi
 #fi
-if [ "$package" == "fs" ] || [ "$package" == "syslog-ng" ]; then
+#if [ "$package" == "fs" ] || [ "$package" == "syslog-ng" ]; then
   #work in progress
-  ver="4.12.0";
-  if should_make syslog-ng $ver; then
-    download_unpack_source https://github.com/syslog-ng/syslog-ng/releases/download/syslog-ng-$ver/syslog-ng-$ver.tar.gz syslog-ng syslog-ng-$ver 1
-    mkdir $out/syslog-ng/syslog-ng-$ver-build
-    cd $out/syslog-ng/syslog-ng-$ver-build
-    ../syslog-ng-$ver/configure --prefix=$output/app/syslog-ng/$prefix$ver
-    make -j$cpu_num
-    create_app syslog-ng $prefix$ver
-    make install
+#  ver="4.12.0";
+#  if should_make syslog-ng $ver; then
+#    download_unpack_source https://github.com/syslog-ng/syslog-ng/releases/download/syslog-ng-$ver/syslog-ng-$ver.tar.gz syslog-ng syslog-ng-$ver 1
+#    mkdir $out/syslog-ng/syslog-ng-$ver-build
+#    cd $out/syslog-ng/syslog-ng-$ver-build
+#    ../syslog-ng-$ver/configure --prefix=$output/app/syslog-ng/$prefix$ver
+#    make -j$cpu_num
+#    create_app syslog-ng $prefix$ver
+#    make install
 #    set_current_app_clean_strip_cd libxcrypt $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
+#  fi
+#fi
+#if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
   #work in progress
-  ver="2.14";
-  if should_make grub $ver; then
-    install_host_deps "autoconf-archive"
-    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
-    cd $out/grub
-    mkdir grub-grub-$ver-build
-    cd grub-grub-$ver
-    autoconf
-    cd ..
-    cd grub-grub-$ver-build
-    ../grub-grub-$ver/configure --prefix=$output/app/grub/$prefix$ver
-    make all -j$cpu_num
-    create_app grub $prefix$ver
-    make install
+#  ver="2.14";
+#  if should_make grub $ver; then
+#    install_host_deps "autoconf-archive"
+#    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
+#    cd $out/grub
+#    mkdir grub-grub-$ver-build
+#    cd grub-grub-$ver
+#    autoconf
+#    cd ..
+#    cd grub-grub-$ver-build
+#    ../grub-grub-$ver/configure --prefix=$output/app/grub/$prefix$ver
+#    make all -j$cpu_num
+#    create_app grub $prefix$ver
+#    make install
 #    set_current_app_clean_strip_cd grub $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
+#  fi
+#fi
+#if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
   # work in progress
-  ver="5.42.2";
-  if should_make perl $ver; then
-    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 1
-    ./Configure -d #-Dprefix=$output/app/perl/$prefix$ver
-    make -j$cpu_num
-    create_app perl $prefix$ver
-    ./perl -Ilib -I. installperl --destdir=$output/app/perl/$prefix$ver
-    remove_duplicates_cd $output/app/perl/$prefix$ver/usr/local/bin
-    set_current_app_clean_strip_cd perl $prefix$ver 1
-  fi
-fi
+#  ver="5.42.2";
+#  if should_make perl $ver; then
+#    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 1
+#    ./Configure -d #-Dprefix=$output/app/perl/$prefix$ver
+#    make -j$cpu_num
+#    create_app perl $prefix$ver
+#    ./perl -Ilib -I. installperl --destdir=$output/app/perl/$prefix$ver
+#    remove_duplicates_cd $output/app/perl/$prefix$ver/usr/local/bin
+#    set_current_app_clean_strip_cd perl $prefix$ver 1
+#  fi
+#fi
 # rhboot/shim
 # musl libc
-if [ "$package" == "fs" ] || [ "$package" == "pciids" ]; then
+#if [ "$package" == "fs" ] || [ "$package" == "pciids" ]; then
   # https://pci-ids.ucw.cz/
   # could be used by pciutils
-  ver="20260815";
-  if should_make pciids $ver; then
-    download_unpack_source https://pci-ids.ucw.cz/v2.2/pci.ids.xz pci.ids.$ver pci.ids 1
-    create_app pciids $prefix$ver
-    cd $curdir
-    cp download/pci.ids.$ver-pci.ids.xz $output/app/pciids/$prefix$ver
-    set_current_app_clean_strip_cd pciids $prefix$ver 1
-  fi
-fi
+#  ver="20260815";
+#  if should_make pciids $ver; then
+#    download_unpack_source https://pci-ids.ucw.cz/v2.2/pci.ids.xz pci.ids.$ver pci.ids 1
+#    create_app pciids $prefix$ver
+#    cd $curdir
+#    cp download/pci.ids.$ver-pci.ids.xz $output/app/pciids/$prefix$ver
+#    set_current_app_clean_strip_cd pciids $prefix$ver 1
+#  fi
+#fi

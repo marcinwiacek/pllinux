@@ -745,7 +745,7 @@ task_command() {
       --inputbox "Pls enter command" 15 100 "$SCOM" )
     if [ $? == 0 ]; then
       STASK=1
-      SCMD="$cmd"
+      SCOM="$cmd"
       break;
     else
       break;
@@ -803,6 +803,7 @@ EOF
             SMONTH="$TASK_MONTH"
             SDOW="$TASK_DOW"
             SCOM="$TASK_COMMAND"
+            break
           fi
           listnr=$(($listnr+1))
         done < "${DIR}etc/tasks"
@@ -810,9 +811,19 @@ EOF
         if [ $STASK = 1 ]; then
           task_command
         fi
-#        if [ $STASK = 1 ]; then
-#          echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/tasks
-#        fi
+        if [ $STASK = 1 ]; then
+          listnr2=1
+          file_content=$(cat ${DIR}etc/tasks)
+          echo -n "" > ${DIR}etc/tasks
+          while IFS= read -r line; do
+            if [ "$listnr2" != "$listnr" ]; then
+              echo "$line" >> ${DIR}etc/tasks
+            else
+              echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCOM" >> ${DIR}etc/tasks
+            fi
+            listnr2=$(($listnr2+1))
+          done <<< "$file_content"
+        fi
         ;;
       esac
     else
@@ -1008,13 +1019,86 @@ delete_system_apps() {
   fi
 }
 
+get_repo_updates() {
+  REPO_UPDATES=""
+  LINE_NUM=1
+  rm -r -f /tmp/apprepo 2> /dev/null
+  while read -r repo_line; do
+    IFS=" " read -r REPO_URL REPO_FIRST_PUBLIC_KEY REPO_SECOND_PUBLIC_KEY << EOF
+$repo_line
+EOF
+    if [ "${REPO_URL:0:5}" = "https" ]; then
+      mkdir /tmp/apprepo 2> /dev/null
+      mkdir /tmp/apprepo/${LINE_NUM} 2> /dev/null
+      LINK=${REPO_URL/;/:}
+#echo "$LINK"
+#echo "${LINK/[*]/app.repo.updates}"
+      echo -n "Getting repo.updates..."
+      wget -O /tmp/apprepo/${LINE_NUM}/app.repo.updates ${LINK/[*]/app.repo.updates} > /dev/null 2> /dev/null
+      if [ $? -eq 0 ]; then
+        echo -n "getting first key..."
+        wget -O /tmp/apprepo/${LINE_NUM}/app.publickey1 $REPO_FIRST_PUBLIC_KEY > /dev/null 2> /dev/null
+        if [ $? -eq 0 ]; then
+          if [ $REPO_FIRST_PUBLIC_KEY = $REPO_SECOND_PUBLIC_KEY ]; then
+            echo "repo $REPO_URL issue - the same public key (worse security)"
+            cp /tmp/apprepo/${LINE_NUM}/app.publickey1 /tmp/apprepo/${LINE_NUM}/app.publickey2
+          else 
+            echo -n "getting second key..."
+            wget -O /tmp/apprepo/${LINE_NUM}/app.publickey2 $REPO_SECOND_PUBLIC_KEY > /dev/null 2> /dev/null
+          fi
+          if cmp -s /tmp/apprepo/${LINE_NUM}/app.publickey1 /tmp/apprepo/${LINE_NUM}/app.publickey2; then
+            echo
+            while read -r line; do
+              REPO_UPDATES="$REPO_UPDATES$line $REPO_URL /tmp/apprepo/${LINE_NUM}/app.publickey1
+"
+            done < "/tmp/apprepo/${LINE_NUM}/app.repo.updates"
+          else
+            echo repo $REPO_URL problem - both public keys are not the same. Skipping
+          fi
+        fi
+      fi
+      LINE_NUM=$LINE_NUM+1
+    else
+      REPO_DIR=${REPO_URL//[*]/}
+      if [ ! -d "$REPO_DIR" ]; then
+        echo Repo directory $REPO_DIR not found. Skipping
+      elif [ ! -f "${REPO_URL/[*]/app.repo.updates}" ]; then
+        echo "Repo directory $REPO_URL without app.repo.updates file. Skipping"
+      else
+        if cmp -s $REPO_FIRST_PUBLIC_KEY $REPO_SECOND_PUBLIC_KEY; then
+          while read -r line; do
+            REPO_UPDATES="$REPO_UPDATES$line $(pwd)/$REPO_URL $(pwd)/$REPO_FIRST_PUBLIC_KEY
+"
+          done < "${REPO_URL/[*]/app.repo.updates}"
+        else
+          echo Repo $REPO_URL problem - both public keys are not the same. Skipping
+        fi
+      fi
+    fi
+  done < "${DIR}etc/app.repos"
+#  echo "$REPO_UPDATES"
+}
+
+install_system_apps() {
+  abc=$( echo dialog --stdout --backtitle \"PLLinux/set users/set user $1/available apps\" --cancel-label "Back" \
+         --visit-items --item-help   \
+         --buildlist \"Marking apps for deleting - installed on left, marked for delete on right\" 0 0 10 $(all_system_apps))
+  cmd=$(eval $abc)
+
+  if [ $? = 0 ]; then
+    list=""
+    listnr=1
+  fi
+}
+
 set_system_apps() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\apps" --cancel-label "Back" --menu "Manage apps in the /app" 0 0 8 \
-       1 delete 2 install )
+       1 delete 2 "install from repo" 3 "install from file" )
     if [ $? = 0 ]; then
       case $cmd in
       1) delete_system_apps ;;
+      2) install_system_apps ;;
       esac
     else
       break;
@@ -1063,8 +1147,8 @@ while true; do
     4) devices ;;
     8) set_users ;;
     10) NEW_KEYB="$KEYB"
-       NEW_FONT="$FONT"
-       set_keyboard_font_general_or_user "" ;;
+        NEW_FONT="$FONT"
+        set_keyboard_font_general_or_user "" ;;
     11) set_time_zone ;;
     14) install_to ;;
     esac
