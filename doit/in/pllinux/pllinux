@@ -105,13 +105,13 @@ set_keyboard_font_general_or_user() {
     PROMPT="PLLinux";
     PROMPT2="";
   else
-    PROMPT="PLLinux/set users/set user $1";
+    PROMPT="PLLinux\set users\\$1";
     PROMPT2=" for $1";
   fi
   while true; do
     /app/kbd/current/bin/setfont -C /dev/tty1 $NEW_FONT
     /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$NEW_KEYB
-    cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font" --cancel-label "Back" \
+    cmd=$(dialog --stdout --backtitle "$PROMPT\keyboard and font" --cancel-label "Back" \
            --menu "Set display and typing$PROMPT2" 0 0 5 \
            1 "Check" \
            2 "Set default" \
@@ -120,9 +120,9 @@ set_keyboard_font_general_or_user() {
            5 "Save and back")
     if [ $? == 0 ]; then
       case $cmd in
-      1) $(dialog --stdout --backtitle "$PROMPT/keyboard and font/check" --cancel-label "Back" \
+      1) $(dialog --stdout --backtitle "$PROMPT\keyboard and font\check" --cancel-label "Back" \
                 --inputbox "Please test your keyboard layout" 15 30) ;;
-      2) cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set default" --cancel-label "Back" \
+      2) cmd=$(dialog --stdout --backtitle "$PROMPT\keyboard and font\set default" --cancel-label "Back" \
            --menu "Set proposed option for concrete language" 0 0 5 \
              1 "PL" 2 "Other")
            if [ $? == 0 ]; then
@@ -148,7 +148,7 @@ set_keyboard_font_general_or_user() {
                 ;;
            esac
          done
-         cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set font" --cancel-label "Back" \
+         cmd=$(dialog --stdout --backtitle "$PROMPT\keyboard and font\set font" --cancel-label "Back" \
            --default-item $DEFAULT_NUM \
            --menu "Select font" 0 0 10 $list)
          if [ $? == 0 ]; then
@@ -177,7 +177,7 @@ set_keyboard_font_general_or_user() {
              listnr=$(($listnr+1))
            done
          done
-         cmd=$(dialog --stdout --backtitle "$PROMPT/keyboard and font/set keyboard" --cancel-label "Back" \
+         cmd=$(dialog --stdout --backtitle "$PROMPT\keyboard and font\set keyboard" --cancel-label "Back" \
                  --default-item $DEFAULT_NUM \
                  --menu "Select keyboard" 0 0 10 $list)
          listnr=1
@@ -230,7 +230,7 @@ set_time_zone() {
       listnr=$(($listnr+1))
     fi
   done
-  cmd=$(dialog --stdout --backtitle "PLLinux/set timezone" --cancel-label "Back" \
+  cmd=$(dialog --stdout --backtitle "PLLinux\set timezone" --cancel-label "Back" \
            --default-item $DEFAULT_NUM \
            --menu "Selected timezone $TIMEZONE. Please select new value" 0 0 10 $list)
   if [ $? = 0 ]; then
@@ -256,7 +256,7 @@ set_time_zone() {
 }
 
 add_new_user() {
-  cmd=$(dialog --stdout --backtitle "PLLinux/set users/add new user" --cancel-label "Back" \
+  cmd=$(dialog --stdout --backtitle "PLLinux\set users\add new user" --cancel-label "Back" \
            --menu "Add new user" 0 0 10 1 "x")
 }
 
@@ -335,7 +335,7 @@ set_existing_user_apps() {
   get_value_from_conf_file "$1_APPS"
   USER_APPS="$CONF_FILE_VALUE"
 
-  abc=$( echo dialog --stdout --backtitle \"PLLinux/set users/set user $1/available apps\" --cancel-label "Back" \
+  abc=$( echo dialog --stdout --backtitle \"PLLinux\\set users\\$1\\available apps\" --cancel-label "Back" \
          --visit-items --item-help   \
          --buildlist \"Set apps for $1 - non available on left, available on right\" 0 0 10 $(all_apps))
   cmd=$(eval $abc)
@@ -395,7 +395,7 @@ set_existing_user_features() {
     *\ reset*) USER_RESET="x on" ;; *) USER_RESET="- off" ;;
   esac
 
-  cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1/features" --cancel-label "Back" \
+  cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
          --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 \
                    "Access to /proc"              $USER_PROCESSES \
                    "Access to allprocesses"       $USER_ALL_PROCESSES \
@@ -416,19 +416,20 @@ set_existing_user_features() {
 
 set_existing_user_password() {
   IFS=$IFSORIG
-  clear
   if [ -d "/mnt/x" ]; then
-    echo "Not possible in host system"
+      dialog --backtitle "PLLinux\set users\\$1\password" \
+        --msgbox "Not possible in host system." 10 30
   else
+    clear
     passwd $1
+    echo "Press any key to continue..."
+    read
   fi
-  echo "Press any key to continue..."
-  read
 }
 
 set_existing_user() {
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux/set users/set user $1" --cancel-label "Back" \
+    cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
            --menu "Set user $1" 0 0 6 1 "Available apps" \
                    2 "Features" \
                    3 "Keyboard and font" \
@@ -471,7 +472,7 @@ EOF
     list="$list $listnr Add(todo)"
     listnr=$(($listnr+1))
     list="$list $listnr Delete(todo)"
-    cmd=$(dialog --stdout --backtitle "PLLinux/set users" --cancel-label "Back" \
+    cmd=$(dialog --stdout --backtitle "PLLinux\set users" --cancel-label "Back" \
            --menu "Set users" 0 0 10 $list)
     if [ $? == 0 ]; then
       USRUSR=""
@@ -657,7 +658,8 @@ install_to() {
   while true; do
     disks=$(parted -l -m 2> /dev/null | grep /dev)
     if [ "$disks" = "" ]; then
-      dialog --msgbox "No disks detected. Looks like running from mc sandbox or lack of rights/permissions." 10 30
+      dialog --backtitle "PLLinux\install to other partition" \
+        --msgbox "No disks detected. Looks like running from mc sandbox or lack of rights/permissions." 10 30
       return
     fi
     listnr=1
@@ -669,7 +671,7 @@ EOF
       list="$list $listnr $DEV_NAME "
       listnr=$(($listnr+1))
     done <<< "$disks"
-    cmd=$(dialog --stdout --backtitle "PLLinux/install to other disk" --cancel-label "Back" \
+    cmd=$(dialog --stdout --backtitle "PLLinux\install to other disk" --cancel-label "Back" \
            --default-item $defnum \
            --menu "Install PLLinux to other partition or disk" 0 0 6 $list )
     if [ $? == 0 ]; then
@@ -769,7 +771,7 @@ EOF
 
 tasks() {
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"PLLinux\Background tasks scheduler\" --cancel-label "Back" \
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\background tasks scheduler\" --cancel-label "Back" \
        --menu \"Commands run in the background in the specified time\" 0 0 8 \
        $(tasks_list) )
     cmd=$(eval $abc)
@@ -878,11 +880,11 @@ EOF
 
 services() {
     if [ ! -d "/etc/dinit.d" ]; then
-      dialog --msgbox "No services detected. Looks like running from host or lack of rights/permissions." 10 30
+      dialog --backtitle "PLLinux\\backgroud services" --msgbox "No services detected. Looks like running from host or lack of rights/permissions." 10 30
       return
     fi
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"PLLinux/background services\" --cancel-label \"Quit\" --item-help \
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\background services\" --cancel-label \"Quit\" --item-help \
        --menu \"Services support is provided by dinit package\" 0 0 8 \
        $(all_services))
     cmd=$(eval $abc)
@@ -912,7 +914,8 @@ disks() {
   while true; do
     disks=$(parted -l -m 2> /dev/null | grep /dev)
     if [ "$disks" = "" ]; then
-      dialog --msgbox "No disks detected. Looks like running from mc sandbox or lack of rights/permissions." 10 30
+      dialog --backtitle "PLLinux\device manager\disks" \
+        --msgbox "No disks detected. Looks like running from mc sandbox or lack of rights/permissions." 10 30
       return
     fi
     listnr=1
@@ -924,7 +927,7 @@ EOF
       list="$list $listnr $DEV_NAME "
       listnr=$(($listnr+1))
     done <<< "$disks"
-    cmd=$(dialog --stdout --backtitle "PLLinux/install to other disk" --cancel-label "Back" \
+    cmd=$(dialog --stdout --backtitle "PLLinux\install to other disk" --cancel-label "Back" \
            --default-item $defnum \
            --menu "Show disk properties" 0 0 6 $list )
     if [ $? == 0 ]; then
@@ -1008,7 +1011,7 @@ all_system_apps() {
 }
 
 delete_system_apps() {
-  abc=$( echo dialog --stdout --backtitle \"PLLinux/set users/set user $1/available apps\" --cancel-label "Back" \
+  abc=$( echo dialog --stdout --backtitle \"PLLinux\\apps\\delete\" --cancel-label "Back" \
          --visit-items --item-help   \
          --buildlist \"Marking apps for deleting - installed on left, marked for delete on right\" 0 0 10 $(all_system_apps))
   cmd=$(eval $abc)
@@ -1080,7 +1083,7 @@ EOF
 }
 
 install_system_apps() {
-  abc=$( echo dialog --stdout --backtitle \"PLLinux/set users/set user $1/available apps\" --cancel-label "Back" \
+  abc=$( echo dialog --stdout --backtitle \"PLLinux\\apps\\install from repo\" --cancel-label "Back" \
          --visit-items --item-help   \
          --buildlist \"Marking apps for deleting - installed on left, marked for delete on right\" 0 0 10 $(all_system_apps))
   cmd=$(eval $abc)
