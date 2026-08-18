@@ -712,7 +712,7 @@ get_time_info() {
 task_schedule() {
   STASK=0
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
+    cmd=$(dialog --stdout --backtitle "PLLinux $1" --cancel-label "Back" \
       --form "Pls provide values, you can put intervals or separate values with comma, star means no setup, spaces will be deleted" 0 0 8 \
       "Minute (1-59)" 1 1 "$SMINUTE" 1 20 15 0 \
       "Hour (0-23)" 2 1 "$SHOUR" 2 20 15 0 \
@@ -746,6 +746,9 @@ task_command() {
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
       --inputbox "Pls enter command" 15 100 "$SCOM" )
     if [ $? == 0 ]; then
+      if [ "$cmd" == "" ]; then
+        continue;
+      fi
       STASK=1
       SCOM="$cmd"
       break;
@@ -858,7 +861,7 @@ tasks() {
         SMONTH="*"
         SDOW="*"
         SCOM=""
-        task_schedule
+        task_schedule $listnr
         if [ $STASK = 1 ]; then
           task_command
         fi
@@ -879,11 +882,11 @@ EOF
             SMONTH="$TASK_MONTH"
             SDOW="$TASK_DOW"
             SCOM="$TASK_COMMAND"
-            break
           fi
           listnr=$(($listnr+1))
         done < "${DIR}etc/tasks"
-        task_schedule
+listnr3=$listnr
+        task_schedule $listnr3
         if [ $STASK = 1 ]; then
           task_command
         fi
@@ -892,7 +895,7 @@ EOF
           file_content=$(cat ${DIR}etc/tasks)
           echo -n "" > ${DIR}etc/tasks
           while IFS= read -r line; do
-            if [ "$listnr2" != "$listnr" ]; then
+            if [ "$listnr2" != "$listnr3" ]; then
               echo "$line" >> ${DIR}etc/tasks
             else
               echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCOM" >> ${DIR}etc/tasks
