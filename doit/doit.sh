@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="gptfdisk"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="syslog-ng"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1069,13 +1069,16 @@ if [ "$package" == "fs" ] || [ "$package" == "pciutils" ]; then
     set_current_app_clean_strip_cd pciutils $prefix$ver 1
   fi
 fi
-#if [ "$package" == "fs" ] || [ "$package" == "read-edid" ]; then
+if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
   #work in progress
-#  ver="3.0.2";
-#  if should_make read-edid $ver; then
-#    install_host_deps "cmake"
-#    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-3.0.2.tar.gz read-edid read-edid-$ver 1
-#    cmake .
+  ver="3.0.2";
+  if should_make read-edid $ver; then
+    install_host_deps "cmake libx86-dev"
+    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-3.0.2.tar.gz read-edid read-edid-$ver 1
+#needs cmake version in cmakelists.txt
+    cmake .
+    make 
+make install
 #    create_app read-edid $prefix$ver
 #    mkdir $output/app/read-edid/$prefix$ver/bin
 #    for binentry in example lspci pcilmr setpci update-pciids update-pciids.sh; do
@@ -1086,8 +1089,8 @@ fi
 #    cp *.7 $output/app/pciutils/$prefix$ver/man
 #    cp *.8 $output/app/pciutils/$prefix$ver/man
 #    set_current_app_clean_strip_cd pciutils $prefix$ver 1
-#  fi
-#fi
+  fi
+fi
 #if [ "$package" == "gpm" ]; then
 #  code seems to be obsolete
 #  ver="1.20.7";
@@ -1122,53 +1125,51 @@ fi
 #    set_current_app_clean_strip_cd man-db $prefix$ver 1
 #  fi
 #fi
-#if [ "$package" == "fs" ] || [ "$package" == "syslog-ng" ]; then
-  #work in progress
-#  ver="4.12.0";
-#  if should_make syslog-ng $ver; then
-#    download_unpack_source https://github.com/syslog-ng/syslog-ng/releases/download/syslog-ng-$ver/syslog-ng-$ver.tar.gz syslog-ng syslog-ng-$ver 1
-#    mkdir $out/syslog-ng/syslog-ng-$ver-build
-#    cd $out/syslog-ng/syslog-ng-$ver-build
-#    ../syslog-ng-$ver/configure --prefix=$output/app/syslog-ng/$prefix$ver
-#    make -j$cpu_num
-#    create_app syslog-ng $prefix$ver
-#    make install
-#    set_current_app_clean_strip_cd libxcrypt $prefix$ver 1
-#  fi
-#fi
-#if [ "$package" == "fs" ] || [ "$package" == "grub" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "syslog-ng" ]; then
+  ver="4.12.0";
+  if should_make syslog-ng $ver; then
+    download_unpack_source https://github.com/syslog-ng/syslog-ng/releases/download/syslog-ng-$ver/syslog-ng-$ver.tar.gz syslog-ng syslog-ng-$ver 1
+    mkdir $out/syslog-ng/syslog-ng-$ver-build
+    cd $out/syslog-ng/syslog-ng-$ver-build
+    ../syslog-ng-$ver/configure --prefix=$output/app/syslog-ng/$prefix$ver
+    make -j$cpu_num
+    create_app syslog-ng $prefix$ver
+    make install
+    set_current_app_clean_strip_cd syslog-ng $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs2" ] || [ "$package" == "grub" ]; then
   #work in progress
   #any alternative?
-#  ver="2.14";
-#  if should_make grub $ver; then
-#    install_host_deps "autoconf-archive"
-#    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
-#    cd $out/grub
-#    mkdir grub-grub-$ver-build
-#    cd grub-grub-$ver
-#    autoconf
-#    cd ..
-#    cd grub-grub-$ver-build
-#    ../grub-grub-$ver/configure --prefix=$output/app/grub/$prefix$ver
-#    make all -j$cpu_num
-#    create_app grub $prefix$ver
-#    make install
+  ver="2.14";
+  if should_make grub $ver; then
+    install_host_deps "autoconf-archive"
+    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
+    cd $out/grub
+    mkdir grub-grub-$ver-build
+    cd grub-grub-$ver
+    autoconf
+    cd ..
+    cd grub-grub-$ver-build
+    ../grub-grub-$ver/configure --prefix=$output/app/grub/$prefix$ver
+    make all -j$cpu_num
+    create_app grub $prefix$ver
+    make install
 #    set_current_app_clean_strip_cd grub $prefix$ver 1
-#  fi
-#fi
-#if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
-  # work in progress
-#  ver="5.42.2";
-#  if should_make perl $ver; then
-#    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 1
-#    ./Configure -d #-Dprefix=$output/app/perl/$prefix$ver
-#    make -j$cpu_num
-#    create_app perl $prefix$ver
-#    ./perl -Ilib -I. installperl --destdir=$output/app/perl/$prefix$ver
-#    remove_duplicates_cd $output/app/perl/$prefix$ver/usr/local/bin
-#    set_current_app_clean_strip_cd perl $prefix$ver 1
-#  fi
-#fi
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
+  ver="5.42.2";
+  if should_make perl $ver; then
+    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 1
+    ./Configure -d #-Dprefix=$output/app/perl/$prefix$ver
+    make -j$cpu_num
+    create_app perl $prefix$ver
+    ./perl -Ilib -I. installperl --destdir=$output/app/perl/$prefix$ver
+    remove_duplicates_cd $output/app/perl/$prefix$ver/usr/local/bin
+    set_current_app_clean_strip_cd perl $prefix$ver 1
+  fi
+fi
 # rhboot/shim
 # musl libc
 #if [ "$package" == "fs" ] || [ "$package" == "pciids" ]; then
