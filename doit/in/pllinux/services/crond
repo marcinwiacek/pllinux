@@ -1,0 +1,9 @@
+# task scheduler
+
+type = process
+command = /app/busybox/current/bin/busybox crond -d
+restart = true
+termsignal = HUP
+smooth-recovery = true
+inittab-id = 1
+inittab-line = tty1
