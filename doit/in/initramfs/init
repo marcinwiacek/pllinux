@@ -54,59 +54,28 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
 #  done
 #  cd /mnt
 
-  mkdir bin
-  mkdir dev
+  for folderentry in bin dev etc home mnt proc run sys tmp lib64; do mkdir $folderentry; done
 
-  mkdir etc
   /app/rsync/current/bin/rsync -a --info=progress2 iso/etc/ etc
 
-  mkdir home
+  for userentry in root user user2; do 
+    case $userentry in
+      root) GRP=0 ;;
+      user) GRP=1000 ;;
+      user2) GRP=1001 ;;
+    esac
 
-  mkdir home/root
-  chown 0 home/root
-  chgrp 0 home/root
-  mkdir home/root/app
-  chown 0 home/root/app
-  chgrp 0 home/root/app
-  mkdir home/root/files
-  chown 0 home/root/files
-  chgrp 0 home/root/files
-  chmod u+rwx home/root
-  chmod g-rwx home/root
-  chmod o-rwx home/root
+    for direntry in home/$userentry home/$userentry/app home/$userentry/files; do
+      mkdir $direntry
+      chown $GRP $direntry
+      chgrp $GRP $direntry
+    done
 
-  mkdir home/user
-  chown 1000 home/user
-  chgrp 1000 home/user
-  mkdir home/user/app
-  chown 1000 home/user/app
-  chgrp 1000 home/user/app
-  mkdir home/user/files
-  chown 1000 home/user/files
-  chgrp 1000 home/user/files
-  chmod u+rwx home/user
-  chmod g-rwx home/user
-  chmod o-rwx home/user
+    chmod u+rwx $output/home/$userentry
+    chmod g-rwx $output/home/$userentry
+    chmod o-rwx $output/home/$userentry
+  done
 
-  mkdir home/user2
-  chown 1001 home/user2
-  chgrp 1001 home/user2
-  mkdir home/user2/app
-  chown 1001 home/user2/app
-  chgrp 1001 home/user2/app
-  mkdir home/user2/files
-  chown 1001 home/user2/files
-  chgrp 1001 home/user2/files
-  chmod u+rwx home/user2
-  chmod g-rwx home/user2
-  chmod o-rwx home/user2
-
-  mkdir mnt
-  mkdir proc
-  mkdir run
-  mkdir sys
-  mkdir tmp
-  mkdir lib64
   if [ ! -d "etc." ]; then ln -s etc etc.; fi
   if [ ! -d "other" ]; then ln -s home/root other; fi
 
