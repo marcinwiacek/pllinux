@@ -23,6 +23,7 @@ recovery
 tty1
 tty2
 tty3
+crond
 
 **PATH**
 .
