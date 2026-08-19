@@ -177,6 +177,11 @@ remove_duplicates_cd() {
   cd $curdir
 }
 
+if [ ! -d "$output" ]; then
+  echo "output folder $output does not exist."
+  exit
+fi
+
 install_host_deps "rsync"
 #install_host_deps "mc retext git gitk gedit"
 mkdir out || true
