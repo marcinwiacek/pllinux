@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
-output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="syslog-ng"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+output="/mnt/x/y";  # directory with EXT4 partition, which will be / for new system
+package="fs0"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -182,55 +182,28 @@ install_host_deps "rsync"
 mkdir out || true
 mkdir download || true
 if [ "$package" == "fs" ]; then
-  mkdir $output/app
-  mkdir $output/bin
-  mkdir $output/dev
-  mkdir $output/etc
+  for folderentry in app bin dev etc home mnt proc run sys tmp lib64; do mkdir $output/$folderentry; done
+
   rsync -a in/etc/ $output/etc
-  mkdir $output/home
-  mkdir $output/home/root
-  sudo chown root $output/home/root
-  sudo chgrp root $output/home/root
-  sudo mkdir $output/home/root/app
-  sudo chown root $output/home/root/app
-  sudo chgrp root $output/home/root/app
-  sudo mkdir $output/home/root/files
-  sudo chown root $output/home/root/files
-  sudo chgrp root $output/home/root/files
-  sudo chmod u+rwx $output/home/root
-  sudo chmod g-rwx $output/home/root
-  sudo chmod o-rwx $output/home/root
-  mkdir $output/home/user
-  sudo chown 1000 $output/home/user
-  sudo chgrp 1000 $output/home/user
-  mkdir $output/home/user/app
-  sudo chown 1000 $output/home/user/app
-  sudo chgrp 1000 $output/home/user/app
-  mkdir $output/home/user/files
-  sudo chown 1000 $output/home/user/files
-  sudo chgrp 1000 $output/home/user/files
-  sudo chmod u+rwx $output/home/user
-  sudo chmod g-rwx $output/home/user
-  sudo chmod o-rwx $output/home/user
-  sudo mkdir $output/home/user2
-  sudo chown 1001 $output/home/user2
-  sudo chgrp 1001 $output/home/user2
-  sudo mkdir $output/home/user2/app
-  sudo chown 1001 $output/home/user2/app
-  sudo chgrp 1001 $output/home/user2/app
-  sudo mkdir $output/home/user2/files
-  sudo chown 1001 $output/home/user2/files
-  sudo chgrp 1001 $output/home/user2/files
-  sudo chmod u+rwx $output/home/user2
-  sudo chmod g-rwx $output/home/user2
-  sudo chmod o-rwx $output/home/user2
-  mkdir $output/mnt
-  mkdir $output/proc
-  mkdir $output/run
-  mkdir $output/sys
-  mkdir $output/tmp
-  mkdir $output/lib64
-  olddir=$(pwd)
+
+  for userentry in root user user2; do 
+    case $userentry in
+      root) GRP=root ;;
+      user) GRP=1000 ;;
+      user2) GRP=1001 ;;
+    esac
+
+    for direntry in $output/home/$userentry $output/home/$userentry/app $output/home/$userentry/files; do
+      sudo mkdir $direntry
+      sudo chown $GRP $direntry
+      sudo chgrp $GRP $direntry
+    done
+
+    sudo chmod u+rwx $output/home/$userentry
+    sudo chmod g-rwx $output/home/$userentry
+    sudo chmod o-rwx $output/home/$userentry
+  done
+
   cd $output
   if [ ! -d "etc." ]; then ln -s etc etc.; fi
   if [ ! -d "other" ]; then ln -s home/root other; fi
@@ -241,7 +214,8 @@ if [ "$package" == "fs" ]; then
   cd lib64
   ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
   chmod a+x ld-linux-x86-64.so.2
-  cd $olddir
+
+  cd $curdir
 fi
 if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
   ver="7.1.5";
