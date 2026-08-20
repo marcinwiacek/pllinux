@@ -431,15 +431,17 @@ set_existing_user() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
            --menu "Set user $1" 0 0 6 1 "Available apps" \
-                   2 "Features" \
-                   3 "Keyboard and font" \
-                   4 "Language (todo)" \
-                   5 "Password" )
+                   2 "Background tasks" \
+                   3 "Features" \
+                   4 "Keyboard and font" \
+                   5 "Language (todo)" \
+                   6 "Password" )
     if [ $? == 0 ]; then
       case $cmd in
         1) set_existing_user_apps $1 ;;
-        2) set_existing_user_features $1 ;;
-        3) get_value_from_conf_file "$1_KEYB"
+        2) tasks $1 ;;
+        3) set_existing_user_features $1 ;;
+        4) get_value_from_conf_file "$1_KEYB"
            NEW_KEYB="$CONF_FILE_VALUE"
            if [ "$NEW_KEYB" = "" ]; then
              NEW_KEYB="$KEYB"
@@ -450,7 +452,7 @@ set_existing_user() {
              NEW_FONT="$FONT"
            fi
            set_keyboard_font_general_or_user $1 ;;
-        5) set_existing_user_password $1 ;;
+        6) set_existing_user_password $1 ;;
       esac
     else
       break
@@ -739,6 +741,19 @@ task_schedule() {
   done
 }
 
+task_user() {
+  SUSER=0
+    listnr=1
+    list=""
+    while read -r line; do
+      IFS=":" read -r USER_NAME OTHER << EOF
+$line
+EOF
+      list="$list $listnr $USER_NAME"
+      listnr=$(($listnr+1))
+    done < "${DIR}etc/passwd"
+}
+
 task_command() {
   STASK=0
   while true; do
@@ -840,18 +855,25 @@ EOF
       echo "$listnr "
       echo \"${SCHEDULE:1} - $TASK_COMMAND\"
       listnr=$(($listnr+1))
-    done < "${DIR}etc/tasks"
+    done < "${DIR}etc/$1"
     echo " $listnr "
     echo "Add\(todo\)"
 }
 
 tasks() {
+  if [ "$1" = "crontab" ]; then
+    PROMPT="PLLinux";
+    PROMPT2="";
+  else
+    PROMPT="PLLinux\set users\\$1";
+    PROMPT2=" for $1";
+  fi
   listnr3=1
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"PLLinux\\background tasks scheduler\" --cancel-label "Back" \
+    abc=$(echo dialog --stdout --backtitle \"$PROMPT\\background tasks scheduler\" --cancel-label "Back" \
            --default-item $listnr3 \
-       --menu \"Commands run in the background in the specified time\" 0 0 8 \
-       $(tasks_list) )
+       --menu \"Commands run$PROMPT2 in the background in the specified time\" 0 0 8 \
+       $(tasks_list $1) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
       listnr3=$cmd
@@ -868,7 +890,7 @@ tasks() {
           task_command
         fi
         if [ $STASK = 1 ]; then
-          echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/tasks
+          echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/$1
         fi
         ;;
       *)
@@ -886,20 +908,20 @@ EOF
             SCOM="$TASK_COMMAND"
           fi
           listnr=$(($listnr+1))
-        done < "${DIR}etc/tasks"
+        done < "${DIR}etc/$1"
         task_schedule $listnr3
         if [ $STASK = 1 ]; then
           task_command
         fi
         if [ $STASK = 1 ]; then
           listnr2=1
-          file_content=$(cat ${DIR}etc/tasks)
-          echo -n "" > ${DIR}etc/tasks
+          file_content=$(cat ${DIR}etc/$1)
+          echo -n "" > ${DIR}etc/$1
           while IFS= read -r line; do
             if [ "$listnr2" != "$listnr3" ]; then
-              echo "$line" >> ${DIR}etc/tasks
+              echo "$line" >> ${DIR}etc/$1
             else
-              echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCOM" >> ${DIR}etc/tasks
+              echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCOM" >> ${DIR}etc/$1
             fi
             listnr2=$(($listnr2+1))
           done <<< "$file_content"
@@ -1224,7 +1246,7 @@ while true; do
     case $cmd in
     1) set_system_apps ;;
     2) services ;;
-    3) tasks ;;
+    3) tasks crontab ;;
     4) devices ;;
     8) set_users ;;
     10) NEW_KEYB="$KEYB"
