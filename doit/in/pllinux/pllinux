@@ -439,7 +439,7 @@ set_existing_user() {
     if [ $? == 0 ]; then
       case $cmd in
         1) set_existing_user_apps $1 ;;
-        2) tasks $1 ;;
+        2) tasks "$1" ;;
         3) set_existing_user_features $1 ;;
         4) get_value_from_conf_file "$1_KEYB"
            NEW_KEYB="$CONF_FILE_VALUE"
@@ -714,7 +714,7 @@ get_time_info() {
 task_schedule() {
   STASK=0
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux $1" --cancel-label "Back" \
+    cmd=$(dialog --stdout --backtitle "PLLinux $1 $2" --cancel-label "Back" \
       --form "Pls provide values, you can put intervals or separate values with comma, star means no setup, spaces will be deleted" 0 0 8 \
       "Minute (1-59)" 1 1 "$SMINUTE" 1 20 15 0 \
       "Hour (0-23)" 2 1 "$SHOUR" 2 20 15 0 \
@@ -742,7 +742,7 @@ task_schedule() {
 }
 
 task_user() {
-  SUSER=0
+  STASK=0
     listnr=1
     list=""
     while read -r line; do
@@ -752,11 +752,19 @@ EOF
       list="$list $listnr $USER_NAME"
       listnr=$(($listnr+1))
     done < "${DIR}etc/passwd"
+
+    cmd=$(dialog --stdout --backtitle \"$PROMPT\\background tasks scheduler\" --cancel-label "Back" \
+       --menu \"User starting task\" 0 0 8 \
+       $list )
+echo $list >> /tmp/x
+    if [ $? == 0 ]; then
+      STASK=1
+      SUSER="$cmd"
+    fi
 }
 
 task_command() {
   STASK=0
-  while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
       --inputbox "Pls enter command" 15 100 "$SCOM" )
     if [ $? == 0 ]; then
@@ -769,7 +777,6 @@ task_command() {
     else
       break;
     fi
-  done
 }
 
 tasks_list() {
@@ -858,9 +865,11 @@ EOF
     done < "${DIR}etc/$1"
     echo " $listnr "
     echo "Add\(todo\)"
+echo "c$listnr">>/tmp/xx
 }
 
 tasks() {
+echo 1\"$1\" 2$2 >> /tmp/xx
   if [ "$1" = "crontab" ]; then
     PROMPT="PLLinux";
     PROMPT2="";
@@ -876,6 +885,7 @@ tasks() {
        $(tasks_list $1) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
+echo "a$cmd b$listnr">>/tmp/xx
       listnr3=$cmd
       case $cmd in
       $listnr)
@@ -885,20 +895,37 @@ tasks() {
         SMONTH="*"
         SDOW="*"
         SCOM=""
-        task_schedule $listnr
+        task_schedule $listnr $1
+echo "dddd">>/tmp/xx
+echo 1\"$1\" 2$2 >> /tmp/xx
+        if [ "$1" = "crontab" ]; then
+          if [ $STASK = 1 ]; then
+            task_user
+          fi
+        fi
         if [ $STASK = 1 ]; then
           task_command
         fi
         if [ $STASK = 1 ]; then
-          echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/$1
+          if [ "$1" = "crontab" ]; then
+            echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $USER $SCMD " >> ${DIR}etc/$1
+          else
+            echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/$1
+          fi
         fi
         ;;
       *)
         listnr=1
         while read -r line; do
-          IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
+          if [ "$1" = "crontab" ]; then
+            IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_USR TASK_COMMAND << EOF
 $line
 EOF
+          else
+            IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
+$line
+EOF
+          fi
           if [ "$listnr" = "$cmd" ]; then
             SMINUTE="$TASK_MIN"
             SHOUR="$TASK_HOUR"
@@ -906,12 +933,18 @@ EOF
             SMONTH="$TASK_MONTH"
             SDOW="$TASK_DOW"
             SCOM="$TASK_COMMAND"
+            SUSR="1"
           fi
           listnr=$(($listnr+1))
         done < "${DIR}etc/$1"
         task_schedule $listnr3
         if [ $STASK = 1 ]; then
           task_command
+        fi
+        if [ "$1" = "crontab" ]; then
+          if [ $STASK = 1 ]; then
+            task_user
+          fi
         fi
         if [ $STASK = 1 ]; then
           listnr2=1
@@ -921,7 +954,11 @@ EOF
             if [ "$listnr2" != "$listnr3" ]; then
               echo "$line" >> ${DIR}etc/$1
             else
-              echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCOM" >> ${DIR}etc/$1
+              if [ "$1" = "crontab" ]; then
+                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCOM" >> ${DIR}etc/$1
+              else
+                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCOM" >> ${DIR}etc/$1
+              fi
             fi
             listnr2=$(($listnr2+1))
           done <<< "$file_content"
@@ -1246,7 +1283,7 @@ while true; do
     case $cmd in
     1) set_system_apps ;;
     2) services ;;
-    3) tasks crontab ;;
+    3) tasks "crontab" ;;
     4) devices ;;
     8) set_users ;;
     10) NEW_KEYB="$KEYB"
