@@ -5,6 +5,9 @@ DIR="/" # path with / in the end. In real system /
 if [ -d "/mnt/x" ]; then
   DIR="/mnt/x/"
 fi
+if [ -d "/pllinux" ]; then
+  DIR="/pllinux/"
+fi
 
 IFSORIG=$IFS
 
@@ -752,11 +755,15 @@ EOF
       list="$list $listnr $USER_NAME"
       listnr=$(($listnr+1))
     done < "${DIR}etc/passwd"
+echo $list >> /tmp/xxxxx
 
-    cmd=$(dialog --stdout --backtitle \"$PROMPT\\background tasks scheduler\" --cancel-label "Back" \
-       --menu \"User starting task\" 0 0 8 \
+    cmd=$(dialog --stdout --backtitle "$PROMPT\\background tasks scheduler" --cancel-label "Back" \
+       --menu "User starting task" 0 0 8 \
        $list )
-echo $list >> /tmp/x
+    echo dialog --stdout --backtitle \"$PROMPT\\background tasks scheduler\" --cancel-label "Back" \
+       --menu \"User starting task\" 0 0 8 \
+       $list >> /tmp/xxxxx
+echo $cmd >> /tmp/xxxxx
     if [ $? == 0 ]; then
       STASK=1
       SUSER="$cmd"
@@ -865,11 +872,21 @@ EOF
     done < "${DIR}etc/$1"
     echo " $listnr "
     echo "Add\(todo\)"
-echo "c$listnr">>/tmp/xx
+#echo "c$listnr">>/tmp/xx
+}
+
+tasks_list_num() {
+    listnr=1
+    while read -r line; do
+      listnr=$(($listnr+1))
+    done < "${DIR}etc/$1"
+    echo " $listnr "
+    echo "Add\(todo\)"
+#echo "c$listnr">>/tmp/xx
 }
 
 tasks() {
-echo 1\"$1\" 2$2 >> /tmp/xx
+#echo 1\"$1\" 2$2 >> /tmp/xx
   if [ "$1" = "crontab" ]; then
     PROMPT="PLLinux";
     PROMPT2="";
@@ -885,7 +902,8 @@ echo 1\"$1\" 2$2 >> /tmp/xx
        $(tasks_list $1) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
-echo "a$cmd b$listnr">>/tmp/xx
+      tasks_list_num $1
+echo "a$cmd b$listnr">>/tmp/xxx
       listnr3=$cmd
       case $cmd in
       $listnr)
@@ -896,17 +914,18 @@ echo "a$cmd b$listnr">>/tmp/xx
         SDOW="*"
         SCOM=""
         task_schedule $listnr $1
-echo "dddd">>/tmp/xx
-echo 1\"$1\" 2$2 >> /tmp/xx
+echo $1 $STASK >> /tmp/xxxx
+#echo "dddd">>/tmp/xx
+#echo 1\"$1\" 2$2 >> /tmp/xx
         if [ "$1" = "crontab" ]; then
-          if [ $STASK = 1 ]; then
+          if [ "$STASK" = "1" ]; then
             task_user
           fi
         fi
-        if [ $STASK = 1 ]; then
+        if [ "$STASK" = "1" ]; then
           task_command
         fi
-        if [ $STASK = 1 ]; then
+        if [ "$STASK" = "1" ]; then
           if [ "$1" = "crontab" ]; then
             echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $USER $SCMD " >> ${DIR}etc/$1
           else
