@@ -776,7 +776,7 @@ task_command() {
         continue;
       fi
       STASK=1
-      SCOM="$cmd"
+      SCMD="$cmd"
       break;
     else
       break;
@@ -966,9 +966,9 @@ EOF
               echo "$line" >> ${DIR}etc/$1
             else
               if [ "$1" = "crontab" ]; then
-                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCOM" >> ${DIR}etc/$1
-              else
                 echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCOM" >> ${DIR}etc/$1
+              else
+                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCOM" >> ${DIR}etc/$1
               fi
             fi
             listnr2=$(($listnr2+1))
