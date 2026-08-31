@@ -772,6 +772,7 @@ echo $cmd >> /tmp/xxxxx
 
 task_command() {
   STASK=0
+  while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
       --inputbox "Pls enter command" 15 100 "$SCOM" )
     if [ $? == 0 ]; then
@@ -784,6 +785,7 @@ task_command() {
     else
       break;
     fi
+  done
 }
 
 tasks_list() {
@@ -927,7 +929,7 @@ echo $1 $STASK >> /tmp/xxxx
         fi
         if [ "$STASK" = "1" ]; then
           if [ "$1" = "crontab" ]; then
-            echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $USER $SCMD " >> ${DIR}etc/$1
+            echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD " >> ${DIR}etc/$1
           else
             echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/$1
           fi
