@@ -755,14 +755,10 @@ EOF
       list="$list $listnr $USER_NAME"
       listnr=$(($listnr+1))
     done < "${DIR}etc/passwd"
-echo $list >> /tmp/xxxxx
 
     cmd=$(dialog --stdout --backtitle "$PROMPT\\background tasks scheduler" --cancel-label "Back" \
        --menu "User starting task" 0 0 8 \
        $list )
-    echo dialog --stdout --backtitle \"$PROMPT\\background tasks scheduler\" --cancel-label "Back" \
-       --menu \"User starting task\" 0 0 8 \
-       $list >> /tmp/xxxxx
 echo $cmd >> /tmp/xxxxx
     if [ $? == 0 ]; then
       STASK=1
@@ -874,7 +870,6 @@ EOF
     done < "${DIR}etc/$1"
     echo " $listnr "
     echo "Add\(todo\)"
-#echo "c$listnr">>/tmp/xx
 }
 
 tasks_list_num() {
@@ -884,7 +879,6 @@ tasks_list_num() {
     done < "${DIR}etc/$1"
     echo " $listnr "
     echo "Add\(todo\)"
-#echo "c$listnr">>/tmp/xx
 }
 
 tasks() {
@@ -905,7 +899,6 @@ tasks() {
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
       tasks_list_num $1
-echo "a$cmd b$listnr">>/tmp/xxx
       listnr3=$cmd
       case $cmd in
       $listnr)
@@ -916,9 +909,6 @@ echo "a$cmd b$listnr">>/tmp/xxx
         SDOW="*"
         SCOM=""
         task_schedule $listnr $1
-echo $1 $STASK >> /tmp/xxxx
-#echo "dddd">>/tmp/xx
-#echo 1\"$1\" 2$2 >> /tmp/xx
         if [ "$1" = "crontab" ]; then
           if [ "$STASK" = "1" ]; then
             task_user
