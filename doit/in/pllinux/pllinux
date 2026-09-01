@@ -787,27 +787,15 @@ task_type() {
 
 tasks_list() {
     listnr=1
-    if [ "$1" = "crontab" ]; then
-      tasks_list0 "crontab"
-      for filename in $(cd ${DIR}etc/schedule && ls *); do
-        tasks_list0 "schedule/$filename"
-      done
-    else
-      tasks_list0 "schedule/$1"
-    fi
-    echo " $listnr "
-    echo "Add\(todo\)"
-}
-
-tasks_list0() {
-    while read -r line; do
-      IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
+    for task_fn in "$TASK_FILE_LIST"; do
+      while read -r line; do
+        IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
 $line
 EOF
-      SCHEDULE=""
-      IFS=","
-      if [ "${TASK_DOW}" != "*" ]; then
-        for PERIOD in "$TASK_DOW"; do
+        SCHEDULE=""
+        IFS=","
+        if [ "${TASK_DOW}" != "*" ]; then
+          for PERIOD in "$TASK_DOW"; do
           case $PERIOD in
           0) SCHEDULE="$SCHEDULE every Mon" ;;
           1) SCHEDULE="$SCHEDULE every Tue" ;;
@@ -886,28 +874,33 @@ EOF
       fi
       echo \"$SETUP ${SCHEDULE:1} - $TASK_COMMAND\"
       listnr=$(($listnr+1))
-    done < "${DIR}etc/$1"
-}
-
-
-tasks_list_num() {
-    listnr=1
-    if [ "$1" = "crontab" ]; then
-      tasks_list_num0 "crontab"
-      for filename in $(cd ${DIR}etc/schedule && ls *); do
-        tasks_list_num0 "schedule/$filename"
-      done
-    else
-      tasks_list_num0 "schedule/$1"
-    fi
+    done < "${DIR}etc/$task_fn"
+echo $task_fn >> /tmp/yy
+done
     echo " $listnr "
     echo "Add\(todo\)"
 }
 
-tasks_list_num0() {
-    while read -r line; do
-      listnr=$(($listnr+1))
-    done < "${DIR}etc/$1"
+tasks_file_list() {
+    if [ "$1" = "crontab" ]; then
+      TASK_FILE_LIST="crontab"
+      for filename in $(cd ${DIR}etc/schedule && ls *); do
+        TASK_FILE_LIST="$TASK_FILE_LIST schedule/$filename"
+      done
+    else
+      TASK_FILE_LIST="schedule/$1"
+    fi
+}
+
+tasks_list_num() {
+    listnr=1
+    for task_fn in "$TASK_FILE_LIST"; do
+      while read -r line; do
+        listnr=$(($listnr+1))
+      done < "${DIR}etc/$task_fn"
+    done
+    echo " $listnr "
+    echo "Add\(todo\)"
 }
 
 tasks() {
@@ -919,6 +912,8 @@ tasks() {
     PROMPT2=" for $1";
   fi
   listnr3=1
+tasks_file_list $1
+
   while true; do
     abc=$(echo dialog --stdout --backtitle \"$PROMPT\\background tasks scheduler\" --cancel-label "Back" \
            --default-item $listnr3 \
@@ -984,6 +979,7 @@ EOF
           fi
           listnr=$(($listnr+1))
         done < "${DIR}etc/$1"
+
         task_schedule $listnr3
         if [ "$1" = "crontab" ]; then
           if [ $STASK = 1 ]; then
