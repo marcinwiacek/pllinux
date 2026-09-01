@@ -864,7 +864,12 @@ EOF
       SCHEDULE="${SCHEDULE/every week day every month day/every day}"
       IFS=$IFSORIG
       echo "$listnr "
-      echo \"${SCHEDULE:1} - $TASK_COMMAND\"
+      if [ "$1" = "crontab" ]; then
+        SETUP="(sys) "
+      else
+        SETUP="(usr) "
+      fi
+      echo \"$SETUP ${SCHEDULE:1} - $TASK_COMMAND\"
       listnr=$(($listnr+1))
     done < "${DIR}etc/$1"
 }
