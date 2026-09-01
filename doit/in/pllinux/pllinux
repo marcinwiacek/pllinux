@@ -769,13 +769,28 @@ task_command() {
   done
 }
 
+task_type() {
+    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
+           --menu "Task type" 0 0 6 1 "Setup by root (saved in crontab)" \
+                   2 "Setup by user itself (saved in user editable file)"  )
+    if [ $? == 0 ]; then
+      if [ "$cmd" = "1" ]; then
+         SSETUPBYSYSTEM=1
+      else
+         SSETUPBYSYSTEM=0
+      fi
+      STASK=1
+    else
+      STASK=0
+    fi
+}
+
 tasks_list() {
     listnr=1
     if [ "$1" = "crontab" ]; then
       tasks_list0 "crontab"
       for filename in $(cd ${DIR}etc/schedule && ls *); do
         tasks_list0 "schedule/$filename"
-echo $filename >> /tmp/xxx
       done
     else
       tasks_list0 "$1"
@@ -927,6 +942,9 @@ tasks() {
           if [ "$STASK" = "1" ]; then
             task_user
           fi
+          if [ "$STASK" = "1" ]; then
+            task_type
+          fi
         fi
         if [ "$STASK" = "1" ]; then
           task_command
@@ -966,6 +984,9 @@ EOF
         if [ "$1" = "crontab" ]; then
           if [ $STASK = 1 ]; then
             task_user
+          fi
+          if [ $STASK = 1 ]; then
+            task_type
           fi
         fi
         if [ $STASK = 1 ]; then
