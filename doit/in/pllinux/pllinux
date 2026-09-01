@@ -445,7 +445,7 @@ set_existing_user() {
     if [ $? == 0 ]; then
       case $cmd in
         1) set_existing_user_apps $1 ;;
-        2) tasks "schedule/$1" ;;
+        2) tasks "$1" ;;
         3) set_existing_user_features $1 ;;
         4) get_value_from_conf_file "$1_KEYB"
            NEW_KEYB="$CONF_FILE_VALUE"
@@ -793,7 +793,7 @@ tasks_list() {
         tasks_list0 "schedule/$filename"
       done
     else
-      tasks_list0 "$1"
+      tasks_list0 "schedule/$1"
     fi
     echo " $listnr "
     echo "Add\(todo\)"
@@ -898,7 +898,7 @@ tasks_list_num() {
         tasks_list_num0 "schedule/$filename"
       done
     else
-      tasks_list_num0 "$1"
+      tasks_list_num0 "schedule/$1"
     fi
     echo " $listnr "
     echo "Add\(todo\)"
@@ -951,7 +951,11 @@ tasks() {
         fi
         if [ "$STASK" = "1" ]; then
           if [ "$1" = "crontab" ]; then
-            echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD " >> ${DIR}etc/$1
+            if [ "$SSETUPBYSYSTEM" = "1" ]; then
+              echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD " >> ${DIR}etc/$1
+            else
+              echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/schedule/$SUSER
+            fi
           else
             echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/$1
           fi
