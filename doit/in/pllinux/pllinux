@@ -1294,7 +1294,7 @@ while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 14 \
        1 "Apps (todo)" \
        2 "Background services" \
-       3 "Background tasks setup by root (wip)" \
+       3 "Background tasks from system and all users (wip)" \
        4 "Device manager (todo)" \
        5 "Logs (todo)" \
        6 "Network (todo)" \
