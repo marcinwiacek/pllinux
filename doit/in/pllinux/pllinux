@@ -749,31 +749,44 @@ task_schedule() {
 
 task_user() {
   STASK=0
+  listnr=1
+  list=""
+  defnum=1
+  while read -r line; do
+    IFS=":" read -r USER_NAME OTHER << EOF
+$line
+EOF
+    list="$list $listnr $USER_NAME"
+    if [ "$USER_NAME" = "$SUSER" ]; then
+      defnum=$listnr
+    fi
+    listnr=$(($listnr+1))
+  done < "${DIR}etc/passwd"
+
+  cmd=$(dialog --stdout --backtitle "$PROMPT\\background tasks scheduler" --cancel-label "Back" \
+       --default-item $defnum \
+       --menu "User starting task" 0 0 8 \
+       $list )
+
+  if [ $? == 0 ]; then
+    STASK=1
     listnr=1
-    list=""
     while read -r line; do
       IFS=":" read -r USER_NAME OTHER << EOF
 $line
 EOF
-      list="$list $listnr $USER_NAME"
+      if [ "$cmd" = "$listnr" ]; then
+        SUSER="$USER_NAME"
+      fi
       listnr=$(($listnr+1))
     done < "${DIR}etc/passwd"
-
-    cmd=$(dialog --stdout --backtitle "$PROMPT\\background tasks scheduler" --cancel-label "Back" \
-       --menu "User starting task" 0 0 8 \
-       $list )
-echo $cmd >> /tmp/xxxxx
-    if [ $? == 0 ]; then
-      STASK=1
-      SUSER="$cmd"
-    fi
+  fi
 }
 
 task_command() {
-  STASK=0
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
-      --inputbox "Pls enter command" 15 100 "$SCOM" )
+      --inputbox "Pls enter command" 15 100 "$SCMD" )
     if [ $? == 0 ]; then
       if [ "$cmd" == "" ]; then
         continue;
@@ -782,6 +795,7 @@ task_command() {
       SCMD="$cmd"
       break;
     else
+      STASK=0
       break;
     fi
   done
@@ -885,7 +899,6 @@ tasks_list_num() {
 }
 
 tasks() {
-#echo 1\"$1\" 2$2 >> /tmp/xx
   if [ "$1" = "crontab" ]; then
     PROMPT="PLLinux";
     PROMPT2="";
@@ -910,7 +923,8 @@ tasks() {
         SDAY="*"
         SMONTH="*"
         SDOW="*"
-        SCOM=""
+        SUSER="root"
+        SCMD=""
         task_schedule $listnr $1
         if [ "$1" = "crontab" ]; then
           if [ "$STASK" = "1" ]; then
@@ -946,19 +960,19 @@ EOF
             SDAY="$TASK_DOM"
             SMONTH="$TASK_MONTH"
             SDOW="$TASK_DOW"
-            SCOM="$TASK_COMMAND"
-            SUSR="1"
+            SUSER="$TASK_USR"
+            SCMD="$TASK_COMMAND"
           fi
           listnr=$(($listnr+1))
         done < "${DIR}etc/$1"
         task_schedule $listnr3
-        if [ $STASK = 1 ]; then
-          task_command
-        fi
         if [ "$1" = "crontab" ]; then
           if [ $STASK = 1 ]; then
             task_user
           fi
+        fi
+        if [ $STASK = 1 ]; then
+          task_command
         fi
         if [ $STASK = 1 ]; then
           listnr2=1
@@ -969,9 +983,9 @@ EOF
               echo "$line" >> ${DIR}etc/$1
             else
               if [ "$1" = "crontab" ]; then
-                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCOM" >> ${DIR}etc/$1
+                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/$1
               else
-                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCOM" >> ${DIR}etc/$1
+                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/$1
               fi
             fi
             listnr2=$(($listnr2+1))
@@ -1006,34 +1020,35 @@ service() {
 }
 
 all_services() {
-    servicess=$(dinitctl list)
-    listnr=1
-    while read -r line; do
-      IFS=" " read -r SERVICE_NAME X SERVICE_PID << EOF
+  servicess=$(dinitctl list)
+  listnr=1
+  while read -r line; do
+    IFS=" " read -r SERVICE_NAME X SERVICE_PID << EOF
 ${line:11}
 EOF
-      if [ "$SERVICE_NAME" != "boot" ]; then
-        DESC="-"
-        while read -r line2; do
-          case $line2 in
+    if [ "$SERVICE_NAME" != "boot" ]; then
+      DESC="-"
+      while read -r line2; do
+        case $line2 in
           \#* )
              DESC=$line2 ;;
-          esac
-          break
-        done < "/etc/dinit.d/$SERVICE_NAME"
-        echo " $listnr "
-        echo \"$SERVICE_NAME - $(dinitctl is-started $SERVICE_NAME) \"
-        echo \"$DESC\"
-        listnr=$(($listnr+1))
-      fi
-    done <<< $servicess
+        esac
+        break
+      done < "/etc/dinit.d/$SERVICE_NAME"
+      echo " $listnr "
+      echo \"$SERVICE_NAME - $(dinitctl is-started $SERVICE_NAME) \"
+      echo \"$DESC\"
+      listnr=$(($listnr+1))
+    fi
+  done <<< $servicess
 }
 
 services() {
-    if [ ! -d "/etc/dinit.d" ]; then
-      dialog --backtitle "PLLinux\\backgroud services" --msgbox "No services detected. Looks like running from host or lack of rights/permissions." 10 30
-      return
-    fi
+  if [ ! -d "/etc/dinit.d" ]; then
+    dialog --backtitle "PLLinux\\backgroud services" \
+      --msgbox "No services detected. Looks like running from host or lack of rights/permissions." 10 30
+    return
+  fi
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\background services\" --cancel-label \"Quit\" --item-help \
        --menu \"Services support is provided by dinit package\" 0 0 8 \
@@ -1082,21 +1097,21 @@ EOF
            --default-item $defnum \
            --menu "Show disk properties" 0 0 6 $list )
     if [ $? == 0 ]; then
-        listnr=1
-        list=""
-        DEVDEV=""
-        while read -r line; do
-          IFS=":" read -r DEV_NAME OTHER << EOF
+      listnr=1
+      list=""
+      DEVDEV=""
+      while read -r line; do
+        IFS=":" read -r DEV_NAME OTHER << EOF
 $line
 EOF
-          if [ "$listnr" == "$cmd" ]; then
-            DEVDEV=$DEV_NAME
-            defnum=$listnr
-          fi
-          listnr=$(($listnr+1))
-        done <<< "$disks"
-        # this must be called after while
-        dialog --msgbox "$(smartctl -a $DEVDEV)" 100 100
+        if [ "$listnr" == "$cmd" ]; then
+          DEVDEV=$DEV_NAME
+          defnum=$listnr
+        fi
+        listnr=$(($listnr+1))
+      done <<< "$disks"
+      # this must be called after while
+      dialog --msgbox "$(smartctl -a $DEVDEV)" 100 100
     else
       break
     fi
