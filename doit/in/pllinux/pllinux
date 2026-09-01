@@ -787,7 +787,8 @@ task_type() {
 
 tasks_list() {
     listnr=1
-    for task_fn in "$TASK_FILE_LIST"; do
+IFS=" "
+    for task_fn in $TASK_FILE_LIST; do
       while read -r line; do
         IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
 $line
@@ -865,7 +866,7 @@ EOF
         SCHEDULE=" every min of every day"
       fi
       SCHEDULE="${SCHEDULE/every week day every month day/every day}"
-      IFS=$IFSORIG
+      IFS=" "
       echo "$listnr "
       if [ "$1" = "crontab" ]; then
         SETUP="(sys) "
@@ -875,8 +876,8 @@ EOF
       echo \"$SETUP ${SCHEDULE:1} - $TASK_COMMAND\"
       listnr=$(($listnr+1))
     done < "${DIR}etc/$task_fn"
-echo $task_fn >> /tmp/yy
 done
+      IFS=$IFSORIG
     echo " $listnr "
     echo "Add\(todo\)"
 }
@@ -894,11 +895,13 @@ tasks_file_list() {
 
 tasks_list_num() {
     listnr=1
-    for task_fn in "$TASK_FILE_LIST"; do
+   IFS=" "
+    for task_fn in $TASK_FILE_LIST; do
       while read -r line; do
         listnr=$(($listnr+1))
       done < "${DIR}etc/$task_fn"
     done
+      IFS=$IFSORIG
     echo " $listnr "
     echo "Add\(todo\)"
 }
@@ -958,6 +961,7 @@ tasks_file_list $1
         ;;
       *)
         listnr=1
+    for task_fn in $TASK_FILE_LIST; do
         while read -r line; do
           if [ "$1" = "crontab" ]; then
             IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_USR TASK_COMMAND << EOF
@@ -978,8 +982,8 @@ EOF
             SCMD="$TASK_COMMAND"
           fi
           listnr=$(($listnr+1))
-        done < "${DIR}etc/$1"
-
+        done < "${DIR}etc/$task_fn"
+done
         task_schedule $listnr3
         if [ "$1" = "crontab" ]; then
           if [ $STASK = 1 ]; then
