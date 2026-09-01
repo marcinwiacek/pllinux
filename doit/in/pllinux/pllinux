@@ -437,7 +437,7 @@ set_existing_user() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
            --menu "Set user $1" 0 0 6 1 "Available apps" \
-                   2 "Background tasks" \
+                   2 "Background tasks setup by this user" \
                    3 "Features" \
                    4 "Keyboard and font" \
                    5 "Language (todo)" \
@@ -771,6 +771,20 @@ task_command() {
 
 tasks_list() {
     listnr=1
+    if [ "$1" = "crontab" ]; then
+      tasks_list0 "crontab"
+      for filename in $(cd ${DIR}etc/schedule && ls *); do
+        tasks_list0 "schedule/$filename"
+echo $filename >> /tmp/xxx
+      done
+    else
+      tasks_list0 "$1"
+    fi
+    echo " $listnr "
+    echo "Add\(todo\)"
+}
+
+tasks_list0() {
     while read -r line; do
       IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
 $line
@@ -853,17 +867,27 @@ EOF
       echo \"${SCHEDULE:1} - $TASK_COMMAND\"
       listnr=$(($listnr+1))
     done < "${DIR}etc/$1"
+}
+
+
+tasks_list_num() {
+    listnr=1
+    if [ "$1" = "crontab" ]; then
+      tasks_list_num0 "crontab"
+      for filename in $(cd ${DIR}etc/schedule && ls *); do
+        tasks_list_num0 "schedule/$filename"
+      done
+    else
+      tasks_list_num0 "$1"
+    fi
     echo " $listnr "
     echo "Add\(todo\)"
 }
 
-tasks_list_num() {
-    listnr=1
+tasks_list_num0() {
     while read -r line; do
       listnr=$(($listnr+1))
     done < "${DIR}etc/$1"
-    echo " $listnr "
-    echo "Add\(todo\)"
 }
 
 tasks() {
@@ -1265,7 +1289,7 @@ while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 14 \
        1 "Apps (todo)" \
        2 "Background services" \
-       3 "Background tasks scheduler (wip)" \
+       3 "Background tasks setup by root (wip)" \
        4 "Device manager (todo)" \
        5 "Logs (todo)" \
        6 "Network (todo)" \
