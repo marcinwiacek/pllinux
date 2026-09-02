@@ -771,13 +771,14 @@ task_command() {
 
 task_type() {
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
+           --default-item $SSETUPBYSYSTEM \
            --menu "Task type" 0 0 6 1 "Setup by root (saved in crontab)" \
                    2 "Setup by user itself (saved in user editable file)"  )
     if [ $? == 0 ]; then
       if [ "$cmd" = "1" ]; then
          SSETUPBYSYSTEM=1
       else
-         SSETUPBYSYSTEM=0
+         SSETUPBYSYSTEM=2
       fi
       STASK=1
     else
@@ -963,66 +964,64 @@ tasks() {
         ;;
       *)
         listnr=1
-    for task_fn in $TASK_FILE_LIST; do
-        while read -r line; do
-          if [ "$1" = "crontab" ]; then
-            IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_USR TASK_COMMAND << EOF
+        for task_fn in $TASK_FILE_LIST; do
+          while read -r line; do
+            if [ "$task_fn" = "crontab" ]; then
+              IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_USR TASK_COMMAND << EOF
 $line
 EOF
-          else
-            IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
-$line
-EOF
-          fi
-          if [ "$listnr" = "$cmd" ]; then
-            SMINUTE="$TASK_MIN"
-            SHOUR="$TASK_HOUR"
-            SDAY="$TASK_DOM"
-            SMONTH="$TASK_MONTH"
-            SDOW="$TASK_DOW"
-            SUSER="$TASK_USR"
-            SCMD="$TASK_COMMAND"
-          fi
-          listnr=$(($listnr+1))
-        done < "${DIR}etc/$task_fn"
-done
-        task_schedule $listnr3
-        if [ "$1" = "crontab" ]; then
-          if [ $STASK = 1 ]; then
-            task_user
-          fi
-          if [ $STASK = 1 ]; then
-            task_type
-          fi
-        fi
-        if [ $STASK = 1 ]; then
-          task_command
-        fi
-        if [ $STASK = 1 ]; then
-          listnr2=1
-
-        listnr=1
-    for task_fn in $TASK_FILE_LIST; do
-
-          file_content=$(cat ${DIR}etc/$task_fn)
-          echo -n "" > ${DIR}etc/$task_fn
-          while IFS= read -r line; do
-            if [ "$listnr2" != "$listnr3" ]; then
-              echo "$line" >> ${DIR}etc/$task_fn
+              SSETUPBYSYSTEM=1
             else
-              if [ "$1" = "crontab" ]; then
-                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/$task_fn
-              else
-                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/$task_fn
-              fi
+              IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
+$line
+EOF
+              TASK_USR="${task_fn#*/}"
+              SSETUPBYSYSTEM=2
             fi
-            listnr2=$(($listnr2+1))
-          done <<< "$file_content"
-
+            if [ "$listnr" = "$cmd" ]; then
+              SMINUTE="$TASK_MIN"
+              SHOUR="$TASK_HOUR"
+              SDAY="$TASK_DOM"
+              SMONTH="$TASK_MONTH"
+              SDOW="$TASK_DOW"
+              SUSER="$TASK_USR"
+              SCMD="$TASK_COMMAND"
+            fi
+            listnr=$(($listnr+1))
+          done < "${DIR}etc/$task_fn"
 done
-
-        fi
-        ;;
+          task_schedule $listnr3
+          if [ "$1" = "crontab" ]; then
+            if [ $STASK = 1 ]; then
+              task_user
+            fi
+            if [ $STASK = 1 ]; then
+              task_type
+            fi
+          fi
+          if [ $STASK = 1 ]; then
+            task_command
+          fi
+          if [ $STASK = 1 ]; then
+            listnr2=1
+            for task_fn in $TASK_FILE_LIST; do
+              file_content=$(cat ${DIR}etc/$task_fn)
+              echo -n "" > ${DIR}etc/$task_fn
+              while IFS= read -r line; do
+                if [ "$listnr2" != "$listnr3" ]; then
+                  echo "$line" >> ${DIR}etc/$task_fn
+                else
+                  if [ "$task_fn" = "crontab" ]; then
+                    echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/$task_fn
+                  else
+                    echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/$task_fn
+                  fi
+                fi
+                listnr2=$(($listnr2+1))
+              done <<< "$file_content"
+            done
+          fi
+          ;;
       esac
     else
       break;
