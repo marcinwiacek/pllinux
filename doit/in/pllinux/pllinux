@@ -1000,20 +1000,27 @@ done
         fi
         if [ $STASK = 1 ]; then
           listnr2=1
-          file_content=$(cat ${DIR}etc/$1)
-          echo -n "" > ${DIR}etc/$1
+
+        listnr=1
+    for task_fn in $TASK_FILE_LIST; do
+
+          file_content=$(cat ${DIR}etc/$task_fn)
+          echo -n "" > ${DIR}etc/$task_fn
           while IFS= read -r line; do
             if [ "$listnr2" != "$listnr3" ]; then
-              echo "$line" >> ${DIR}etc/$1
+              echo "$line" >> ${DIR}etc/$task_fn
             else
               if [ "$1" = "crontab" ]; then
-                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/$1
+                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/$task_fn
               else
-                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/$1
+                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/$task_fn
               fi
             fi
             listnr2=$(($listnr2+1))
           done <<< "$file_content"
+
+done
+
         fi
         ;;
       esac
