@@ -437,7 +437,7 @@ set_existing_user() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
            --menu "Set user $1" 0 0 6 1 "Available apps" \
-                   2 "Background tasks setup by this user" \
+                   2 "Background scheduled tasks setup by this user" \
                    3 "Features" \
                    4 "Keyboard and font" \
                    5 "Language (todo)" \
@@ -1455,8 +1455,8 @@ fi
 while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 14 \
        1 "Apps (todo)" \
-       2 "Background services" \
-       3 "Background tasks from system and all users (wip)" \
+       2 "Background scheduled tasks from system and all users" \
+       3 "Background services" \
        4 "Device manager (todo)" \
        5 "Kernel modules (modprobe)" \
        6 "Kernel params (sysctl)" \
@@ -1472,8 +1472,8 @@ while true; do
   if [ $? == 0 ]; then
     case $cmd in
     1) set_system_apps ;;
-    2) services ;;
-    3) tasks "crontab" ;;
+    2) tasks "crontab" ;;
+    3) services ;;
     4) devices ;;
     6) sysctl_kernel_params ;;
     8) set_users ;;
