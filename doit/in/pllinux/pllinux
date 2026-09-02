@@ -422,7 +422,7 @@ set_existing_user_features() {
 
 set_existing_user_password() {
   IFS=$IFSORIG
-  if [ -d "/mnt/x" ]; then
+  if [ ! "$DIR" = "/" ]; then
       dialog --backtitle "PLLinux\set users\\$1\password" \
         --msgbox "Not possible in host system." 10 30
   else
