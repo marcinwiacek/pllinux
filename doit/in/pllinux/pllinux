@@ -938,6 +938,7 @@ tasks() {
         SDOW="*"
         SUSER="root"
         SCMD=""
+        SSETUPBYSYSTEM=2
         task_schedule $listnr $1
         if [ "$1" = "crontab" ]; then
           if [ "$STASK" = "1" ]; then
@@ -951,15 +952,15 @@ tasks() {
           task_command
         fi
         if [ "$STASK" = "1" ]; then
-          if [ "$1" = "crontab" ]; then
+#          if [ "$1" = "crontab" ]; then
             if [ "$SSETUPBYSYSTEM" = "1" ]; then
               echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD " >> ${DIR}etc/$1
             else
               echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/schedule/$SUSER
             fi
-          else
-            echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/$1
-          fi
+#          else
+#            echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/$1
+#          fi
         fi
         ;;
       *)
