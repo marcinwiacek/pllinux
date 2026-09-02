@@ -1460,9 +1460,9 @@ while true; do
        4 "Device manager (todo)" \
        5 "Kernel params (sysctl)" \
        6 "Logs (syslog)" \
-       7 "Network (todo)" \
-       8 "Swap file (todo)" \
-       9 "Users" \
+       7 "Users" \
+       8 "Network (todo)      - manual, IP4 DHCP" \
+       9 "Swap file (todo)    - off" \
        10 "App language (todo) - $LANG" \
        11 "Keyboard and font   - $KEYB, $FONT" \
        12 "Timezone            - $TIMEZONE" \
@@ -1475,7 +1475,7 @@ while true; do
     3) tasks "crontab" ;;
     4) devices ;;
     5) sysctl_kernel_params ;;
-    9) set_users ;;
+    7) set_users ;;
     11) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
