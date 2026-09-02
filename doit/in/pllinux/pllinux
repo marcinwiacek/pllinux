@@ -926,7 +926,7 @@ tasks() {
     abc=$(echo dialog --stdout --backtitle \"$PROMPT\\background tasks scheduler\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Commands run$PROMPT2 in the background in the specified time\" 0 0 8 \
-       $(tasks_list $1) )
+       $(tasks_list) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
       tasks_list_num $1
@@ -1100,6 +1100,129 @@ EOF
         fi
       done <<< $servicess
       service $SERVICE_NAME
+    else
+      break;
+    fi
+  done
+}
+
+kernel_param_list() {
+  listnr=1
+  LISTLIST=$(busybox sysctl -a)
+  while read -r line; do
+      echo "$listnr "
+      echo \"$line\"
+      listnr=$(($listnr+1))
+  done <<< $LISTLIST
+  echo " $listnr "
+  echo "Add"
+  echo " $(($listnr+1)) "
+  echo "Delete"
+}
+
+sysctl_kernel_params() {
+  listnr3=1
+  while true; do
+    abc=$(echo dialog --stdout --backtitle \"$PROMPT\\background tasks scheduler\" --cancel-label "Back" \
+       --menu \"Commands run$PROMPT2 in the background in the specified time\" 0 0 8 \
+       $(kernel_param_list) )
+    cmd=$(eval $abc)
+    if [ $? == 0 ]; then
+      tasks_list_num $1
+      listnr3=$cmd
+      case $cmd in
+      $listnr)
+        SMINUTE="*"
+        SHOUR="*"
+        SDAY="*"
+        SMONTH="*"
+        SDOW="*"
+        SUSER="root"
+        SCMD=""
+        SSETUPBYSYSTEM=2
+        task_schedule $listnr $1
+        if [ "$1" = "crontab" ]; then
+          if [ "$STASK" = "1" ]; then
+            task_user
+          fi
+          if [ "$STASK" = "1" ]; then
+            task_type
+          fi
+        fi
+        if [ "$STASK" = "1" ]; then
+          task_command
+        fi
+        if [ "$STASK" = "1" ]; then
+          if [ "$SSETUPBYSYSTEM" = "1" ]; then
+            echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD " >> ${DIR}etc/$1
+          else
+            echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/schedule/$SUSER
+          fi
+        fi
+        ;;
+      $(($listnr+1)) )
+        ;;
+      *)
+        listnr=1
+        for task_fn in $TASK_FILE_LIST; do
+          while read -r line; do
+            if [ "$task_fn" = "crontab" ]; then
+              IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_USR TASK_COMMAND << EOF
+$line
+EOF
+              SSETUPBYSYSTEM=1
+            else
+              IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
+$line
+EOF
+              TASK_USR="${task_fn#*/}"
+              SSETUPBYSYSTEM=2
+            fi
+            if [ "$listnr" = "$cmd" ]; then
+              SMINUTE="$TASK_MIN"
+              SHOUR="$TASK_HOUR"
+              SDAY="$TASK_DOM"
+              SMONTH="$TASK_MONTH"
+              SDOW="$TASK_DOW"
+              SUSER="$TASK_USR"
+              SCMD="$TASK_COMMAND"
+            fi
+            listnr=$(($listnr+1))
+          done < "${DIR}etc/$task_fn"
+done
+          task_schedule $listnr3
+          if [ "$1" = "crontab" ]; then
+            if [ $STASK = 1 ]; then
+              task_user
+            fi
+            if [ $STASK = 1 ]; then
+              task_type
+            fi
+          fi
+          if [ $STASK = 1 ]; then
+            task_command
+          fi
+          if [ $STASK = 1 ]; then
+            listnr2=1
+            for task_fn in $TASK_FILE_LIST; do
+              file_content=$(cat ${DIR}etc/$task_fn)
+              echo -n "" > ${DIR}etc/$task_fn
+              while IFS= read -r line; do
+                if [ "$listnr2" != "$listnr3" ]; then
+                  echo "$line" >> ${DIR}etc/$task_fn
+                else
+                  if [ "$task_fn" = "crontab" ]; then
+                    echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/$task_fn
+                  else
+                    echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/$task_fn
+                  fi
+                fi
+                listnr2=$(($listnr2+1))
+              done <<< "$file_content"
+            done
+          fi
+          ;;
+      esac
     else
       break;
     fi
@@ -1330,27 +1453,29 @@ while true; do
        2 "Background services" \
        3 "Background tasks from system and all users (wip)" \
        4 "Device manager (todo)" \
-       5 "Logs (todo)" \
-       6 "Network (todo)" \
-       7 "Swap file (todo)" \
-       8 "Users" \
-       9 "App language (todo) - $LANG" \
-       10 "Keyboard and font   - $KEYB, $FONT" \
-       11 "Timezone            - $TIMEZONE" \
-       12 "Partition encryption password (todo)" \
-       14 "Install to other partition" )
+       5 "Kernel params (sysctl)" \
+       6 "Logs (syslog)" \
+       7 "Network (todo)" \
+       8 "Swap file (todo)" \
+       9 "Users" \
+       10 "App language (todo) - $LANG" \
+       11 "Keyboard and font   - $KEYB, $FONT" \
+       12 "Timezone            - $TIMEZONE" \
+       14 "Partition encryption password (todo)" \
+       15 "Install to other partition" )
   if [ $? == 0 ]; then
     case $cmd in
     1) set_system_apps ;;
     2) services ;;
     3) tasks "crontab" ;;
     4) devices ;;
-    8) set_users ;;
-    10) NEW_KEYB="$KEYB"
+    5) sysctl_kernel_params ;;
+    9) set_users ;;
+    11) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
-    11) set_time_zone ;;
-    14) install_to ;;
+    12) set_time_zone ;;
+    15) install_to ;;
     esac
   else
     break
