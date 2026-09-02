@@ -1458,29 +1458,30 @@ while true; do
        2 "Background services" \
        3 "Background tasks from system and all users (wip)" \
        4 "Device manager (todo)" \
-       5 "Kernel params (sysctl)" \
-       6 "Logs (syslog)" \
-       7 "Users" \
-       8 "Network (todo)      - manual, IP4 DHCP" \
-       9 "Swap file (todo)    - off" \
-       10 "App language (todo) - $LANG" \
-       11 "Keyboard and font   - $KEYB, $FONT" \
-       12 "Timezone            - $TIMEZONE" \
-       14 "Partition encryption password (todo)" \
-       15 "Install to other partition" )
+       5 "Kernel modules (modprobe)" \
+       6 "Kernel params (sysctl)" \
+       7 "Logs (syslog)" \
+       8 "Users" \
+       9 "Network (todo)      - manual, IP4 DHCP" \
+       10 "Swap file (todo)    - off" \
+       11 "App language (todo) - $LANG" \
+       12 "Keyboard and font   - $KEYB, $FONT" \
+       14 "Timezone            - $TIMEZONE" \
+       15 "Partition encryption password (todo)" \
+       16 "Install to other partition" )
   if [ $? == 0 ]; then
     case $cmd in
     1) set_system_apps ;;
     2) services ;;
     3) tasks "crontab" ;;
     4) devices ;;
-    5) sysctl_kernel_params ;;
-    7) set_users ;;
-    11) NEW_KEYB="$KEYB"
+    6) sysctl_kernel_params ;;
+    8) set_users ;;
+    12) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
-    12) set_time_zone ;;
-    15) install_to ;;
+    14) set_time_zone ;;
+    16) install_to ;;
     esac
   else
     break
