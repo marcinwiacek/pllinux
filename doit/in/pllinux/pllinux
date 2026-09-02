@@ -883,7 +883,9 @@ EOF
   done
   IFS=$IFSORIG
   echo " $listnr "
-  echo "Add\(todo\)"
+  echo "Add"
+  echo " $(($listnr+1)) "
+  echo "Delete"
 }
 
 tasks_file_list() {
@@ -958,6 +960,8 @@ tasks() {
             echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/schedule/$SUSER
           fi
         fi
+        ;;
+      $(($listnr+1)) )
         ;;
       *)
         listnr=1
