@@ -1414,6 +1414,10 @@ install_system_apps() {
   fi
 }
 
+install_from_file() {
+    cmd=$(dialog --stdout --backtitle "PLLinux\device manager" --cancel-label "Back" --title "Welcome to the device manager" --fselect / 100 100)
+}
+
 set_system_apps() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\apps" --cancel-label "Back" --menu "Manage apps in the /app" 0 0 8 \
@@ -1422,6 +1426,7 @@ set_system_apps() {
       case $cmd in
       1) delete_system_apps ;;
       2) install_system_apps ;;
+      3) install_from_file ;;
       esac
     else
       break;
