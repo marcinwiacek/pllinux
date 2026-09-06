@@ -763,11 +763,7 @@ task_type() {
            --menu "Task type" 0 0 6 1 "Setup by root (saved in crontab)" \
                    2 "Setup by user itself (saved in user editable file)"  )
   if [ $? == 0 ]; then
-    if [ "$cmd" = "1" ]; then
-      SSETUPBYSYSTEM=1
-    else
-      SSETUPBYSYSTEM=2
-    fi
+    SSETUPBYSYSTEM="$cmd"
     TASKSTEPNR=$(($TASKSTEPNR+1))
   else
     TASKSTEPNR=$(($TASKSTEPNR-1))
@@ -981,15 +977,18 @@ tasks() {
               IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_USR TASK_COMMAND << EOF
 $line
 EOF
-              SSETUPBYSYSTEM=1
             else
               IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
 $line
 EOF
               TASK_USR="${task_fn#*/}"
-              SSETUPBYSYSTEM=2
             fi
             if [ "$listnr" = "$cmd" ]; then
+              if [ "$task_fn" = "crontab" ]; then
+                SSETUPBYSYSTEM=1
+              else
+                SSETUPBYSYSTEM=2
+              fi
               SMINUTE="$TASK_MIN"
               SHOUR="$TASK_HOUR"
               SDAY="$TASK_DOM"
@@ -1014,6 +1013,7 @@ done
                fi ;;
             4) task_type ;;
             5) listnr2=1
+#fixme: position during changing type
                for task_fn in $TASK_FILE_LIST; do
                  file_content=$(cat ${DIR}etc/$task_fn)
                  echo -n "" > ${DIR}etc/$task_fn
@@ -1022,7 +1022,7 @@ done
                      echo "$line" >> ${DIR}etc/$task_fn
                    else
                      if [ "$task_fn" = "crontab" ]; then
-                       echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/$task_fn
+                       echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/crontab
                      else
                        echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/$task_fn
                      fi
