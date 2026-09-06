@@ -1286,13 +1286,13 @@ EOF
 devices() {
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 8 \
-       1 \"disks info and partitioning\" 2 \"UEFI info\" 3 \"PCI info\" 4 \"RAM info\" 5 \"Power options\")
+       1 \"disks info and partitioning\" 2 \"UEFI info \(dmidecode\)\" 3 \"PCI info \(lspci\)\" 4 \"RAM info\" 5 \"Power options\" 6 \"Sensors info\")
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       case $cmd in
       1) disks ;;
-      2) dialog --backtitle "PLLinux\device manager\UEFI" --msgbox "$(dmidecode)" 100 90 ;;
-      3) dialog --backtitle "PLLinux\device manager\PCI" --msgbox "$(lspci -vvv)" 100 90 ;;
+      2) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
+      3) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -vvv)" 100 90 ;;
       esac
     else
       break;
