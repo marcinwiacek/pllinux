@@ -403,11 +403,11 @@ set_existing_user_features() {
 
   cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
          --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 \
-                   "Access to /proc"              $USER_PROCESSES \
-                   "Access to allprocesses"       $USER_ALL_PROCESSES \
-                   "Access to /mnt"               $USER_MNT \
-                   "Access to the network"        $USER_NETWORK \
-                   "System reset and shutdown"    $USER_RESET)
+                   "Access to allprocesses (from all users)" $USER_ALL_PROCESSES \
+                   "Access to /mnt"                          $USER_MNT \
+                   "Access to /proc"                         $USER_PROCESSES \
+                   "Access to the network"                   $USER_NETWORK \
+                   "System reset and shutdown"               $USER_RESET)
 
   if [ $? = 0 ]; then
     USER_FEATURES="";
@@ -1260,7 +1260,7 @@ EOF
     done <<< "$disks"
     cmd=$(dialog --stdout --backtitle "PLLinux\install to other disk" --cancel-label "Back" \
            --default-item $defnum \
-           --menu "Show disk properties" 0 0 6 $list )
+           --menu "Show disk SMART info (smartctl)" 0 0 6 $list )
     if [ $? == 0 ]; then
       listnr=1
       list=""
@@ -1285,8 +1285,9 @@ EOF
 
 devices() {
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux\device manager" --cancel-label "Back" --menu "Welcome to the device manager" 0 0 8 \
-       1 disks 2 UEFI 3 PCI )
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 8 \
+       1 \"disks info and partitioning\" 2 \"UEFI info\" 3 \"PCI info\" 4 \"RAM info\" 5 \"Power options\")
+    cmd=$(eval $abc)
     if [ $? = 0 ]; then
       case $cmd in
       1) disks ;;
