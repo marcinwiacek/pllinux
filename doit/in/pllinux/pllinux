@@ -999,19 +999,19 @@ EOF
             listnr=$(($listnr+1))
           done < "${DIR}etc/$task_fn"
 done
-          task_schedule $listnr3
-          if [ "$1" = "crontab" ]; then
-            if [ $STASK = 1 ]; then
-              task_user
-            fi
-            if [ $STASK = 1 ]; then
-              task_type
-            fi
-          fi
-          if [ $STASK = 1 ]; then
-            task_command
-          fi
-          if [ $STASK = 1 ]; then
+        TASKSTEPNR=1
+        while true; do
+          case $TASKSTEPNR in
+          0) break ;;
+          1) task_schedule $listnr3 ;;
+          2) task_command ;;
+          3) if [ "$1" != "crontab" ]; then
+               TASKSTEPNR=5
+             else
+               task_user
+             fi ;;
+          4) task_type ;;
+          5) 
             listnr2=1
             for task_fn in $TASK_FILE_LIST; do
               file_content=$(cat ${DIR}etc/$task_fn)
@@ -1029,7 +1029,13 @@ done
                 listnr2=$(($listnr2+1))
               done <<< "$file_content"
             done
-          fi
+
+
+             break
+          esac
+        done
+
+
           ;;
       esac
     else
