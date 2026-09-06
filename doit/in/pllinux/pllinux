@@ -1134,8 +1134,8 @@ kernel_param_list() {
 sysctl_kernel_params() {
   listnr3=1
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"$PROMPT\\background tasks scheduler\" --cancel-label "Back" \
-       --menu \"Commands run$PROMPT2 in the background in the specified time\" 0 0 8 \
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel params\" --cancel-label "Back" \
+       --menu \"Linux kernel paramaters\" 0 0 8 \
        $(kernel_param_list) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
@@ -1446,6 +1446,34 @@ set_system_apps() {
   done
 }
 
+swap_file() {
+  while true; do
+    cmd=$(dialog --stdout --backtitle "$PROMPT\\swap file" --cancel-label "Back" \
+      --form "Pls provide size of swap file in MB (0 disables it)" 0 0 8 \
+      "Size" 1 1 "$SMINUTE" 1 20 15 0 )
+    if [ $? == 0 ]; then
+      linenr=1
+      while read -r line; do
+        case $linenr in
+        1) SMINUTE="$line" ;;
+        2) SHOUR="$line" ;;
+        3) SDAY="$line" ;;
+        4) SMONTH="$line" ;;
+        5) SDOW="$line" ;;
+        esac
+        linenr=$(($linenr+1))
+        STASK=1
+      done <<< "$cmd"
+      TASKSTEPNR=$(($TASKSTEPNR+1))
+    else
+      TASKSTEPNR=$(($TASKSTEPNR-1))
+    fi
+    break;
+  done
+}
+
+
+
 CFGFILE="etc/pllinux.conf"
 if [ "$1" = "BOOT" ]; then
   set_general_config 1
@@ -1468,8 +1496,8 @@ while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 14 \
        1 "Apps (todo)" \
        2 "Background scheduled tasks for system and all users" \
-       3 "Background services" \
-       4 "Device manager (todo)" \
+       3 "Background services (dinit)" \
+       4 "Device manager" \
        5 "Kernel modules (modprobe)" \
        6 "Kernel params (sysctl)" \
        7 "Logs (syslog)" \
@@ -1489,6 +1517,7 @@ while true; do
     4) devices ;;
     6) sysctl_kernel_params ;;
     8) set_users ;;
+    10) swap_file ;;
     12) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
