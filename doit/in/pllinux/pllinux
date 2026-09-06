@@ -672,19 +672,6 @@ EOF
   done
 }
 
-get_time_info() {
-  if [ "$1" = "\*" ]; then
-    echo "not set"
-  else
-    case $1 in
-    */*)
-      echo "every $1" ;;
-    *)
-      echo "at $1" ;;
-    esac
-  fi
-}
-
 task_schedule() {
   while true; do
     cmd=$(dialog --stdout --backtitle "$PROMPT\\task schedule" --cancel-label "Back" \
@@ -708,11 +695,10 @@ task_schedule() {
         STASK=1
       done <<< "$cmd"
       TASKSTEPNR=$(($TASKSTEPNR+1))
-      break
     else
       TASKSTEPNR=$(($TASKSTEPNR-1))
-      break;
     fi
+    break;
   done
 }
 
@@ -750,8 +736,7 @@ EOF
       listnr=$(($listnr+1))
     done < "${DIR}etc/passwd"
   else
-      TASKSTEPNR=$(($TASKSTEPNR-1))
-
+    TASKSTEPNR=$(($TASKSTEPNR-1))
   fi
 }
 
@@ -765,29 +750,28 @@ task_command() {
       fi
       TASKSTEPNR=$(($TASKSTEPNR+1))
       SCMD="$cmd"
-      break;
     else
       TASKSTEPNR=$(($TASKSTEPNR-1))
-      break;
     fi
+    break;
   done
 }
 
 task_type() {
-    cmd=$(dialog --stdout --backtitle "$PROMPT\\task type" --cancel-label "Back" \
+  cmd=$(dialog --stdout --backtitle "$PROMPT\\task type" --cancel-label "Back" \
            --default-item $SSETUPBYSYSTEM \
            --menu "Task type" 0 0 6 1 "Setup by root (saved in crontab)" \
                    2 "Setup by user itself (saved in user editable file)"  )
-    if [ $? == 0 ]; then
-      if [ "$cmd" = "1" ]; then
-         SSETUPBYSYSTEM=1
-      else
-         SSETUPBYSYSTEM=2
-      fi
-      TASKSTEPNR=$(($TASKSTEPNR+1))
+  if [ $? == 0 ]; then
+    if [ "$cmd" = "1" ]; then
+      SSETUPBYSYSTEM=1
     else
-      TASKSTEPNR=$(($TASKSTEPNR-1))
+      SSETUPBYSYSTEM=2
     fi
+    TASKSTEPNR=$(($TASKSTEPNR+1))
+  else
+    TASKSTEPNR=$(($TASKSTEPNR-1))
+  fi
 }
 
 tasks_list() {
@@ -999,43 +983,38 @@ EOF
             listnr=$(($listnr+1))
           done < "${DIR}etc/$task_fn"
 done
-        TASKSTEPNR=1
-        while true; do
-          case $TASKSTEPNR in
-          0) break ;;
-          1) task_schedule $listnr3 ;;
-          2) task_command ;;
-          3) if [ "$1" != "crontab" ]; then
-               TASKSTEPNR=5
-             else
-               task_user
-             fi ;;
-          4) task_type ;;
-          5) 
-            listnr2=1
-            for task_fn in $TASK_FILE_LIST; do
-              file_content=$(cat ${DIR}etc/$task_fn)
-              echo -n "" > ${DIR}etc/$task_fn
-              while IFS= read -r line; do
-                if [ "$listnr2" != "$listnr3" ]; then
-                  echo "$line" >> ${DIR}etc/$task_fn
-                else
-                  if [ "$task_fn" = "crontab" ]; then
-                    echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/$task_fn
-                  else
-                    echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/$task_fn
-                  fi
-                fi
-                listnr2=$(($listnr2+1))
-              done <<< "$file_content"
-            done
-
-
-             break
-          esac
-        done
-
-
+          TASKSTEPNR=1
+          while true; do
+            case $TASKSTEPNR in
+            0) break ;;
+            1) task_schedule $listnr3 ;;
+            2) task_command ;;
+            3) if [ "$1" != "crontab" ]; then
+                 TASKSTEPNR=5
+               else
+                 task_user
+               fi ;;
+            4) task_type ;;
+            5) listnr2=1
+               for task_fn in $TASK_FILE_LIST; do
+                 file_content=$(cat ${DIR}etc/$task_fn)
+                 echo -n "" > ${DIR}etc/$task_fn
+                 while IFS= read -r line; do
+                   if [ "$listnr2" != "$listnr3" ]; then
+                     echo "$line" >> ${DIR}etc/$task_fn
+                   else
+                     if [ "$task_fn" = "crontab" ]; then
+                       echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/$task_fn
+                     else
+                       echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/$task_fn
+                     fi
+                   fi
+                   listnr2=$(($listnr2+1))
+                 done <<< "$file_content"
+               done
+               break
+            esac
+          done
           ;;
       esac
     else
