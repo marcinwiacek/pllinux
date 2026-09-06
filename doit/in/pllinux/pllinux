@@ -743,7 +743,7 @@ EOF
 task_command() {
   while true; do
     cmd=$(dialog --stdout --backtitle "$PROMPT\\task command" --cancel-label "Prev" \
-      --inputbox "Pls enter command" 15 100 "$SCMD" )
+      --inputbox "Pls enter command (cannot be empty)" 15 100 "$SCMD" )
     if [ $? == 0 ]; then
       if [ "$cmd" == "" ]; then
         continue;
