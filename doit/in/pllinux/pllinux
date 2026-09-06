@@ -688,7 +688,7 @@ get_time_info() {
 task_schedule() {
   STASK=0
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux $1 $2" --cancel-label "Back" \
+    cmd=$(dialog --stdout --backtitle "$PROMPT\\task schedule" --cancel-label "Back" \
       --form "Pls provide values, you can put intervals or separate values with comma, star means no setup, spaces will be deleted" 0 0 8 \
       "Minute (1-59)" 1 1 "$SMINUTE" 1 20 15 0 \
       "Hour (0-23)" 2 1 "$SHOUR" 2 20 15 0 \
@@ -731,7 +731,7 @@ EOF
     listnr=$(($listnr+1))
   done < "${DIR}etc/passwd"
 
-  cmd=$(dialog --stdout --backtitle "$PROMPT\\background tasks scheduler" --cancel-label "Back" \
+  cmd=$(dialog --stdout --backtitle "$PROMPT\\task user" --cancel-label "Back" \
        --default-item $defnum \
        --menu "User starting task" 0 0 8 \
        $list )
@@ -753,7 +753,7 @@ EOF
 
 task_command() {
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
+    cmd=$(dialog --stdout --backtitle "$PROMPT\\task command" --cancel-label "Back" \
       --inputbox "Pls enter command" 15 100 "$SCMD" )
     if [ $? == 0 ]; then
       if [ "$cmd" == "" ]; then
@@ -770,7 +770,7 @@ task_command() {
 }
 
 task_type() {
-    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
+    cmd=$(dialog --stdout --backtitle "$PROMPT\\task type" --cancel-label "Back" \
            --default-item $SSETUPBYSYSTEM \
            --menu "Task type" 0 0 6 1 "Setup by root (saved in crontab)" \
                    2 "Setup by user itself (saved in user editable file)"  )
@@ -913,6 +913,9 @@ tasks_list_num() {
 }
 
 tasks() {
+  listnr3=1
+  tasks_file_list $1
+  while true; do
   if [ "$1" = "crontab" ]; then
     PROMPT="PLLinux";
     PROMPT2="";
@@ -920,10 +923,8 @@ tasks() {
     PROMPT="PLLinux\set users\\$1";
     PROMPT2=" for $1";
   fi
-  listnr3=1
-  tasks_file_list $1
-  while true; do
-    abc=$(echo dialog --stdout --backtitle \"$PROMPT\\background tasks scheduler\" --cancel-label "Back" \
+  PROMPT="$PROMPT\\background tasks scheduler"
+    abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Commands run$PROMPT2 in the background in the specified time\" 0 0 8 \
        $(tasks_list) )
@@ -933,6 +934,7 @@ tasks() {
       listnr3=$cmd
       case $cmd in
       $listnr)
+        PROMPT="$PROMPT\\new task"
         SMINUTE="*"
         SHOUR="*"
         SDAY="*"
@@ -964,6 +966,7 @@ tasks() {
       $(($listnr+1)) )
         ;;
       *)
+        PROMPT="$PROMPT\\edit task"
         listnr=1
         for task_fn in $TASK_FILE_LIST; do
           while read -r line; do
@@ -1455,7 +1458,7 @@ fi
 while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 14 \
        1 "Apps (todo)" \
-       2 "Background scheduled tasks from system and all users" \
+       2 "Background scheduled tasks for system and all users" \
        3 "Background services" \
        4 "Device manager (todo)" \
        5 "Kernel modules (modprobe)" \
