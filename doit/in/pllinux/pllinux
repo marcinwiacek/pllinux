@@ -912,16 +912,16 @@ tasks() {
     PROMPT2=" for $1";
   fi
   PROMPT="$PROMPT\\background tasks scheduler"
-    abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
+  abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Commands run$PROMPT2 in the background in the specified time\" 0 0 8 \
        $(tasks_list) )
-    cmd=$(eval $abc)
-    if [ $? == 0 ]; then
-      tasks_list_num $1
-      listnr3=$cmd
-      case $cmd in
-      $listnr)
+  cmd=$(eval $abc)
+  if [ $? == 0 ]; then
+    tasks_list_num $1
+    listnr3=$cmd
+    case $cmd in
+    $listnr)
         PROMPT="$PROMPT\\new task"
         SMINUTE="*"
         SHOUR="*"
@@ -970,9 +970,9 @@ tasks() {
           esac
         done
         ;;
-      $(($listnr+1)) )
+    $(($listnr+1)) )
         ;;
-      *)
+    *)
         PROMPT="$PROMPT\\edit task"
         listnr=1
         for task_fn in $TASK_FILE_LIST; do
@@ -1034,10 +1034,10 @@ done
             esac
           done
           ;;
-      esac
-    else
-      break;
-    fi
+    esac
+  else
+    break;
+  fi
   done
 }
 
