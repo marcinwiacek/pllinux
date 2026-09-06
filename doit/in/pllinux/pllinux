@@ -686,7 +686,6 @@ get_time_info() {
 }
 
 task_schedule() {
-  STASK=0
   while true; do
     cmd=$(dialog --stdout --backtitle "$PROMPT\\task schedule" --cancel-label "Back" \
       --form "Pls provide values, you can put intervals or separate values with comma, star means no setup, spaces will be deleted" 0 0 8 \
@@ -708,15 +707,16 @@ task_schedule() {
         linenr=$(($linenr+1))
         STASK=1
       done <<< "$cmd"
+      TASKSTEPNR=$(($TASKSTEPNR+1))
       break
     else
+      TASKSTEPNR=$(($TASKSTEPNR-1))
       break;
     fi
   done
 }
 
 task_user() {
-  STASK=0
   listnr=1
   list=""
   defnum=1
@@ -737,7 +737,8 @@ EOF
        $list )
 
   if [ $? == 0 ]; then
-    STASK=1
+      TASKSTEPNR=$(($TASKSTEPNR+1))
+
     listnr=1
     while read -r line; do
       IFS=":" read -r USER_NAME OTHER << EOF
@@ -748,6 +749,9 @@ EOF
       fi
       listnr=$(($listnr+1))
     done < "${DIR}etc/passwd"
+  else
+      TASKSTEPNR=$(($TASKSTEPNR-1))
+
   fi
 }
 
@@ -759,11 +763,11 @@ task_command() {
       if [ "$cmd" == "" ]; then
         continue;
       fi
-      STASK=1
+      TASKSTEPNR=$(($TASKSTEPNR+1))
       SCMD="$cmd"
       break;
     else
-      STASK=0
+      TASKSTEPNR=$(($TASKSTEPNR-1))
       break;
     fi
   done
@@ -780,9 +784,9 @@ task_type() {
       else
          SSETUPBYSYSTEM=2
       fi
-      STASK=1
+      TASKSTEPNR=$(($TASKSTEPNR+1))
     else
-      STASK=0
+      TASKSTEPNR=$(($TASKSTEPNR-1))
     fi
 }
 
@@ -943,25 +947,26 @@ tasks() {
         SUSER="root"
         SCMD=""
         SSETUPBYSYSTEM=2
-        task_schedule $listnr $1
-        if [ "$1" = "crontab" ]; then
-          if [ "$STASK" = "1" ]; then
-            task_user
-          fi
-          if [ "$STASK" = "1" ]; then
-            task_type
-          fi
-        fi
-        if [ "$STASK" = "1" ]; then
-          task_command
-        fi
-        if [ "$STASK" = "1" ]; then
-          if [ "$SSETUPBYSYSTEM" = "1" ]; then
-            echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD " >> ${DIR}etc/$1
-          else
-            echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/schedule/$SUSER
-          fi
-        fi
+        TASKSTEPNR=1
+        while true; do
+          case $TASKSTEPNR in
+          0) break ;;
+          1) task_schedule $listnr $1 ;;
+          2) task_command ;;
+          3) if [ "$1" != "crontab" ]; then
+               TASKSTEPNR=5
+             else
+               task_user
+             fi ;;
+          4) task_type ;;
+          5) if [ "$SSETUPBYSYSTEM" = "1" ]; then
+               echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD " >> ${DIR}etc/$1
+             else
+               echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD " >> ${DIR}etc/schedule/$SUSER
+             fi
+             break
+          esac
+        done
         ;;
       $(($listnr+1)) )
         ;;
