@@ -3,6 +3,6 @@
 # run a shell.
 
 type = process
-command = /app/busybox/current/bin/busybox sulogin
+command = /app/pllinux/current/scripts/recovery.sh -O /tmp/syslog
 options = runs-on-console
 restart = false
