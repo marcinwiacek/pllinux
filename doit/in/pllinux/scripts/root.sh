@@ -43,7 +43,10 @@ done
 
 #export
 
+export TZ=Europe/Warsaw
 export LANG=$(/app/pllinux/current/pllinux LANG)
+export LANGUAGE=$(/app/pllinux/current/pllinux LANG)
+#export NCURSES_NO_UTF8_ACS=1
 export PATH=$path
 export SHELL=/app/busybox/current/bin/sh
 export HOME=/other/app/sh

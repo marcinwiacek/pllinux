@@ -1,7 +1,8 @@
 # system logger
 
 type = process
-command = /app/busybox/current/bin/busybox syslogd -O /tmp/x
+#command = /app/pllinux/current/scripts/syslog.sh
+command = /app/busybox/current/bin/busybox syslogd -O /tmp/x -n
 restart = true
 termsignal = HUP
 smooth-recovery = true
