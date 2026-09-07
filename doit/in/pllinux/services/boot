@@ -6,3 +6,5 @@ type = scripted
 depends-ms: tty1
 depends-ms: tty2
 depends-ms: tty3
+depends-ms: crond
+depends-ms: syslogd
