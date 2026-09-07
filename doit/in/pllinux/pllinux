@@ -1406,17 +1406,18 @@ while true; do
        4 "Device manager" \
        5 "Kernel modules (modprobe)" \
        6 "Kernel params (sysctl)" \
-       7 "Logs (syslog)" \
-       8 "Users" \
-        9 "Network (todo)      - manual, IP4 DHCP" \
-       10 "Swap file           - off" \
-       11 "App language (todo) - $LANG" \
-       12 "Keyboard and font   - $KEYB, $FONT" \
-       14 "Timezone            - $TIMEZONE" \
-       15 "Partition encryption password (todo)" \
-       16 "Install to other partition" \
-       17 "Setup UEFI boot menu" \
-       18 "Setup UEFI fat32 boot partition" )
+       7 "Kernel logs (dmesg)" \
+       8 "Logs (syslog)" \
+       9 "Users" \
+       10 "Network (todo)      - manual, IP4 DHCP" \
+       11 "Swap file           - off" \
+       12 "App language (todo) - $LANG" \
+       14 "Keyboard and font   - $KEYB, $FONT" \
+       15 "Timezone            - $TIMEZONE" \
+       16 "Partition encryption password (todo)" \
+       17 "Install to other partition" \
+       18 "Setup UEFI boot menu" \
+       19 "Setup UEFI fat32 boot partition" )
   if [ $? == 0 ]; then
     case $cmd in
     1) set_system_apps ;;
@@ -1424,14 +1425,15 @@ while true; do
     3) services ;;
     4) devices ;;
     6) sysctl_kernel_params ;;
-    8) set_users ;;
-    10) swap_file ;;
-    12) NEW_KEYB="$KEYB"
+    7) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmesg)" 100 90 ;;
+    9) set_users ;;
+    11) swap_file ;;
+    14) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
-    14) set_time_zone ;;
-    16) install_to 1 ;;
-    17) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(efibootmgr)" 100 90 ;;
+    16) set_time_zone ;;
+    17) install_to 1 ;;
+    18) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(efibootmgr)" 100 90 ;;
     esac
   else
     break
