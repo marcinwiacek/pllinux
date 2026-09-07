@@ -1279,13 +1279,24 @@ done
 devices() {
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 8 \
-       1 \"Disks info and partitioning\" 2 \"UEFI info \(dmidecode\)\" 3 \"PCI info \(lspci\)\" 4 \"RAM info\" 5 \"Power options\" 6 \"Sensors info\")
+       1 \"CPU\" \
+       2 \"Disks info and partitioning\" \
+       3 \"Network interfaces\" \
+       4 \"PCI \(lspci\)\" \
+       5 \"Power options\" \
+       6 \"RAM\" \
+       7 \"Sensors\" \
+       8 \"UEFI \(dmidecode\)\")
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       case $cmd in
-      1) install_to 0 ;;
-      2) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
-      3) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -vvv)" 100 90 ;;
+      1) dialog --backtitle "PLLinux\device manager\CPU\(lscpu\)" --msgbox "$(lscpu)" 100 90 ;;
+      2) install_to 0 ;;
+      3) dialog --backtitle "PLLinux\device manager\network interfaces \(ip\)" --msgbox "$(ip link show)" 100 90 ;;
+      4) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -vvv)" 100 90 ;;
+      6) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;
+      7) dialog --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
+      8) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
       esac
     else
       break;
@@ -1514,6 +1525,7 @@ while true; do
         set_keyboard_font_general_or_user "" ;;
     14) set_time_zone ;;
     16) install_to 1 ;;
+    17) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(efibootmgr)" 100 90 ;;
     esac
   else
     break
