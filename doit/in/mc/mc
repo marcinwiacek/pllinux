@@ -1,19 +1,23 @@
 #!/app/busybox/current/bin/sh
 DIR=$(dirname $0)
-APP=" --ro-bind /app app "
-APP2=" --ro-bind $DIR/etc/mc etc/mc --ro-bind /etc/localtime etc/localtime "
-if [ -d "/etc." ]; then 
-  APP=" --bind /app app "; 
-  APP2=" --bind $DIR/etc/mc etc/mc "
+if [ -d "/etc." ]; then
+  # root
+  APP=" --dev dev --bind /app app --bind $DIR/etc/mc etc/mc "
+else
+  # non root
+  APP=" --dev dev --ro-bind /app app --ro-bind $DIR/etc/mc etc/mc --ro-bind /etc/localtime etc/localtime "
 fi
-APP3=""
-if [ ! -d "/iso" ]; then
+if [ -d "/iso" ]; then
+  # iso image
+  APP3=""
+else
+  # normal system
   APP3=" --chdir $(pwd) ";
 fi
 mkdir /other/app/mc 2> /dev/null
 /app/bwrap/current/bin/bwrap \
     --setenv HOME /other/app/mc \
-    --dev dev \
+    $APP \
     --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
     --proc proc \
     --bind /tmp tmp \
@@ -22,8 +26,6 @@ mkdir /other/app/mc 2> /dev/null
     --bind /home home \
     --bind-try /other other \
     --bind-try /etc. etc \
-    $APP2 \
-    $APP \
     --ro-bind $DIR/bin bin \
     --ro-bind /lib64 lib64 \
     --setenv PS1 "[\t] $USER # " \

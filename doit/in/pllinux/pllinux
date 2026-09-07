@@ -1425,7 +1425,7 @@ while true; do
     3) services ;;
     4) devices ;;
     6) sysctl_kernel_params ;;
-    7) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmesg)" 100 90 ;;
+    7) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmesg)" 100 90 ;; #fixme: it hangs
     9) set_users ;;
     11) swap_file ;;
     14) NEW_KEYB="$KEYB"
