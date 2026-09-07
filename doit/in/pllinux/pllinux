@@ -592,6 +592,37 @@ format_install() {
   fi
 }
 
+process_one_disk_list() {
+    disks=$(parted -l -m 2> /dev/null)
+    thisdisk=0
+    list=""
+    listnr=1
+    while read -r line; do
+      if [ "$thisdisk" = "0" ]; then
+        case $line in
+          $1*) thisdisk=1
+        esac
+      else
+        if [ "$line" = "" ]; then
+          thisdisk=0
+        else
+          IFS=":" read -r PART_NUMER PART_START PART_END PART_SIZE PART_SYSTEM PART_OTHER PART_FLAGS << EOF
+$line
+EOF
+          echo $list
+          echo $listnr
+          if [ "$PART_FLAGS" != ";" ]; then
+            PART_FLAGS=" $PART_FLAGS"
+          else
+            PART_FLAGS=""
+          fi
+          echo \"Format to ext4 and install to partition $listnr size ${PART_SIZE} \(currently ${PART_SYSTEM}${PART_FLAGS}\)\"
+          listnr=$(($listnr+1))
+        fi
+      fi
+    done <<< "$disks"
+}
+
 process_one_disk() {
   while true; do
     disks=$(parted -l -m 2> /dev/null)
@@ -607,19 +638,19 @@ process_one_disk() {
         if [ "$line" = "" ]; then
           thisdisk=0
         else
-          IFS=":" read -r PART_NUMER PART_START PART_END PART_SIZE PART_SYSTEM PART_OTHER << EOF
-$line
-EOF
-          list="$list $listnr Formatinstall${PART_SYSTEM}_${PART_SIZE} "
           listnr=$(($listnr+1))
         fi
       fi
     done <<< "$disks"
-    cmd=$(dialog --stdout --backtitle "PLLinux/install to other disk/device $1" --cancel-label "Back" \
-           --menu "Disk $1" 0 0 6 $list $listnr "Partition disk with cfdisk" )
+    abc=$(echo dialog --stdout --backtitle \"PLLinux/install to other disk/device $1\" --cancel-label "Back" \
+           --menu \"Disk $1\" 0 0 6 $(process_one_disk_list $1) $listnr \"Partition disk \(cfdisk\)\" \
+                     $(($listnr+1)) \"SMART disk info \(smartctl\)\")
+    cmd=$(eval $abc)
     if [ $? == 0 ]; then
       if [ "$cmd" = "$listnr" ]; then
         cfdisk $1
+      elif [ "$cmd" = "$(($listnr+1))" ]; then
+        dialog --msgbox "$(smartctl -a $1)" 100 100
       else
         format_install $1p$cmd
       fi
@@ -1329,9 +1360,9 @@ all_system_apps() {
           echo  "$listnr "
           CURRENT=$(realpath ${DIR}app/${APP_NAME}/current)
           if [ "$CURRENT" = "${DIR}app/${APP_NAME}/${APP_VERSION}" ]; then
-            echo  \"${APP_NAME}:${APP_VERSION} - current - $(du ${DIR}app/${APP_NAME}/${APP_VERSION} -s -h -c -S | grep total)\"
+            echo  \"${APP_NAME}:${APP_VERSION} - current - $(du ${DIR}app/${APP_NAME}/${APP_VERSION} -s -h -c | grep total)\"
           else
-            echo  \"${APP_NAME}:${APP_VERSION} - $(du ${DIR}app/${APP_NAME}/${APP_VERSION} -s -h -c -S | grep total)\"
+            echo  \"${APP_NAME}:${APP_VERSION} - $(du ${DIR}app/${APP_NAME}/${APP_VERSION} -s -h -c | grep total)\"
           fi
           echo  " off "
           echo  $(find_app_description ${DIR}app/${APP_NAME}/${APP_VERSION})
@@ -1493,7 +1524,7 @@ else
 fi
 
 while true; do
-  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 14 \
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 17 \
        1 "Apps (todo)" \
        2 "Background scheduled tasks for system and all users" \
        3 "Background services (dinit)" \
@@ -1508,7 +1539,9 @@ while true; do
        12 "Keyboard and font   - $KEYB, $FONT" \
        14 "Timezone            - $TIMEZONE" \
        15 "Partition encryption password (todo)" \
-       16 "Install to other partition" )
+       16 "Install to other partition" \
+       17 "Setup UEFI boot menu" \
+       18 "Setup UEFI fat32 boot partition" )
   if [ $? == 0 ]; then
     case $cmd in
     1) set_system_apps ;;
