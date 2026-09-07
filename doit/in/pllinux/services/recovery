@@ -3,6 +3,6 @@
 # run a shell.
 
 type = process
-command = /app/pllinux/current/scripts/recovery.sh -O /tmp/syslog
+command = /app/pllinux/current/scripts/recovery.sh
 options = runs-on-console
 restart = false
