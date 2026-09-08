@@ -1079,6 +1079,35 @@ done
   done
 }
 
+log_setup() {
+  while true; do
+    cmd=$(dialog --stdout --backtitle "$PROMPT\\task schedule" --cancel-label "Back" \
+      --form "Pls provide values, you can put intervals or separate values with comma, star means no setup, spaces will be deleted" 0 0 8 \
+      "type.priority (type=kern,user,mail,daemon,auth,syslog,lpr,news,uucp,cron,authpriv,ftp,ntp,security,console,priority=*,emerg,alert,crit,err,warning,notice,info,debug)" 1 1 "$SMINUTE" 1 20 15 0 \
+      "type.priority (type=kern,user,mail,daemon,auth,syslog,lpr,news,uucp,cron,authpriv,ftp,ntp,security,console,priority=*,emerg,alert,crit,err,warning,notice,info,debug)" 2 1 "$SMINUTE" 2 20 15 0 \
+      "type.priority (type=kern,user,mail,daemon,auth,syslog,lpr,news,uucp,cron,authpriv,ftp,ntp,security,console,priority=*,emerg,alert,crit,err,warning,notice,info,debug)" 3 1 "$SMINUTE" 3 20 15 0 \
+      "file (/log/xxx or /log/tmp/xxx)" 3 1 "$SHOUR" 3 20 15 0  )
+    if [ $? == 0 ]; then
+      linenr=1
+#      while read -r line; do
+#        case $linenr in
+#        1) SMINUTE="$line" ;;
+#        2) SHOUR="$line" ;;
+#        3) SDAY="$line" ;;
+#        4) SMONTH="$line" ;;
+#        5) SDOW="$line" ;;
+#        esac
+#        linenr=$(($linenr+1))
+#        STASK=1
+#      done <<< "$cmd"
+      TASKSTEPNR=$(($TASKSTEPNR+1))
+    else
+      TASKSTEPNR=$(($TASKSTEPNR-1))
+    fi
+    break;
+  done
+}
+
 log_list() {
   listnr=1
   IFS=" "
@@ -1122,6 +1151,7 @@ logs() {
        $(log_list) )
   cmd=$(eval $abc)
   if [ $? == 0 ]; then
+    log_setup
     break;
   else
     break;
