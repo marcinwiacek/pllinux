@@ -1079,6 +1079,56 @@ done
   done
 }
 
+log_list() {
+  listnr=1
+  IFS=" "
+    while read -r line; do
+        IFS=" " read -r LOG_RULES LOG_FILE << EOF
+$line
+EOF
+      SCHEDULE=""
+      IFS=";"
+      for RULE in "$LOG_RULES"; do
+          case $TYPE in
+            kern) SCHEDULE="$SCHEDULE kernel msg" ;;
+            user) SCHEDULE="$SCHEDULE user msg" ;;
+            mail) SCHEDULE="$SCHEDULE mail msg" ;;
+            daemon) SCHEDULE="$SCHEDULE daemon/services msg" ;;
+            auth) SCHEDULE="$SCHEDULE authentication msg" ;;
+            syslog) SCHEDULE="$SCHEDULE authentication msg" ;;
+          esac
+      done
+      IFS=" "
+      echo "$listnr "
+      echo \"${LOG_FILE} ${SCHEDULE}\"
+      listnr=$(($listnr+1))
+    done < "${DIR}etc/syslog.conf"
+
+  IFS=$IFSORIG
+  echo " $listnr "
+  echo "Add"
+  echo " $(($listnr+1)) "
+  echo "Delete"
+}
+
+
+logs() {
+  listnr3=1
+  while true; do
+  PROMPT="PLLinux\\logs"
+  abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
+           --default-item $listnr3 \
+       --menu \"Commands run$PROMPT2 in the background in the specified time\" 0 0 8 \
+       $(log_list) )
+  cmd=$(eval $abc)
+  if [ $? == 0 ]; then
+    break;
+  else
+    break;
+  fi
+  done
+}
+
 service() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
@@ -1441,7 +1491,7 @@ while true; do
        5 "Kernel modules (modprobe)" \
        6 "Kernel params (sysctl)" \
        7 "Kernel logs (dmesg, press q to return)" \
-       8 "Logs (syslog)" \
+       8 "System logs in files (syslog)" \
        9 "Users" \
        10 "Network (todo)      - manual, IP4 DHCP" \
        11 "Swap file           - off" \
@@ -1461,7 +1511,7 @@ while true; do
     6) sysctl_kernel_params ;;
     7) dmesg | less # it seems, that msgbox and other dialog elements have size limit
        ;;
-    8) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(cat /tmp/x)" 100 90 ;;
+    8) logs ;;
     9) set_users ;;
     10) network ;;
     11) swap_file ;;
@@ -1470,7 +1520,7 @@ while true; do
         set_keyboard_font_general_or_user "" ;;
     16) set_time_zone ;;
     17) install_to 1 ;;
-    18) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(efibootmgr)" 100 90 ;;
+    18) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
     esac
   else
     break

@@ -187,7 +187,7 @@ install_host_deps "rsync"
 mkdir out || true
 mkdir download || true
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
-  for folderentry in app bin dev etc home mnt proc run sys tmp lib64; do mkdir $output/$folderentry; done
+  for folderentry in app bin dev etc home mnt proc run sys tmp lib64 log log/tmp; do mkdir $output/$folderentry; done
 
   rsync -a in/etc/ $output/etc
 

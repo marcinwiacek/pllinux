@@ -2,7 +2,7 @@
 
 type = process
 #command = /app/pllinux/current/scripts/syslog.sh
-command = /app/busybox/current/bin/busybox syslogd -O /tmp/x -n
+command = /app/busybox/current/bin/busybox syslogd -O /log/tmp/syslog -n
 restart = true
 termsignal = TERM
 smooth-recovery = true
