@@ -6,8 +6,7 @@ without using too much RAM or disk?
 
 PLLinux contains solution for this and many other things. It was started after seeing problems with existing Linux distributions and lack of dev reaction for it (or after seeing decreasing product functionalities).
 
-Technology Preview shows, in what direction should go modern operating system. This version contains already many elements
-and can already give feeling, where many existing systems are weak and obsolete (if you like analogies,
+Technology Preview shows, in what direction could go modern operating system. This version contains already many working elements and can already give feeling, where existing systems seems to be weak and obsolete (if you like analogies,
 you could compare it into [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution was already visible, but not completed). Some solutions are similar to used in Android or Apple products or
 even NixOS, but are not the same.
 
@@ -30,7 +29,12 @@ User files are saved in the RAM (tmpfs) and you can for example make setup using
 
 # Known issues
 
+# Links
+
+* [https://sourceforge.net/projects/pllinux/](https://sourceforge.net/projects/pllinux/)
+* [https://github.com/marcinwiacek/pllinux](https://github.com/marcinwiacek/pllinux)
+* [https://mwiacek.com](https://mwiacek.com)
+
 # Future
 
-Next months and 2027 will be used for improving functionality (compiling more packages, providing more flexible
-and easier structure, decreasing resources usage, etc.) and preparing graphic environment.
+Last 2026 months, 2027 and beyond will be used for improving functionality (compiling more packages, providing more flexible and easier structure, decreasing resources usage, etc.) and especially preparing user-friendly graphic environment (something probably similar to HaikuOS or desktops in the Gnome 2 / Windows 95-XP era)
