@@ -68,7 +68,7 @@ One note: main author of PLLINUX was preparing Open Source software before year 
   5. 22 July 2026 - creating first working ISO
   6. 13 Aug 2026 - system first time cloned itself ("installed") from PLLinux administration script. This is huge step into full working installation process - we have disk partitioning, selecting partition for installation and installing, we still need setting up UEFI partition/menu and encryption for main filesystem.
 
-**Building and starting**
+**Building and starting system from the partition (in the host system)**
 
   1. install Debian "Trixie" (build script is created inside it; probably any last Debian/Ubuntu distribution should work without changes)
   2. create and mount new EXT4 partition
@@ -79,9 +79,25 @@ One note: main author of PLLINUX was preparing Open Source software before year 
   7. execute **update-grub** command
   8. restart and have fun (users: root/root, user/user, user2/user2)
 
-In this moment (16 Jun 2026) PLLINUX filesystem needs 127MB and place for compiling 27GB. Secure Boot needs to be disabled now, UEFI required.
+Note: Secure Boot needs to be disabled now (in the future it will be added), UEFI required (be realistic: not sure, if anybody needs old BIOS support)
 
-In the future there will be of course created ISO and installer.
+**Building and starting ISO from the system partition (in the host system)**
+
+  1. prepare PLLinux system partition using instructions from the previous chapter (**Building and starting system...**)
+  2. setup isofile param in the [build script doit.sh](doit/doit.sh)
+  4. run [build script doit.sh](doit/doit.sh) with the iso "package"
+
+Try to boot created iso... for example with Qemu in UEFI mode:
+
+**qemu-system-x86_64 -cdrom iso.iso -m 4098 -bios /usr/share/OVMF/OVMF_CODE.fd**
+
+In this moment pllinux script can clone partition created inside ISO into new ext4 partition (there is available partitioning, formatting and copying, in the future there will be of course added support for setting up UEFI menu and fat32 UEFI partition)
+
+Note: it can need xorriso (**sudo apt-get install xorriso**) and eventually some Grub packages (**sudo apt-get install grub-pc-bin**)
+
+**Size**
+
+16 Jun 2026: PLLINUX filesystem needs 127MB and place for compiling 27GB.
 
 **How can you help?**
 
