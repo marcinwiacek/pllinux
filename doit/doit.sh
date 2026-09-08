@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="groff"; # "fs" to build all or concrete name for concrete package (busybox, nftables, etc.) or iso to build iso file
+package="groff"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -186,7 +186,7 @@ install_host_deps "rsync"
 #install_host_deps "mc retext git gitk gedit"
 mkdir out || true
 mkdir download || true
-if [ "$package" == "fs" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
   for folderentry in app bin dev etc home mnt proc run sys tmp lib64; do mkdir $output/$folderentry; done
 
   rsync -a in/etc/ $output/etc
@@ -222,7 +222,7 @@ if [ "$package" == "fs" ]; then
 
   cd $curdir
 fi
-if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
   ver="7.1.5";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
@@ -237,7 +237,7 @@ if [ "$package" == "fs" ] || [ "$package" == "kernel" ]; then
     set_current_app_clean_strip_cd kernel $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "busybox" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busybox" ]; then
   ver="1.38.0";
   if should_make busybox $ver; then
     download_unpack_source https://busybox.net/downloads/busybox-$ver.tar.bz2 busybox busybox-$ver 1
@@ -251,7 +251,7 @@ if [ "$package" == "fs" ] || [ "$package" == "busybox" ]; then
     set_current_app_clean_strip_cd busybox $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftables" ]; then
   ver="1.1.6";
   if should_make nftables $ver; then
     install_host_deps "libgmp3-dev libmnl-dev libedit-dev"
@@ -270,7 +270,7 @@ if [ "$package" == "fs" ] || [ "$package" == "nftables" ]; then
     set_current_app_clean_strip_cd nftables $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "bwrap" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bwrap" ]; then
   ver="0.11.2";
   if should_make bwrap $ver; then
     install_host_deps "meson libcap-dev"
@@ -295,7 +295,7 @@ if [ "$package" == "fs" ] || [ "$package" == "bwrap" ]; then
     set_current_app_clean_strip_cd bwrap $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "dinit" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dinit" ]; then
   ver="0.22.0";
   if should_make dinit $ver; then
     download_unpack_source https://github.com/davmac314/dinit/releases/download/v$ver/dinit-$ver.tar.xz dinit dinit-$ver 1
@@ -319,7 +319,7 @@ if [ "$package" == "fs" ] || [ "$package" == "dinit" ]; then
     set_current_app_clean_strip_cd dinit $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kbd" ]; then
   ver="2.10.0";
   if should_make kbd $ver; then
     if [ ! -d "/app" ]; then
@@ -339,7 +339,7 @@ if [ "$package" == "fs" ] || [ "$package" == "kbd" ]; then
     set_current_app_clean_strip_cd kbd $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "glibc" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glibc" ]; then
   # GNU C Library, not glib (gtk, gnome)
   ver="2.44";
   if should_make glibc $ver; then
@@ -369,7 +369,7 @@ fi
 #  make install
 #  cd ../../..
 #fi
-if [ "$package" == "fs" ] || [ "$package" == "util-linux" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "util-linux" ]; then
   ver="2.42";
   if should_make util-linux $ver; then
     download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
@@ -384,7 +384,7 @@ if [ "$package" == "fs" ] || [ "$package" == "util-linux" ]; then
     set_current_app_clean_strip_cd util-linux $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mc" ]; then
   ver="4.8.33";
   if should_make mc $ver; then
     if [ ! -d "/app" ]; then
@@ -447,7 +447,7 @@ if [ "$package" == "fs" ] || [ "$package" == "mc" ]; then
     set_current_app_clean_strip_cd mc $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "bash" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bash" ]; then
   ver="5.3";
   if should_make bash $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/bash/bash-$ver.tar.gz bash bash-$ver 1
@@ -459,7 +459,7 @@ if [ "$package" == "fs" ] || [ "$package" == "bash" ]; then
     set_current_app_clean_strip_cd bash $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "e2fsprogs" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "e2fsprogs" ]; then
   ver="1.47.4";
   if should_make bash $ver; then
     download_unpack_source https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/snapshot/e2fsprogs-$ver.tar.gz e2fsprogs e2fsprogs-$ver 1
@@ -471,7 +471,7 @@ if [ "$package" == "fs" ] || [ "$package" == "e2fsprogs" ]; then
     set_current_app_clean_strip_cd e2fsprogs $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "initramfs" ]; then
   ver="0.1";
   if should_make initramfs $ver; then
     create_app initramfs $prefix$ver
@@ -493,7 +493,7 @@ if [ "$package" == "fs" ] || [ "$package" == "initramfs" ]; then
     set_current_app_clean_strip_cd initramfs $prefix$ver 0
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "pllinux" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pllinux" ]; then
   ver="0.1";
   create_app pllinux $prefix$ver
   mkdir $output/app/pllinux/$prefix$ver
@@ -592,7 +592,7 @@ if [ "$package" == "fs" ] || [ "$package" == "gnupg" ]; then
     set_current_app_clean_strip_cd gnupg $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "openssl" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "openssl" ]; then
   for ver in 3.6.3 4.0.1; do 
     if should_make openssl $ver; then
       download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver 1
@@ -609,7 +609,7 @@ if [ "$package" == "fs" ] || [ "$package" == "openssl" ]; then
     fi
   done
 fi
-if [ "$package" == "fs" ] || [ "$package" == "wget2" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "wget2" ]; then
   ver="2.2.1";
   if should_make wget2 $ver; then
     install_host_deps "lzip"
@@ -631,7 +631,7 @@ if [ "$package" == "fs" ] || [ "$package" == "wget2" ]; then
     set_current_app_clean_strip_cd wget2 $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "popt" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "popt" ]; then
   ver="1.19";
   if should_make popt $ver; then
     download_unpack_source https://github.com/rpm-software-management/popt/archive/refs/tags/popt-$ver-release.tar.gz popt popt-popt-$ver-release 1
@@ -643,7 +643,7 @@ if [ "$package" == "fs" ] || [ "$package" == "popt" ]; then
     set_current_app_clean_strip_cd popt $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "rsync" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsync" ]; then
   ver="3.5.0";
   if should_make rsync $ver; then
     download_unpack_source https://download.samba.org/pub/rsync/src/rsync-$ver.tar.gz rsync rsync-$ver 1
@@ -654,7 +654,7 @@ if [ "$package" == "fs" ] || [ "$package" == "rsync" ]; then
     set_current_app_clean_strip_cd rsync $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zstd" ]; then
   ver="1.5.7";
   if should_make zstd $ver; then
     download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver 1
@@ -676,7 +676,7 @@ if [ "$package" == "fs" ] || [ "$package" == "zstd" ]; then
     set_current_app_clean_strip_cd zstd $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "zlib" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zlib" ]; then
   ver="1.3.2";
   if should_make zlib $ver; then
     download_unpack_source https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver 1
@@ -690,7 +690,7 @@ if [ "$package" == "fs" ] || [ "$package" == "zlib" ]; then
     set_current_app_clean_strip_cd zlib $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "pcre2" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pcre2" ]; then
   ver="10.47";
   if should_make pcre2 $ver; then
     download_unpack_source https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$ver/pcre2-$ver.tar.gz pcre2 pcre2-$ver 1
@@ -703,7 +703,7 @@ if [ "$package" == "fs" ] || [ "$package" == "pcre2" ]; then
     set_current_app_clean_strip_cd pcre2 $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "ncurses" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurses" ]; then
   ver="6.6";
   if should_make ncurses $ver; then
     download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver 1
@@ -716,7 +716,7 @@ if [ "$package" == "fs" ] || [ "$package" == "ncurses" ]; then
     set_current_app_clean_strip_cd ncurses $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "ncursesw" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncursesw" ]; then
   ver="6.6";
   if should_make ncursesw $ver; then
     download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncursesw ncurses-$ver 1
@@ -764,7 +764,7 @@ if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
     set_current_app_clean_strip_cd slang $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "glib" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glib" ]; then
   #glib (GTK, gnome), not GNU C library
   ver="2.89.1";
   if should_make glib $ver; then
@@ -832,7 +832,7 @@ if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
     set_current_app_clean_strip_cd xorriso $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "tzdb" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "tzdb" ]; then
   ver="2026c";
   if should_make tzdata $ver; then
     download_unpack_source https://data.iana.org/time-zones/releases/tzdb-$ver.tar.lz tzdb tzdb-$ver 1
@@ -864,7 +864,7 @@ if [ "$package" == "iso" ]; then
   sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
   rm -r $output/boot
 fi
-if [ "$package" == "fs" ] || [ "$package" == "groff" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "groff" ]; then
   # for displaying man pages
   ver="1.24.1";
   if should_make groff $ver; then
@@ -877,7 +877,7 @@ if [ "$package" == "fs" ] || [ "$package" == "groff" ]; then
     set_current_app_clean_strip_cd groff $prefix$ver 1
   fi
 fi
-if [ "$package" == "less" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "less" ]; then
   ver="704";
   if should_make less $ver; then
 #    download_unpack_source https://github.com/gwsw/less/archive/refs/tags/v$ver.tar.gz less less-$ver 1
@@ -891,7 +891,7 @@ if [ "$package" == "less" ]; then
     set_current_app_clean_strip_cd less $prefix$ver 1
   fi
 fi
-if [ "$package" == "dialog" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dialog" ]; then
   ver="1.3-20260721";
   if should_make dialog $ver; then
     download_unpack_source https://invisible-island.net/archives/dialog/dialog-$ver.tgz dialog dialog-$ver 1
@@ -902,7 +902,7 @@ if [ "$package" == "dialog" ]; then
     set_current_app_clean_strip_cd dialog $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "smartmontools" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "smartmontools" ]; then
   rel="7_5";
   ver="7.5";
   if should_make smartmontools $ver; then
@@ -927,7 +927,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libxcrypt" ]; then
     set_current_app_clean_strip_cd libxcrypt $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "readline" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "readline" ]; then
   ver="8.3";
   if should_make readline $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/readline/readline-$ver.tar.gz readline readline-$ver 1
@@ -940,7 +940,7 @@ if [ "$package" == "fs" ] || [ "$package" == "readline" ]; then
     set_current_app_clean_strip_cd readline $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "lvm2" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lvm2" ]; then
   ver="2.03.42";
   if should_make lvm2 $ver; then
     install_host_deps "libaio-dev"
@@ -955,7 +955,7 @@ if [ "$package" == "fs" ] || [ "$package" == "lvm2" ]; then
     set_current_app_clean_strip_cd lvm2 $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "parted" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "parted" ]; then
   ver="3.7";
   if should_make parted $ver; then
     install_host_deps "libdevmapper-dev libreadline-dev"
@@ -992,7 +992,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libselinux" ]; then
     set_current_app_clean_strip_cd libselinux $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "gptfdisk" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gptfdisk" ]; then
   ver="1.0.10";
   if should_make gptfdisk $ver; then
     download_unpack_source https://sourceforge.net/projects/gptfdisk/files/gptfdisk/$ver/gptfdisk-$ver.tar.gz/download gptfdisk-$ver gptfdisk-$ver 1
@@ -1037,7 +1037,7 @@ if [ "$package" == "fs" ] || [ "$package" == "dmidecode" ]; then
     set_current_app_clean_strip_cd dmidecode $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "pciutils" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pciutils" ]; then
   ver="3.15.0";
   if should_make pciutils $ver; then
     download_unpack_source https://github.com/pciutils/pciutils/releases/download/v3.15.0/pciutils-$ver.tar.gz pciutils pciutils-$ver 1
