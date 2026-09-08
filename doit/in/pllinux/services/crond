@@ -1,7 +1,7 @@
 # task scheduler
 
 type = process
-command = /app/busybox/current/bin/busybox crond -d -c /etc/crond.d -f
+command = /app/busybox/current/bin/busybox crond -S -c /etc/crond.d -f
 restart = true
 termsignal = HUP
 smooth-recovery = true
