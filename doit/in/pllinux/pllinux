@@ -1186,7 +1186,7 @@ sysctl_kernel_params() {
 
 devices() {
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 8 \
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 9 \
        1 \"CPU \(lscpu\)\" \
        2 \"Disks info and partitioning\" \
        3 \"Monitor info \(read-edid\)\" \
@@ -1362,16 +1362,20 @@ set_system_apps() {
 swap_file() {
     cmd=$(dialog --stdout --backtitle "PLLinux\\swap file" --cancel-label "Back" \
       --form "Pls provide swap params" 0 0 8 \
-      "Size in MB (0 disables it)" 1 1 "0" 1 45 10 0 \
-      "How aggressive is moving to swap (0-100)" 2 1 "10" 2 45 10 0 )
+      "Size in MB (0 disables it)" 1 1 "0" 1 50 10 0 \
+      "How aggressive is moving to swap (0-100)" 2 1 "10" 2 50 10 0 \
+      "Using zswap (compress RAM before saving to swap)" 3 1 "1" 3 50 10 0 )
     if [ $? == 0 ]; then
         linenr=1
         while read -r line; do
           case $linenr in
           1) if [ "$line" = "0" ]; then
                swapoff /swapfile
+               rm /swapfile
              else
-               dd if=/dev/zero of=/swapfile bs=${line}M count=2048
+               swapoff /swapfile || true
+               rm /swapfile || true
+               fallocate -l ${line}M /swapfile
                chmod 600 /swapfile
                mkswap /swapfile
                swapon /swapfile
