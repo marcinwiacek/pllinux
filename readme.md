@@ -55,7 +55,8 @@ impossible things (like deleting to trash or firewall per process), quotas, mana
 
 This can change without earlier notice.
 
-One note: main author of PLLINUX was preparing Open Source software before year 2000 (additionally was working for companies like Google, HP or some banks) and various gaps in current builds are connected mainly with time available for the project.
+One note: main author of PLLINUX was preparing Open Source software before year 2000 (additionally was working for companies like Google, HP, 
+banks or telecommunication providers) and various gaps in current builds are connected mainly with time available for the project.
 
 **Important dates**
 
@@ -64,7 +65,9 @@ One note: main author of PLLINUX was preparing Open Source software before year 
   3. 9 July 2026 - package manager and [first package online in the freshmeat.net / sourceforge.net](https://sourceforge.net/projects/pllinux/files/)
   4. 18 July 2026 - first version of own dynamic loader IS WORKING!
   5. 22 July 2026 - creating first working ISO
-  6. 13 Aug 2026 - system first time cloned itself ("installed") from PLLinux administration script. This is huge step into full working installation process - we have disk partitioning, selecting partition for installation and installing, we still need setting up UEFI partition/menu and encryption for main filesystem.
+  6. 13 Aug 2026 - system first time cloned itself ("installed") from PLLinux administration script. This is huge step into full working installation 
+process - we have disk partitioning, selecting partition for installation and installing, we still need setting up UEFI partition/menu and
+encryption for main filesystem.
 
 **Building and starting system from the partition (in the host system)**
 
@@ -82,7 +85,8 @@ Notes:
   * Secure Boot needs to be disabled now (in the future it will be added)
   * UEFI required (be realistic: not sure, if anybody needs old BIOS support)
   * creating the whole system doesn't need very expensive hardware - even few years old laptop, mini PC or desktop
-should be enough, when it's not from the lowest entry level (16GB or typical correctly working Intel i5 / i7 / i9 or Ryzen 5 / 7 system allows for creating everything max. in few hours and I'm using for example [GEM12](https://mwiacek.com/www/?q=node/628))
+should be enough, when it's not from the lowest entry level (16GB or typical correctly working Intel i5 / i7 / i9 or Ryzen 5 / 7 
+system allows for creating everything max. in few hours and I'm using for example [GEM12](https://mwiacek.com/www/?q=node/628))
 
 **Building and starting ISO from the system partition (in the host system)**
 
@@ -94,7 +98,8 @@ Try to boot created iso... for example with Qemu in UEFI mode:
 
 **qemu-system-x86_64 -cdrom iso.iso -m 4098 -bios /usr/share/OVMF/OVMF_CODE.fd**
 
-In this moment [pllinux script](doit/in/pllinux/pllinux) can clone partition created inside ISO into new ext4 partition (there is available partitioning, formatting and copying, in the future there will be of course added support for setting up UEFI menu and fat32 UEFI partition)
+In this moment (Sep 2026) [pllinux script](doit/in/pllinux/pllinux) can clone partition created inside ISO into new ext4 partition (there is available
+partitioning, formatting and copying, in the future there will be of course added support for setting up UEFI menu and fat32 UEFI partition)
 
 Note: it can need xorriso (**sudo apt-get install xorriso**) and eventually some Grub packages (**sudo apt-get install grub-pc-bin**)
 

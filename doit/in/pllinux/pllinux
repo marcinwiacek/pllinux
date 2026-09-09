@@ -1114,29 +1114,22 @@ log_feature_type() {
   for TYPE in   kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
     list="$list $TYPE - off ";
   done
-echo $list >> /tmp/x
 
   cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
          --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 $list)
+  LOG_TYPE=""
   for TYPE in   kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
       case $cmd in
-      *$TYPE*) 
+      *$TYPE*)
+         if [ "$LOG_TYPE" != "" ]; then LOG_TYPE="$LOG_TYPE,"; fi
+         LOG_TYPE="$LOG_TYPE$TYPE";
+       ;;
       esac
-    list="$list $TYPE - off ";
   done
-
-LOG_TYPE=""
-
-#    for FEATFEAT in proc processesall mnt network reset; do
-#      case $cmd in
-#        *$FEATFEAT*) USER_FEATURES="$USER_FEATURES $FEATFEAT" ;;
-#      esac
-#    done
-
 }
 
 log_feature_priority() {
-  
+
   list=""
   for TYPE in   emerg alert crit err warning notice info debug; do
     list="$list $TYPE - off ";
@@ -1144,13 +1137,15 @@ log_feature_priority() {
 
   cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
          --checklist "Priorities are sorted from the most (top) to least important (bottom)" 0 0 10 $list)
-LOG_PRIORITY="$cmd"
-
-#    for FEATFEAT in proc processesall mnt network reset; do
-#      case $cmd in
-#        *$FEATFEAT*) USER_FEATURES="$USER_FEATURES $FEATFEAT" ;;
-#      esac
-#    done
+  LOG_PRIORITY=""
+  for TYPE in   emerg alert crit err warning notice info debug; do
+      case $cmd in
+      *$TYPE*)
+         if [ "$LOG_TYPE" != "" ]; then LOG_PRIORITY="$LOG_PRIORITY,"; fi
+         LOG_PRIORITY="$LOG_PRIORITY$TYPE";
+       ;;
+      esac
+  done
 
 }
 
@@ -1580,7 +1575,7 @@ while true; do
        16 "Keyboard and font   - $KEYB, $FONT" \
        17 "Timezone            - $TIMEZONE" \
        18 "Partition encryption password (todo)" \
-       19 "Install or clone system to other partition" \
+       19 "Install or clone PLLinux to other partition" \
        20 "Setup UEFI boot menu" \
        21 "Setup UEFI fat32 boot partition" )
   if [ $? == 0 ]; then
