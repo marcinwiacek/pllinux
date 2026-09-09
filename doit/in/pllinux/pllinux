@@ -1374,6 +1374,7 @@ logs() {
           3) LOG_FILE="/log/tmp/example_log"
              log_file ;;
           4) echo "${LOG_TYPE}.${LOG_PRIORITY} ${LOG_FILE} " >> ${DIR}etc/syslog.conf
+             dinitctl restart syslogd
 # fixme reload service
              break;;
           esac
@@ -1395,18 +1396,22 @@ EOF
         OLD_LOG_RULES="$LOG_RULES"
         OLD_LOG_FILE="$LOG_FILE"
         log_entry $LOG_RULES $LOG_FILE
-        file_content=$(cat ${DIR}etc/syslog.conf)
-        echo -n "" > ${DIR}etc/syslog.conf
-        while read -r line; do
-          if [ "$line" = "$OLD_LOG_RULES $OLD_LOG_FILE" ]; then
-            if [ "$LOG_RULES" != "" ]; then
-              echo "$LOG_RULES $LOG_FILE" >> ${DIR}etc/syslog.conf
+        # dont change file and make extra SSD saves, when not required
+        if [ "$OLD_LOG_RULES" != "$LOG_RULES" ] || [ "$OLD_LOG_FILE" != "$LOG_FILE" ]; then
+          file_content=$(cat ${DIR}etc/syslog.conf)
+          echo -n "" > ${DIR}etc/syslog.conf
+          while read -r line; do
+            if [ "$line" = "$OLD_LOG_RULES $OLD_LOG_FILE" ]; then
+              if [ "$LOG_RULES" != "" ]; then
+                echo "$LOG_RULES $LOG_FILE" >> ${DIR}etc/syslog.conf
+              fi
+            else
+              echo "$line" >> ${DIR}etc/syslog.conf
             fi
-          else
-            echo "$line" >> ${DIR}etc/syslog.conf
-          fi
-        done <<< "$file_content"
+          done <<< "$file_content"
+          dinitctl restart syslogd
 # fixme reload service
+        fi
         ;;
       esac
     else
