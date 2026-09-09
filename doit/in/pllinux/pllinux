@@ -438,10 +438,10 @@ set_existing_user() {
     cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
            --menu "Set user $1" 0 0 6 1 "Apps available to the user" \
                    2 "App language (todo)" \
-                   3 "Background scheduled tasks setup by this user" \
+                   3 "Background scheduled tasks setup by this user (crond)" \
                    4 "Features" \
-                   5 "Keyboard and font" \
-                   6 "Password" )
+                   5 "Keyboard and font (kbd)" \
+                   6 "Password (passwd)" )
     if [ $? == 0 ]; then
       case $cmd in
         1) set_existing_user_apps $1 ;;
@@ -713,12 +713,12 @@ EOF
 task_schedule() {
   while true; do
     cmd=$(dialog --stdout --backtitle "$PROMPT\\task schedule" --cancel-label "Back" \
-      --form "Pls provide values, you can put intervals or separate values with comma, star means no setup, spaces will be deleted" 0 0 8 \
-      "Minute (1-59)" 1 1 "$SMINUTE" 1 20 15 0 \
-      "Hour (0-23)" 2 1 "$SHOUR" 2 20 15 0 \
-      "Month day (1-31)" 3 1 "$SDAY" 3 20 15 0 \
-      "Month (1-12)" 4 1 "$SMONTH" 4 20 15 0 \
-      "Day of week (0-6)" 5 1 "$SDOW" 5 20 15 0 )
+      --form "You can put intervals or more values separated with comma. Single tar means no setup, spaces will be deleted." 0 0 8 \
+      "Minute (1-59)" 1 1 "$SMINUTE" 1 50 15 0 \
+      "Hour (0-23)" 2 1 "$SHOUR" 2 50 15 0 \
+      "Month day (1-31)" 3 1 "$SDAY" 3 50 15 0 \
+      "Month (1-12)" 4 1 "$SMONTH" 4 50 15 0 \
+      "Day of week (0-6, 0 is Sat, 1 is Mon, etc.)" 5 1 "$SDOW" 5 50 15 0 )
     if [ $? == 0 ]; then
       linenr=1
       while read -r line; do
@@ -948,7 +948,7 @@ tasks() {
   PROMPT="$PROMPT\\background tasks scheduler"
   abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
            --default-item $listnr3 \
-       --menu \"Commands run$PROMPT2 in the background in the specified time\" 0 0 8 \
+       --menu \"Commands run$PROMPT2 in the background in the specified time. Managed by crond service.\" 0 0 8 \
        $(tasks_list) )
   cmd=$(eval $abc)
   if [ $? == 0 ]; then
@@ -1239,6 +1239,7 @@ log_entry() {
       $(($listnr+4)) )  #delete all
         LOG_RULES=""
         LOG_FILE=""
+        break;
         ;;
       *) # edit rule
         listnr3=3
@@ -1742,8 +1743,8 @@ fi
 
 while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 20 \
-       1 "Apps" \
-       2 "Background scheduled tasks for system and all users" \
+       1 "Apps (app)" \
+       2 "Background scheduled tasks for system and all users (crond)" \
        3 "Background services (dinit)" \
        4 "Device manager" \
        5 "Network firewall" \
@@ -1753,11 +1754,11 @@ while true; do
        9 "Kernel logs (dmesg, press q to return)" \
        10 "System logs saved in files (syslogd)" \
        11 "Users" \
-       12 "Network             - manual, IP4 DHCP" \
-       14 "Swap file           - off" \
-       15 "App language (todo) - $LANG" \
-       16 "Keyboard and font   - $KEYB, $FONT" \
-       17 "Timezone            - $TIMEZONE" \
+       12 "Network                       - manual, IP4 DHCP" \
+       14 "Swap file (swapon,off,mkswap) - off" \
+       15 "App language (todo)           - $LANG" \
+       16 "Keyboard and font (kbd)       - $KEYB, $FONT" \
+       17 "Timezone                      - $TIMEZONE" \
        18 "Partition encryption password (todo)" \
        19 "Install or clone PLLinux to other partition" \
        20 "Setup UEFI boot menu (todo)" \
