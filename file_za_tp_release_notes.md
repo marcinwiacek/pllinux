@@ -36,6 +36,8 @@ There are just few services started:
 
 Other actions (starting and stopping network, synchronizing time using NTP, mounting USB drives, etc.) is done on mainly event occurence - you can wait some miliseconds and it doesn't hurt.
 
+DHCP is not done with services now.
+
 Note: used architecture (especially bwrap) can make some scenarios potentially more difficult and normally
 root actions are done from the terminal with logged root (honestly speaking you don't need to do them every second with good framework).
 
@@ -61,7 +63,14 @@ with **pllinux** text mode manager
 * /tmp - tmpfs
 * /mnt - cd-rom, USB memories, memory cards, etc.
 
-And this is everything.
+And this is everything. Every package inside /app has got own directory. Inside you have:
+
+1. scripts directory (package manager can start file from them during installation, etc.)
+2. dynamic directory (scripts can put here whatever required)
+3. readme.md with package description
+4. other files and directories (structure is not defined, but normally you see such directories like in "normal" Linux)
+
+Readme.md is semi-text file with some elements:
 
 # Freedom
 
@@ -141,6 +150,14 @@ GUI is of course planned. And creating good system roots and base is more import
 
 Note: yes, text mode has got many disadvantages. It was used for now just because of simplicity.
 
+**Projects like Vinix or Redox are better**
+
+Concurrence is always good. Future will show, what will be used more widely in the future. And result cannot be sometimes predicted (see OS/2 vs Windows 95)
+
+**It's another boring Linux distribution**
+
+It doesn't have at least only other branding...
+
 # Schedule and future
 
 This project was started in April 2026 and already went into quite useable shape and form.
@@ -149,3 +166,5 @@ Last 2026 months, year 2027 and beyond will be used for improving functionality 
 providing more flexible and easier structure, decreasing resources usage, etc.). It includes especially preparing user-friendly
 graphic environment (something probably similar to HaikuOS or desktop existing in the Gnome 2 / Windows 95-XP era with the nice to eye graphic elements
 and elements concentrated on real productivity)
+
+Some more funny elements (which require more development and code changes) will be probably moved into further future. Example: deleting to the trash.
