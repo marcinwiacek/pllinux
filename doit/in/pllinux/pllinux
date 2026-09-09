@@ -1802,46 +1802,47 @@ else
 fi
 
 while true; do
-  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 20 \
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 21 \
        1 "Apps (app)" \
        2 "Background scheduled tasks for system and all users (crond)" \
        3 "Background services (dinit)" \
        4 "Device manager" \
-       5 "Network firewall" \
-       6 "Time" \
-       7 "Kernel modules (modprobe)" \
-       8 "Kernel params (sysctl)" \
-       9 "Kernel logs (dmesg, press q to return)" \
-       10 "System logs saved in files (syslogd)" \
-       11 "Users" \
-       12 "Network                       - manual, IP4 DHCP" \
-       14 "Swap file (swapon,off,mkswap) - off" \
-       15 "App language (todo)           - $LANG" \
-       16 "Keyboard and font (kbd)       - $KEYB, $FONT" \
-       17 "Timezone                      - $TIMEZONE" \
-       18 "Partition encryption password (todo)" \
-       19 "Install or clone PLLinux to other partition" \
-       20 "Setup UEFI boot menu (todo)" \
-       21 "Setup UEFI fat32 boot partition (todo)" )
+       5 "Groups" \
+       6 "Network firewall" \
+       7 "Time" \
+       8 "Kernel modules (modprobe)" \
+       9 "Kernel params (sysctl)" \
+       10 "Kernel logs (dmesg, press q to return)" \
+       11 "System logs saved in files (syslogd)" \
+       12 "Users" \
+       14 "Network                       - manual, IP4 DHCP" \
+       15 "Swap file (swapon,off,mkswap) - off" \
+       16 "App language (todo)           - $LANG" \
+       17 "Keyboard and font (kbd)       - $KEYB, $FONT" \
+       18 "Timezone                      - $TIMEZONE" \
+       19 "Partition encryption password (todo)" \
+       20 "Install or clone PLLinux to other partition" \
+       21 "Setup UEFI boot menu (todo)" \
+       22 "Setup UEFI fat32 boot partition (todo)" )
   if [ $? == 0 ]; then
     case $cmd in
     1) set_system_apps ;;
     2) tasks "crontab" ;;
     3) services ;;
     4) devices ;;
-    8) sysctl_kernel_params ;;
-    9) dmesg | less # it seems, that msgbox and other dialog elements have size limit
+    9) sysctl_kernel_params ;;
+    10) dmesg | less # it seems, that msgbox and other dialog elements have size limit
        ;;
-    10) logs ;;
-    11) set_users ;;
-    12) network ;;
-    14) swap_file ;;
-    16) NEW_KEYB="$KEYB"
+    11) logs ;;
+    12) set_users ;;
+    14) network ;;
+    15) swap_file ;;
+    17) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
-    17) set_time_zone ;;
-    19) install_to 1 ;;
-    20) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
+    18) set_time_zone ;;
+    20) install_to 1 ;;
+    21) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
     esac
   else
     break
