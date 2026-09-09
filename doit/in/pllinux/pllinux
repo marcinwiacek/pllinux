@@ -1214,7 +1214,8 @@ log_entry() {
         ;;
       $listnr) # file
         LOG_FILE="$INPUT2"
-        log_file ;;
+        log_file
+        INPUT2="$LOG_FILE" ;;
       $(($listnr+1)) )  #add rule
         TASKSTEPNR=1
         while true; do
@@ -1256,16 +1257,15 @@ EOF
              listnr=3
              IFS=";"
              for entry in $INPUT1; do
+               if [ $NEWFEAT != "" ]; then $NEWFEAT="$NEWFEAT;"; fi
                if [ "$listnr3" = "$listnr" ]; then
-                  if [ $NEWFEAT != "" ]; then $NEWFEAT="$NEWFEAT,"; fi
-                  NEWFEAT="$NEWFEAT,${LOG_TYPE}.${LOG_PRIORITY}"
+                  NEWFEAT="$NEWFEAT${LOG_TYPE}.${LOG_PRIORITY}"
                else
-                  if [ $NEWFEAT != "" ]; then $NEWFEAT="$NEWFEAT,"; fi
-                  NEWFEAT="$NEWFEAT,$entry"
+                  NEWFEAT="$NEWFEAT$entry"
                fi
                listnr=$(($listnr+1))
              done
-             $INPUT1="${NEWFEAT}"
+             INPUT1="${NEWFEAT}"
              IFS=$IFSORIG
              break ;;
           esac
