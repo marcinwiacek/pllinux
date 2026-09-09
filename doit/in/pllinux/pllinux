@@ -1178,22 +1178,25 @@ log_entry_list() {
 }
 
 log_entry() {
+  INPUT1="$1"
+  INPUT2="$2"
   while true; do
     PROMPT="PLLinux\\logs"
     abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Logs saved to files \(temporary or permanent\)\" 0 0 8 \
-       $(log_entry_list $1 $2) )
+       $(log_entry_list $INPUT1 $INPUT2) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
       listnr=1
       IFS=" "
     while read -r entry; do
       listnr=$(($listnr+1))
-    done <<< "$1"
+    done <<< "$INPUT1"
       IFS=$IFSORIG
       case $cmd in
       $listnr) # file
+        LOG_FILE="$INPUT2"
         log_file ;;
       $(($listnr+1)) )  #delete rule
         ;;
@@ -1207,7 +1210,7 @@ log_entry() {
              break;
           fi
           listnr=$(($listnr+1))
-        done <<< "$1"
+        done <<< "$INPUT1"
         IFS=$IFSORIG
         IFS="." read -r LOG_TYPE LOG_PRIORITY << EOF
 $line
