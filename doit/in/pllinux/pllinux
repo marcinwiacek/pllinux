@@ -123,7 +123,7 @@ set_keyboard_font_general_or_user() {
            2 "Set default" \
            3 "Set font     - $NEW_FONT" \
            4 "Set keyboard - $NEW_KEYB" \
-           5 "Save and back")
+           5 "Save changes and back")
     if [ $? == 0 ]; then
       case $cmd in
       1) $(dialog --stdout --backtitle "$PROMPT\keyboard and font\check" --cancel-label "Back" \
@@ -1214,7 +1214,7 @@ log_entry_list() {
   echo \"Search file \(press q to return\)\"
 
   echo " 2 "
-  echo \"Save and back\"
+  echo \"Save changes and back\"
 
   listnr=3
 
