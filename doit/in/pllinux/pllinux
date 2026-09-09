@@ -1079,74 +1079,50 @@ done
   done
 }
 
-log_setup() {
-  while true; do
-    cmd=$(dialog --stdout --backtitle "$PROMPT\\task schedule" --cancel-label "Back" \
-      --form "Pls provide values, you can put intervals or separate values with comma, star means no setup, spaces will be deleted" 0 0 8 \
-      "type.priority (type=kern,user,mail,daemon,auth,syslog,lpr,news,uucp,cron,authpriv,ftp,ntp,security,console,priority=*,emerg,alert,crit,err,warning,notice,info,debug)" 1 1 "$SMINUTE" 1 20 15 0 \
-      "type.priority (type=kern,user,mail,daemon,auth,syslog,lpr,news,uucp,cron,authpriv,ftp,ntp,security,console,priority=*,emerg,alert,crit,err,warning,notice,info,debug)" 2 1 "$SMINUTE" 2 20 15 0 \
-      "type.priority (type=kern,user,mail,daemon,auth,syslog,lpr,news,uucp,cron,authpriv,ftp,ntp,security,console,priority=*,emerg,alert,crit,err,warning,notice,info,debug)" 3 1 "$SMINUTE" 3 20 15 0 \
-      "file (/log/xxx or /log/tmp/xxx)" 3 1 "$SHOUR" 3 20 15 0  )
-    if [ $? == 0 ]; then
-      linenr=1
-#      while read -r line; do
-#        case $linenr in
-#        1) SMINUTE="$line" ;;
-#        2) SHOUR="$line" ;;
-#        3) SDAY="$line" ;;
-#        4) SMONTH="$line" ;;
-#        5) SDOW="$line" ;;
-#        esac
-#        linenr=$(($linenr+1))
-#        STASK=1
-#      done <<< "$cmd"
-      TASKSTEPNR=$(($TASKSTEPNR+1))
-    else
-      TASKSTEPNR=$(($TASKSTEPNR-1))
-    fi
-    break;
-  done
-}
-
 log_feature_type() {
-
   list=""
   for TYPE in   kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
     list="$list $TYPE - off ";
   done
-
   cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
          --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 $list)
-  LOG_TYPE=""
-  for TYPE in   kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
+  if [ $? == 0 ]; then
+    LOG_TYPE=""
+    for TYPE in   kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
       case $cmd in
       *$TYPE*)
          if [ "$LOG_TYPE" != "" ]; then LOG_TYPE="$LOG_TYPE,"; fi
          LOG_TYPE="$LOG_TYPE$TYPE";
        ;;
       esac
-  done
+    done
+    TASKSTEPNR=$(($TASKSTEPNR+1))
+  else
+    TASKSTEPNR=$(($TASKSTEPNR-1))
+  fi
 }
 
 log_feature_priority() {
-
   list=""
   for TYPE in   emerg alert crit err warning notice info debug; do
     list="$list $TYPE - off ";
   done
-
   cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
          --checklist "Priorities are sorted from the most (top) to least important (bottom)" 0 0 10 $list)
-  LOG_PRIORITY=""
-  for TYPE in   emerg alert crit err warning notice info debug; do
+  if [ $? == 0 ]; then
+    LOG_PRIORITY=""
+    for TYPE in   emerg alert crit err warning notice info debug; do
       case $cmd in
       *$TYPE*)
          if [ "$LOG_TYPE" != "" ]; then LOG_PRIORITY="$LOG_PRIORITY,"; fi
          LOG_PRIORITY="$LOG_PRIORITY$TYPE";
        ;;
       esac
-  done
-
+    done
+    TASKSTEPNR=$(($TASKSTEPNR+1))
+  else
+    TASKSTEPNR=$(($TASKSTEPNR-1))
+  fi
 }
 
 log_list() {
@@ -1185,21 +1161,26 @@ EOF
 logs() {
   listnr3=1
   while true; do
-  PROMPT="PLLinux\\logs"
-  abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
+    PROMPT="PLLinux\\logs"
+    abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Commands run$PROMPT2 in the background in the specified time\" 0 0 8 \
        $(log_list) )
-  cmd=$(eval $abc)
-  if [ $? == 0 ]; then
-#    log_setup
-    log_feature_type
-    log_feature_priority
-
-    break;
-  else
-    break;
-  fi
+    cmd=$(eval $abc)
+    if [ $? == 0 ]; then
+      TASKSTEPNR=1
+      while true; do
+        case $TASKSTEPNR in
+        0) break; ;;
+        1) log_feature_type ;;
+        2) log_feature_priority ;;
+        3) break ;;
+        4) ;;
+        esac
+      done
+    else
+      break;
+    fi
   done
 }
 
