@@ -1220,13 +1220,13 @@ log_entry() {
       $(($listnr+5)) )  #delete all
         ;;
       *) # edit rule
-        listnr=1
+        listnr3=1
         IFS=" "
         while read -r entry; do
-          if [ "$cmd" = "$listnr" ]; then
+          if [ "$cmd" = "$listnr3" ]; then
              break;
           fi
-          listnr=$(($listnr+1))
+          listnr3=$(($listnr3+1))
         done <<< "$INPUT1"
         IFS=$IFSORIG
         IFS="." read -r LOG_TYPE LOG_PRIORITY << EOF
@@ -1239,13 +1239,18 @@ EOF
           1) log_feature_type ;;
           2) log_feature_priority ;;
           3) 
+             NEWFEAT=""
+             listnr=1
              IFS=" "
              while read -r entry; do
-               if [ "$cmd" = "$listnr" ]; then
-                 break;
+               if [ "$listnr3" = "$listnr" ]; then
+                  NEWFEAT="$NEWFEAT,${LOG_TYPE}.${LOG_PRIORITY}"
+               else
+                  NEWFEAT="$NEWFEAT,$entry"
                fi
                listnr=$(($listnr+1))
              done <<< "$INPUT1"
+             $INPUT1=${NEWFEAT}
              IFS=$IFSORIG
 
 #echo "${LOG_TYPE}.${LOG_PRIORITY} ${LOG_FILE} " >> ${DIR}etc/syslog.conf
