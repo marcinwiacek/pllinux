@@ -1165,24 +1165,26 @@ log_entry_list() {
 
   listnr=3
   IFS=";"
-    while read -r entry; do
-      SCHEDULE=""
+    for entry in $1; do
       echo "$listnr "
       echo \"Rule - ${entry}\"
       listnr=$(($listnr+1))
-    done <<< "$1"
+    done
   IFS=$IFSORIG
 
   echo " $listnr "
   echo \"File - $2\"
 
   echo " $(($listnr+1)) "
-  echo \"Clear file\"
+  echo \"Add rule\"
 
   echo " $(($listnr+2)) "
   echo \"Delete rule\"
 
   echo " $(($listnr+3)) "
+  echo \"Clear file\"
+
+  echo " $(($listnr+4)) "
   echo \"Delete all\"
 }
 
@@ -1197,11 +1199,11 @@ log_entry() {
        $(log_entry_list $INPUT1 $INPUT2) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
-      listnr=1
-      IFS=" "
-    while read -r entry; do
+      listnr=3
+      IFS=";"
+    for entry in $INPUT1; do
       listnr=$(($listnr+1))
-    done <<< "$INPUT1"
+    done
       IFS=$IFSORIG
       case $cmd in
       1 )  #search
@@ -1213,21 +1215,34 @@ log_entry() {
       $listnr) # file
         LOG_FILE="$INPUT2"
         log_file ;;
-      $(($listnr+3)) )  #clear
+      $(($listnr+1)) )  #add rule
+        TASKSTEPNR=1
+        while true; do
+          case $TASKSTEPNR in
+          0) break; ;;
+          1) log_feature_type ;;
+          2) log_feature_priority ;;
+          3) 
+                  INPUT1="$INPUT1;${LOG_TYPE}.${LOG_PRIORITY}"
+             break;;
+          esac
+        done
         ;;
-      $(($listnr+4)) )  #delete rule
+      $(($listnr+2)) )  #delete rule
         ;;
-      $(($listnr+5)) )  #delete all
+      $(($listnr+3)) )  #clear file
+        ;;
+      $(($listnr+4)) )  #delete all
         ;;
       *) # edit rule
         listnr3=1
         IFS=" "
-        while read -r entry; do
+        for entry in $INPUT1; do
           if [ "$cmd" = "$listnr3" ]; then
              break;
           fi
           listnr3=$(($listnr3+1))
-        done <<< "$INPUT1"
+        done
         IFS=$IFSORIG
         IFS="." read -r LOG_TYPE LOG_PRIORITY << EOF
 $line
@@ -1244,8 +1259,10 @@ EOF
              IFS=" "
              while read -r entry; do
                if [ "$listnr3" = "$listnr" ]; then
+		  if [ $NEWFEAT != "" ]; then $NEWFEAT="$NEWFEAT,"; fi
                   NEWFEAT="$NEWFEAT,${LOG_TYPE}.${LOG_PRIORITY}"
                else
+		  if [ $NEWFEAT != "" ]; then $NEWFEAT="$NEWFEAT,"; fi
                   NEWFEAT="$NEWFEAT,$entry"
                fi
                listnr=$(($listnr+1))

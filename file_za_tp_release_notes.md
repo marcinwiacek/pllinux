@@ -6,7 +6,7 @@ Are you tired, when your provider need to patch them with every release?
 Do you want to be able to easy switch and check some software version without resigning from stable or working environment? 
 Do you want to see, what is what in your disk without headache or IT studies?
 Are you tired with learning command line tools and searching in the internet for the solution for problems known in Linux for years?
-And do you expect security higher than ever without using too much RAM or disk?
+And finally: do you expect security higher than ever without using too much RAM or disk?
 
 PLLinux contains solution for this and many other things. It was started after finding various problems with existing Linux distributions 
 and lack of dev reaction (more and more often they also remove existing for years functionalities or promoting code, which was not tested).
@@ -25,6 +25,9 @@ System is based especially on:
 1. busybox, when possible (when it's good enough) or tools, which extend it (like util-linux)
 2. bwrap (used for example in FlatPak) - in PLLinux giving extra security and separation layers in various situations)
 3. dinit (taken because of simplicity) - decision about lack of systemctl could be reconsidered in the future
+
+We avoid changing existing software (two exceptions: dynamic loaded in "libc" and some permission details in "bwrap") and (excluding permissions and other directories)
+system in many cases can run without any problems unmodified Linux binaries (and this is totally different approach from NixOS)
 
 There are just few services started:
 
@@ -49,6 +52,8 @@ There are just two commands required:
 * **pllinux** (text mode manager for managing apps and system settings)
 
 They're created using shell scripts - can be easy modified even by medium experienced person.
+
+Note: we know, that shell script is not the best way of writing code in the world (from the other hand: it really makes work and you don't need anything more for apps used from time to time)
 
 # Filesystem
 
@@ -156,7 +161,7 @@ Concurrence is always good. Future will show, what will be used more widely in t
 
 **It's another boring Linux distribution**
 
-It doesn't have at least only other branding...
+It doesn't have at least only other branding.
 
 # Schedule and future
 
