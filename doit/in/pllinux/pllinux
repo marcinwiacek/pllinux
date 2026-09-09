@@ -1079,20 +1079,31 @@ done
   done
 }
 
-log_feature_type() {
+log_feature_types() {
   list=""
   for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console; do
-    case $LOG_TYPE in
+    echo $list 
+    echo $TYPE
+    case $1 in
     *$TYPE*)
-      list="$list $TYPE x on a ";
+      echo " x on ";
       ;;
     *)
-      list="$list $TYPE - off a ";
+      echo " - off ";
       ;;
     esac
+    case $TYPE in
+    kern) echo \"kernel messages\" ;;
+    user) echo \"user level messages\" ;;
+    *) echo \"\" ;;
+    esac
   done
-  cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
-         --item-help --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 $list)
+}
+
+log_feature_type() {
+  abc=$(echo dialog --stdout --backtitle \"PLLinux\set users\\$1\features\" --cancel-label "Back" \
+         --item-help --checklist \"Set features for $1, \"x\" shows previous setup\" 0 0 10 $(log_feature_types $LOG_TYPE))
+  cmd=$(eval $abc)
   if [ $? == 0 ]; then
     if [ "$cmd" = "" ]; then
         dialog --backtitle "$PROMPT\\task command" \
