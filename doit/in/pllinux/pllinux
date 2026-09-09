@@ -1181,7 +1181,7 @@ logs() {
     PROMPT="PLLinux\\logs"
     abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
            --default-item $listnr3 \
-       --menu \"Commands run$PROMPT2 in the background in the specified time\" 0 0 8 \
+       --menu \"Logs saved to files \(temporary or permanent\)\" 0 0 8 \
        $(log_list) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
