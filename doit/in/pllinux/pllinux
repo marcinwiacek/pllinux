@@ -1080,9 +1080,7 @@ done
 }
 
 log_feature_types() {
-  list=""
   for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console; do
-    echo $list 
     echo $TYPE
     case $1 in
     *$TYPE*)
@@ -1194,6 +1192,23 @@ EOF
   done
 }
 
+
+log_entry_list_to_delete() {
+
+  IFS=";"
+  for entry in $1; do
+    echo \"Rule - ${entry}\"
+      echo " - off ";
+  done
+  IFS=$IFSORIG
+}
+
+log_entry_rule_delete() {
+  abc=$(echo dialog --stdout --backtitle \"PLLinux\set users\\$1\features\" --cancel-label "Back" \
+         --checklist \"Set features for $1, \"x\" shows previous setup\" 0 0 10 $(log_entry_list_to_delete $INPUT1 $INPUT2))
+  cmd=$(eval $abc)
+}
+
 log_entry_list() {
   echo " 1 "
   echo \"Search file \(press q to return\)\"
@@ -1202,6 +1217,7 @@ log_entry_list() {
   echo \"Save and back\"
 
   listnr=3
+
   IFS=";"
   for entry in $1; do
     echo "$listnr "
@@ -1271,6 +1287,7 @@ log_entry() {
         done
         ;;
       $(($listnr+2)) )  #delete rule
+        log_entry_rule_delete $INPUT1 $INPUT2
         ;;
       $(($listnr+3)) )  #clear file
         ;;
