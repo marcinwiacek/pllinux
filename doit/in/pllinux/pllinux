@@ -1094,6 +1094,11 @@ log_feature_type() {
   cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
          --item-help --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 $list)
   if [ $? == 0 ]; then
+    if [ "$cmd" = "" ]; then
+        dialog --backtitle "$PROMPT\\task command" \
+          --msgbox "At least one option must be selected. Try again" 10 30
+        continue
+    fi
     LOG_TYPE=""
     for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console; do
       case $cmd in
@@ -1124,6 +1129,11 @@ log_feature_priority() {
   cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
          --checklist "Priorities are sorted from the most (top) to least important (bottom)" 0 0 10 $list)
   if [ $? == 0 ]; then
+    if [ "$cmd" = "" ]; then
+        dialog --backtitle "$PROMPT\\task command" \
+          --msgbox "At least one option must be selected. Try again" 10 30
+        continue
+    fi
     LOG_PRIORITY=""
     for TYPE in   emerg alert crit err warning notice info debug; do
       case $cmd in
