@@ -1128,7 +1128,7 @@ log_feature_priority() {
 log_file() {
   while true; do
     cmd=$(dialog --stdout --backtitle "$PROMPT\\task command" --cancel-label "Prev" \
-      --inputbox "Pls enter command (cannot be empty)" 15 100 "/log/tmp/example_log" )
+      --inputbox "Pls enter command (cannot be empty)" 15 100 "${LOG_FILE}" )
     if [ $? == 0 ]; then
       if [ "$cmd" == "" ]; then
         continue;
@@ -1151,12 +1151,14 @@ log_entry_list() {
       echo \"${entry}\"
       listnr=$(($listnr+1))
     done <<< "$1"
-
   IFS=$IFSORIG
+
   echo " $listnr "
   echo \"File $2\"
+
   echo " $(($listnr+1)) "
   echo \"Delete rule\"
+
   echo " $(($listnr+2)) "
   echo \"Delete all\"
 }
@@ -1173,17 +1175,17 @@ log_entry() {
 
       listnr=1
       IFS=" "
-      while read -r line; do
-        listnr=$(($listnr+1))
-      done < "${DIR}etc/syslog.conf"
+    while read -r entry; do
+      listnr=$(($listnr+1))
+    done <<< "$1"
       IFS=$IFSORIG
 
       case $cmd in
       $listnr) # file
-        ;;
+             log_file ;;
       $(($listnr+1)) )  #delete rule
         ;;
-      $(($listnr+2)) )  #delete
+      $(($listnr+2)) )  #delete all
         ;;
       *) # edit rule
         ;;
@@ -1251,7 +1253,8 @@ logs() {
           0) break; ;;
           1) log_feature_type ;;
           2) log_feature_priority ;;
-          3) log_file ;;
+          3) LOG_FILE="/log/tmp/example_log"
+             log_file ;;
           4) echo "${LOG_TYPE}.${LOG_PRIORITY} ${LOG_FILE} " >> ${DIR}etc/syslog.conf
 # fixme reload service
              break;;
