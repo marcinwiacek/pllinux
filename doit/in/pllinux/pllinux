@@ -1172,22 +1172,44 @@ log_entry() {
        $(log_entry_list $1 $2) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
-
       listnr=1
       IFS=" "
     while read -r entry; do
       listnr=$(($listnr+1))
     done <<< "$1"
       IFS=$IFSORIG
-
       case $cmd in
       $listnr) # file
-             log_file ;;
+        log_file ;;
       $(($listnr+1)) )  #delete rule
         ;;
       $(($listnr+2)) )  #delete all
         ;;
       *) # edit rule
+        listnr=1
+        IFS=" "
+        while read -r entry; do
+          if [ "$cmd" = "$listnr" ]; then
+             break;
+          fi
+          listnr=$(($listnr+1))
+        done <<< "$1"
+        IFS=$IFSORIG
+        IFS="." read -r LOG_TYPE LOG_PRIORITY << EOF
+$line
+EOF
+        TASKSTEPNR=1
+        while true; do
+          case $TASKSTEPNR in
+          0) break; ;;
+          1) log_feature_type ;;
+          2) log_feature_priority ;;
+          3) 
+#echo "${LOG_TYPE}.${LOG_PRIORITY} ${LOG_FILE} " >> ${DIR}etc/syslog.conf
+# fixme reload service
+             break;;
+          esac
+        done
         ;;
       esac
     else
