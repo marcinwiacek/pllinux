@@ -5,7 +5,7 @@ Do you want to see immediately latest and gratest versions of your applications?
 Are you tired, when your provider need to patch them with every release? 
 Do you want to be able to easy switch and check some software version without resigning from stable or working environment? 
 Do you want to see, what is what in your disk without headache or IT studies?
-Are you tired with learning command line tools?
+Are you tired with learning command line tools and searching in the internet for the solution for problems known in Linux for years?
 And do you expect security higher than ever without using too much RAM or disk?
 
 PLLinux contains solution for this and many other things. It was started after finding various problems with existing Linux distributions 
@@ -18,6 +18,26 @@ This version contains already many working elements and can already give feeling
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution was already visible, 
 but not completed). Some solutions are similar to used in Android, Apple products or NixOS, but are not the same.
 
+# Architecture
+
+System is based especially on:
+
+1. busybox, when possible (when it's good enough) or tools, which extend it (like util-linux)
+2. bwrap (used for example in FlatPak) - in PLLinux giving extra security and separation layers in various situations)
+3. dinit (taken because of simplicity) - decision about lack of systemctl could be reconsidered in the future
+
+There are just few services started:
+
+1. tty1-tty3 for starting terminals
+2. boot used for system boot actions
+3. recovery started when something fails during boot
+4. crond for tasks started with schedule in background
+5. sysctld for saving logs in the disk
+
+Other actions (starting and stopping network, synchronizing time using NTP, mounting USB drives, etc.) is done on mainly event occurence.
+
+Note: used architecture (especially bwrap) can make some scenarios potentially more difficult and normally
+root actions are done from the terminal with logged root.
 
 # Managing system
 
@@ -25,6 +45,8 @@ There are just two commands required:
 
 * **app** (command line manager for managing apps)
 * **pllinux** (text mode manager for managing apps and system settings)
+
+They're created using shell scripts - can be easy modified even by medium experienced person.
 
 # Filesystem
 
@@ -59,6 +81,19 @@ Technology Preview contains three users: root (password root), user (password us
 User files are saved in the RAM (tmpfs) and you can for example make setup using root and later login into other account.
 
 # Known issues
+
+**Some keyboard layouts are not complete (kbd package problem)**
+
+This is typical in Open Source - various packages are used and mentioned everywhere, but not updated even after years. Here we have probably
+situation, that "kbd" package won't be completed, because GUI have done it much better.
+
+**No man pages with util-linux (groff package problem)**
+
+"Encountered end of file while defining macro LR" - no solution known yet
+
+**"grotty:<standard input>: fatal error: output error" sometimes with man pages (groff package problem?)**
+
+Seems to be cosmetic (no known side effects excluding error message).
 
 # Links
 
