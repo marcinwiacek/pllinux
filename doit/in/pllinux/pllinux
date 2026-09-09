@@ -1081,7 +1081,7 @@ done
 
 log_feature_type() {
   list=""
-  for TYPE in   kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
+  for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
     case $LOG_TYPE in
     *$TYPE*)
       list="$list $TYPE x on ";
@@ -1095,7 +1095,7 @@ log_feature_type() {
          --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 $list)
   if [ $? == 0 ]; then
     LOG_TYPE=""
-    for TYPE in   kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
+    for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
       case $cmd in
       *$TYPE*)
          if [ "$LOG_TYPE" != "" ]; then LOG_TYPE="$LOG_TYPE,"; fi
@@ -1165,11 +1165,11 @@ log_entry_list() {
 
   listnr=3
   IFS=";"
-    for entry in $1; do
-      echo "$listnr "
-      echo \"Rule - ${entry}\"
-      listnr=$(($listnr+1))
-    done
+  for entry in $1; do
+    echo "$listnr "
+    echo \"Rule - ${entry}\"
+    listnr=$(($listnr+1))
+  done
   IFS=$IFSORIG
 
   echo " $listnr "
@@ -1206,7 +1206,7 @@ log_entry() {
     done
       IFS=$IFSORIG
       case $cmd in
-      1 )  #search
+      1 )  # search
         cat $INPUT2 | less # it seems, that msgbox and other dialog elements have size limit
         ;;
       2 )  #save and back
@@ -1222,9 +1222,8 @@ log_entry() {
           0) break; ;;
           1) log_feature_type ;;
           2) log_feature_priority ;;
-          3) 
-                  INPUT1="$INPUT1;${LOG_TYPE}.${LOG_PRIORITY}"
-             break;;
+          3) INPUT1="$INPUT1;${LOG_TYPE}.${LOG_PRIORITY}"
+             break ;;
           esac
         done
         ;;
@@ -1235,8 +1234,8 @@ log_entry() {
       $(($listnr+4)) )  #delete all
         ;;
       *) # edit rule
-        listnr3=1
-        IFS=" "
+        listnr3=3
+        IFS=";"
         for entry in $INPUT1; do
           if [ "$cmd" = "$listnr3" ]; then
              break;
@@ -1245,7 +1244,7 @@ log_entry() {
         done
         IFS=$IFSORIG
         IFS="." read -r LOG_TYPE LOG_PRIORITY << EOF
-$line
+$entry
 EOF
         TASKSTEPNR=1
         while true; do
@@ -1253,26 +1252,22 @@ EOF
           0) break; ;;
           1) log_feature_type ;;
           2) log_feature_priority ;;
-          3) 
-             NEWFEAT=""
-             listnr=1
-             IFS=" "
-             while read -r entry; do
+          3) NEWFEAT=""
+             listnr=3
+             IFS=";"
+             for entry in $INPUT1; do
                if [ "$listnr3" = "$listnr" ]; then
-		  if [ $NEWFEAT != "" ]; then $NEWFEAT="$NEWFEAT,"; fi
+                  if [ $NEWFEAT != "" ]; then $NEWFEAT="$NEWFEAT,"; fi
                   NEWFEAT="$NEWFEAT,${LOG_TYPE}.${LOG_PRIORITY}"
                else
-		  if [ $NEWFEAT != "" ]; then $NEWFEAT="$NEWFEAT,"; fi
+                  if [ $NEWFEAT != "" ]; then $NEWFEAT="$NEWFEAT,"; fi
                   NEWFEAT="$NEWFEAT,$entry"
                fi
                listnr=$(($listnr+1))
-             done <<< "$INPUT1"
-             $INPUT1=${NEWFEAT}
+             done
+             $INPUT1="${NEWFEAT}"
              IFS=$IFSORIG
-
-#echo "${LOG_TYPE}.${LOG_PRIORITY} ${LOG_FILE} " >> ${DIR}etc/syslog.conf
-# fixme reload service
-             break;;
+             break ;;
           esac
         done
         ;;
@@ -1323,7 +1318,6 @@ logs() {
        $(log_list) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
-
       listnr=1
       IFS=" "
       while read -r line; do
