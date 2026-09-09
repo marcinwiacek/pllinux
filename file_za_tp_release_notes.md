@@ -20,16 +20,17 @@ but not completed). Some solutions are similar to used in Android, Apple product
 
 # Architecture
 
-System is based on tools with known reputation:
+System is based on long-supported code and tools with known reputation:
 
-1. Linux kernel (there were other considered too, but for now let's hope, that this code won't be damaged by AI and other things)
-2. busybox, when possible (when it's good enough) and tools (like util-linux), which extend busybox, when it has got known issues
-3. bwrap (used for example in FlatPak) - in PLLinux giving extra security and separation layers in various situations
-4. dinit (taken because of simplicity) - decision about lack of systemctl could be reconsidered in the future
+1. [Linux kernel](https://kernel.org) (there were other considered too, but for now let's hope, that this code won't be damaged by AI and other things)
+2. [busybox](https://busybox.net/), when possible (when it's good enough) and other tools (like [util-linux](https://github.com/util-linux/util-linux)) extending busybox, when it has got known issues or limits
+3. [bwrap or bubblewrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation layers in various situations
+4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
 
-We avoid changing existing software (two exceptions: dynamic loaded in "libc" and some permission details in "bwrap") and
+We avoid changing existing software (two exceptions: [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md) and some permission details in "bwrap") and
 (excluding permissions and other directories) system in many cases can run without any problems unmodified Linux binaries, which simply work... after
-giving list of dependencies in readme.md (and this is totally different approach from NixOS, where binaries normally need to be patched)
+giving list of dependencies in readme.md files described in further part of these notes
+(this is totally different approach from NixOS, where binaries normally need to be patched)
 
 There are just few services started:
 
@@ -65,7 +66,7 @@ with **pllinux** text mode manager
 * /home - user files, with root account you see all users, with non-root users see only own home directory
 * /other
 * /dev, /proc, /run, /sys - pseudo-filesystems exposed by kernel
-* /bin, /usr, /lib64 - links to the files from the /app (in the future it will be probably removed and handled other way)
+* /bin, /usr, /lib64 - links to the files from the /app to satisfy first lines in scripts/shebangs (in the future all of them will be probably removed and functionality will be handled other way)
 * /log - visible only for root, contains temporary or permament log files
 * /tmp - tmpfs
 * /mnt - cd-rom, USB memories, memory cards, etc.
@@ -77,34 +78,39 @@ And this is everything. Every package inside /app has got own directory. Inside 
 3. readme.md with package description
 4. other files and directories (structure is not defined, but normally you see such directories like in "normal" Linux)
 
-Readme.md is semi-text file with some elements:
+Readme.md is semi-text file with some elements, for example:
 
-**License**
-GPL3+ with GCC Runtime Library Exception
+    **License**
+    GPL3+ with GCC Runtime Library Exception
 
-**PATH**
-bin:sbin
+    **PATH**
+    bin:sbin
 
-**PATH_First**
+    **PATH_First**
+    bin:sbin
 
-**SHELL**
-bin/bash
+    **SHELL**
+    bin/bash
 
-**Deps**
-glibc current
-zstd current
+    **Deps**
+    glibc current
+    zstd current
 
-**Description**
-Core part of PLLINUX (libraries) + compiler.
+    **Description**
+    Core part of PLLINUX (libraries) + compiler.
 
-**Project**
-https://gcc.gnu.org
+    **Project**
+    https://gcc.gnu.org
 
-**Man**
-share/man/man1:share/man/man7
+    **Man**
+    share/man/man1:share/man/man7
 
-**Install**
-install.sh
+    **Install**
+    install.sh
+
+    **Services**
+    boot
+    recovery
 
 # Freedom
 
@@ -168,11 +174,11 @@ They have technology dept and cannot change it because of users. There is requir
 Few years ago many people were thinking only about Intel and AMD in their PC, Apple went and created something different... and we have today very good Macbook Air, Pro or Mini.
 World simply needs different solutions and staying in 1980 year with OS design is probably bad idea.
 
-**Why not Rust or systemctl or other project x?**
+**Why not Rust or systemd or other project x?**
 
-They will be used, when provide really added value. Starting project desciptions with "written in Rust" instead of advantages list is anti-advertisement (additionally please look, that we don't have Servo completed till today, rust utils have many baby problems and systemctl became big thing staying far away from initial goals)
+They will be used, when provide really added value. Starting project desciptions with "written in Rust" instead of advantages list is anti-advertisement (additionally please look, that we don't have Servo completed till today, Rust coreutils have many baby problems and systemd became big thing staying far away from initial goals)
 
-**But systemctl has got clear names for network interfaces**
+**But systemd has got clear names for network interfaces**
 
 Yes, it has got many good and many bad elements.
 
@@ -186,15 +192,15 @@ Note: yes, text mode has got many disadvantages. It was used for now just becaus
 
 **Projects like Vinix or Redox are better**
 
-Concurrence is always good. Future will show, what will be used more widely in the future. And result cannot be sometimes predicted (see OS/2 vs Windows 95)
+Concurrence is always good. Future will show, what will be used more widely in the future. And result cannot be sometimes predicted (see situation with OS/2 and Windows 95)
 
 **It's another boring Linux distribution**
 
 It doesn't have at least only other branding.
 
-**Does it have sense to make new OS by people in the AI time?**
+**Does it have sense to make new OS by people in AI time?**
 
-New products and ideas are always moving humanity forward.
+New products and ideas are always moving people forward.
 
 # Schedule and future
 
