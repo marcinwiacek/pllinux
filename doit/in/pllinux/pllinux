@@ -1081,21 +1081,21 @@ done
 
 log_feature_type() {
   list=""
-  for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
+  for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console; do
     case $LOG_TYPE in
     *$TYPE*)
-      list="$list $TYPE x on ";
+      list="$list $TYPE x on a ";
       ;;
     *)
-      list="$list $TYPE - off ";
+      list="$list $TYPE - off a ";
       ;;
     esac
   done
   cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
-         --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 $list)
+         --item-help --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 $list)
   if [ $? == 0 ]; then
     LOG_TYPE=""
-    for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
+    for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console; do
       case $cmd in
       *$TYPE*)
          if [ "$LOG_TYPE" != "" ]; then LOG_TYPE="$LOG_TYPE,"; fi
@@ -1142,10 +1142,27 @@ log_feature_priority() {
 log_file() {
   while true; do
     cmd=$(dialog --stdout --backtitle "$PROMPT\\task command" --cancel-label "Prev" \
-      --inputbox "Pls enter command (cannot be empty)" 15 100 "${LOG_FILE}" )
+      --inputbox "Enter filename for log (cannot be empty). Normally /log/(name) for permanent logs and /log/tmp/(name) for temporary logs." 15 100 "${LOG_FILE}" )
     if [ $? == 0 ]; then
       if [ "$cmd" == "" ]; then
         continue;
+      fi
+      eeeee=0
+      while read -r line; do
+        IFS=" " read -r LOG_RULES2 LOG_FILE2 << EOF
+$line
+EOF
+        if [ "$LOG_FILE2" == "$cmd" ]; then
+          if [ "$1" != "$LOG_RULES2" ] || [ "$1" = "" ]; then
+            eeeee=1
+            break
+          fi
+        fi
+      done < "${DIR}etc/syslog.conf"
+      if [ "$eeeee" = "1" ]; then
+        dialog --backtitle "$PROMPT\\task command" \
+          --msgbox "Filename used for other rule $LOG_RULES2. Try again" 10 30
+        continue
       fi
       TASKSTEPNR=$(($TASKSTEPNR+1))
       LOG_FILE="$cmd"
@@ -1158,7 +1175,7 @@ log_file() {
 
 log_entry_list() {
   echo " 1 "
-  echo \"Search file\"
+  echo \"Search file \(press q to return\)\"
 
   echo " 2 "
   echo \"Save and back\"
@@ -1216,7 +1233,7 @@ log_entry() {
         ;;
       $listnr) # file
         LOG_FILE="$INPUT2"
-        log_file
+        log_file $1 $2
         INPUT2="$LOG_FILE" ;;
       $(($listnr+1)) )  #add rule
         LOG_TYPE=""
@@ -1308,7 +1325,7 @@ EOF
     done
     IFS=" "
     echo "$listnr "
-    echo \"${LOG_RULES} ${LOG_FILE} size 0KB\"
+    echo \"${LOG_RULES} ${LOG_FILE} $(du ${LOG_FILE} -s -h -c | grep total)\"
     listnr=$(($listnr+1))
   done < "${DIR}etc/syslog.conf"
 
