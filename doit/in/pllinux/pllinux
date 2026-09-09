@@ -1210,6 +1210,8 @@ log_entry() {
         cat $INPUT2 | less # it seems, that msgbox and other dialog elements have size limit
         ;;
       2 )  #save and back
+        LOG_RULES="$INPUT1"
+        LOG_FILE="$INPUT2"
         break
         ;;
       $listnr) # file
@@ -1217,6 +1219,8 @@ log_entry() {
         log_file
         INPUT2="$LOG_FILE" ;;
       $(($listnr+1)) )  #add rule
+        LOG_TYPE=""
+        LOG_PRIORITY=""
         TASKSTEPNR=1
         while true; do
           case $TASKSTEPNR in
@@ -1233,6 +1237,8 @@ log_entry() {
       $(($listnr+3)) )  #clear file
         ;;
       $(($listnr+4)) )  #delete all
+        LOG_RULES=""
+        LOG_FILE=""
         ;;
       *) # edit rule
         listnr3=3
@@ -1273,6 +1279,8 @@ EOF
         ;;
       esac
     else
+      LOG_RULES="$1"
+      LOG_FILE="$2"
       break;
     fi
   done
@@ -1281,27 +1289,27 @@ EOF
 log_list() {
   listnr=1
   IFS=" "
-    while read -r line; do
-        IFS=" " read -r LOG_RULES LOG_FILE << EOF
+  while read -r line; do
+    IFS=" " read -r LOG_RULES LOG_FILE << EOF
 $line
 EOF
-      SCHEDULE=""
-      IFS=";"
-      for RULE in "$LOG_RULES"; do
-          case $TYPE in
-            kern) SCHEDULE="$SCHEDULE kernel msg" ;;
-            user) SCHEDULE="$SCHEDULE user msg" ;;
-            mail) SCHEDULE="$SCHEDULE mail msg" ;;
-            daemon) SCHEDULE="$SCHEDULE daemon/services msg" ;;
-            auth) SCHEDULE="$SCHEDULE authentication msg" ;;
-            syslog) SCHEDULE="$SCHEDULE authentication msg" ;;
-          esac
-      done
-      IFS=" "
-      echo "$listnr "
-      echo \"${LOG_RULES} ${LOG_FILE} size 0KB\"
-      listnr=$(($listnr+1))
-    done < "${DIR}etc/syslog.conf"
+    SCHEDULE=""
+    IFS=";"
+    for RULE in "$LOG_RULES"; do
+      case $TYPE in
+        kern) SCHEDULE="$SCHEDULE kernel msg" ;;
+        user) SCHEDULE="$SCHEDULE user msg" ;;
+        mail) SCHEDULE="$SCHEDULE mail msg" ;;
+        daemon) SCHEDULE="$SCHEDULE daemon/services msg" ;;
+        auth) SCHEDULE="$SCHEDULE authentication msg" ;;
+        syslog) SCHEDULE="$SCHEDULE authentication msg" ;;
+      esac
+    done
+    IFS=" "
+    echo "$listnr "
+    echo \"${LOG_RULES} ${LOG_FILE} size 0KB\"
+    listnr=$(($listnr+1))
+  done < "${DIR}etc/syslog.conf"
 
   IFS=$IFSORIG
   echo " $listnr "
@@ -1327,6 +1335,8 @@ logs() {
 
       case $cmd in
       $listnr) # add
+        LOG_TYPE=""
+        LOG_PRIORITY=""
         TASKSTEPNR=1
         while true; do
           case $TASKSTEPNR in
@@ -1354,7 +1364,21 @@ EOF
           listnr=$(($listnr+1))
         done < "${DIR}etc/syslog.conf"
         IFS=$IFSORIG
+        OLD_LOG_RULES="$LOG_RULES"
+        OLD_LOG_FILE="$LOG_FILE"
         log_entry $LOG_RULES $LOG_FILE
+        file_content=$(cat ${DIR}etc/syslog.conf)
+        echo -n "" > ${DIR}etc/syslog.conf
+        while read -r line; do
+          if [ "$line" = "$OLD_LOG_RULES $OLD_LOG_FILE" ]; then
+            if [ "$LOG_RULES" != "" ]; then
+              echo "$LOG_RULES $LOG_FILE" >> ${DIR}etc/syslog.conf
+            fi
+          else
+            echo "$line" >> ${DIR}etc/syslog.conf
+          fi
+        done <<< "$file_content"
+# fixme reload service
         ;;
       esac
     else

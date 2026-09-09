@@ -20,11 +20,12 @@ but not completed). Some solutions are similar to used in Android, Apple product
 
 # Architecture
 
-System is based especially on:
+System is especially based on tools with known reputation:
 
-1. busybox, when possible (when it's good enough) or tools, which extend it (like util-linux)
-2. bwrap (used for example in FlatPak) - in PLLinux giving extra security and separation layers in various situations)
-3. dinit (taken because of simplicity) - decision about lack of systemctl could be reconsidered in the future
+1. Linux kernel (there were other considered too, but for now let's hope, that this code won't be damaged by AI and other things)
+2. busybox, when possible (when it's good enough) and tools, which extend busybox, when it's not enough (like util-linux)
+3. bwrap (used for example in FlatPak) - in PLLinux giving extra security and separation layers in various situations)
+4. dinit (taken because of simplicity) - decision about lack of systemctl could be reconsidered in the future
 
 We avoid changing existing software (two exceptions: dynamic loaded in "libc" and some permission details in "bwrap") and (excluding permissions and other directories)
 system in many cases can run without any problems unmodified Linux binaries (and this is totally different approach from NixOS)
@@ -162,6 +163,10 @@ Concurrence is always good. Future will show, what will be used more widely in t
 **It's another boring Linux distribution**
 
 It doesn't have at least only other branding.
+
+**Does it have sense to make new OS by people in the AI time?**
+
+New products and ideas are always moving humanity forward.
 
 # Schedule and future
 
