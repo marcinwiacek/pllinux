@@ -20,15 +20,16 @@ but not completed). Some solutions are similar to used in Android, Apple product
 
 # Architecture
 
-System is especially based on tools with known reputation:
+System is based on tools with known reputation:
 
 1. Linux kernel (there were other considered too, but for now let's hope, that this code won't be damaged by AI and other things)
-2. busybox, when possible (when it's good enough) and tools, which extend busybox, when it's not enough (like util-linux)
-3. bwrap (used for example in FlatPak) - in PLLinux giving extra security and separation layers in various situations)
+2. busybox, when possible (when it's good enough) and tools (like util-linux), which extend busybox, when it has got known issues
+3. bwrap (used for example in FlatPak) - in PLLinux giving extra security and separation layers in various situations
 4. dinit (taken because of simplicity) - decision about lack of systemctl could be reconsidered in the future
 
-We avoid changing existing software (two exceptions: dynamic loaded in "libc" and some permission details in "bwrap") and (excluding permissions and other directories)
-system in many cases can run without any problems unmodified Linux binaries (and this is totally different approach from NixOS)
+We avoid changing existing software (two exceptions: dynamic loaded in "libc" and some permission details in "bwrap") and
+(excluding permissions and other directories) system in many cases can run without any problems unmodified Linux binaries, which simply work... after
+giving list of dependencies in readme.md (and this is totally different approach from NixOS, where binaries normally need to be patched)
 
 There are just few services started:
 
@@ -177,4 +178,6 @@ providing more flexible and easier structure, decreasing resources usage, etc.).
 graphic environment (something probably similar to HaikuOS or desktop existing in the Gnome 2 / Windows 95-XP era with the nice to eye graphic elements
 and elements concentrated on real productivity)
 
-Some more funny elements (which require more development and code changes) will be probably moved into further future. Example: deleting to the trash.
+There are of course many things in the queue (for example firewall rules for every app or updates with downloading incremental part of packages), just
+some single more funny elements (which require more development and code changes) will be probably moved into further future. 
+Example: deleting to the trash.
