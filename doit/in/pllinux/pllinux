@@ -1142,6 +1142,59 @@ log_file() {
   done
 }
 
+log_entry_list() {
+  listnr=1
+  IFS=";"
+    while read -r entry; do
+      SCHEDULE=""
+      echo "$listnr "
+      echo \"${entry}\"
+      listnr=$(($listnr+1))
+    done <<< "$1"
+
+  IFS=$IFSORIG
+  echo " $listnr "
+  echo \"File $2\"
+  echo " $(($listnr+1)) "
+  echo \"Delete rule\"
+  echo " $(($listnr+2)) "
+  echo \"Delete all\"
+}
+
+log_entry() {
+  while true; do
+    PROMPT="PLLinux\\logs"
+    abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
+           --default-item $listnr3 \
+       --menu \"Logs saved to files \(temporary or permanent\)\" 0 0 8 \
+       $(log_entry_list $1 $2) )
+    cmd=$(eval $abc)
+    if [ $? == 0 ]; then
+
+      listnr=1
+      IFS=" "
+      while read -r line; do
+        listnr=$(($listnr+1))
+      done < "${DIR}etc/syslog.conf"
+      IFS=$IFSORIG
+
+      case $cmd in
+      $listnr) # file
+        ;;
+      $(($listnr+1)) )  #delete rule
+        ;;
+      $(($listnr+2)) )  #delete
+        ;;
+      *) # edit rule
+        ;;
+      esac
+    else
+      break;
+    fi
+  done
+}
+
+
 log_list() {
   listnr=1
   IFS=" "
@@ -1170,10 +1223,7 @@ EOF
   IFS=$IFSORIG
   echo " $listnr "
   echo "Add"
-  echo " $(($listnr+1)) "
-  echo "Delete"
 }
-
 
 logs() {
   listnr3=1
@@ -1208,9 +1258,20 @@ logs() {
           esac
         done
         ;;
-      $(($listnr+1)) )  #delete
-        ;;
       *) # edit
+        listnr=1
+        IFS=" "
+        while read -r line; do
+        IFS=" " read -r LOG_RULES LOG_FILE << EOF
+$line
+EOF
+          if [ "$cmd" = "$listnr" ]; then
+            break;
+          fi
+          listnr=$(($listnr+1))
+        done < "${DIR}etc/syslog.conf"
+        IFS=$IFSORIG
+        log_entry $LOG_RULES $LOG_FILE
         ;;
       esac
     else
