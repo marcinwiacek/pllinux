@@ -1192,9 +1192,7 @@ EOF
   done
 }
 
-
 log_entry_list_to_delete() {
-
   IFS=";"
   for entry in $1; do
     echo \"Rule - ${entry}\"
@@ -1204,9 +1202,28 @@ log_entry_list_to_delete() {
 }
 
 log_entry_rule_delete() {
-  abc=$(echo dialog --stdout --backtitle \"PLLinux\set users\\$1\features\" --cancel-label "Back" \
+  while true; do
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\set users\\$1\features\" --cancel-label "Back" \
          --checklist \"Set features for $1, \"x\" shows previous setup\" 0 0 10 $(log_entry_list_to_delete $INPUT1 $INPUT2))
-  cmd=$(eval $abc)
+    cmd=$(eval $abc)
+    if [ $? == 0 ]; then
+      newlist=""
+      IFS=";"
+      for entry in $1; do
+        case $cmd in
+        *"Rule - ${entry}"*) ;;
+        *) newlist="$newlist;$entry"
+        esac
+      done
+      IFS=$IFSORIG
+      if [ "$newlist" = "" ]; then
+        dialog --backtitle "$PROMPT\\task command" \
+          --msgbox "Need at least one rule. Try again" 10 30
+        continue
+      fi
+    fi
+    break
+  done
 }
 
 log_entry_list() {
