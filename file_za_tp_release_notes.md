@@ -54,6 +54,7 @@ They're created using shell scripts - can be easy modified even by medium experi
 * /etc - some configuration files (much less and more readable than in typical Linux distributions, normally you can manage them 
 with **pllinux** text mode manager
 * /home - user files, with root account you see all users, with non-root users see only own home directory
+* /other
 * /dev, /proc, /run, /sys - pseudo-filesystems exposed by kernel
 * /bin, /usr, /lib64 - links to the files from the /app (in the future it will be probably removed and handled other way)
 * /log - visible only for root, contains temporary or permament log files
@@ -117,22 +118,28 @@ Use for example GitHub or marcin ( at ) mwiacek ( dot ) com. I'm not answering v
 
 **Why not extend existing project?**
 
-They have technology dept and cannot change it because of users.
+They have technology dept and cannot change it because of users. There is required fresh air in this mess (let's say this word clear).
 
 **Why opening opened doors?**
 
-Few years ago many people were thinking about Intel and AMD in their PC, Apple went and created something different... and we have today very good Macbook Air, Pro or Mini.
-World simply needs different solutions and staying in 1980 year with OS design is probably bad idea today.
+Few years ago many people were thinking only about Intel and AMD in their PC, Apple went and created something different... and we have today very good Macbook Air, Pro or Mini.
+World simply needs different solutions and staying in 1980 year with OS design is probably bad idea.
 
 **Why not Rust or systemctl or other project x?**
 
 They will be used, when provide really added value. Starting project desciptions with "written in Rust" instead of advantages list is anti-advertisement (additionally please look, that we don't have Servo completed till today, rust utils have many baby problems and systemctl became big thing staying far away from initial goals)
 
+**But systemctl has got clear names for network interfaces**
+
+Yes, it has got many good and many bad elements.
+
+Note: stable network interfaces names will be implemented in the future.
+
 **Why console and not GUI?**
 
 GUI is of course planned. And creating good system roots and base is more important in this stage.
 
-Note: yes, text mode has got many disadvantages.
+Note: yes, text mode has got many disadvantages. It was used for now just because of simplicity.
 
 # Schedule and future
 
