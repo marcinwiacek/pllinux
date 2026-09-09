@@ -650,7 +650,7 @@ process_one_disk() {
     abc=$(echo dialog --stdout --backtitle \"PLLinux/install to other disk/device $1\" --cancel-label "Back" \
            --menu \"Disk $1\" 0 0 6 \
            1 \"Partition disk \(cfdisk\)\" \
-                     2 \"SMART disk info \(smartctl\)\" \
+           2 \"SMART disk info \(smartctl\)\" \
            $(process_one_disk_list $1 $2) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
