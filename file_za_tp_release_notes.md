@@ -79,6 +79,33 @@ And this is everything. Every package inside /app has got own directory. Inside 
 
 Readme.md is semi-text file with some elements:
 
+**License**
+GPL3+ with GCC Runtime Library Exception
+
+**PATH**
+bin:sbin
+
+**PATH_First**
+
+**SHELL**
+bin/bash
+
+**Deps**
+glibc current
+zstd current
+
+**Description**
+Core part of PLLINUX (libraries) + compiler.
+
+**Project**
+https://gcc.gnu.org
+
+**Man**
+share/man/man1:share/man/man7
+
+**Install**
+install.sh
+
 # Freedom
 
 With PLLinux you decide, if you want to use compiled packages or whether you want to create them from source. You have also full freedom
