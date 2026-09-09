@@ -1157,29 +1157,32 @@ log_file() {
 }
 
 log_entry_list() {
-  listnr=1
+  echo " 1 "
+  echo \"Search file\"
+
+  echo " 2 "
+  echo \"Save and back\"
+
+  listnr=3
   IFS=";"
     while read -r entry; do
       SCHEDULE=""
       echo "$listnr "
-      echo \"${entry}\"
+      echo \"Rule - ${entry}\"
       listnr=$(($listnr+1))
     done <<< "$1"
   IFS=$IFSORIG
 
   echo " $listnr "
-  echo \"File $2\"
+  echo \"File - $2\"
 
   echo " $(($listnr+1)) "
-  echo \"Search\"
+  echo \"Clear file\"
 
   echo " $(($listnr+2)) "
-  echo \"Clear\"
-
-  echo " $(($listnr+3)) "
   echo \"Delete rule\"
 
-  echo " $(($listnr+4)) "
+  echo " $(($listnr+3)) "
   echo \"Delete all\"
 }
 
@@ -1201,17 +1204,20 @@ log_entry() {
     done <<< "$INPUT1"
       IFS=$IFSORIG
       case $cmd in
+      1 )  #search
+        cat $INPUT2 | less # it seems, that msgbox and other dialog elements have size limit
+        ;;
+      2 )  #save and back
+        break
+        ;;
       $listnr) # file
         LOG_FILE="$INPUT2"
         log_file ;;
-      $(($listnr+1)) )  #search
-        cat $INPUT2 | less # it seems, that msgbox and other dialog elements have size limit
+      $(($listnr+3)) )  #clear
         ;;
-      $(($listnr+2)) )  #clear
+      $(($listnr+4)) )  #delete rule
         ;;
-      $(($listnr+3)) )  #delete rule
-        ;;
-      $(($listnr+4)) )  #delete all
+      $(($listnr+5)) )  #delete all
         ;;
       *) # edit rule
         listnr=1
@@ -1233,6 +1239,15 @@ EOF
           1) log_feature_type ;;
           2) log_feature_priority ;;
           3) 
+             IFS=" "
+             while read -r entry; do
+               if [ "$cmd" = "$listnr" ]; then
+                 break;
+               fi
+               listnr=$(($listnr+1))
+             done <<< "$INPUT1"
+             IFS=$IFSORIG
+
 #echo "${LOG_TYPE}.${LOG_PRIORITY} ${LOG_FILE} " >> ${DIR}etc/syslog.conf
 # fixme reload service
              break;;

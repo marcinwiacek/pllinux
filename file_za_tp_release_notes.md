@@ -34,10 +34,10 @@ There are just few services started:
 4. crond for tasks started with schedule in background
 5. sysctld for saving logs in the disk
 
-Other actions (starting and stopping network, synchronizing time using NTP, mounting USB drives, etc.) is done on mainly event occurence.
+Other actions (starting and stopping network, synchronizing time using NTP, mounting USB drives, etc.) is done on mainly event occurence - you can wait some miliseconds and it doesn't hurt.
 
 Note: used architecture (especially bwrap) can make some scenarios potentially more difficult and normally
-root actions are done from the terminal with logged root.
+root actions are done from the terminal with logged root (honestly speaking you don't need to do them every second with good framework).
 
 # Managing system
 
@@ -100,6 +100,39 @@ Seems to be cosmetic (no known side effects excluding error message).
 * [https://sourceforge.net/projects/pllinux/](https://sourceforge.net/projects/pllinux/)
 * [https://github.com/marcinwiacek/pllinux](https://github.com/marcinwiacek/pllinux)
 * [https://mwiacek.com](https://mwiacek.com)
+
+# How can you help?
+
+  1. proposing new ideas - it's never too late for them
+  2. showing this project to other people - good party must be big & nothing helps more than testers, users and developers
+  3. submitting bugs - project is very early stage, but don't be shy, when have something to say
+  4. further updates for existing dynamic loader or making other development - always welcome (mainly C or Bash shell scripting now)
+  5. packaging software - always welcome (mainly Bash shell scripting now)
+
+#Contact
+
+Use for example GitHub or marcin ( at ) mwiacek ( dot ) com. I'm not answering very fast, but in the end it always happens.
+
+#FAQ
+
+**Why not extend existing project?**
+
+They have technology dept and cannot change it because of users.
+
+**Why opening opened doors?**
+
+Few years ago many people were thinking about Intel and AMD in their PC, Apple went and created something different... and we have today very good Macbook Air, Pro or Mini.
+World simply needs different solutions and staying in 1980 year with OS design is probably bad idea today.
+
+**Why not Rust or systemctl or other project x?**
+
+They will be used, when provide really added value. Starting project desciptions with "written in Rust" instead of advantages list is anti-advertisement (additionally please look, that we don't have Servo completed till today, rust utils have many baby problems and systemctl became big thing staying far away from initial goals)
+
+**Why console and not GUI?**
+
+GUI is of course planned. And creating good system roots and base is more important in this stage.
+
+Note: yes, text mode has got many disadvantages.
 
 # Schedule and future
 
