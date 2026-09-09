@@ -1082,7 +1082,14 @@ done
 log_feature_type() {
   list=""
   for TYPE in   kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console priority; do
-    list="$list $TYPE - off ";
+    case $LOG_TYPE in
+    *$TYPE*)
+      list="$list $TYPE x on ";
+      ;;
+    *)
+      list="$list $TYPE - off ";
+      ;;
+    esac
   done
   cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
          --checklist "Set features for $1, \"x\" shows previous setup" 0 0 10 $list)
@@ -1105,7 +1112,14 @@ log_feature_type() {
 log_feature_priority() {
   list=""
   for TYPE in   emerg alert crit err warning notice info debug; do
-    list="$list $TYPE - off ";
+    case $LOG_PRIORITY in
+    *$TYPE*)
+      list="$list $TYPE x on ";
+      ;;
+    *)
+      list="$list $TYPE - off ";
+      ;;
+    esac
   done
   cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
          --checklist "Priorities are sorted from the most (top) to least important (bottom)" 0 0 10 $list)
