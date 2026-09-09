@@ -1212,7 +1212,8 @@ log_entry_rule_delete() {
       for entry in $1; do
         case $cmd in
         *"Rule - ${entry}"*) ;;
-        *) newlist="$newlist;$entry"
+        *) if [ "$newlist" != "" ]; then newlist="$newlist;"; fi
+           newlist="$newlist$entry"
         esac
       done
       IFS=$IFSORIG
@@ -1221,6 +1222,7 @@ log_entry_rule_delete() {
           --msgbox "Need at least one rule. Try again" 10 30
         continue
       fi
+      LOG_RULES="$newlist"
     fi
     break
   done
@@ -1305,6 +1307,7 @@ log_entry() {
         ;;
       $(($listnr+2)) )  #delete rule
         log_entry_rule_delete $INPUT1 $INPUT2
+        INPUT1="$LOG_RULES"
         ;;
       $(($listnr+3)) )  #clear file
         ;;
