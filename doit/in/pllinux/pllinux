@@ -1171,9 +1171,15 @@ log_entry_list() {
   echo \"File $2\"
 
   echo " $(($listnr+1)) "
-  echo \"Delete rule\"
+  echo \"Search\"
 
   echo " $(($listnr+2)) "
+  echo \"Clear\"
+
+  echo " $(($listnr+3)) "
+  echo \"Delete rule\"
+
+  echo " $(($listnr+4)) "
   echo \"Delete all\"
 }
 
@@ -1198,9 +1204,14 @@ log_entry() {
       $listnr) # file
         LOG_FILE="$INPUT2"
         log_file ;;
-      $(($listnr+1)) )  #delete rule
+      $(($listnr+1)) )  #search
+        cat $INPUT2 | less # it seems, that msgbox and other dialog elements have size limit
         ;;
-      $(($listnr+2)) )  #delete all
+      $(($listnr+2)) )  #clear
+        ;;
+      $(($listnr+3)) )  #delete rule
+        ;;
+      $(($listnr+4)) )  #delete all
         ;;
       *) # edit rule
         listnr=1
@@ -1235,7 +1246,6 @@ EOF
   done
 }
 
-
 log_list() {
   listnr=1
   IFS=" "
@@ -1257,7 +1267,7 @@ EOF
       done
       IFS=" "
       echo "$listnr "
-      echo \"${LOG_FILE} ${LOG_RULES}\"
+      echo \"${LOG_RULES} ${LOG_FILE} size 0KB\"
       listnr=$(($listnr+1))
     done < "${DIR}etc/syslog.conf"
 
