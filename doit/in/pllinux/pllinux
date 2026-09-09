@@ -1233,13 +1233,13 @@ log_entry_list() {
   echo \"Add rule\"
 
   echo " $(($listnr+2)) "
-  echo \"Delete rule\"
+  echo \"Delete rules\"
 
   echo " $(($listnr+3)) "
   echo \"Clear file\"
 
   echo " $(($listnr+4)) "
-  echo \"Delete all\"
+  echo \"Delete log \(including file\)\"
 }
 
 log_entry() {
@@ -1815,10 +1815,10 @@ while true; do
        10 "Kernel logs (dmesg, press q to return)" \
        11 "System logs saved in files (syslogd)" \
        12 "Users" \
-       14 "Network                       - manual, IP4 DHCP" \
-       15 "Swap file (swapon,off,mkswap) - off" \
-       16 "App language (todo)           - $LANG" \
-       17 "Keyboard and font (kbd)       - $KEYB, $FONT" \
+       14 "App language (todo)           - $LANG" \
+       15 "Keyboard and font (kbd)       - $KEYB, $FONT" \
+       16 "Network                       - manual, IP4 DHCP" \
+       17 "Swap file (swapon,off,mkswap) - off" \
        18 "Timezone                      - $TIMEZONE" \
        19 "Partition encryption password (todo)" \
        20 "Install or clone PLLinux to other partition" \
@@ -1835,11 +1835,11 @@ while true; do
        ;;
     11) logs ;;
     12) set_users ;;
-    14) network ;;
-    15) swap_file ;;
-    17) NEW_KEYB="$KEYB"
+    15) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
+    16) network ;;
+    17) swap_file ;;
     18) set_time_zone ;;
     20) install_to 1 ;;
     21) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
