@@ -1133,19 +1133,14 @@ log_feature_type() {
 
 log_feature_priority() {
   list=""
+  listnr=1
   #syslog.h from libc
-  for TYPE in emerg alert crit err warning notice info debug; do
-    case $LOG_PRIORITY in
-    *$TYPE*)
-      list="$list $TYPE x on ";
-      ;;
-    *)
-      list="$list $TYPE - off ";
-      ;;
-    esac
+  for TYPE in !emerg !alert !crit !err !warning !notice !info !debug !=emerg !=alert !=crit !=err !=warning !=notice !=info !=debug emerg alert crit err warning notice info debug; do
+      list="$list $listnr $TYPE ";
+    listnr=$(($listnr+1))
   done
   cmd=$(dialog --stdout --backtitle "$PROMPT\\priorities for logged messages" --cancel-label "Back" \
-         --checklist "Priorities are sorted from the most (top) to least important (bottom)" 0 0 10 $list)
+         --menu "Priorities are sorted from the most (top) to least important (bottom). Star means everything, != means other than, single ! means all less important (below)" 0 0 10 $list)
   if [ $? == 0 ]; then
     if [ "$cmd" = "" ]; then
         dialog --backtitle "$PROMPT\\task command" \
