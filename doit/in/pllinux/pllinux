@@ -976,7 +976,7 @@ tasks() {
         while true; do
           case $TASKSTEPNR in
           0) break ;;
-          1) task_schedule $listnr $1 ;;
+          1) task_schedule ;;
           2) task_command ;;
           3) if [ "$1" != "crontab" ]; then
                TASKSTEPNR=5
@@ -1049,7 +1049,7 @@ done
           while true; do
             case $TASKSTEPNR in
             0) break ;;
-            1) task_schedule $listnr3 ;;
+            1) task_schedule ;;
             2) task_command ;;
             3) if [ "$1" != "crontab" ]; then
                  TASKSTEPNR=5
