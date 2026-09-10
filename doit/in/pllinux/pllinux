@@ -713,7 +713,7 @@ EOF
 task_schedule() {
   while true; do
     cmd=$(dialog --stdout --backtitle "$PROMPT\\task schedule" --cancel-label "Back" \
-      --form "You can put intervals or more values separated with comma. Single tar means no setup, spaces will be deleted." 0 0 8 \
+      --form "You can put intervals or more values separated with comma. Single star means \"all\". Values cannot be empty." 0 0 8 \
       "Minute (1-59)" 1 1 "$SMINUTE" 1 50 15 0 \
       "Hour (0-23)" 2 1 "$SHOUR" 2 50 15 0 \
       "Month day (1-31)" 3 1 "$SDAY" 3 50 15 0 \
@@ -730,8 +730,12 @@ task_schedule() {
         5) SDOW="$line" ;;
         esac
         linenr=$(($linenr+1))
-        STASK=1
       done <<< "$cmd"
+      if [ "$SMINUTE" = "" ] || [ "$SHOUR" = "" ] || [ "$SDAY" = "" ] || [ "$SMONTH" = "" ] || [ "$SDOW" = "" ]; then
+        dialog --backtitle "$PROMPT\\task schedule" \
+          --msgbox "Empty values not allowed. Try again" 10 30
+        continue
+      fi
       TASKSTEPNR=$(($TASKSTEPNR+1))
     else
       TASKSTEPNR=$(($TASKSTEPNR-1))
