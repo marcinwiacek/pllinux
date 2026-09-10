@@ -1826,14 +1826,14 @@ while true; do
        2 "Background scheduled tasks for system and all users (crond)" \
        3 "Background services (dinit)" \
        4 "Device manager" \
-       5 "Groups" \
-       6 "Network firewall" \
-       7 "Time" \
-       8 "Kernel modules (modprobe)" \
-       9 "Kernel params (sysctl)" \
-       10 "Kernel logs (dmesg, press q to return)" \
-       11 "System logs saved in files (syslogd)" \
-       12 "Users" \
+       5 "Network firewall" \
+       6 "Time" \
+       7 "Kernel modules (modprobe)" \
+       8 "Kernel params (sysctl)" \
+       9 "Kernel logs (dmesg, press q to return)" \
+       10 "System logs saved in files (syslogd)" \
+       11 "Users" \
+       12 "User groups" \
        14 "App language (todo)           - $LANG" \
        15 "Keyboard and font (kbd)       - $KEYB, $FONT" \
        16 "Network                       - manual, IP4 DHCP" \
@@ -1849,11 +1849,11 @@ while true; do
     2) tasks "crontab" ;;
     3) services ;;
     4) devices ;;
-    9) sysctl_kernel_params ;;
-    10) dmesg | less # it seems, that msgbox and other dialog elements have size limit
+    8) sysctl_kernel_params ;;
+    9) dmesg | less # it seems, that msgbox and other dialog elements have size limit
        ;;
-    11) logs ;;
-    12) set_users ;;
+    10) logs ;;
+    11) set_users ;;
     15) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
