@@ -1087,7 +1087,7 @@ done
 }
 
 log_feature_types() {
-  for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console; do
+  for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp console; do
     echo $TYPE
     case $1 in
     *$TYPE*)
@@ -1116,7 +1116,8 @@ log_feature_type() {
         continue
     fi
     LOG_TYPE=""
-    for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp security console; do
+    #syslog.h from libc
+    for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp console; do
       case $cmd in
       *$TYPE*)
          if [ "$LOG_TYPE" != "" ]; then LOG_TYPE="$LOG_TYPE,"; fi
@@ -1132,7 +1133,8 @@ log_feature_type() {
 
 log_feature_priority() {
   list=""
-  for TYPE in   emerg alert crit err warning notice info debug; do
+  #syslog.h from libc
+  for TYPE in emerg alert crit err warning notice info debug; do
     case $LOG_PRIORITY in
     *$TYPE*)
       list="$list $TYPE x on ";
