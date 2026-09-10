@@ -1099,8 +1099,8 @@ log_feature_types() {
 }
 
 log_feature_type() {
-  abc=$(echo dialog --stdout --backtitle \"PLLinux\set users\\$1\features\" --cancel-label "Back" \
-         --item-help --checklist \"Set features for $1, \"x\" shows previous setup\" 0 0 10 $(log_feature_types $LOG_TYPE))
+  abc=$(echo dialog --stdout --backtitle \"$PROMPT\\logged message types\" --cancel-label "Back" \
+         --item-help --checklist \"Select messages for saving in log\" 0 0 10 $(log_feature_types $LOG_TYPE))
   cmd=$(eval $abc)
   if [ $? == 0 ]; then
     if [ "$cmd" = "" ]; then
@@ -1135,7 +1135,7 @@ log_feature_priority() {
       ;;
     esac
   done
-  cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1\features" --cancel-label "Back" \
+  cmd=$(dialog --stdout --backtitle "$PROMPT\\priorities for logged messages" --cancel-label "Back" \
          --checklist "Priorities are sorted from the most (top) to least important (bottom)" 0 0 10 $list)
   if [ $? == 0 ]; then
     if [ "$cmd" = "" ]; then
@@ -1160,7 +1160,7 @@ log_feature_priority() {
 
 log_file() {
   while true; do
-    cmd=$(dialog --stdout --backtitle "$PROMPT\\task command" --cancel-label "Prev" \
+    cmd=$(dialog --stdout --backtitle "$PROMPT\\log file" --cancel-label "Prev" \
       --inputbox "Enter filename for log (cannot be empty). Normally /log/(name) for permanent logs and /log/tmp/(name) for temporary logs." 15 100 "${LOG_FILE}" )
     if [ $? == 0 ]; then
       if [ "$cmd" == "" ]; then
@@ -1203,8 +1203,8 @@ log_entry_list_to_delete() {
 
 log_entry_rule_delete() {
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"PLLinux\set users\\$1\features\" --cancel-label "Back" \
-         --checklist \"Set features for $1, \"x\" shows previous setup\" 0 0 10 $(log_entry_list_to_delete $INPUT1 $INPUT2))
+    abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
+         --checklist \"Deleting log rules\" 0 0 10 $(log_entry_list_to_delete $INPUT1 $INPUT2))
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
       newlist=""
@@ -1258,14 +1258,13 @@ log_entry_list() {
   echo \"Clear file\"
 
   echo " $(($listnr+4)) "
-  echo \"Delete log \(including file\)\"
+  echo \"Delete log \(without file now\). No confirmation.\"
 }
 
 log_entry() {
   INPUT1="$1"
   INPUT2="$2"
   while true; do
-    PROMPT="PLLinux\\logs"
     abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Logs saved to files \(temporary or permanent\)\" 0 0 8 \
