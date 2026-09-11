@@ -1,4 +1,4 @@
-[Prev page](file_yr_milestone8.md) [Next page](file_zz_milestone10.md)
+[Prev page](file_yr_milestone8.md) [Next page](file_yp_milestone10.md)
 
 # Milestone 9
 # Correct man
@@ -35,4 +35,4 @@ Works need a lot of elements, but this is done step by step. With next builds of
 
 ![Alt text](2026/aug_pllinux2.jpg)
 
-[Prev page](file_yr_milestone8.md) [Next page](file_zz_milestone10.md)
+[Prev page](file_yr_milestone8.md) [Next page](file_yp_milestone10.md)

@@ -1,11 +1,6 @@
-[Prev page](file_yr_milestone8.md) [Next page]
+[Prev page](file_yp_milestone10.md) [Next page]
 
-# Milestone 9
-# Scheduler
-
-# Logging
-
-dmesg - kernel messages
+# Milestone 
 
 # Mounting CD-ROM and memory cards
 
@@ -19,4 +14,4 @@ echo - - - > /sys/class/scsi_host/host*/scan
 
 # CPU microcode and kernel packages
 
-[Prev page](file_yr_milestone8.md) [Next page]
+[Prev page](file_yp_milestone10.md) [Next page]
