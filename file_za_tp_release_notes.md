@@ -112,6 +112,9 @@ Readme.md is semi-text file with some elements, for example:
     boot
     recovery
 
+    **Include**
+    include
+
 # Freedom
 
 With PLLinux you decide, if you want to use compiled packages or whether you want to create them from source. You have also full freedom
