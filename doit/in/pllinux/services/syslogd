@@ -2,7 +2,8 @@
 
 type = process
 options = starts-log
-command = /app/busybox/current/bin/busybox syslogd -n -D -s 0 -b 99
+#command = /app/busybox/current/bin/busybox syslogd -n -D -s 0 -b 99
+command = /app/rsyslog/current/sbin/rsyslogd -i /run/rsyslogd.pid -n
 restart = true
 termsignal = TERM
 smooth-recovery = true
