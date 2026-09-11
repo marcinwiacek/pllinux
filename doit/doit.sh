@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="rsyslog"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libfastjson"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1125,7 +1125,7 @@ if [ "$package" == "fs" ] || [ "$package" == "rsyslog" ]; then
     mkdir $out/rsyslog/rsyslog-$ver-build
     cd $out/rsyslog/rsyslog-$ver-build
     #--enable-static doesn't work?
-    ../rsyslog-$ver/configure --prefix=$output/app/rsyslog/$prefix$ver --disable-libyaml
+    ../rsyslog-$ver/configure --prefix=/app/rsyslog/$prefix$ver --disable-libyaml
     make -j$cpu_num
     create_app rsyslog $prefix$ver
     make install
@@ -1143,7 +1143,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libestr" ]; then
     mkdir $out/libestr/libestr-$ver-build
     cd $out/libestr/libestr-$ver-build
     ../libestr-$ver/autogen.sh
-    ../libestr-$ver/configure --prefix=$output/app/libestr/$prefix$ver
+    ../libestr-$ver/configure --prefix=/app/libestr/$prefix$ver
     make -j$cpu_num
     create_app libestr $prefix$ver
     make install
@@ -1157,7 +1157,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libfastjson" ]; then
     mkdir $out/libfastjson/libfastjson-$ver-build
     cd $out/libfastjson/libfastjson-$ver-build
     ../libfastjson-$ver/autogen.sh
-    ../libfastjson-$ver/configure --prefix=$output/app/libfastjson/$prefix$ver
+    ../libfastjson-$ver/configure --prefix=/app/libfastjson/$prefix$ver
     make -j$cpu_num
     create_app libfastjson $prefix$ver
     make install
