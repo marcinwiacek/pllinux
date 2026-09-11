@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="libestr"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="rsyslog"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1129,10 +1129,10 @@ if [ "$package" == "fs" ] || [ "$package" == "rsyslog" ]; then
     make -j$cpu_num
     create_app rsyslog $prefix$ver
     make install
-    cd $output/app/rsyslog/$prefix$ver/lib/rsyslog
-    mv * ..
-    cd ..
-    rmdir rsyslog
+#    cd $output/app/rsyslog/$prefix$ver/lib/rsyslog
+#    mv * ..
+#    cd ..
+#    rmdir rsyslog
     set_current_app_clean_strip_cd rsyslog $prefix$ver 1
   fi
 fi
@@ -1148,6 +1148,20 @@ if [ "$package" == "fs" ] || [ "$package" == "libestr" ]; then
     create_app libestr $prefix$ver
     make install
     set_current_app_clean_strip_cd libestr $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libfastjson" ]; then
+  ver="1.2609.0";
+  if should_make libfastjson $ver; then
+    download_unpack_source https://github.com/rsyslog/libfastjson/releases/download/v$ver/libfastjson-$ver.tar.gz libfastjson libfastjson-$ver 1
+    mkdir $out/libfastjson/libfastjson-$ver-build
+    cd $out/libfastjson/libfastjson-$ver-build
+    ../libfastjson-$ver/autogen.sh
+    ../libfastjson-$ver/configure --prefix=$output/app/libfastjson/$prefix$ver
+    make -j$cpu_num
+    create_app libfastjson $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libfastjson $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "grub" ]; then

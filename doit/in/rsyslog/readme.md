@@ -5,6 +5,9 @@ LGPL 3.0
 https://github.com/rsyslog/rsyslog
 
 **Deps**
+libestr current
+libfastjson current
+util-linux current
 zlib current
 
 **Man**

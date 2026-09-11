@@ -148,6 +148,10 @@ situation, that "kbd" package won't be completed, because GUI have done it much 
 
 Seems to be cosmetic (no known side effects excluding error message).
 
+**There is saved a lot of garbabe in log with Midnight Commander**
+
+Old topic.
+
 # Links
 
 * [https://sourceforge.net/projects/pllinux/](https://sourceforge.net/projects/pllinux/)
@@ -203,7 +207,15 @@ It doesn't have at least only other branding.
 
 **Does it have sense to make new OS by people in AI time?**
 
-New products and ideas are always moving people forward.
+New products and ideas are always moving people forward. And making things by human (not AI) is extending these people skills and allow them for making better things.
+
+**This is will be always after Omarchy, Ubuntu, Debian, etc.**
+
+Never say never.
+
+**It's shipped with slow and obsolete GNU apps**
+
+Number of people critizing something is always much better than number of people doing something. Propose updates.
 
 # Schedule and future
 
