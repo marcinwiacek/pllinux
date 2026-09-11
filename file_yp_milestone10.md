@@ -12,11 +12,11 @@ When we speak about logging - in theory system could implement logging in the sy
 
 I started with using **syslogd** from **busybox**. It should support very standard format ([according to the example](https://github.com/brgl/busybox/blob/master/docs/syslog.conf.txt)). After some tries it was found, that operators ! and != don't work like in the example and syslog.conf end with these context:
 
-   kern.* /log/tmp/kernel
-   daemon.* /log/tmp/services
-   auth.* /log/tmp/auth
-   syslog.* /log/tmp/syslog
-   cron.* /log/tmp/cron
+    kern.* /log/tmp/kernel
+    daemon.* /log/tmp/services
+    auth.* /log/tmp/auth
+    syslog.* /log/tmp/syslog
+    cron.* /log/tmp/cron
 
 And... kernel messages are not logged, the same these from cron (could be some config mistake) and from the daemon/dinit (it was naturally extra configured to redirect everything).
 
