@@ -26,12 +26,18 @@ Conversion from busybox's syslogd is not plug-and-plug. But why?
 
 Helps comes from the **strace** - when started with **rsyslogd**, it shows, that this daemon is searching for /dev/log device.
 
-But shouldn't be, that logging daemon is creating everything? Shouldn't **rsyslogd** show itself, that device is not found? (and here we are again going into this, that Open Source is many times overcomplicated and full of unclear/undocummented or even stupid things)
+But shouldn't be, that logging daemon is creating everything when has got rules already? Shouldn't **rsyslogd** show itself, that device is not found or something? (and here we are again going into this, that Open Source is many times overcomplicated or full of unclear or even stupid things)
 
-Offtopic: [I don't care for Gnome](https://woltman.com/gnome-bad/) - this page is quite good confirming, that problems are visible even with "the greatest", the most "user friendly"
-and most advertised and pushed GUI.
+Offtopic: [I don't care for Gnome](https://woltman.com/gnome-bad/) - this page is quite good confirming, that problems are visible even with "the greatest", the most "user friendly" and most advertised and pushed for everybody GUI.
 
 Anyway, what can be done with the problem with /dev/log?
+
+    module(load="imuxsock") #local system logging
+    module(load="imkmsg") #kernel boot messages (from ring buffer and /dev/kmsg). Cannot be used with imklog module
+
+These two magic lines in **syslog.conf** (named here by default **rsyslog.conf**) made, that **rsyslog** finally started collecting messages. For people saying "RTFM" I would answer - it could show message "no data collecting modules" or modules should be loaded automagically when all these rules with filenames are already in config file.
+
+With modules I was able to get authentication info (but only for root), something from **cron**, boot messages from kernel and **rsyslog** itself. Quite everything was collected when **rsyslog** was started & restarted as service (but why?). And I haven't seen **dinit** messages = there is still a lot of todo, but at least progress is visible.
 
 # Scheduler
 
