@@ -23,7 +23,7 @@ And... kernel messages are not logged, the same these from cron (could be some c
 This was time to check alternatives. syslog-ng has got other config, rsyslog seems to be used widely and seems to have compatiblity with old syslog format.
 After some steps it was compiled and installed... it's recognizing config, doesn't show any error and doesn't save anything to log files.
 
-But why?
+Conversion from busybox's syslogd is not plug-and-plug. But why?
 
 # Scheduler
 

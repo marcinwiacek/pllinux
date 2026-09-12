@@ -10,5 +10,8 @@ libfastjson current
 util-linux current
 zlib current
 
+**PATH**
+sbin
+
 **Man**
 share/man/man5:share/man/man8
