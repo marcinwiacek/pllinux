@@ -7,3 +7,6 @@ https://github.com/strace/strace
 
 **Man**
 share/man/man1
+
+**PATH**
+bin
