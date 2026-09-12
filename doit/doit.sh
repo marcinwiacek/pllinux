@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="elfutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xzutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1191,6 +1191,20 @@ if [ "$package" == "fs" ] || [ "$package" == "elfutils" ]; then
     create_app elfutils $prefix$ver
     make install
     set_current_app_clean_strip_cd elfutils $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xzutils" ]; then
+  ver="5.8.4";
+  if should_make xzutils $ver; then
+    download_unpack_source https://github.com/tukaani-project/xz/releases/download/v$ver/xz-$ver.tar.xz xzutils xz-$ver 1
+    mkdir $out/xzutils/xz-$ver-build
+    cd $out/xzutils/xz-$ver-build
+    ../xz-$ver/autogen.sh
+    ../xz-$ver/configure --prefix=/app/xzutils/$prefix$ver
+    make -j$cpu_num
+    create_app xzutils $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xzutils $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "grub" ]; then
