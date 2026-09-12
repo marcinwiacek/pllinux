@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="xzutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="bzip2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1205,6 +1205,19 @@ if [ "$package" == "fs" ] || [ "$package" == "xzutils" ]; then
     create_app xzutils $prefix$ver
     make install
     set_current_app_clean_strip_cd xzutils $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
+  ver="1.0.8";
+  if should_make bzip2 $ver; then
+    download_unpack_source https://sourceware.org/pub/bzip2/bzip2-$ver.tar.gz bzip2 bzip2-$ver 1
+    make -j$cpu_num
+    create_app bzip2 $prefix$ver
+    make install PREFIX=/app/bzip2/$prefix$ver
+    make clean
+    make -f Makefile-libbz2_so -j$cpu_num
+    cp libbz2.so* $output/app/bzip2/$prefix$ver/lib
+    set_current_app_clean_strip_cd bzip2 $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "grub" ]; then
