@@ -209,7 +209,7 @@ It doesn't have at least only other branding.
 
 New products and ideas are always moving people forward. And making things by human (not AI) is extending these people skills and allow them for making better things.
 
-**This is will be always after Omarchy, Ubuntu, Debian, etc.**
+**This will be always after Omarchy, Ubuntu, Debian, etc.**
 
 Never say never.
 
