@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="strace"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="elfutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1167,7 +1167,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libfa
     set_current_app_clean_strip_cd libfastjson $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "strace" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "strace" ]; then
   ver="7.2";
   if should_make strace $ver; then
     download_unpack_source https://github.com/strace/strace/releases/download/v$ver/strace-$ver.tar.xz strace strace-$ver 1
@@ -1178,6 +1178,19 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "strac
     create_app strace $prefix$ver
     make install
     set_current_app_clean_strip_cd strace $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "elfutils" ]; then
+  ver="0.196";
+  if should_make elfutils $ver; then
+    download_unpack_source https://sourceware.org/elfutils/ftp/$ver/elfutils-$ver.tar.bz2 elfutils elfutils-$ver 1
+    mkdir $out/elfutils/elfutils-$ver-build
+    cd $out/elfutils/elfutils-$ver-build
+    ../elfutils-$ver/configure --prefix=/app/elfutils/$prefix$ver
+    make -j$cpu_num
+    create_app elfutils $prefix$ver
+    make install
+    set_current_app_clean_strip_cd elfutils $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "grub" ]; then
