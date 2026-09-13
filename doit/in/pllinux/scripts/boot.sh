@@ -21,6 +21,9 @@ if [ "$ROOT_DEVICE_ID" != "" ] && [ "$ROOT_DEVICE_ID" != "rsync" ]; then
   /app/busybox/current/bin/mount -o remount $ROOT_DEVICE_ID /
 fi
 
+#/app/dinit/current/bin/dinitctl start syslogd
+#/app/dinit/current/bin/dinitctl restart syslogd
+
 if [ ! -x /app/glibc/current/lib/ld-linux-x86-64.so.2 ]; then
   echo "/app/glibc/current/lib/ld-linux-x86-64.so.2 not executable. Fixing"
   chmod a+x /app/glibc/current/lib/ld-linux-x86-64.so.2
