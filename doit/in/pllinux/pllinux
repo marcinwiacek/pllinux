@@ -1862,8 +1862,8 @@ while true; do
     17) network ;;
     18) swap_file ;;
     19) set_time_zone ;;
-    20) install_to 1 ;;
-    21) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
+    21) install_to 1 ;;
+    22) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
     esac
   else
     break
