@@ -1825,7 +1825,7 @@ fi
 while true; do
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 22 \
        1 "Apps (app)" \
-       2 "Background tasks run after changing files or dirs (inotifyd)" \
+       2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks for system and users run in specified time (crond)" \
        4 "Background services (dinit)" \
        5 "Devices (info, power options, partitioning, etc.)" \
