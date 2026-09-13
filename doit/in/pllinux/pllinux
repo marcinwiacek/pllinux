@@ -1170,15 +1170,19 @@ log_file() {
       fi
       eeeee=0
       while read -r line; do
-        IFS=" " read -r LOG_RULES2 LOG_FILE2 << EOF
+        case $line in
+        *module*) ;;
+        *#*) ;;
+        *)
+          IFS=" " read -r LOG_RULES2 LOG_FILE2 << EOF
 $line
 EOF
-        if [ "$LOG_FILE2" == "$cmd" ]; then
-          if [ "$1" != "$LOG_RULES2" ] || [ "$1" = "" ]; then
-            eeeee=1
-            break
+          if [ "$LOG_FILE2" == "$cmd" ]; then
+            if [ "$1" != "$LOG_RULES2" ] || [ "$1" = "" ]; then
+              eeeee=1
+            fi
           fi
-        fi
+        esac
       done < "${DIR}etc/rsyslog.conf"
       if [ "$eeeee" = "1" ]; then
         dialog --backtitle "$PROMPT\\task command" \
@@ -1367,6 +1371,11 @@ log_list() {
   listnr=1
   IFS=" "
   while read -r line; do
+    case $line in
+      *module*) ;;
+      *#*) ;;
+      *)
+
     IFS=" " read -r LOG_RULES LOG_FILE << EOF
 $line
 EOF
@@ -1386,6 +1395,7 @@ EOF
     echo "$listnr "
     echo \"${LOG_RULES} ${LOG_FILE} $(du ${LOG_FILE} -s -h -c | grep total)\"
     listnr=$(($listnr+1))
+    esac
   done < "${DIR}etc/rsyslog.conf"
 
   IFS=$IFSORIG
