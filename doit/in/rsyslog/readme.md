@@ -5,6 +5,7 @@ LGPL 3.0
 https://github.com/rsyslog/rsyslog
 
 **Deps**
+gcc current
 libestr current
 libfastjson current
 util-linux current
