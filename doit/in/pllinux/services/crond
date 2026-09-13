@@ -1,9 +1,9 @@
-# task scheduler
+# running tasks in specified time
 
 type = process
 command = /app/busybox/current/bin/busybox crond -S -l 8 -c /etc/crond.d -f
 restart = true
 termsignal = HUP
 smooth-recovery = true
-inittab-id = 1
-inittab-line = tty1
+waits-for = syslogd
+log-type = buffer

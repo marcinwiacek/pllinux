@@ -1,10 +1,10 @@
 # Started when system boots. Can be interrupted with ^C
 
 command = /app/busybox/current/bin/sh -c "/app/pllinux/current/scripts/boot.sh"
-options = starts-on-console pass-cs-fd start-interruptible unmask-intr skippable
+options = starts-on-console pass-cs-fd start-interruptible unmask-intr starts-rwfs
 type = scripted
-depends-ms: tty1
-depends-ms: tty2
-depends-ms: tty3
-depends-ms: crond
-depends-ms: syslogd
+depends-ms = syslogd
+depends-ms = crond
+depends-ms = tty1
+depends-ms = tty2
+depends-ms = tty3

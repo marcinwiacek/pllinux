@@ -1,12 +1,11 @@
 # system logger
 
 type = bgprocess
-options = starts-log
 #command = /app/busybox/current/bin/busybox syslogd -n -D -s 0 -b 99
 command = /app/rsyslog/current/sbin/rsyslogd -i /run/rsyslogd.pid
 pid-file = /run/rsyslogd.pid
 restart = true
 termsignal = TERM
 smooth-recovery = true
-inittab-id = 1
-inittab-line = syslogd
+options = starts-log
+log-type = buffer

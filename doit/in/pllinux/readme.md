@@ -24,6 +24,7 @@ tty1
 tty2
 tty3
 crond
+syslogd
 
 **PATH**
 .
