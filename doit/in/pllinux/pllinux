@@ -1374,30 +1374,14 @@ log_list() {
     case $line in
       *module*) ;;
       *#*) ;;
-      *)
-
-    IFS=" " read -r LOG_RULES LOG_FILE << EOF
+      *) IFS=" " read -r LOG_RULES LOG_FILE << EOF
 $line
 EOF
-    SCHEDULE=""
-    IFS=";"
-    for RULE in "$LOG_RULES"; do
-      case $TYPE in
-        kern) SCHEDULE="$SCHEDULE kernel msg" ;;
-        user) SCHEDULE="$SCHEDULE user msg" ;;
-        mail) SCHEDULE="$SCHEDULE mail msg" ;;
-        daemon) SCHEDULE="$SCHEDULE daemon/services msg" ;;
-        auth) SCHEDULE="$SCHEDULE authentication msg" ;;
-        syslog) SCHEDULE="$SCHEDULE authentication msg" ;;
-      esac
-    done
-    IFS=" "
-    echo "$listnr "
-    echo \"${LOG_RULES} ${LOG_FILE} $(du ${LOG_FILE} -s -h -c | grep total)\"
-    listnr=$(($listnr+1))
+         echo "$listnr "
+         echo \"${LOG_RULES} ${LOG_FILE} $(du ${LOG_FILE} -s -h -c | grep total)\"
+         listnr=$(($listnr+1))
     esac
   done < "${DIR}etc/rsyslog.conf"
-
   IFS=$IFSORIG
   echo " $listnr "
   echo "Add"
