@@ -1179,7 +1179,7 @@ EOF
             break
           fi
         fi
-      done < "${DIR}etc/syslog.conf"
+      done < "${DIR}etc/rsyslog.conf"
       if [ "$eeeee" = "1" ]; then
         dialog --backtitle "$PROMPT\\task command" \
           --msgbox "Filename used for other rule $LOG_RULES2. Try again" 10 30
@@ -1386,7 +1386,7 @@ EOF
     echo "$listnr "
     echo \"${LOG_RULES} ${LOG_FILE} $(du ${LOG_FILE} -s -h -c | grep total)\"
     listnr=$(($listnr+1))
-  done < "${DIR}etc/syslog.conf"
+  done < "${DIR}etc/rsyslog.conf"
 
   IFS=$IFSORIG
   echo " $listnr "
@@ -1407,7 +1407,7 @@ logs() {
       IFS=" "
       while read -r line; do
         listnr=$(($listnr+1))
-      done < "${DIR}etc/syslog.conf"
+      done < "${DIR}etc/rsyslog.conf"
       IFS=$IFSORIG
 
       case $cmd in
@@ -1422,7 +1422,7 @@ logs() {
           2) log_feature_priority ;;
           3) LOG_FILE="/log/tmp/example_log"
              log_file ;;
-          4) echo "${LOG_TYPE}.${LOG_PRIORITY} ${LOG_FILE} " >> ${DIR}etc/syslog.conf
+          4) echo "${LOG_TYPE}.${LOG_PRIORITY} ${LOG_FILE} " >> ${DIR}etc/rsyslog.conf
              dinitctl restart syslogd
 # fixme reload service
              break;;
@@ -1440,22 +1440,22 @@ EOF
             break;
           fi
           listnr=$(($listnr+1))
-        done < "${DIR}etc/syslog.conf"
+        done < "${DIR}etc/rsyslog.conf"
         IFS=$IFSORIG
         OLD_LOG_RULES="$LOG_RULES"
         OLD_LOG_FILE="$LOG_FILE"
         log_entry $LOG_RULES $LOG_FILE
         # dont change file and make extra SSD saves, when not required
         if [ "$OLD_LOG_RULES" != "$LOG_RULES" ] || [ "$OLD_LOG_FILE" != "$LOG_FILE" ]; then
-          file_content=$(cat ${DIR}etc/syslog.conf)
-          echo -n "" > ${DIR}etc/syslog.conf
+          file_content=$(cat ${DIR}etc/rsyslog.conf)
+          echo -n "" > ${DIR}etc/rsyslog.conf
           while read -r line; do
             if [ "$line" = "$OLD_LOG_RULES $OLD_LOG_FILE" ]; then
               if [ "$LOG_RULES" != "" ]; then
-                echo "$LOG_RULES $LOG_FILE" >> ${DIR}etc/syslog.conf
+                echo "$LOG_RULES $LOG_FILE" >> ${DIR}etc/rsyslog.conf
               fi
             else
-              echo "$line" >> ${DIR}etc/syslog.conf
+              echo "$line" >> ${DIR}etc/rsyslog.conf
             fi
           done <<< "$file_content"
           dinitctl restart syslogd
