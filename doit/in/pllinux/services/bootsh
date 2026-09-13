@@ -1,0 +1,5 @@
+# Started when system boots. Can be interrupted with ^C
+
+command = /app/busybox/current/bin/sh -c "/app/pllinux/current/scripts/boot.sh"
+options = starts-on-console pass-cs-fd start-interruptible unmask-intr starts-rwfs
+type = scripted

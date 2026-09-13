@@ -19,6 +19,7 @@ util-linux current
 
 **Services**
 boot
+bootsh
 recovery
 tty1
 tty2

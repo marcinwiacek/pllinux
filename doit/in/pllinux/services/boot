@@ -1,8 +1,8 @@
-# Started when system boots. Can be interrupted with ^C
+# Started when system boots.
 
-command = /app/busybox/current/bin/sh -c "/app/pllinux/current/scripts/boot.sh"
-options = starts-on-console pass-cs-fd start-interruptible unmask-intr starts-rwfs
-type = scripted
+type = internal
+
+depends-ms = bootsh
 depends-ms = syslogd
 depends-ms = crond
 depends-ms = tty1

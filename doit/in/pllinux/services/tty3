@@ -6,5 +6,6 @@ command = /app/busybox/current/bin/busybox getty -l /app/busybox/current/bin/log
 restart = true
 termsignal = HUP
 smooth-recovery = true
-waits-for = syslogd
 log-type = buffer
+
+after = syslogd
