@@ -152,6 +152,10 @@ Seems to be cosmetic (no known side effects excluding error message).
 
 Old topic.
 
+**Non-admin users logging info is not saved in logs**
+
+Solution unknown.
+
 # Links
 
 * [https://sourceforge.net/projects/pllinux/](https://sourceforge.net/projects/pllinux/)

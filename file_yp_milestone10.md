@@ -39,13 +39,14 @@ These two magic lines in **syslog.conf** (named here by default **rsyslog.conf**
 
 With modules I was able to get authentication info (but only for root), something from **cron**, boot messages from kernel and **rsyslog** itself. Quite everything was collected when **rsyslog** was started & restarted as service (but why?). And I haven't seen **dinit** messages = there is still a lot of todo, but at least progress is visible.
 
-Offtopic: what about journald service? 
+Offtopic: what about journald service?
 
-Answer: Somebody created syslog and then duplicated it "a little" bit. Right now (on the VDI machine, where I write these words)
-logs files have >600MB. Normal users don't know about this and other things and they think, that Linux is small and fast... but standard
-installations are becoming fast bloated. PLLinux probably will make centralized logs just with **rsyslogd** to avoid duplicates + standard
-setup will write majority of logs into tmpfs (disclaimer: how many times were you looking into them in the local machine? Do you really need
-log from every boot? Or every start of your printer daemon or similar stuff?)
+Answer: Collecting logs from different sources is generally good idea, from the other hand somebody created syslog and then duplicated it "a little" bit. 
+Right now (on the VDI machine, where I write these words) my logs files have >600MB. Normal users don't know about things like this 
+and they naive think, that Linux is small and fast... but standard installations are becoming bloated like Windows. 
+PLLinux will make for now logs just with **rsyslogd** to avoid duplicates + centralized solution in the future cannot make duplicates + 
+standard setup will write majority of logs into tmpfs by default (disclaimer: how many times were you looking into them in the home machine? 
+Do you really need log from every boot? Or every start of your printer daemon or similar stuff?)
 
 Returning to the logging problems - the solution was changing services starting order:
 
