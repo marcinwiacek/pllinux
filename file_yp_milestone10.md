@@ -42,8 +42,8 @@ With modules I was able to get authentication info (but only for root), somethin
 Offtopic: what about journald service? 
 
 Answer: Somebody created syslog and then duplicated it "a little" bit. Right now (on the VDI machine, where I write these words)
-logs files have 600MB. Normal users don't know about this and other things and they think, that Linux is small and fast... but standard
-installations are becoming bloated. PLLinux probably will make centralized logs just with **rsyslogd** to avoid duplicates + standard
+logs files have >600MB. Normal users don't know about this and other things and they think, that Linux is small and fast... but standard
+installations are becoming fast bloated. PLLinux probably will make centralized logs just with **rsyslogd** to avoid duplicates + standard
 setup will write majority of logs into tmpfs (disclaimer: how many times were you looking into them in the local machine? Do you really need
 log from every boot? Or every start of your printer daemon or similar stuff?)
 
