@@ -1,7 +1,7 @@
 # terminal 1
 
 type = process
-command = /app/busybox/current/bin/busybox getty -l /app/busybox/current/bin/login 38400 tty1
+command = /app/busybox/current/bin/busybox getty -l /app/busybox/current/bin/login 115200 tty1
 restart = true
 termsignal = HUP
 smooth-recovery = true

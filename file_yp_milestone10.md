@@ -47,6 +47,18 @@ installations are becoming fast bloated. PLLinux probably will make centralized 
 setup will write majority of logs into tmpfs (disclaimer: how many times were you looking into them in the local machine? Do you really need
 log from every boot? Or every start of your printer daemon or similar stuff?)
 
+Returning to the logging problems - the solution was changing services starting order:
+
+1. service **boot** is starting (new) **bootsh** and (old) **syslogd**, **crond**, **tty1**, etc.
+2. **syslogd** is waiting for start completion for **bootsh**
+3. other services (**crond**, **tty1**, etc.) are waiting for start completion for **syslogd**
+
+Currently:
+
+1. **dinitctl** can stop or restart **bootsh** (it this problem?)
+2. logging non-admin users is not saved in logs (is it busybox's **login** command limit?)
+3. boot screen finally looks clean
+
 # Scheduler
 
 [Prev page](file_yq_milestone9.md) [Next page](file_zz_milestone.md)
