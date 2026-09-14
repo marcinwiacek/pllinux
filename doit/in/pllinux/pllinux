@@ -1537,8 +1537,8 @@ service() {
          if [ -f "/log/services" ]; then FNAME="/log/services"; fi
          if [ -f "/log/tmp/services" ]; then FNAME="/log/tmp/services"; fi
          if [ "$FNAME" != "" ]; then
-           cmd2=$(cat $FNAME | grep $1)
-           dialog --msgbox "$cmd2" 10 30
+           clear
+           cat $FNAME | grep $1 | less
          fi
       esac
     else
