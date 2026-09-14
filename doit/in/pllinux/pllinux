@@ -1135,13 +1135,78 @@ log_feature_priority_list() {
   echo "1"
   echo \"*\"
   echo \"emerg alert crit err warning notice info debug\"
-  listnr=2
-  for TYPE in !emerg !alert !crit !err !warning !notice !info !debug !=emerg !=alert !=crit !=err !=warning !=notice !=info !=debug emerg alert crit err warning notice info debug; do
-    echo "$listnr";
-    echo "$TYPE";
-    echo "-";
-    listnr=$(($listnr+1))
-  done
+
+  echo "2"
+  echo \"!emerg\"
+  echo \"\(not emerg\) alert crit err warning notice info debug\"
+  echo "3"
+  echo \"!alert\"
+  echo \"\(not emerg alert\) crit err warning notice info debug\"
+  echo "4"
+  echo \"!crit\"
+  echo \"\(not emerg alert crit\) err warning notice info debug\"
+  echo "5"
+  echo \"!err\"
+  echo \"\(not emerg alert crit err\) warning notice info debug\"
+  echo "6"
+  echo \"!warning\"
+  echo \"\(not emerg alert crit err warning\) notice info debug\"
+  echo "7"
+  echo \"!notice\"
+  echo \"\(not emerg alert crit err warning notice\) info debug\"
+  echo "8"
+  echo \"!info\"
+  echo \"\(not emerg alert crit err warning notice info\) debug\"
+
+  echo "9"
+  echo \"!=emerg\"
+  echo \"\(not emerg\) alert crit err warning notice info debug\"
+  echo "10"
+  echo \"!=alert\"
+  echo \"emerg \(not alert\) crit err warning notice info debug\"
+  echo "11"
+  echo \"!=crit\"
+  echo \"emerg alert \(not crit\) err warning notice info debug\"
+  echo "12"
+  echo \"!=err\"
+  echo \"emerg alert crit \(not err\) warning notice info debug\"
+  echo "13"
+  echo \"!=warning\"
+  echo \"emerg alert crit err \(not warning\) notice info debug\"
+  echo "14"
+  echo \"!=notice\"
+  echo \"emerg alert crit err warning \(not notice\) info debug\"
+  echo "15"
+  echo \"!=info\"
+  echo \"emerg alert crit err warning notice \(not info\) debug\"
+  echo "16"
+  echo \"!=debug\"
+  echo \"emerg alert crit err warning notice info \(not debug\)\"
+
+  echo "17"
+  echo \"emerg\"
+  echo \"emerg \(not alert crit err warning notice info debug\)\"
+  echo "18"
+  echo \"alert\"
+  echo \"\(not emerg\) alert \(not crit err warning notice info debug\)\"
+  echo "19"
+  echo \"crit\"
+  echo \"\(not emerg alert\) crit \(not err warning notice info debug\)\"
+  echo "20"
+  echo \"err\"
+  echo \"\(not emerg alert crit\) err \(not warning notice info debug\)\"
+  echo "21"
+  echo \"warning\"
+  echo \"\(not emerg alert crit err\) warning \(not notice info debug\)\"
+  echo "22"
+  echo \"notice\"
+  echo \"\(not emerg alert crit err warning\) notice \(not info debug\)\"
+  echo "23"
+  echo \"info\"
+  echo \"\(not emerg alert crit err warning notice\) info \(not debug\)\"
+  echo "24"
+  echo \"debug\"
+  echo \"\(not emerg alert crit err warning notice info\) debug\"
 }
 
 log_feature_priority() {
@@ -1159,7 +1224,7 @@ log_feature_priority() {
   abc=$(echo dialog --stdout --backtitle \"$PROMPT\\priorities for logged messages\" --cancel-label "Back" \
            --default-item $defaultnum \
          --item-help   \
-         --menu \"Priorities are sorted from the most \(top\) to least important \(bottom\). Star means everything, != means other than, single ! means all less important \(below\)\" \
+         --menu \"Priorities are sorted from the most \(top\) to least important \(bottom\). Star means everything, != means other than, single ! means all less important\" \
          0 0 10 $(log_feature_priority_list))
   cmd=$(eval $abc)
   if [ $? == 0 ]; then
