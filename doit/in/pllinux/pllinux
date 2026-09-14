@@ -1131,21 +1131,37 @@ log_feature_type() {
   fi
 }
 
-log_feature_priority() {
-  list=""
-  listnr=1
-  defaultnum=1
-  #syslog.h from libc
+log_feature_priority_list() {
+  echo "1"
+  echo \"*\"
+  echo \"emerg alert crit err warning notice info debug\"
+  listnr=2
   for TYPE in !emerg !alert !crit !err !warning !notice !info !debug !=emerg !=alert !=crit !=err !=warning !=notice !=info !=debug emerg alert crit err warning notice info debug; do
-    list="$list $listnr $TYPE ";
-    if [ "$LOG_PRIORITY" = "$TYPE" ]; then
-      defaultnum=$listnr
-    fi
+    echo "$listnr";
+    echo "$TYPE";
+    echo "-";
     listnr=$(($listnr+1))
   done
-  cmd=$(dialog --stdout --backtitle "$PROMPT\\priorities for logged messages" --cancel-label "Back" \
+}
+
+log_feature_priority() {
+#  list=""
+#  listnr=1
+  defaultnum=1
+  #syslog.h from libc
+#  for TYPE in !emerg !alert !crit !err !warning !notice !info !debug !=emerg !=alert !=crit !=err !=warning !=notice !=info !=debug emerg alert crit err warning notice info debug; do
+#    list="$list $listnr $TYPE ";
+#    if [ "$LOG_PRIORITY" = "$TYPE" ]; then
+#      defaultnum=$listnr
+#    fi
+#    listnr=$(($listnr+1))
+#  done
+  abc=$(echo dialog --stdout --backtitle \"$PROMPT\\priorities for logged messages\" --cancel-label "Back" \
            --default-item $defaultnum \
-         --menu "Priorities are sorted from the most (top) to least important (bottom). Star means everything, != means other than, single ! means all less important (below)" 0 0 10 $list)
+         --item-help   \
+         --menu \"Priorities are sorted from the most \(top\) to least important \(bottom\). Star means everything, != means other than, single ! means all less important \(below\)\" \
+         0 0 10 $(log_feature_priority_list))
+  cmd=$(eval $abc)
   if [ $? == 0 ]; then
     listnr=1
     for TYPE in !emerg !alert !crit !err !warning !notice !info !debug !=emerg !=alert !=crit !=err !=warning !=notice !=info !=debug emerg alert crit err warning notice info debug; do
@@ -1169,20 +1185,21 @@ log_file() {
         continue;
       fi
       eeeee=0
+      LOG_FILE2 = ""
       while read -r line; do
         case $line in
-        *module*) ;;
-        *#*) ;;
-        *)
-          IFS=" " read -r LOG_RULES2 LOG_FILE2 << EOF
+          *module*) ;;
+          *#*) ;;
+          *) IFS=" " read -r LOG_RULES2 LOG_FILE2 << EOF
 $line
 EOF
-          if [ "$LOG_FILE2" == "$cmd" ]; then
-            if [ "$1" != "$LOG_RULES2" ] || [ "$1" = "" ]; then
-              eeeee=1
-            fi
-          fi
         esac
+        if [ "$LOG_FILE2" == "$cmd" ]; then
+          if [ "$1" != "$LOG_RULES2" ] || [ "$1" = "" ]; then
+            eeeee=1
+            break
+          fi
+        fi
       done < "${DIR}etc/rsyslog.conf"
       if [ "$eeeee" = "1" ]; then
         dialog --backtitle "$PROMPT\\task command" \
@@ -1400,7 +1417,11 @@ logs() {
       listnr=1
       IFS=" "
       while read -r line; do
-        listnr=$(($listnr+1))
+        case $line in
+          *module*) ;;
+          *#*) ;;
+          *) listnr=$(($listnr+1))
+        esac
       done < "${DIR}etc/rsyslog.conf"
       IFS=$IFSORIG
 
@@ -1418,22 +1439,25 @@ logs() {
              log_file ;;
           4) echo "${LOG_TYPE}.${LOG_PRIORITY} ${LOG_FILE} " >> ${DIR}etc/rsyslog.conf
              dinitctl restart syslogd
-# fixme reload service
              break;;
           esac
         done
         ;;
       *) # edit
-        listnr=1
+        listnr=0
         IFS=" "
         while read -r line; do
-        IFS=" " read -r LOG_RULES LOG_FILE << EOF
+          case $line in
+            *module*) ;;
+            *#*) ;;
+            *) IFS=" " read -r LOG_RULES LOG_FILE << EOF
 $line
 EOF
+               listnr=$(($listnr+1))
+          esac
           if [ "$cmd" = "$listnr" ]; then
             break;
           fi
-          listnr=$(($listnr+1))
         done < "${DIR}etc/rsyslog.conf"
         IFS=$IFSORIG
         OLD_LOG_RULES="$LOG_RULES"
@@ -1453,7 +1477,6 @@ EOF
             fi
           done <<< "$file_content"
           dinitctl restart syslogd
-# fixme reload service
         fi
         ;;
       esac
