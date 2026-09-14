@@ -799,19 +799,6 @@ task_command() {
   done
 }
 
-task_type() {
-  cmd=$(dialog --stdout --backtitle "$PROMPT\\task type" --cancel-label "Prev" \
-           --default-item $SSETUPBYSYSTEM \
-           --menu "Task type" 0 0 6 1 "Setup by root (saved in crontab)" \
-                   2 "Setup by user itself (saved in user editable file)"  )
-  if [ $? == 0 ]; then
-    SSETUPBYSYSTEM="$cmd"
-    TASKSTEPNR=$(($TASKSTEPNR+1))
-  else
-    TASKSTEPNR=$(($TASKSTEPNR-1))
-  fi
-}
-
 tasks_list() {
   listnr=1
   IFS=" "
@@ -820,16 +807,10 @@ tasks_list() {
       if [ "$line" = "" ]; then
         continue
       fi
-      if [ "$task_fn" = "crontab" ]; then
-        IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_USR TASK_COMMAND << EOF
+      IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
 $line
 EOF
-      else
-        IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
-$line
-EOF
-        TASK_USR="$task_fn"
-      fi
+      TASK_USR="$task_fn"
       SCHEDULE=""
       IFS=","
       if [ "${TASK_DOW}" != "*" ]; then
@@ -972,7 +953,6 @@ tasks() {
         SDOW="*"
         SUSER="root"
         SCMD=""
-        SSETUPBYSYSTEM=2
         TASKSTEPNR=1
         while true; do
           case $TASKSTEPNR in
@@ -980,24 +960,11 @@ tasks() {
           1) task_schedule ;;
           2) task_command ;;
           3) if [ "$1" != "crontab" ]; then
-               TASKSTEPNR=5
-             else
                TASKSTEPNR=4
-#               task_user
-             fi ;;
-          4) task_type ;;
-          5) if [ "$SSETUPBYSYSTEM" = "1" ]; then
-               echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/crontab
-               listnr=1
-               for task_fn in $TASK_FILE_LIST; do
-                 while read -r line; do
-                   if [ "$task_fn" = "crontab" ] && [ "$line" = "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" ]; then
-                     listnr3=$listnr
-                   fi
-                   listnr=$(($listnr+1))
-                 done < "${DIR}etc/crontab"
-               done
              else
+               task_user
+             fi ;;
+          3) 
                echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/crond.d/$SUSER
                listnr=1
                for task_fn in $TASK_FILE_LIST; do
@@ -1008,7 +975,6 @@ tasks() {
                    listnr=$(($listnr+1))
                  done < "${DIR}etc/$task_fn"
                done
-             fi
              break
           esac
         done
@@ -1020,22 +986,11 @@ tasks() {
         listnr=1
         for task_fn in $TASK_FILE_LIST; do
           while read -r line; do
-            if [ "$task_fn" = "crontab" ]; then
-              IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_USR TASK_COMMAND << EOF
-$line
-EOF
-            else
               IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
 $line
 EOF
               TASK_USR="${task_fn#*/}"
-            fi
             if [ "$listnr" = "$cmd" ]; then
-              if [ "$task_fn" = "crontab" ]; then
-                SSETUPBYSYSTEM=1
-              else
-                SSETUPBYSYSTEM=2
-              fi
               SMINUTE="$TASK_MIN"
               SHOUR="$TASK_HOUR"
               SDAY="$TASK_DOM"
@@ -1054,12 +1009,11 @@ done
             1) task_schedule ;;
             2) task_command ;;
             3) if [ "$1" != "crontab" ]; then
-                 TASKSTEPNR=5
+                 TASKSTEPNR=4
                else
                  task_user
                fi ;;
-            4) task_type ;;
-            5) listnr2=1
+            4) listnr2=1
 #fixme: position during changing type
                for task_fn in $TASK_FILE_LIST; do
                  file_content=$(cat ${DIR}etc/$task_fn)
@@ -1068,11 +1022,7 @@ done
                    if [ "$listnr2" != "$listnr3" ]; then
                      echo "$line" >> ${DIR}etc/$task_fn
                    else
-                     if [ "$task_fn" = "crontab" ]; then
-                       echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SUSER $SCMD" >> ${DIR}etc/crontab
-                     else
                        echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/$task_fn
-                     fi
                    fi
                    listnr2=$(($listnr2+1))
                  done <<< "$file_content"
