@@ -919,7 +919,8 @@ EOF
 
 tasks_file_list() {
   if [ "$1" = "crontab" ]; then
-    TASK_FILE_LIST="crontab"
+#    TASK_FILE_LIST="crontab"
+    TASK_FILE_LIST=""
     for filename in $(cd ${DIR}etc/crond.d && ls *); do
       TASK_FILE_LIST="$TASK_FILE_LIST crond.d/$filename"
     done
@@ -981,7 +982,8 @@ tasks() {
           3) if [ "$1" != "crontab" ]; then
                TASKSTEPNR=5
              else
-               task_user
+               TASKSTEPNR=4
+#               task_user
              fi ;;
           4) task_type ;;
           5) if [ "$SSETUPBYSYSTEM" = "1" ]; then
