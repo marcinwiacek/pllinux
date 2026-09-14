@@ -1555,7 +1555,7 @@ service() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
        --menu "Welcome to the PLLinux configuration" 0 0 8 \
-       1 stop 2 start 3 restart )
+       1 stop 2 start 3 restart 4 "internal log" 5 "run history from syslog file (if exists)" )
     if [ $? = 0 ]; then
       case $cmd in
       1) cmd2=$(dinitctl stop $1)
@@ -1578,7 +1578,7 @@ all_services() {
     IFS=" " read -r SERVICE_NAME X SERVICE_PID << EOF
 ${line:11}
 EOF
-    if [ "$SERVICE_NAME" != "boot" ]; then
+    if [ "$SERVICE_NAME" != "boot" ] && [ "$SERVICE_NAME" != "bootsh" ]; then
       DESC="-"
       while read -r line2; do
         case $line2 in
@@ -1658,16 +1658,19 @@ sysctl_kernel_params() {
 
 devices() {
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 9 \
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 12 \
        1 \"CPU \(lscpu\)\" \
        2 \"Disk info, params and partitioning \(smartctl, hdparm, cfdisk\)\" \
        3 \"Monitor info \(read-edid\)\" \
        4 \"Network interfaces \(ip\)\" \
        5 \"PCI \(lspci\)\" \
        6 \"Power options \(acpid, kernel options, etc.\)\" \
-       7 \"RAM \(decode-dimms\)\" \
-       8 \"Sensors \(sensors\)\" \
-       9 \"UEFI \(dmidecode\)\")
+       7 \"Power source \(battery, charging, etc.\)\" \
+       8 \"RAM \(decode-dimms\)\" \
+       9 \"Sensors \(sensors\)\" \
+       10 \"Sound\" \
+       11 \"USB\" \
+       12 \"UEFI \(dmidecode\)\")
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       case $cmd in
@@ -1675,9 +1678,9 @@ devices() {
       2) install_to 0 ;;
       4) dialog --backtitle "PLLinux\device manager\network interfaces \(ip\)" --msgbox "$(ip link show)" 100 90 ;;
       5) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -vvv)" 100 90 ;;
-      7) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;
-      8) dialog --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
-      9) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
+      8) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;
+      9) dialog --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
+      12) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
       esac
     else
       break;
