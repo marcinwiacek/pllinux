@@ -1134,6 +1134,7 @@ log_feature_type() {
 log_feature_priority_list() {
   echo "1"
   echo \"*\"
+  #syslog.h from libc
   echo \"emerg alert crit err warning notice info debug\"
 
   echo "2"
@@ -1211,16 +1212,16 @@ log_feature_priority_list() {
 
 log_feature_priority() {
 #  list=""
-#  listnr=1
+  listnr=2
   defaultnum=1
-  #syslog.h from libc
-#  for TYPE in !emerg !alert !crit !err !warning !notice !info !debug !=emerg !=alert !=crit !=err !=warning !=notice !=info !=debug emerg alert crit err warning notice info debug; do
-#    list="$list $listnr $TYPE ";
-#    if [ "$LOG_PRIORITY" = "$TYPE" ]; then
-#      defaultnum=$listnr
-#    fi
-#    listnr=$(($listnr+1))
-#  done
+  if [ "$LOG_PRIORITY" != "*" ]; then
+    for TYPE in !emerg !alert !crit !err !warning !notice !info !=emerg !=alert !=crit !=err !=warning !=notice !=info !=debug emerg alert crit err warning notice info debug; do
+      if [ "$LOG_PRIORITY" = "$TYPE" ]; then
+        defaultnum=$listnr
+      fi
+      listnr=$(($listnr+1))
+    done
+  fi
   abc=$(echo dialog --stdout --backtitle \"$PROMPT\\priorities for logged messages\" --cancel-label "Back" \
            --default-item $defaultnum \
          --item-help   \
@@ -1228,13 +1229,17 @@ log_feature_priority() {
          0 0 10 $(log_feature_priority_list))
   cmd=$(eval $abc)
   if [ $? == 0 ]; then
-    listnr=1
-    for TYPE in !emerg !alert !crit !err !warning !notice !info !debug !=emerg !=alert !=crit !=err !=warning !=notice !=info !=debug emerg alert crit err warning notice info debug; do
-      if [ "$cmd" = "$listnr" ]; then
-         LOG_PRIORITY="$TYPE";
-      fi
-      listnr=$(($listnr+1))
-    done
+    if [ "$cmd" = "1" ]; then
+      LOG_PRIORITY="*";
+    else
+      listnr=2
+      for TYPE in !emerg !alert !crit !err !warning !notice !info !=emerg !=alert !=crit !=err !=warning !=notice !=info !=debug emerg alert crit err warning notice info debug; do
+        if [ "$cmd" = "$listnr" ]; then
+          LOG_PRIORITY="$TYPE";
+        fi
+        listnr=$(($listnr+1))
+      done
+    fi
     TASKSTEPNR=$(($TASKSTEPNR+1))
   else
     TASKSTEPNR=$(($TASKSTEPNR-1))
@@ -1346,7 +1351,7 @@ log_entry_list() {
   echo \"Clear file\"
 
   echo " $(($listnr+4)) "
-  echo \"Delete log \(without file now\). No confirmation.\"
+  echo \"Delete all \(without file now\). No confirmation.\"
 }
 
 log_entry() {
@@ -1367,6 +1372,7 @@ log_entry() {
       IFS=$IFSORIG
       case $cmd in
       1 )  # search
+        clear
         cat $INPUT2 | less # it seems, that msgbox and other dialog elements have size limit
         ;;
       2 )  #save and back
@@ -1555,7 +1561,7 @@ service() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
        --menu "Welcome to the PLLinux configuration" 0 0 8 \
-       1 stop 2 start 3 restart 4 "internal log" 5 "run history from syslog file (if exists)" )
+       1 stop 2 start 3 restart 4 "internal log" 5 "history from /log/*/services syslogd file (if exists)" )
     if [ $? = 0 ]; then
       case $cmd in
       1) cmd2=$(dinitctl stop $1)
@@ -1564,6 +1570,15 @@ service() {
          dialog --msgbox "$cmd2" 10 30 ;;
       3) cmd2=$(dinitctl restart $1)
          dialog --msgbox "$cmd2" 10 30 ;;
+      4) cmd2=$(dinitctl catlog $1)
+         dialog --msgbox "$cmd2" 10 30 ;;
+      5) FNAME=""
+         if [ -f "/log/services" ]; then FNAME="/log/services"; fi
+         if [ -f "/log/tmp/services" ]; then FNAME="/log/tmp/services"; fi
+         if [ "$FNAME" != "" ]; then
+           cmd2=$(cat $FNAME | grep $1)
+           dialog --msgbox "$cmd2" 10 30
+         fi
       esac
     else
       break;
@@ -1613,7 +1628,7 @@ services() {
         IFS=" " read -r SERVICE_NAME X SERVICE_PID << EOF
 ${line:11}
 EOF
-        if [ "$SERVICE_NAME" != "boot" ]; then
+        if [ "$SERVICE_NAME" != "boot" ] && [ "$SERVICE_NAME" != "bootsh" ]; then
           if [ "$listnr" = "$cmd" ]; then
              break
           fi
