@@ -774,8 +774,7 @@ EOF
        $list )
 
   if [ $? == 0 ]; then
-      TASKSTEPNR=$(($TASKSTEPNR+1))
-
+    TASKSTEPNR=$(($TASKSTEPNR+1))
     listnr=1
     while read -r line; do
       IFS=":" read -r USER_NAME OTHER << EOF
@@ -909,7 +908,6 @@ EOF
 
 tasks_file_list() {
   if [ "$1" = "crontab" ]; then
-#    TASK_FILE_LIST="crontab"
     TASK_FILE_LIST=""
     for filename in $(cd ${DIR}etc/crond.d && ls *); do
       TASK_FILE_LIST="$TASK_FILE_LIST crond.d/$filename"
@@ -936,24 +934,24 @@ tasks() {
   listnr3=1
   tasks_file_list $1
   while true; do
-  if [ "$1" = "crontab" ]; then
-    PROMPT="PLLinux";
-    PROMPT2="";
-  else
-    PROMPT="PLLinux\set users\\$1";
-    PROMPT2=" for $1";
-  fi
-  PROMPT="$PROMPT\\background tasks scheduler"
-  abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
+    if [ "$1" = "crontab" ]; then
+      PROMPT="PLLinux";
+      PROMPT2="";
+    else
+      PROMPT="PLLinux\set users\\$1";
+      PROMPT2=" for $1";
+    fi
+    PROMPT="$PROMPT\\background tasks scheduler"
+    abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Commands run$PROMPT2 in the background in the specified time. Managed by crond service.\" 0 0 8 \
        $(tasks_list) )
-  cmd=$(eval $abc)
-  if [ $? == 0 ]; then
-    tasks_list_num $1
-    listnr3=$cmd
-    case $cmd in
-    $listnr)
+    cmd=$(eval $abc)
+    if [ $? == 0 ]; then
+      tasks_list_num $1
+      listnr3=$cmd
+      case $cmd in
+      $listnr)
         PROMPT="$PROMPT\\new task"
         SMINUTE="*"
         SHOUR="*"
@@ -968,29 +966,31 @@ tasks() {
           0) break ;;
           1) task_schedule ;;
           2) task_command ;;
-          3) if [ "$1" != "crontab" ]; then
-               TASKSTEPNR=4
-             else
+          3) if [ "$1" = "crontab" ]; then
                task_user
+             else
+               TASKSTEPNR=4
              fi ;;
-          3) 
-               echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/crond.d/$SUSER
-               listnr=1
-               for task_fn in $TASK_FILE_LIST; do
-                 while read -r line; do
-                   if [ "$task_fn" = "crond.d/$SUSER" ] && [ "$line" = "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" ]; then
-                     listnr3=$listnr
-                   fi
-                   listnr=$(($listnr+1))
-                 done < "${DIR}etc/$task_fn"
-               done
+          4) echo "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" >> ${DIR}etc/crond.d/$SUSER
+             chown $SUSER ${DIR}etc/crond.d/$SUSER
+             chgrp $SUSER ${DIR}etc/crond.d/$SUSER
+             dinitctl restart crond
+             listnr=1
+             for task_fn in $TASK_FILE_LIST; do
+               while read -r line; do
+                 if [ "$task_fn" = "crond.d/$SUSER" ] && [ "$line" = "$SMINUTE $SHOUR $SDAY $SMONTH $SDOW $SCMD" ]; then
+                   listnr3=$listnr
+                 fi
+                 listnr=$(($listnr+1))
+               done < "${DIR}etc/$task_fn"
+             done
              break
           esac
         done
         ;;
-    $(($listnr+1)) )
+      $(($listnr+1)) )
         ;;
-    *)
+      *)
         PROMPT="$PROMPT\\edit task"
         listnr=1
         for task_fn in $TASK_FILE_LIST; do
@@ -1023,10 +1023,11 @@ done
                  task_user
                fi ;;
             4) listnr2=1
-#fixme: position during changing type
                for task_fn in $TASK_FILE_LIST; do
                  file_content=$(cat ${DIR}etc/$task_fn)
                  echo -n "" > ${DIR}etc/$task_fn
+                 chown $SUSER ${DIR}etc/$task_fn
+                 chgrp $SUSER ${DIR}etc/$task_fn
                  while IFS= read -r line; do
                    if [ "$listnr2" != "$listnr3" ]; then
                      echo "$line" >> ${DIR}etc/$task_fn
@@ -1036,14 +1037,15 @@ done
                    listnr2=$(($listnr2+1))
                  done <<< "$file_content"
                done
+               dinitctl restart crond
                break
             esac
           done
           ;;
-    esac
-  else
-    break;
-  fi
+      esac
+    else
+      break;
+    fi
   done
 }
 
@@ -1522,14 +1524,14 @@ service() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
        --menu "Welcome to the PLLinux configuration" 0 0 8 \
-       1 stop 2 start 3 restart 4 "internal log" 5 "history from /log/*/services syslogd file (if exists)" )
+       1 restart 2 stop 3 start 4 "internal log" 5 "history from /log/*/services syslogd file (if exists, q to quit)" )
     if [ $? = 0 ]; then
       case $cmd in
-      1) cmd2=$(dinitctl stop $1)
+      1) cmd2=$(dinitctl restart $1)
          dialog --msgbox "$cmd2" 10 30 ;;
-      2) cmd2=$(dinitctl start $1)
+      2) cmd2=$(dinitctl stop $1)
          dialog --msgbox "$cmd2" 10 30 ;;
-      3) cmd2=$(dinitctl restart $1)
+      3) cmd2=$(dinitctl start $1)
          dialog --msgbox "$cmd2" 10 30 ;;
       4) cmd2=$(dinitctl catlog $1)
          dialog --msgbox "$cmd2" 10 30 ;;
