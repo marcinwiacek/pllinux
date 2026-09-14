@@ -72,6 +72,7 @@ things notified by Marcin Wiącek few years ago and confirmed not only by Lunduk
   5. [Stop Celebrating Ubuntu 26.04 — It's a Disaster](https://www.youtube.com/watch?v=tG2ZMvBT8W4), [Ubuntu 26.04: The Ubuntu Platform's Downfall](https://www.youtube.com/watch?v=bfEL3UjPUFg) or [Ubuntu 26.04 Trust Problem: Snap Flaws, Ads & Migration](https://www.youtube.com/watch?v=dzASGvSGF3M) - they're maybe very small videos or channels, but very good mention about such Ubuntu problems like close-source app shop, problems with Rust rewrites, silent installation in background and many other things (random note: 26.04 was day of Czarnobyl disaster in 1986)
   6. [Ubuntu dominates servers, but one choice killed it on the desktop](https://www.xda-developers.com/ubuntu-dominates-servers-but-one-choice-killed-it-on-the-desktop/)
   7. [A new foundation for TUXEDO OS: Switching to Debian](https://www.tuxedocomputers.com/en/A-new-foundation-for-TUXEDO-OS-Switching-to-Debian.tuxedo)
+  8. [I don't care for Gnome](https://woltman.com/gnome-bad/) - this page is quite good confirming, that problems are visible even with "the greatest", the most "user friendly" and most advertised and pushed for everybody GUI.
 
 And some other very concrete examples:
 

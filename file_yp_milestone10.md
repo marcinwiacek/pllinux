@@ -28,8 +28,6 @@ Helps comes from the **strace** - when started with **rsyslogd**, it shows, that
 
 But shouldn't be, that logging daemon is creating everything when has got rules already? Shouldn't **rsyslogd** show itself, that device is not found or something? (and here we are again going into this, that Open Source is many times overcomplicated or full of unclear or even stupid things)
 
-Offtopic: [I don't care for Gnome](https://woltman.com/gnome-bad/) - this page is quite good confirming, that problems are visible even with "the greatest", the most "user friendly" and most advertised and pushed for everybody GUI.
-
 Anyway, what can be done with the problem with /dev/log?
 
     module(load="imuxsock") #local system logging
@@ -59,6 +57,8 @@ Currently:
 1. **dinitctl** can stop or restart **bootsh** (it this problem?)
 2. logging non-admin users is not saved in logs (is it busybox's **login** command limit?)
 3. boot screen finally looks clean
+
+I don't like syntax for rsyslog (instead of all these ! or != it would be enough to give list of priorities separated by comma and it would be consistent with list of events), but...
 
 # Scheduler
 
