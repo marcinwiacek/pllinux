@@ -713,7 +713,7 @@ EOF
 task_schedule() {
   while true; do
     cmd=$(dialog --stdout --backtitle "$PROMPT\\task schedule" --cancel-label "Back" \
-      --form "You can put intervals or more values separated with comma. Single star means \"all\". Values cannot be empty." 0 0 8 \
+      --form "You can put intervals or more values separated with comma. Single star means \"all\" (cannot be combined). Values cannot be empty." 0 0 8 \
       "Minute (1-59)" 1 1 "$SMINUTE" 1 50 15 0 \
       "Hour (0-23)" 2 1 "$SHOUR" 2 50 15 0 \
       "Month day (1-31)" 3 1 "$SDAY" 3 50 15 0 \
@@ -721,7 +721,13 @@ task_schedule() {
       "Day of week (0-6, 0 is Sat, 1 is Mon, etc.)" 5 1 "$SDOW" 5 50 15 0 )
     if [ $? == 0 ]; then
       linenr=1
+      errr1=0
+      errr2=0
       while read -r line; do
+        if [ "$line" = "" ]; then errr1=1; fi
+        case $line in
+        *\**) if [ "$line" != "*" ]; then errr2=1; fi
+        esac
         case $linenr in
         1) SMINUTE="$line" ;;
         2) SHOUR="$line" ;;
@@ -731,9 +737,12 @@ task_schedule() {
         esac
         linenr=$(($linenr+1))
       done <<< "$cmd"
-      if [ "$SMINUTE" = "" ] || [ "$SHOUR" = "" ] || [ "$SDAY" = "" ] || [ "$SMONTH" = "" ] || [ "$SDOW" = "" ]; then
+      if [ "$errr1" != 0 ] || [ "$errr2" != 0 ]; then
+        errr="";
+        if [ "$errr1" != 0 ]; then errr="Empty values not allowed. "; fi
+        if [ "$errr2" != 0 ]; then errr="${errr}Star cannot be combined with other values. "; fi
         dialog --backtitle "$PROMPT\\task schedule" \
-          --msgbox "Empty values not allowed. Try again" 10 30
+          --msgbox "${errr}Try again" 10 30
         continue
       fi
       TASKSTEPNR=$(($TASKSTEPNR+1))
