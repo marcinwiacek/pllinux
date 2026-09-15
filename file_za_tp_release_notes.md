@@ -201,17 +201,17 @@ GUI is of course planned. And creating good system roots and base is more import
 
 Note: yes, text mode has got many disadvantages. It was used for now just because of simplicity.
 
-**Projects like Vinix or Redox are better**
+**Projects like Vinix or Redox or Haiku or even ReactOS or Omarchy are better**
 
 Concurrence is always good. Future will show, what will be used more widely in the future. And result cannot be sometimes predicted (see situation with OS/2 and Windows 95)
 
 **It's another boring Linux distribution**
 
-It doesn't have at least only other branding.
+It doesn't have at least just other branding.
 
 **Does it have sense to make new OS by people in AI time?**
 
-New products and ideas are always moving people forward. And making things by human (not AI) is extending these people skills and allow them for making better things.
+New products and ideas are always moving people forward. And making things by human (not AI) is extending their skills and allowing them making better things.
 
 **This will be always after Omarchy, Ubuntu, Debian, etc.**
 
