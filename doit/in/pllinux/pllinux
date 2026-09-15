@@ -1922,29 +1922,23 @@ swap_file() {
 }
 
 network() {
+    get_value_from_conf_file "ETH_START" "0"
+    ETH_START="$CONF_FILE_VALUE"
+    get_value_from_conf_file "ETH_IP4" ""
+    ETH_IP4="$CONF_FILE_VALUE"
     cmd=$(dialog --stdout --backtitle "PLLinux\\network" --cancel-label "Back" \
       --form "Pls provide params" 0 0 8 \
-      "IP4 address for eth0 (empty = DHCP)" 1 1 "" 1 50 20 0 \
-      "Enabling eth0 in system startup (0 or 1)" 2 1 "0" 2 50 20 0 )
+      "IP4 address for eth0 (empty = DHCP)" 1 1 "$ETH_IP4" 1 50 20 0 \
+      "Enabling eth0 in system startup (0 or 1)" 2 1 "$ETH_START" 2 50 20 0 )
     if [ $? == 0 ]; then
         linenr=1
-#        while read -r line; do
-#          case $linenr in
-#          1) if [ "$line" = "0" ]; then
-#               swapoff /swapfile
-#               rm /swapfile
-#             else
-#               swapoff /swapfile || true
-#               rm /swapfile || true
-#               fallocate -l ${line}M /swapfile
-#               chmod 600 /swapfile
-#               mkswap /swapfile
-#               swapon /swapfile
-#             fi ;;
-#          2) sysctl vm.swappiness=$line ;;
-#          esac
-#          linenr=$(($linenr+1))
-#        done <<< "$cmd"
+        while read -r line; do
+          case $linenr in
+          1) change_value_in_conf_file "ETH_IP4" "$line" ;;
+          2) change_value_in_conf_file "ETH_START" "$line" ;;
+          esac
+          linenr=$(($linenr+1))
+        done <<< "$cmd"
     fi
 }
 
@@ -1970,6 +1964,12 @@ while true; do
   get_value_from_conf_file "SWAP_SIZE" "0"
   SWAP_ON_OFF="off"
   if [ "$CONF_FILE_VALUE" != 0 ]; then SWAP_ON_OFF="$CONF_FILE_VALUE MB"; fi
+  get_value_from_conf_file "ETH_START" "0"
+  ETH_START="manually"
+  if [ "$CONF_FILE_VALUE" = 1 ]; then ETH_START="on system start"; fi
+  get_value_from_conf_file "ETH_IP4" ""
+  ETH_IP4="IP4 $CONF_FILE_VALUE"
+  if [ "$CONF_FILE_VALUE" = "" ]; then ETH_IP4="IP4 DHCP"; fi
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 22 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
@@ -1986,7 +1986,7 @@ while true; do
        14 "User groups" \
        15 "App language (todo)           - $LANG" \
        16 "Keyboard and font (kbd)       - $KEYB, $FONT" \
-       17 "Network                       - manual, IP4 DHCP" \
+       17 "Network                       - $ETH_START $ETH_IP4" \
        18 "Swap file (swapon,off,mkswap) - $SWAP_ON_OFF" \
        19 "Timezone                      - $TIMEZONE" \
        20 "Partition encryption password (todo)" \
