@@ -943,49 +943,31 @@ task_delete() {
           --msgbox "At least one option must be selected. Try again" 10 30
         continue
       fi
-
-      while true; do
-        f=0
-        IFS=" "
-        for task_fn in $TASK_FILE_LIST; do
+      listnr=1
+      IFS=" "
+      for task_fn in $TASK_FILE_LIST; do
+          file_content=$(cat ${DIR}etc/$task_fn)
+          echo -n "" > ${DIR}etc/$task_fn
+          TASK_USR="${task_fn#*/}"
+          chown $TASK_USR ${DIR}etc/$task_fn
+          chgrp $TASK_USR ${DIR}etc/$task_fn
           while read -r line; do
             if [ "$line" = "" ]; then
               continue
             fi
-            IFS=" "
-            task_info "$line"
-            SETUP="($TASK_USR) "
-echo "$cmd" >> /tmp/y
-            echo "$SETUP${SCHEDULE:1} - $TASK_COMMAND" >> /tmp/x
-            case $cmd in
-            *"$SETUP${SCHEDULE:1} - $TASK_COMMAND"* )
-echo found >> /tmp/x
-                 f=1
-                 file_content=$(cat ${DIR}etc/$task_fn)
-                 echo -n "" > ${DIR}etc/$task_fn
-                 chown $SUSER ${DIR}etc/$task_fn
-                 chgrp $SUSER ${DIR}etc/$task_fn
-                 while IFS= read -r line2; do
-                   IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
-$line2
+            IFS=" " read -r TASK_MIN TASK_HOUR TASK_DOM TASK_MONTH TASK_DOW TASK_COMMAND << EOF
+$line
 EOF
-                   if [ "$TASK_MIN $TASK_HOUR $TASK_DOM $TASK_MONTH $TASK_DOW $TASK_COMMAND" != "$line2" ]; then
-                     echo "$line2" >> ${DIR}etc/$task_fn
-                   fi
-                 done <<< "$file_content"
-            esac
-            if [ "$f" = 1 ]; then break; fi
-          done < "${DIR}etc/$task_fn"
-          if [ "$f" = 1 ]; then break; fi
-        done
-        IFS=$IFSORIG
-        if [ "$f" = 1 ]; then continue; fi
-        break;
+            if [ "$TASK_MIN $TASK_HOUR $TASK_DOM $TASK_MONTH $TASK_DOW $TASK_COMMAND" != "$line" ]; then
+              echo "$line" >> ${DIR}etc/$task_fn
+            fi
+            listnr=$(($listnr+1))
+          done <<< "$file_content"
       done
-      break
-    else
-      break
+               dinitctl restart crond
+      IFS=$IFSORIG
     fi
+    break
   done
 }
 
