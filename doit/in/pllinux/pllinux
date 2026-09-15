@@ -1134,7 +1134,11 @@ log_feature_type_list() {
       ;;
     esac
     case $TYPE in
-    kern) echo \"kernel messages\" ;;
+    auth) echo \"user authentication \(including logging\)\" ;;
+    cron) echo \"info from application running tasks with schedule \(in PLLinux crond service\)\" ;;
+    daemon) echo \"services manager \(in PLLinux dinit\)\" ;;
+    kern) echo \"kernel logs \(available with dmesg too\)\" ;;
+    syslog) echo \"info from system-log application \(in PLLinux syslogd service\)\" ;;
     user) echo \"user level messages\" ;;
     *) echo \"\" ;;
     esac
@@ -1361,7 +1365,7 @@ log_entry_rule_delete() {
 
 log_entry_list() {
   echo " 1 "
-  echo \"Search file \(press q to return\)\"
+  echo \"Search file \(q to quit\)\"
 
   echo " 2 "
   echo \"Save changes and back\"
@@ -1978,17 +1982,17 @@ while true; do
        3 "Background tasks running in specified time for all users (crond)" \
        4 "Background services (dinit)" \
        5 "Devices (info, power options, partitioning, etc.)" \
-       6 "Network firewall" \
+       6 "Network firewall (nftables)" \
        7 "Time" \
        8 "Kernel modules (modprobe)" \
        9 "Kernel params (sysctl)" \
-       10 "Kernel logs (dmesg, press q to return)" \
+       10 "Kernel logs (dmesg, can be saved with syslogd too, q to quit)" \
        11 "System logs saved in files (syslogd)" \
-       12 "Users" \
+       12 "Users (adduser, etc.)" \
        14 "User groups" \
        15 "App language (todo)           - $LANG" \
        16 "Keyboard and font (kbd)       - $KEYB, $FONT" \
-       17 "Network                       - $ETH_START $ETH_IP4" \
+       17 "Network (ip)                  - $ETH_START $ETH_IP4" \
        18 "Swap file (swapon,off,mkswap) - $SWAP_ON_OFF" \
        19 "Timezone                      - $TIMEZONE" \
        20 "Partition encryption password (todo)" \
