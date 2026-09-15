@@ -43,14 +43,14 @@ Currently in early alpha. Some things are done and many still todo:
  7. [Milestone 7 - Creating booting ISO image](file_ys_milestone7.md)
  8. [Milestone 8 - SSD writes, localization, manual pages, configurator](file_yr_milestone8.md)
  9. [Milestone 9 - correct man, configurator with dialog, partitioning, device manager](file_yq_milestone9.md)
- 10. [Milestone 10 - logging](file_yp_milestone10.md)
- 11. [Milestone 11 - scheduler, sound, CPU microcode and kernel packages]
+ 10. [Milestone 10 - logging, scheduler](file_yp_milestone10.md)
+ 11. [Milestone 11 - CPU microcode and kernel packages]
  12. Milestone 12 - dbus? AppArmor? SeLinux?
- 14. Milestone 14 - more packages, software compiling and matrioszka (compiling PLLinux from PLLinux), etc.
+ 14. Milestone 14 - more packages, software compiling and matrioszka (compiling PLLinux from PLLinux), source, etc.
  15. Milestone 15 - installation with Secure Boot and shim
  16. Milestone 16 - packages with optional config (for example installing some localization only or removing a files), 
 impossible things (like deleting to trash or firewall per process), quotas, managed installation
- 17. Milestone 17 - predictable network devices names
+ 17. Milestone 17 - predictable network devices names, limiting CPU, RAM, bandwidth with user sessions, etc.
  18. Milestone 18 - graphic UI
  19. Milestone 19 - big party?
 
