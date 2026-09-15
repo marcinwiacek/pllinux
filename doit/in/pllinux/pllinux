@@ -1895,7 +1895,7 @@ swap_file() {
     get_value_from_conf_file "SWAP_ZSWAP" "1"
     SWAP_ZSWAP="$CONF_FILE_VALUE"
     cmd=$(dialog --stdout --backtitle "PLLinux\\swap file" --cancel-label "Back" \
-      --form "Pls provide swap params" 0 0 8 \
+      --form "Swap file is increasing disk usage and is slow, but can increase RAM size available for system" 0 0 8 \
       "Size in MB (0 disables it)" 1 1 "$SWAP_SIZE" 1 50 10 0 \
       "How aggressive is moving to swap (0-100)" 2 1 "$SWAP_AGGRESIVE" 2 50 10 0 \
       "Using zswap (compress RAM before saving to swap)" 3 1 "$SWAP_ZSWAP" 3 50 10 0 )
