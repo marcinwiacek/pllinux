@@ -35,10 +35,10 @@ giving list of dependencies in readme.md files described in further part of thes
 There are just few services started:
 
 1. tty1-tty3 for starting terminals
-2. boot used for system boot actions
-3. recovery started when something fails during boot
+2. boot and bootsh used for system boot actions
+3. recovery started when something fails during boot process
 4. crond for tasks started with schedule in background
-5. sysctld for saving logs in the disk
+5. syslogd for saving logs in the disk
 
 Other actions (starting and stopping network, synchronizing time using NTP, mounting USB drives, etc.) is done on mainly event occurence - you can wait some miliseconds and it doesn't hurt.
 
@@ -61,15 +61,14 @@ Note: we know, that shell script is not the best way of writing code in the worl
 # Filesystem
 
 * /app - place for all apps (they're saved in separate folders, you can assign different apps or app versions from the /app to other users)
-* /etc - some configuration files (much less and more readable than in typical Linux distributions, normally you can manage them 
-with **pllinux** text mode manager
+* /etc - some configuration files (much less and more readable than in typical Linux distributions, normally you can manage them with **pllinux** text mode manager
 * /home - user files, with root account you see all users, with non-root users see only own home directory
 * /other
 * /dev, /proc, /run, /sys - pseudo-filesystems exposed by kernel
 * /bin, /usr, /lib64 - links to the files from the /app to satisfy first lines in scripts/shebangs (in the future all of them will be probably removed and functionality will be handled other way)
-* /log - visible only for root, contains temporary or permament log files
-* /tmp - tmpfs
-* /mnt - cd-rom, USB memories, memory cards, etc.
+* /log - visible only for root, contains temporary or permament log files written for example by **syslogd**
+* /tmp - tmpfs for temporary files
+* /mnt - CD-ROM, USB memories, memory cards, etc.
 
 And this is everything. Every package inside /app has got own directory. Inside you have:
 
@@ -117,11 +116,9 @@ Readme.md is semi-text file with some elements, for example:
 
 # Freedom
 
-With PLLinux you decide, if you want to use compiled packages or whether you want to create them from source. You have also full freedom
-in modifying system to your needs. This is pure technical heaven and return to the GNU ideas in the best shape.
+With PLLinux you decide, if you want to use compiled packages or whether you want to create them from source. You have also full freedom in modifying system to your needs. This is pure technical heaven and return to the GNU ideas in the best shape.
 
-Note: some packages are not available from the box not because they're written in concrete language - everything is estimated from technical
-excellence perspective only (maturity, number of bugs, resources usage, etc.)
+Note: some packages are not available from the box not because they're written in concrete language - everything is estimated from technical excellence perspective only (maturity, number of bugs, resources usage, etc.)
 
 # Starting
 
@@ -148,11 +145,15 @@ situation, that "kbd" package won't be completed, because GUI have done it much 
 
 Seems to be cosmetic (no known side effects excluding error message).
 
-**There is saved a lot of garbabe in log with Midnight Commander**
+**There is saved a lot of printf garbabe in Midnight Commander history log**
 
-Old topic.
+Old topic, see [https://github.com/MidnightCommander/mc/issues/2104](https://github.com/MidnightCommander/mc/issues/2104). You need to use for example Bash with your user.
 
 **Non-admin users logging info is not saved in logs**
+
+Solution unknown.
+
+**Problems with crond and non-root users**
 
 Solution unknown.
 
@@ -221,15 +222,19 @@ Never say never.
 
 Number of people critizing something is always much better than number of people doing something. Propose updates.
 
+**This is small project written by one person and it will be abandomed soon**
+
+Linux kernel started this way too.
+
 # Schedule and future
 
 This project was started in April 2026 and already went into quite useable shape and form.
 
-Last 2026 months, year 2027 and beyond will be used for improving functionality (compiling more packages, 
-providing more flexible and easier structure, decreasing resources usage, etc.). It includes especially preparing user-friendly
-graphic environment (something probably similar to HaikuOS or desktop existing in the Gnome 2 / Windows 95-XP era with the nice to eye graphic elements
-and elements concentrated on real productivity)
+Last 2026 months, year 2027 and beyond will be used for improving functionality (compiling more packages,
+providing more flexible and easier structure, decreasing resources usage, etc.). It includes preparing user-friendly
+graphic environment (something similar probably to HaikuOS or desktops in the Gnome 2 / Windows 95-XP era with the nice to eye rich graphic elements
+and GUI concentrated on real productivity)
 
-There are of course many things in the queue (for example firewall rules for every app or updates with downloading incremental part of packages), just
-some single more funny elements (which require more development and code changes) will be probably moved into further future. 
-Example: deleting to the trash.
+There are of course many things in the queue (for example firewall rules for every app or updates with downloading incremental packages parts), just
+some single more funny elements (which require more development and code changes) will be probably moved into further future
+(example: deleting to the trash)
