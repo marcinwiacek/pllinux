@@ -1121,7 +1121,7 @@ done
   done
 }
 
-log_feature_types() {
+log_feature_type_list() {
   for TYPE in kern user mail daemon auth syslog lpr news uucp cron authpriv ftp ntp console; do
     echo $TYPE
     case $1 in
@@ -1143,7 +1143,7 @@ log_feature_types() {
 log_feature_type() {
   while true; do
     abc=$(echo dialog --stdout --backtitle \"$PROMPT\\logged message types\" --cancel-label "Back" \
-         --item-help --checklist \"Select messages for saving in log\" 0 0 10 $(log_feature_types $LOG_TYPE))
+         --item-help --checklist \"Select messages for saving in log\" 0 0 10 $(log_feature_type_list $LOG_TYPE))
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
       if [ "$cmd" = "" ]; then
@@ -1322,7 +1322,7 @@ EOF
   done
 }
 
-log_entry_list_to_delete() {
+log_entry_rule_delete_list() {
   IFS=";"
   for entry in $1; do
     echo \"Rule - ${entry}\"
@@ -1334,7 +1334,7 @@ log_entry_list_to_delete() {
 log_entry_rule_delete() {
   while true; do
     abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
-         --checklist \"Deleting log rules\" 0 0 10 $(log_entry_list_to_delete $INPUT1 $INPUT2))
+         --checklist \"Deleting log rules\" 0 0 10 $(log_entry_rule_delete_list $INPUT1))
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
       newlist=""
@@ -1492,7 +1492,7 @@ EOF
   done
 }
 
-log_list() {
+logs_list() {
   listnr=1
   IFS=" "
   while read -r line; do
@@ -1519,7 +1519,7 @@ logs() {
     abc=$(echo dialog --stdout --backtitle \"$PROMPT\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Logs saved to files \(temporary or permanent\). Managed by syslogd service\" 0 0 8 \
-       $(log_list) )
+       $(logs_list) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
       listnr=1
