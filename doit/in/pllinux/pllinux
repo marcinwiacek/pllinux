@@ -105,7 +105,9 @@ EOF
         fi
         ;;
       SWAP_AGGRESIVE* )
-        sysctl vm.swappiness=$PARAM_VALUE
+        sysctl vm.swappiness=$PARAM_VALUE ;;
+      ETH_START*) ;;
+      ETH_IP4*) ;;
       esac
     done < $DIR$CFGFILE
   fi
