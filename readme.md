@@ -46,7 +46,7 @@ Currently in early alpha. Some things are done and many still todo:
  10. [Milestone 10 - logging, scheduler](file_yp_milestone10.md)
  11. [Milestone 11 - CPU microcode and kernel packages]
  12. Milestone 12 - dbus? AppArmor? SeLinux?
- 14. Milestone 14 - more packages, software compiling and matrioszka (compiling PLLinux from PLLinux), source, etc.
+ 14. Milestone 14 - more packages, software compiling and matrioszka (compiling PLLinux from PLLinux), etc.
  15. Milestone 15 - installation with Secure Boot and shim
  16. Milestone 16 - packages with optional config (for example installing some localization only or removing a files), 
 impossible things (like deleting to trash or firewall per process), quotas, managed installation
