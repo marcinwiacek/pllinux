@@ -924,7 +924,7 @@ task_delete_list() {
       task_info "$line"
       echo "$listnr "
       SETUP="($TASK_USR) "
-      echo \"$SETUP ${SCHEDULE:1} - $TASK_COMMAND\"
+      echo \"$SETUP${SCHEDULE:1} - $TASK_COMMAND\"
       echo " - off ";
       listnr=$(($listnr+1))
     done < "${DIR}etc/$task_fn"
@@ -955,8 +955,11 @@ task_delete() {
             IFS=" "
             task_info "$line"
             SETUP="($TASK_USR) "
+echo "$cmd" >> /tmp/y
+            echo "$SETUP${SCHEDULE:1} - $TASK_COMMAND" >> /tmp/x
             case $cmd in
-            *"$SETUP ${SCHEDULE:1} - $TASK_COMMAND"* )
+            *"$SETUP${SCHEDULE:1} - $TASK_COMMAND"* )
+echo found >> /tmp/x
                  f=1
                  file_content=$(cat ${DIR}etc/$task_fn)
                  echo -n "" > ${DIR}etc/$task_fn
