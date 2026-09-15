@@ -69,6 +69,7 @@ banks or telecommunication providers) and various gaps in current builds are con
   6. 13 Aug 2026 - system first time cloned itself ("installed") from PLLinux administration script. This is huge step into full working installation 
 process - we have disk partitioning, selecting partition for installation and installing, we still need setting up UEFI partition/menu and
 encryption for main filesystem.
+  7. 13 and 14 Sep 2026 - there are visible first effects with **rsyslog** and **crond**
 
 **Building and starting system from the partition (in the host system)**
 
