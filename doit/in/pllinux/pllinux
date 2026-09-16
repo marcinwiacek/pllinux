@@ -2044,47 +2044,49 @@ while true; do
   get_value_from_conf_file "ETH_IP4" ""
   ETH_IP4="IP4 $CONF_FILE_VALUE"
   if [ "$CONF_FILE_VALUE" = "" ]; then ETH_IP4="IP4 DHCP"; fi
-  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration (version from $VER)" 0 0 22 \
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration (version from $VER)" 0 0 23 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
        4 "Background services (dinit)" \
        5 "Devices (info, power options, partitioning, etc.)" \
        6 "Network firewall (nftables)" \
-       7 "Time" \
-       8 "Kernel modules (modprobe)" \
-       9 "Kernel params (sysctl)" \
-       10 "Kernel logs (dmesg, can be saved with syslogd too, q to quit)" \
-       11 "System logs saved in files (syslogd)" \
-       12 "Users (adduser, etc.)" \
-       14 "User groups" \
-       15 "App language (todo)           - $LANG" \
-       16 "Keyboard and font (kbd)       - $KEYB, $FONT" \
-       17 "Network (ip)                  - $ETH_START $ETH_IP4" \
-       18 "Swap file (swapon,off,mkswap) - $SWAP_ON_OFF" \
-       19 "Timezone                      - $TIMEZONE" \
-       20 "Partition encryption password (todo)" \
-       21 "Install or clone PLLinux to other partition" \
-       22 "Setup UEFI boot menu (todo)" \
-       23 "Setup UEFI fat32 boot partition (todo)" )
+       7 "Task manager (top, q to quit)" \
+       8 "Time" \
+       9 "Kernel modules (modprobe)" \
+       10 "Kernel params (sysctl)" \
+       11 "Kernel logs (dmesg, can be saved with syslogd, q to quit)" \
+       12 "System logs saved in files (syslogd)" \
+       14 "Users (adduser, etc.)" \
+       15 "User groups" \
+       16 "App language (todo)           - $LANG" \
+       17 "Keyboard and font (kbd)       - $KEYB, $FONT" \
+       18 "Network (ip)                  - $ETH_START $ETH_IP4" \
+       19 "Swap file (swapon,off,mkswap) - $SWAP_ON_OFF" \
+       20 "Timezone                      - $TIMEZONE" \
+       21 "Partition encryption password (todo)" \
+       22 "Install or clone PLLinux to other partition" \
+       23 "Setup UEFI boot menu (todo)" \
+       24 "Setup UEFI fat32 boot partition (todo)" )
   if [ $? == 0 ]; then
     case $cmd in
     1) set_system_apps ;;
     3) tasks "crontab" ;;
     4) services ;;
     5) devices ;;
-    9) sysctl_kernel_params ;;
-    10) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
-    11) logs ;;
-    12) set_users ;;
-    16) NEW_KEYB="$KEYB"
+    7) top ;;
+    10) sysctl_kernel_params ;;
+    11) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
+    12) logs ;;
+    14) set_users ;;
+    17) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
-    17) network ;;
-    18) swap_file ;;
-    19) set_time_zone ;;
-    21) install_to 1 ;;
-    22) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
+    18) network ;;
+    10) swap_file ;;
+    20) set_time_zone ;;
+    22) install_to 1 ;;
+    23) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
     esac
   else
     break
