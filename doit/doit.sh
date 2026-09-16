@@ -1290,7 +1290,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "brotli" ]; then
   ver="1.2.0";
   if should_make brotli $ver; then
-    download_unpack_source https://github.com/google/brotli/archive/refs/tags/v1.2.0.tar.gz brotli brotli-$ver 1
+    download_unpack_source https://github.com/google/brotli/archive/refs/tags/v$ver.tar.gz brotli brotli-$ver 1
     mkdir out && cd out
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$output/app/brotli/$prefix$ver ..
     create_app brotli $prefix$ver
