@@ -1280,7 +1280,7 @@ if [ "$package" == "fs" ] || [ "$package" == "chezscheme" ]; then
   ver="10.4.1";
   if should_make chezscheme $ver; then
     download_unpack_source https://github.com/cisco/ChezScheme/releases/download/v$ver/csv$ver.tar.gz chezscheme csv$ver 1
-    ./configure --installprefix=$output/app/chezscheme/$prefix$ver #--enable-install-gpg-error-config
+    ./configure --installprefix=$output/app/chezscheme/$prefix$ver
     make -j$cpu_num
     create_app chezscheme $prefix$ver
     make install
