@@ -1949,26 +1949,33 @@ swap_file() {
 }
 
 network_change_config_file() {
-  file_content=$(cat ${DIR}etc/network/interfaces)
   linenum=0
   if [ "$1" = "" ]; then
-    while read -r line; do
-      if [ "$line" = "auto eth0" ]; then linenum=$(($linenum+1)); fi
-      if [ "$line" = "iface eth0 inet dhcp" ]; then linenum=$(($linenum+1)); fi
-    done <<< "$file_content"
+    if [ -f ${DIR}etc/network/interfaces ]; then
+      file_content=$(cat ${DIR}etc/network/interfaces)
+      while read -r line; do
+        if [ "$line" = "auto eth0" ]; then linenum=$(($linenum+1)); fi
+        if [ "$line" = "iface eth0 inet dhcp" ]; then linenum=$(($linenum+1)); fi
+      done <<< "$file_content"
+    fi
     if [ "$linenum" != 2 ]; then
-      echo "auto eth0" > ${DIR}etc/network/interfaces
+      echo "#created by script pllinux" > ${DIR}etc/network/interfaces
+      echo "auto eth0" >> ${DIR}etc/network/interfaces
       echo "iface eth0 inet dhcp" >> ${DIR}etc/network/interfaces
     fi
   else
-    while read -r line; do
-      if [ "$line" = "iface eth0 inet static" ]; then linenum=$(($linenum+1)); fi
-      if [ "$line" = "address $1" ]; then linenum=$(($linenum+1)); fi
-      if [ "$line" = "netmask $2" ]; then linenum=$(($linenum+1)); fi
-      if [ "$line" = "gateway $3" ]; then linenum=$(($linenum+1)); fi
-    done <<< "$file_content"
+    if [ -f ${DIR}etc/network/interfaces ]; then
+      file_content=$(cat ${DIR}etc/network/interfaces)
+      while read -r line; do
+        if [ "$line" = "iface eth0 inet static" ]; then linenum=$(($linenum+1)); fi
+        if [ "$line" = "address $1" ]; then linenum=$(($linenum+1)); fi
+        if [ "$line" = "netmask $2" ]; then linenum=$(($linenum+1)); fi
+        if [ "$line" = "gateway $3" ]; then linenum=$(($linenum+1)); fi
+      done <<< "$file_content"
+    fi
     if [ "$linenum" != 4 ]; then
-      echo "iface eth0 inet static" > ${DIR}etc/network/interfaces
+      echo "#created by script pllinux" > ${DIR}etc/network/interfaces
+      echo "iface eth0 inet static" >> ${DIR}etc/network/interfaces
       echo "address $1" >> ${DIR}etc/network/interfaces
       echo "netmask $2" >> ${DIR}etc/network/interfaces
       echo "gateway $3" >> ${DIR}etc/network/interfaces
@@ -2037,7 +2044,7 @@ while true; do
   get_value_from_conf_file "ETH_IP4" ""
   ETH_IP4="IP4 $CONF_FILE_VALUE"
   if [ "$CONF_FILE_VALUE" = "" ]; then ETH_IP4="IP4 DHCP"; fi
-  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration" 0 0 22 \
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration script (version from $VER)" 0 0 22 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
