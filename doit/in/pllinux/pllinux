@@ -2044,7 +2044,7 @@ while true; do
   get_value_from_conf_file "ETH_IP4" ""
   ETH_IP4="IP4 $CONF_FILE_VALUE"
   if [ "$CONF_FILE_VALUE" = "" ]; then ETH_IP4="IP4 DHCP"; fi
-  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration script (version from $VER)" 0 0 22 \
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration (version from $VER)" 0 0 22 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
