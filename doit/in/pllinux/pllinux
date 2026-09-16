@@ -18,6 +18,9 @@ TIMEZONE="UTC"
 KEYB="qwerty/pl4.map.gz"
 FONT="sun12x22.psfu.gz"
 LANG="en_US.UTF-8"
+ETH_IP4=""
+ETH_IP4_GATEWAY=""
+ETH_IP4_NETMASK=""
 
 FIRST_SAVE=1
 
@@ -58,6 +61,7 @@ set_general_config() {
     return
   fi
   if [ -e "$DIR$CFGFILE" ]; then
+    ETH_START=0
     while read -r line; do
       IFS="=" read -r PARAM_NAME PARAM_VALUE << EOF
 $line
@@ -107,19 +111,19 @@ EOF
       SWAP_AGGRESIVE* )
         sysctl vm.swappiness=$PARAM_VALUE ;;
       ETH_START*)
-        ip link set eth0 up ;;
+        ETH_START=$PARAM_VALUE;;
       ETH_IP4*)
-#        if [ "$PARAM_VALUE" != "" ]; then
-#iface eth0 inet static
-#address 192.168.1.1
-#netmask 255.255.255.0
-#gateway 192.168.1.255
-#        else
-#auto eth0
-#iface eth0 inet dhcp
-#        fi
+        ETH_IP4=$PARAM_VALUE ;;
+      ETH_IP4_GATEWAY*)
+        ETH_IP4_GATEWAY=$PARAM_VALUE ;;
+      ETH_IP4_NETMASK*)
+        ETH_IP4_NETMASK=$PARAM_VALUE ;;
       esac
     done < $DIR$CFGFILE
+    network_change_config_file "$ETH_IP4" "$ETH_IP4_NETMASK" "$ETH_IP4_GATEWAY"
+    if [ "$ETH_START" = 1 ]; then
+        ip link set eth0 up
+    fi
   fi
 }
 
@@ -1937,30 +1941,65 @@ swap_file() {
     fi
 }
 
+network_change_config_file() {
+echo $1 $2 $3 >> /tmp/x
+  file_content=$(cat ${DIR}etc/network/interfaces)
+  linenum=0
+  if [ "$1" = "" ]; then
+    while read -r line; do
+      if [ "$line" = "auto eth0" ]; then linenum=$(($linenum+1)); fi
+      if [ "$line" = "iface eth0 inet dhcp" ]; then linenum=$(($linenum+1)); fi
+    done <<< "$file_content"
+    if [ "$linenum" != 2 ]; then
+      echo "auto eth0" > ${DIR}etc/network/interfaces
+      echo "iface eth0 inet dhcp" >> ${DIR}etc/network/interfaces
+    fi
+  else
+    while read -r line; do
+      if [ "$line" = "iface eth0 inet static" ]; then linenum=$(($linenum+1)); fi
+      if [ "$line" = "address $1" ]; then linenum=$(($linenum+1)); fi
+      if [ "$line" = "netmask $2" ]; then linenum=$(($linenum+1)); fi
+      if [ "$line" = "gateway $3" ]; then linenum=$(($linenum+1)); fi
+    done <<< "$file_content"
+    if [ "$linenum" != 4 ]; then
+      echo "iface eth0 inet static" > ${DIR}etc/network/interfaces
+      echo "address $1" >> ${DIR}etc/network/interfaces
+      echo "netmask $2" >> ${DIR}etc/network/interfaces
+      echo "gateway $3" >> ${DIR}etc/network/interfaces
+    fi
+  fi
+}
+
 network() {
     get_value_from_conf_file "ETH_START" "0"
     ETH_START="$CONF_FILE_VALUE"
     get_value_from_conf_file "ETH_IP4" ""
     ETH_IP4="$CONF_FILE_VALUE"
-    get_value_from_conf_file "ETH_NETMASK" "255.255.255.0"
-    ETH_NETMASK="$CONF_FILE_VALUE"
-    get_value_from_conf_file "ETH_GATEWAY" "192.168.1.255"
-    ETH_GATEWAY="$CONF_FILE_VALUE"
+    get_value_from_conf_file "ETH_IP4_NETMASK" "255.255.255.0"
+    ETH_IP4_NETMASK="$CONF_FILE_VALUE"
+    get_value_from_conf_file "ETH_IP4_GATEWAY" "192.168.1.255"
+    ETH_IP4_GATEWAY="$CONF_FILE_VALUE"
     cmd=$(dialog --stdout --backtitle "PLLinux\\network" --cancel-label "Back" \
       --form "Pls provide params" 0 0 8 \
       "Enabling eth0 in system startup (0 or 1)" 1 1 "$ETH_START" 1 50 20 0 \
-      "IP4 address for eth0 (empty = DHCP)" 3 1 "$ETH_IP4" 3 50 20 0 \
-      "IP4 address netmask (ignored with DHCP)" 4 1 "$ETH_NETMASK" 4 50 20 0 \
-      "IP4 gateway (ignored with DHCP)" 5 1 "$ETH_GATEWAY" 5 50 20 0 )
+      "IP4 address for eth0 (empty = DHCP)" 3 3 "$ETH_IP4" 3 50 20 0 \
+      "IP4 address netmask (ignored with DHCP)" 4 4 "$ETH_IP4_NETMASK" 4 50 20 0 \
+      "IP4 gateway (ignored with DHCP)" 5 5 "$ETH_IP4_GATEWAY" 5 50 20 0 )
     if [ $? == 0 ]; then
         linenr=1
         while read -r line; do
           case $linenr in
           1) change_value_in_conf_file "ETH_START" "$line" ;;
-          2) change_value_in_conf_file "ETH_IP4" "$line" ;;
+          3) change_value_in_conf_file "ETH_IP4" "$line"
+             ETH_IP4="$line" ;;
+          4) change_value_in_conf_file "ETH_IP4_NETMASK" "$line"
+             ETH_IP4_NETMASK="$line" ;;
+          5) change_value_in_conf_file "ETH_IP4_GATEWAY" "$line"
+             ETH_IP4_GATEWAY="$line" ;;
           esac
           linenr=$(($linenr+1))
         done <<< "$cmd"
+        network_change_config_file "$ETH_IP4" "$ETH_IP4_NETMASK" "$ETH_IP4_GATEWAY"
     fi
 }
 
