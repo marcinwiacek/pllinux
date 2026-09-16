@@ -1,6 +1,7 @@
 **Deps**
+brotli current
 glibc current
-openssl 260713_3.6.3
+openssl 260725_3.6.3
 pcre2 current
 zlib current
 zstd current
