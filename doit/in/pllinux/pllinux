@@ -106,8 +106,18 @@ EOF
         ;;
       SWAP_AGGRESIVE* )
         sysctl vm.swappiness=$PARAM_VALUE ;;
-      ETH_START*) ;;
-      ETH_IP4*) ;;
+      ETH_START*)
+        ip link set eth0 up ;;
+      ETH_IP4*)
+#        if [ "$PARAM_VALUE" != "" ]; then
+#iface eth0 inet static
+#address 192.168.1.1
+#netmask 255.255.255.0
+#gateway 192.168.1.255
+#        else
+#auto eth0
+#iface eth0 inet dhcp
+#        fi
       esac
     done < $DIR$CFGFILE
   fi
@@ -1932,16 +1942,22 @@ network() {
     ETH_START="$CONF_FILE_VALUE"
     get_value_from_conf_file "ETH_IP4" ""
     ETH_IP4="$CONF_FILE_VALUE"
+    get_value_from_conf_file "ETH_NETMASK" "255.255.255.0"
+    ETH_NETMASK="$CONF_FILE_VALUE"
+    get_value_from_conf_file "ETH_GATEWAY" "192.168.1.255"
+    ETH_GATEWAY="$CONF_FILE_VALUE"
     cmd=$(dialog --stdout --backtitle "PLLinux\\network" --cancel-label "Back" \
       --form "Pls provide params" 0 0 8 \
-      "IP4 address for eth0 (empty = DHCP)" 1 1 "$ETH_IP4" 1 50 20 0 \
-      "Enabling eth0 in system startup (0 or 1)" 2 1 "$ETH_START" 2 50 20 0 )
+      "Enabling eth0 in system startup (0 or 1)" 1 1 "$ETH_START" 1 50 20 0 \
+      "IP4 address for eth0 (empty = DHCP)" 3 1 "$ETH_IP4" 3 50 20 0 \
+      "IP4 address netmask (ignored with DHCP)" 4 1 "$ETH_NETMASK" 4 50 20 0 \
+      "IP4 gateway (ignored with DHCP)" 5 1 "$ETH_GATEWAY" 5 50 20 0 )
     if [ $? == 0 ]; then
         linenr=1
         while read -r line; do
           case $linenr in
-          1) change_value_in_conf_file "ETH_IP4" "$line" ;;
-          2) change_value_in_conf_file "ETH_START" "$line" ;;
+          1) change_value_in_conf_file "ETH_START" "$line" ;;
+          2) change_value_in_conf_file "ETH_IP4" "$line" ;;
           esac
           linenr=$(($linenr+1))
         done <<< "$cmd"
