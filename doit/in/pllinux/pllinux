@@ -1,5 +1,7 @@
 #!/app/busybox/current/bin/sh
-# Part of PLLINUX. Version from 9 Aug 2026. Creating system cfg from conf file or asking user and creating conf file.
+# Part of PLLINUX. Creating system cfg from conf file or asking user and creating conf file.
+
+VER="16 Sep 2026"
 
 DIR="/" # path with / in the end. In real system /
 if [ -d "/mnt/x" ]; then
@@ -30,7 +32,7 @@ change_value_in_conf_file() {
      FIRST_SAVE=0
   fi
   file_content=$(cat ${DIR}$CFGFILE)
-  echo "# Created by script pllinux version from 2 Aug 2026" > ${DIR}$CFGFILE
+  echo "# Created by script pllinux version from $VER" > ${DIR}$CFGFILE
   while IFS= read -r conf_line; do
     IFS="=" read -r PARAM_NAME PARAM_VALUE << EOF
 $conf_line
@@ -1564,7 +1566,12 @@ logs() {
           2) log_feature_priority ;;
           3) LOG_FILE="/log/tmp/example_log"
              log_file ;;
-          4) echo "${LOG_TYPE}.${LOG_PRIORITY} ${LOG_FILE} " >> ${DIR}etc/rsyslog.conf
+          4) if [ ! -f  ${DIR}etc/rsyslog.conf ]; then
+               echo "# Created by script pllinux" > ${DIR}etc/rsyslog.conf
+               echo "module(load=\"imuxsock\") #SysSock . Annotate=on #local system logging" >> ${DIR}etc/rsyslog.conf
+               echo "module(load=\"imkmsg\") #kernel boot messages (from ring buffer and /dev/kmsg). Cannot be used with imklog module" >> ${DIR}etc/rsyslog.conf
+             fi
+             echo "${LOG_TYPE}.${LOG_PRIORITY} ${LOG_FILE} " >> ${DIR}etc/rsyslog.conf
              dinitctl restart syslogd
              break;;
           esac
