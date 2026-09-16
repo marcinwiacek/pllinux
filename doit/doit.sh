@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="initramfs"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="chezscheme"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1276,3 +1276,14 @@ fi
 #    set_current_app_clean_strip_cd pciids $prefix$ver 1
 #  fi
 #fi
+if [ "$package" == "fs" ] || [ "$package" == "chezscheme" ]; then
+  ver="10.4.1";
+  if should_make chezscheme $ver; then
+    download_unpack_source https://github.com/cisco/ChezScheme/releases/download/v$ver/csv$ver.tar.gz chezscheme csv$ver 1
+    ./configure --installprefix=$output/app/chezscheme/$prefix$ver #--enable-install-gpg-error-config
+    make -j$cpu_num
+    create_app chezscheme $prefix$ver
+    make install
+    set_current_app_clean_strip_cd chezscheme $prefix$ver 1
+  fi
+fi
