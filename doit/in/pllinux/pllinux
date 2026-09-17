@@ -2034,6 +2034,7 @@ else
   fi
 fi
 
+mainmenunum=1
 while true; do
   get_value_from_conf_file "SWAP_SIZE" "0"
   SWAP_ON_OFF="off"
@@ -2044,7 +2045,9 @@ while true; do
   get_value_from_conf_file "ETH_IP4" ""
   ETH_IP4="IP4 $CONF_FILE_VALUE"
   if [ "$CONF_FILE_VALUE" = "" ]; then ETH_IP4="IP4 DHCP"; fi
-  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" --menu "Welcome to the PLLinux configuration (version from $VER)" 0 0 23 \
+  cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
+       --default-item $mainmenunum \
+       --menu "Welcome to the PLLinux configuration (version from $VER)" 0 0 23 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
@@ -2053,7 +2056,7 @@ while true; do
        6 "Network firewall (nftables)" \
        7 "Task manager (top, q to quit)" \
        8 "Time" \
-       9 "Kernel modules (modprobe)" \
+       9 "Kernel modules (modprobe, modinfo)" \
        10 "Kernel params (sysctl)" \
        11 "Kernel logs (dmesg, can be saved with syslogd, q to quit)" \
        12 "System logs saved in files (syslogd)" \
@@ -2069,6 +2072,7 @@ while true; do
        23 "Setup UEFI boot menu (todo)" \
        24 "Setup UEFI fat32 boot partition (todo)" )
   if [ $? == 0 ]; then
+    mainmenunum="$cmd"
     case $cmd in
     1) set_system_apps ;;
     3) tasks "crontab" ;;
@@ -2083,7 +2087,7 @@ while true; do
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
     18) network ;;
-    10) swap_file ;;
+    19) swap_file ;;
     20) set_time_zone ;;
     22) install_to 1 ;;
     23) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
