@@ -224,19 +224,26 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
   cd $curdir
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
-  ver="7.1.5";
+  ver="7.2.6";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
     # no compilation in ram
     download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver 0
     cp $curdir/in/kernel/.config $curdir/out/kernel/linux-$ver
-#    make -j$cpu_num
+    make -j$cpu_num
     cp .config $curdir/in/kernel # .config will be updated with new header and maybe options
     create_app kernel $prefix$ver
     cp $curdir/in/kernel/.config $output/app/kernel/$prefix$ver
     cp $curdir/out/kernel/linux-$ver/arch/x86/boot/bzImage $output/app/kernel/$prefix$ver
+    make headers_install INSTALL_HRD_PATH=$output/app/kernel/$prefix$ver
     make modules_install INSTALL_MOD_PATH=/tmp/x
-    make headers_install INSTALL_HDR_PATH=$output/app/kernel/$prefix$ver
+    cd /tmp/x/lib/modules
+    DIRX=$(ls)
+    cd $DIRX
+    rm build
+    rsync -a . $output/app/kernel/$prefix$ver/modules
+    cd /
+    rmdir -r /tmp/x
     set_current_app_clean_strip_cd kernel $prefix$ver 1
   fi
 fi
