@@ -1713,7 +1713,7 @@ kernel_module() {
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       case $cmd in
-      4) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "sudo modinfo $1" 100 90 ;;
+      4) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(modinfo $1)" 100 90 ;;
       esac
     else
       break;
@@ -1774,20 +1774,20 @@ kernel_modules() {
                 if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
                   PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
                   while read -r line2; do
-                    if [ $cmd == $listnr ]; then
+                    if [ "$cmd" = "$listnr" ]; then
                       foundname="$line2"
                       break
                     fi
                     listnr=$(($listnr+1))
                   done <<< $PARAMS
                 fi
-                if [ "$foundname" != ""]; then break; fi
+                if [ "$foundname" != "" ]; then break; fi
               done
             fi
-            if [ "$foundname" != ""]; then break; fi
+            if [ "$foundname" != "" ]; then break; fi
           done < ${DIR}app/${APP_NAME}/current/readme.md
         fi
-        if [ "$foundname" != ""]; then break; fi
+        if [ "$foundname" != "" ]; then break; fi
       done
       kernel_module $foundname
     else
