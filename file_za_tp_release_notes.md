@@ -114,6 +114,9 @@ Readme.md is semi-text file with some elements, for example:
     **Include**
     include
 
+    **Modules**
+    modules
+
 # Freedom
 
 With PLLinux you decide, if you want to use compiled packages or whether you want to create them from source. You have also full freedom in modifying system to your needs. This is pure technical heaven and return to the GNU ideas in the best shape.

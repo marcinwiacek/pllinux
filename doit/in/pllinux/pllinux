@@ -1705,6 +1705,53 @@ EOF
   done
 }
 
+kernel_modules_list() {
+  listnr=1
+  PARAMS=""
+
+APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
+for APP_NAME in $APP_LIST; do
+  if [ -e "${DIR}app/${APP_NAME}/current/readme.md" ]; then
+    sectionModules=0
+    while read -r line; do
+      if [ "$line" = "**Modules**" ]; then
+        sectionModules=1
+      elif [ "$line" = "" ]; then
+        sectionModules=0;
+      elif [ "$sectionModules" = 1 ]; then
+        IFS=":"
+        for folder in $line; do
+          if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
+            PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
+            while read -r line2; do
+              echo "$listnr "
+              echo \"$line2\"
+              listnr=$(($listnr+1))
+            done <<< $PARAMS
+          fi
+        done
+      fi
+    done < ${DIR}app/${APP_NAME}/current/readme.md
+  fi
+done
+
+}
+
+kernel_modules() {
+  listnr3=1
+  while true; do
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
+       --menu \"Linux kernel modules\" 0 0 8 \
+       $(kernel_modules_list) )
+    cmd=$(eval $abc)
+    if [ $? == 0 ]; then
+      break;
+    else
+      break;
+    fi
+  done
+}
+
 kernel_param_list() {
   listnr=1
   LISTLIST=$(busybox sysctl -a)
@@ -1719,7 +1766,7 @@ kernel_param_list() {
   echo "Delete"
 }
 
-sysctl_kernel_params() {
+kernel_param() {
   listnr3=1
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel params\" --cancel-label "Back" \
@@ -1739,26 +1786,28 @@ devices() {
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 12 \
        1 \"CPU \(lscpu\)\" \
        2 \"Disk info, params and partitioning \(smartctl, hdparm, cfdisk\)\" \
-       3 \"Display/monitor info \(read-edid\)\" \
-       4 \"Network interfaces \(ip\)\" \
-       5 \"PCI \(lspci\)\" \
-       6 \"Power options \(acpid, kernel options, etc.\)\" \
-       7 \"Power source \(battery, charging, etc.\)\" \
-       8 \"RAM \(decode-dimms\)\" \
-       9 \"Sensors \(sensors\)\" \
-       10 \"Sound\" \
-       11 \"USB\" \
-       12 \"UEFI \(dmidecode\)\")
+       3 \"Disk usage \(df\)\" \
+       4 \"Display/monitor info \(read-edid\)\" \
+       5 \"Network interfaces \(ip\)\" \
+       6 \"PCI \(lspci\)\" \
+       7 \"Power options \(acpid, kernel options, etc.\)\" \
+       8 \"Power source \(battery, charging, etc.\)\" \
+       9 \"RAM \(decode-dimms\)\" \
+       10 \"Sensors \(sensors\)\" \
+       11 \"Sound\" \
+       12 \"USB\" \
+       14 \"UEFI \(dmidecode\)\")
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       case $cmd in
       1) dialog --backtitle "PLLinux\device manager\CPU\(lscpu\)" --msgbox "$(lscpu)" 100 90 ;;
       2) install_to 0 ;;
-      4) dialog --backtitle "PLLinux\device manager\network interfaces \(ip\)" --msgbox "$(ip link show)" 100 90 ;;
-      5) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -vvv)" 100 90 ;;
-      8) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;
-      9) dialog --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
-      12) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
+      3) dialog --backtitle "PLLinux\device manager\disk usage \(du\)" --msgbox "$(df)" 100 90 ;;
+      5) dialog --backtitle "PLLinux\device manager\network interfaces \(ip\)" --msgbox "$(ip link show)" 100 90 ;;
+      6) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -vvv)" 100 90 ;;
+      9) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;
+      10) dialog --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
+      14) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
       esac
     else
       break;
@@ -2039,12 +2088,21 @@ while true; do
   get_value_from_conf_file "SWAP_SIZE" "0"
   SWAP_ON_OFF="off"
   if [ "$CONF_FILE_VALUE" != 0 ]; then SWAP_ON_OFF="$CONF_FILE_VALUE MB"; fi
+
+  ETH_STATUS="$(ip link show | grep eth0)"
+  case $ETH_STATUS in
+    *UP*) ETH_ENABLED="up" ;;
+    *) ETH_ENABLED="down" ;;
+  esac
+
   get_value_from_conf_file "ETH_START" "0"
-  ETH_START="manually"
+  ETH_START="start manually"
   if [ "$CONF_FILE_VALUE" = 1 ]; then ETH_START="on system start"; fi
+
   get_value_from_conf_file "ETH_IP4" ""
   ETH_IP4="IP4 $CONF_FILE_VALUE"
   if [ "$CONF_FILE_VALUE" = "" ]; then ETH_IP4="IP4 DHCP"; fi
+
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
        --default-item $mainmenunum \
        --menu "Welcome to the PLLinux configuration (version from $VER)" 0 0 23 \
@@ -2064,7 +2122,7 @@ while true; do
        15 "User groups" \
        16 "App language (todo)           - $LANG" \
        17 "Keyboard and font (kbd)       - $KEYB, $FONT" \
-       18 "Network (ip)                  - $ETH_START $ETH_IP4" \
+       18 "Network (ip)                  - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
        19 "Swap file (swapon,off,mkswap) - $SWAP_ON_OFF" \
        20 "Timezone                      - $TIMEZONE" \
        21 "Partition encryption password (todo)" \
@@ -2079,7 +2137,8 @@ while true; do
     4) services ;;
     5) devices ;;
     7) top ;;
-    10) sysctl_kernel_params ;;
+    9) kernel_modules ;;
+    10) kernel_param ;;
     11) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
     12) logs ;;
     14) set_users ;;
