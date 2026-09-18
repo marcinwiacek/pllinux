@@ -6,3 +6,6 @@ kernel.org
 
 **Description**
 Core part of PLLINUX. Linux kernel.
+
+**Modules**
+modules/kernel
