@@ -1705,47 +1705,91 @@ EOF
   done
 }
 
-kernel_modules_list() {
-  listnr=1
-  PARAMS=""
-
-APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
-for APP_NAME in $APP_LIST; do
-  if [ -e "${DIR}app/${APP_NAME}/current/readme.md" ]; then
-    sectionModules=0
-    while read -r line; do
-      if [ "$line" = "**Modules**" ]; then
-        sectionModules=1
-      elif [ "$line" = "" ]; then
-        sectionModules=0;
-      elif [ "$sectionModules" = 1 ]; then
-        IFS=":"
-        for folder in $line; do
-          if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
-            PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
-            while read -r line2; do
-              echo "$listnr "
-              echo \"$line2\"
-              listnr=$(($listnr+1))
-            done <<< $PARAMS
-          fi
-        done
-      fi
-    done < ${DIR}app/${APP_NAME}/current/readme.md
-  fi
-done
-
+kernel_module() {
+  while true; do
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
+       --menu \"Linux kernel module $1\" 0 0 8 \
+       1 start 2 stop 3 \"start on startup\" 4 info )
+    cmd=$(eval $abc)
+    if [ $? = 0 ]; then
+      case $cmd in
+      4) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "sudo modinfo $1" 100 90 ;;
+      esac
+    else
+      break;
+    fi
+  done
 }
 
+kernel_modules_list() {
+  listnr=1
+  APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
+  for APP_NAME in $APP_LIST; do
+    if [ -e "${DIR}app/${APP_NAME}/current/readme.md" ]; then
+      sectionModules=0
+      while read -r line; do
+        if [ "$line" = "**Modules**" ]; then
+          sectionModules=1
+        elif [ "$line" = "" ]; then
+          sectionModules=0;
+        elif [ "$sectionModules" = 1 ]; then
+          IFS=":"
+          for folder in $line; do
+            if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
+              PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
+              while read -r line2; do
+                echo " $listnr $line2 "
+                listnr=$(($listnr+1))
+              done <<< $PARAMS
+            fi
+          done
+        fi
+      done < ${DIR}app/${APP_NAME}/current/readme.md
+    fi
+  done
+}
+
+
 kernel_modules() {
-  listnr3=1
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
        --menu \"Linux kernel modules\" 0 0 8 \
        $(kernel_modules_list) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
-      break;
+      foundname=""
+      listnr=1
+      APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
+      for APP_NAME in $APP_LIST; do
+        if [ -e "${DIR}app/${APP_NAME}/current/readme.md" ]; then
+          sectionModules=0
+          while read -r line; do
+            if [ "$line" = "**Modules**" ]; then
+              sectionModules=1
+            elif [ "$line" = "" ]; then
+              sectionModules=0;
+            elif [ "$sectionModules" = 1 ]; then
+              IFS=":"
+              for folder in $line; do
+                if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
+                  PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
+                  while read -r line2; do
+                    if [ $cmd == $listnr ]; then
+                      foundname="$line2"
+                      break
+                    fi
+                    listnr=$(($listnr+1))
+                  done <<< $PARAMS
+                fi
+                if [ "$foundname" != ""]; then break; fi
+              done
+            fi
+            if [ "$foundname" != ""]; then break; fi
+          done < ${DIR}app/${APP_NAME}/current/readme.md
+        fi
+        if [ "$foundname" != ""]; then break; fi
+      done
+      kernel_module $foundname
     else
       break;
     fi
