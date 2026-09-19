@@ -1844,12 +1844,16 @@ kernel_modules() {
       done
       kernel_module $foundname $isstarted
     else
-      cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
-        --inputbox "Kernel module filename filter. Empty value means everything. Case sensitive." 15 100 "$FILTER" )
-      if [ $? == 0 ]; then
-        FILTER="$cmd"
+      if [ "$FILTER" != "" ]; then
+        cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
+         --inputbox "Kernel module filename filter. Empty value means everything. Case sensitive." 15 100 "$FILTER" )
+        if [ $? == 0 ]; then
+          FILTER="$cmd"
+        else
+         return
+        fi
       else
-        return
+        break
       fi
     fi
   done
