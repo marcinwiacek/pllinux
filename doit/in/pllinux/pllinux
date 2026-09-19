@@ -1715,25 +1715,27 @@ EOF
 }
 
 kernel_module() {
+                LINE2X=${1##*/}
+                LINE2X=${LINE2X%%.ko.xz*}
   ISSTARTED=$2
   while true; do
     if [ "$ISSTARTED" = "1" ]; then
-      abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
+      abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1\" 0 0 8 \
-         2 stop 3 info )
+         2 \"stop \(rmmod\)\" 3 \"info \(modinfo\)\" )
     else
-      abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
+      abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1\" 0 0 8 \
-         1 start 3 info )
+         1 \"start \(insmod\)\" 3 \"info \(modinfo\)\" )
     fi
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       case $cmd in
-      1) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(insmod -s $1)" 100 90
+      1) dialog --backtitle "PLLinux\kernel modules\module $LINE2X\start (insmod)" --msgbox "$(insmod -s $1)" 100 90
          ISSTARTED=1 ;;
-      2) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(rmmod -s $1)" 100 90
+      2) dialog --backtitle "PLLinux\kernel modules\module $LINE2X\stop (rmmod)" --msgbox "$(rmmod -s $1)" 100 90
          ISSTARTED=0 ;;
-      3) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(modinfo $1)" 100 90 ;;
+      3) dialog --backtitle "PLLinux\kernel modules\module $LINE2X\info (modinfo)" --msgbox "$(modinfo $1)" 100 90 ;;
       esac
     else
       break;
@@ -1779,7 +1781,7 @@ kernel_modules_list() {
 }
 
 kernel_modules() {
-    cmd=$(dialog --stdout --backtitle "$PROMPT\\task command" --cancel-label "Back" \
+    cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
       --inputbox "Kernel module filename filter. Empty value means everything. Case sensitive." 15 100 "" )
     if [ $? == 0 ]; then
       FILTER="$cmd"
@@ -1789,7 +1791,7 @@ kernel_modules() {
 
   listnr3=1
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\list\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Linux kernel modules \(filter: '\"$FILTER\"'\)\" 0 0 8 \
        $(kernel_modules_list $FILTER) )
@@ -1877,7 +1879,7 @@ kernel_param() {
 
 devices() {
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 12 \
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 14 \
        1 \"CPU \(lscpu\)\" \
        2 \"Disk info, params and partitioning \(smartctl, hdparm, cfdisk\)\" \
        3 \"Display/monitor info \(read-edid\)\" \
