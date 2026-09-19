@@ -14,6 +14,7 @@ fi
 IFSORIG=$IFS
 
 SYSTEM_APPS="dialog:gcc:glib:glibc:gptfdisk:groff:ncurses:ncursesw:rsync:wget2:parted:busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:ldso:libc:libtinfo:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
+SYSTEM_SERVICES="syslogd:crond:tty2:tty3"
 
 # some default values
 TIMEZONE="UTC"
@@ -88,9 +89,11 @@ EOF
             # save SSD writes. Don't make link when it's there.
             ;;
           *)
-            echo Setting timezone $PARAM_VALUE
-            rm /etc/localtime
-            ln -s /app/tzdb/current/usr/share/zoneinfo/$PARAM_VALUE /etc/localtime
+            if [ "$1" = "1" ]; then
+              echo Setting timezone $PARAM_VALUE
+              rm /etc/localtime
+              ln -s /app/tzdb/current/usr/share/zoneinfo/$PARAM_VALUE /etc/localtime
+            fi
         esac
         TIMEZONE=$PARAM_VALUE ;;
       LANG* )
@@ -99,15 +102,19 @@ EOF
           *$PARAM_VALUE*)
             ;;
           *)
-            echo Generating locale
-            mkdir /app/glibc/current/lib/locale
-            #localedef -i pl_PL -c -f UTF-8 pl_PL.UTF-8
-            localedef -i en_US -c -f UTF-8 en_US.UTF-8 ;;
+            if [ "$1" = "1" ]; then
+              echo Generating locale
+              mkdir /app/glibc/current/lib/locale
+              #localedef -i pl_PL -c -f UTF-8 pl_PL.UTF-8
+              localedef -i en_US -c -f UTF-8 en_US.UTF-8
+            fi ;;
         esac
         LANG=$PARAM_VALUE ;;
       SWAP_SIZE* )
-        if [ "$PARAM_VALUE" != 0 ]; then
-          swapon /swapfile
+        if [ "$1" = "1" ]; then
+          if [ "$PARAM_VALUE" != 0 ]; then
+            swapon /swapfile
+          fi
         fi
         ;;
       SWAP_AGGRESIVE* )
@@ -120,28 +127,38 @@ EOF
         ETH_IP4_GATEWAY=$PARAM_VALUE ;;
       ETH_IP4_NETMASK*)
         ETH_IP4_NETMASK=$PARAM_VALUE ;;
-#      SERVICES_STOP*)
-#         IFS=":"
-#         for modname in $PARAM_VALUE; do
-#           if [ "$modname" != "" ]; then
-#             /app/dinit/current/bin/dinitctl stop $modname >> /tmp/x
-#           fi
-#         done 
-#         IFS=$IFSORIG ;;
-#      esac
+      SERVICES_STOP*)
+        SERVICES_STOP=$PARAM_VALUE ;;
       KERNEL_MODULES_START*)
-         IFS=":"
-         for modname in $PARAM_VALUE; do
-           if [ "$modname" != "" ]; then
-             /app/kmod/current/sbin/insmod -s $modname
-           fi
-         done
-         IFS=$IFSORIG ;;
+         if [ "$1" = "1" ]; then
+           IFS=":"
+           for modname in $PARAM_VALUE; do
+             if [ "$modname" != "" ]; then
+               /app/kmod/current/sbin/insmod -s $modname
+             fi
+           done
+           IFS=$IFSORIG
+         fi ;;
       esac
     done < $DIR$CFGFILE
-    network_change_config_file "$ETH_IP4" "$ETH_IP4_NETMASK" "$ETH_IP4_GATEWAY"
-    if [ "$ETH_START" = 1 ]; then
+
+#fixme: adding start to non-system services
+    if [ "$1" = "1" ]; then
+      IFS=":"
+      for modname in $SYSTEM_SERVICES; do
+        case $SERVICES_STOP in
+          *$modname*)
+            /app/dinit/current/bin/dinitctl trigger $modname > /dev/null
+            ;;
+          *) /app/dinit/current/bin/dinitctl start $modname
+        esac
+      done
+      IFS=$IFSORIG
+
+      network_change_config_file "$ETH_IP4" "$ETH_IP4_NETMASK" "$ETH_IP4_GATEWAY"
+      if [ "$ETH_START" = 1 ]; then
         ip link set eth0 up
+      fi
     fi
   fi
 }
@@ -2233,7 +2250,7 @@ network() {
 CFGFILE="etc/pllinux.conf"
 if [ "$1" = "BOOT" ]; then
   set_general_config 1
-  exit
+  return
 else
   set_general_config 0
   if [ "$1" = "LANG" ]; then

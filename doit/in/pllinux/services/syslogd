@@ -10,4 +10,4 @@ smooth-recovery = true
 options = starts-log
 log-type = buffer
 
-after = bootsh
+#after = bootsh

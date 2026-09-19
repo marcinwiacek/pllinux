@@ -3,8 +3,4 @@
 type = internal
 
 depends-ms = bootsh
-depends-ms = syslogd
-depends-ms = crond
 depends-ms = tty1
-depends-ms = tty2
-depends-ms = tty3
