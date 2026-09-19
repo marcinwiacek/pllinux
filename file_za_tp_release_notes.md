@@ -117,21 +117,29 @@ Readme.md is semi-text file with some elements, for example:
     **Modules**
     modules
 
-# Freedom
+# Full freedom
 
-With PLLinux you decide, if you want to use compiled packages or whether you want to create them from source. You have also full freedom in modifying system to your needs. This is pure technical heaven and return to the GNU ideas in the best shape.
+With PLLinux you decide, if you want to use compiled packages or whether you want to create them from source. 
+You have also full freedom in modifying system to your needs. This is pure technical heaven and return to the GNU ideas in the best shape.
 
-Note: some packages are not available from the box not because they're written in concrete language - everything is estimated from technical excellence perspective only (maturity, number of bugs, resources usage, etc.)
+Note: some software is not available from the box because it's written in concrete language - 
+everything is estimated from technical perspective only (maturity, number of bugs, resources usage, etc.) and added after carefull consideration.
 
-# Starting
+# Starting ISO
 
-You need system with UEFI and without Secure Boot. Examples:
+You need system with UEFI with disabled Secure Boot.
+
+Example for running with QEMU:
 
 **qemu-system-x86_64 -cdrom iso.iso -m 4098 -bios /usr/share/OVMF/OVMF_CODE.fd**
 
 Technology Preview contains three users: root (password root), user (password user) and user2 (password user2)
 
 User files are saved in the RAM (tmpfs) and you can for example make setup using root and later login into other account.
+
+# Building from sources
+
+
 
 # Known issues
 
@@ -182,7 +190,7 @@ Use for example GitHub or marcin ( at ) mwiacek ( dot ) com. I'm not answering v
 
 **Why not extend existing project?**
 
-They have technology dept and cannot change it because of users. There is required fresh air in this mess (let's say this word clear).
+They have technology dept and doesn't want to change it because of users. There is required fresh air in this situation.
 
 **Why opening opened doors?**
 
@@ -191,7 +199,9 @@ World simply needs different solutions and staying in 1980 year with OS design i
 
 **Why not Rust or systemd or other project x?**
 
-They will be used, when provide really added value. Starting project desciptions with "written in Rust" instead of advantages list is anti-advertisement (additionally please look, that we don't have Servo completed till today, Rust coreutils have many baby problems and systemd became big thing staying far away from initial goals)
+They will be used, when provide really added value. Starting project desciptions with "written in Rust" instead of advantages list 
+is anti-advertisement (additionally please look, that we don't have Servo completed till today, Rust coreutils have many baby-age problems 
+and systemd became big thing staying far away from initial goals)
 
 **But systemd has got clear names for network interfaces**
 
@@ -211,13 +221,13 @@ Concurrence is always good. Future will show, what will be used more widely in t
 
 **It's another boring Linux distribution**
 
-It doesn't have at least just other branding.
+It doesn't have at least just other wallpaper or branding.
 
-**Does it have sense to make new OS by people in AI time?**
+**Does it have sense to make new OS by people in AI age?**
 
-New products and ideas are always moving people forward. And making things by human (not AI) is extending their skills and allowing them making better things.
+New products and ideas are always moving people forward. And making things by human (not AI) is extending their skills.
 
-**This will be always after Omarchy, Ubuntu, Debian, etc.**
+**This will be always few steps after Omarchy, Ubuntu, Debian, etc.**
 
 Never say never.
 
