@@ -1880,35 +1880,28 @@ devices() {
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 12 \
        1 \"CPU \(lscpu\)\" \
        2 \"Disk info, params and partitioning \(smartctl, hdparm, cfdisk\)\" \
-       3 \"Disk usage \(du, df\)\" \
-       4 \"Display/monitor info \(read-edid\)\" \
+       3 \"Display/monitor info \(read-edid\)\" \
+       4 \"Mouse and touchpad\" \
        5 \"Network interfaces \(ip\)\" \
        6 \"PCI \(lspci\)\" \
        7 \"Power options \(acpid, kernel options, etc.\)\" \
        8 \"Power source \(battery, charging, etc.\)\" \
-       9 \"RAM \(decode-dimms\)\" \
-       10 \"Sensors \(sensors\)\" \
-       11 \"Sound\" \
-       12 \"USB\" \
-       14 \"UEFI \(dmidecode\)\")
+       9 \"Printers\" \
+       10 \"RAM \(decode-dimms\)\" \
+       11 \"Sensors \(sensors\)\" \
+       12 \"Sound\" \
+       14 \"USB\" \
+       15 \"UEFI \(dmidecode\)\")
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       case $cmd in
       1) dialog --backtitle "PLLinux\device manager\CPU\(lscpu\)" --msgbox "$(lscpu)" 100 90 ;;
       2) install_to 0 ;;
-      3) HOMEINFO="App - $(cd ${DIR}app && du -c -h | grep total) "
-
-         DIRLIST="$(ls ${DIR}home)"
-         while read -r line; do
-           HOMEINFO="${HOMEINFO}User $line - $(cd ${DIR}home/$line && du -c -h | grep total) "
-         done <<< $DIRLIST
-
-         dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(df) $HOMEINFO" 100 90 ;;
       5) dialog --backtitle "PLLinux\device manager\network interfaces \(ip\)" --msgbox "$(ip link show)" 100 90 ;;
       6) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -vvv)" 100 90 ;;
-      9) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;
-      10) dialog --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
-      14) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
+      10) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;
+      11) dialog --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
+      15) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
       esac
     else
       break;
@@ -2206,30 +2199,31 @@ while true; do
 
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
        --default-item $mainmenunum \
-       --menu "Welcome to the PLLinux configuration (version from $VER)" 0 0 23 \
+       --menu "Welcome to the PLLinux configuration (version from $VER)" 0 0 24 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
        4 "Background services (dinit)" \
        5 "Devices (info, power options, partitioning, etc.)" \
-       6 "Network firewall (nftables)" \
-       7 "Task manager (top, q to quit)" \
-       8 "Time" \
-       9 "Kernel modules (modprobe, modinfo)" \
-       10 "Kernel params (sysctl)" \
-       11 "Kernel logs (dmesg, can be saved with syslogd, q to quit)" \
-       12 "System logs saved in files (syslogd)" \
-       14 "Users (adduser, etc.)" \
-       15 "User groups" \
-       16 "App language (todo)           - $LANG" \
-       17 "Keyboard and font (kbd)       - $KEYB, $FONT" \
-       18 "Network (ip)                  - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
-       19 "Swap file (swapon,off,mkswap) - $SWAP_ON_OFF" \
-       20 "Timezone                      - $TIMEZONE" \
-       21 "Partition encryption password (todo)" \
-       22 "Install or clone PLLinux to other partition" \
-       23 "Setup UEFI boot menu (todo)" \
-       24 "Setup UEFI fat32 boot partition (todo)" )
+       6 "Disk usage" \
+       7 "Network firewall (nftables)" \
+       8 "Task manager (top, q to quit)" \
+       9 "Time" \
+       10 "Kernel modules (modprobe, modinfo)" \
+       11 "Kernel params (sysctl)" \
+       12 "Kernel logs (dmesg, can be saved with syslogd, q to quit)" \
+       14 "System logs saved in files (syslogd)" \
+       15 "Users (adduser, etc.)" \
+       16 "User groups" \
+       17 "App language (todo)           - $LANG" \
+       18 "Keyboard and font (kbd)       - $KEYB, $FONT" \
+       19 "Network (ip)                  - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
+       20 "Swap file (swapon,off,mkswap) - $SWAP_ON_OFF" \
+       21 "Timezone                      - $TIMEZONE" \
+       22 "Partition encryption password (todo)" \
+       23 "Install or clone PLLinux to other partition" \
+       24 "Setup UEFI boot menu (todo)" \
+       25 "Setup UEFI fat32 boot partition (todo)" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
@@ -2237,20 +2231,26 @@ while true; do
     3) tasks "crontab" ;;
     4) services ;;
     5) devices ;;
-    7) top ;;
-    9) kernel_modules ;;
-    10) kernel_param ;;
-    11) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
-    12) logs ;;
-    14) set_users ;;
-    17) NEW_KEYB="$KEYB"
+    6) HOMEINFO="App - $(cd ${DIR}app && du -c -h | grep total) \n"
+       DIRLIST="$(ls ${DIR}home)"
+       while read -r line; do
+         HOMEINFO="${HOMEINFO}User $line - $(cd ${DIR}home/$line && du -c -h | grep total) \n"
+       done <<< $DIRLIST
+       dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$HOMEINFO" 100 90 ;;
+    8) top ;;
+    10) kernel_modules ;;
+    11) kernel_param ;;
+    12) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
+    14) logs ;;
+    15) set_users ;;
+    18) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
-    18) network ;;
-    19) swap_file ;;
-    20) set_time_zone ;;
-    22) install_to 1 ;;
-    23) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
+    19) network ;;
+    20) swap_file ;;
+    21) set_time_zone ;;
+    23) install_to 1 ;;
+    24) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
     esac
   else
     break
