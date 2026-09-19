@@ -1,36 +1,37 @@
 # Technology preview release notes
 
-Are you tired with waiting for next release of your favourite Linux distribution? 
+Are you tired with waiting for next release of your favourite Linux distribution?
 Do you want to see immediately latest and gratest versions of your applications?
-Are you tired, when your provider need to patch them with every release? 
-Do you want to be able to easy switch and check some software version without resigning from stable or working environment? 
+Are you tired, when your provider need to patch them with every release?
+Do you want to be able to easy switch and check some software version without resigning from stable or working environment?
 Do you want to see, what is what in your disk without headache or IT studies?
 Are you tired with learning command line tools and searching in the internet for the solution for problems known in Linux for years?
 And finally: do you expect security higher than ever without using too much RAM or disk?
 
-PLLinux contains solution for this and many other things. It was started after finding various problems with existing Linux distributions 
-and lack of dev reaction (more and more often they also remove existing for years functionalities or promoting code, which was not tested).
+PLLinux contains solution for this and many other things. It was started after finding various problems with existing Linux distributions and lack of dev reaction (more and more often they also remove existing for years functionalities or promote code, which was not tested).
 
 This PLLinux Technology Preview release shows, in what direction could go modern operating system. 
-This version contains already many working elements and can already give feeling, where existing systems seems to be obsolete 
-(if you like analogies, you could compare it into 
+This version contains already many working elements and can already give feeling, where existing systems seems to be obsolete (if you like analogies, you could compare it into 
 [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or 
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution was already visible, 
 but not completed). Some solutions are similar to used in Android, Apple products or NixOS, but are not the same.
+
+The biggest key points:
+
+1. easy solutions
+2. escaping from technology debt with compatibility with Linux apps
 
 # Architecture
 
 System is based on long-supported code and tools with known reputation:
 
 1. [Linux kernel](https://kernel.org) (there were other considered too, but for now let's hope, that this code won't be damaged by AI and other things)
-2. [busybox](https://busybox.net/), when possible (when it's good enough) and other tools (like [util-linux](https://github.com/util-linux/util-linux)) extending busybox, when it has got known issues or limits
+2. [busybox](https://busybox.net/), when possible (when it's good enough) and other tools (like [util-linux](https://github.com/util-linux/util-linux)), when busybox has got known issues or limits
 3. [bwrap or bubblewrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation layers in various situations
 4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
 
 We avoid changing existing software (two exceptions: [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md) and some permission details in "bwrap") and
-(excluding permissions and other directories) system in many cases can run without any problems unmodified Linux binaries, which simply work... after
-giving list of dependencies in readme.md files described in further part of these notes
-(this is totally different approach from NixOS, where binaries normally need to be patched)
+(excluding permissions and other directories names) system in many cases can run without any problems unmodified Linux binaries, which simply work... just after giving list of dependencies in readme.md manifest files described further (this is totally different approach from NixOS, where binaries normally need to be patched)
 
 There are just few services started:
 
@@ -146,8 +147,7 @@ script compiling PLLinux software (it's doing practically everything) and settin
 
 **Some keyboard layouts are not complete (kbd package problem)**
 
-This is typical in Open Source - various packages are used and mentioned everywhere, but not updated even after years. Here we have probably
-situation, that "kbd" package won't be completed, because GUI have done it much better.
+This is typical in Open Source - various packages are used and mentioned everywhere, but not updated even after years. Here we have probably situation, that "kbd" package won't be completed, because GUI have done it much better.
 
 **No man pages with util-linux (groff package problem)**
 
@@ -163,11 +163,11 @@ Old topic, see [https://github.com/MidnightCommander/mc/issues/2104](https://git
 
 **Non-admin users logging info is not saved in logs**
 
-Solution unknown.
+Solution unknown. Will be investigated.
 
 **Problems with crond and non-root users**
 
-Solution unknown.
+Solution unknown. Will be investigated.
 
 # Links
 
@@ -191,17 +191,18 @@ Use for example GitHub or marcin ( at ) mwiacek ( dot ) com. I'm not answering v
 
 **Why not extend existing project?**
 
-They have technology dept and doesn't want to change it because of users. There is required fresh air in this situation.
+They have technology dept and doesn't want to change it because of users or politics. There is required fresh air in this situation.
 
 **Why opening opened doors?**
 
-Few years ago many people were thinking only about Intel and AMD in their PC, Apple went and created something different... and we have today very good Macbook Air, Pro or Mini.
-World simply needs different solutions and staying in 1980 year with OS design is probably bad idea.
+Few years ago many people were thinking only about Intel and AMD in their PC, Apple went and created something different... 
+and we have today very good Macbook Air, Pro or Mini. World simply needs different solutions and staying in 1980 year with OS design 
+is bad idea.
 
 **Why not Rust or systemd or other project x?**
 
-They will be used, when provide really added value. Starting project desciptions with "written in Rust" instead of advantages list 
-is anti-advertisement (additionally please look, that we don't have Servo completed till today, Rust coreutils have many baby-age problems 
+They will be used, when provide really added value. Starting and ending project desciptions with "written in Rust" instead of advantages list
+is anti-advertisement (additionally please look, that we don't have Servo completed till today, Rust coreutils have many baby-age problems
 and systemd became big thing staying far away from initial goals)
 
 **But systemd has got clear names for network interfaces**
@@ -210,15 +211,24 @@ Yes, it has got many good and many bad elements.
 
 Note: stable network interfaces names will be implemented in the future.
 
-**Why console and not GUI?**
+**It's not memory safe and contains very bad code**
 
-GUI is of course planned. And creating good system roots and base is more important in this stage.
+Saying this like mantra will not improve situation. Propose better code if you can. Nothing stops you.
 
-Note: yes, text mode has got many disadvantages. It was used for now just because of simplicity.
+**Why limited console and not GUI?**
 
-**Projects like Vinix or Redox or Haiku or even ReactOS or Omarchy are better**
+GUI is of course planned. And creating good system base is the most important in this stage.
 
-Concurrence is always good. Future will show, what will be used more widely in the future. And result cannot be sometimes predicted (see situation with OS/2 and Windows 95)
+Note: and yes, text mode has got many disadvantages. It was used for now just because of simplicity.
+
+**Projects like Vinix, Redox, Haiku, NixOS or even ReactOS or Omarchy are better**
+
+Concurrence is always good. Future will show, what will be more widely used in the future. And result cannot be sometimes predicted 
+(see situation with OS/2 and Windows 95)
+
+**This will be always few steps after Omarchy, Ubuntu, Debian, etc.**
+
+Never say never.
 
 **It's another boring Linux distribution**
 
@@ -228,17 +238,13 @@ It doesn't have at least just other wallpaper or branding.
 
 New products and ideas are always moving people forward. And making things by human (not AI) is extending their skills.
 
-**This will be always few steps after Omarchy, Ubuntu, Debian, etc.**
-
-Never say never.
-
 **It's shipped with slow and obsolete GNU apps**
 
 Number of people critizing something is always much better than number of people doing something. Propose updates.
 
-**This is small project written by one person and it will be abandomed soon**
+**This is just small project written by one person and it will be abandomed soon**
 
-Linux kernel started this way too.
+Linux kernel started this way too. And take my beer - I had very long successfull projects in the past already.
 
 # Schedule and future
 
