@@ -1846,15 +1846,14 @@ devices() {
       case $cmd in
       1) dialog --backtitle "PLLinux\device manager\CPU\(lscpu\)" --msgbox "$(lscpu)" 100 90 ;;
       2) install_to 0 ;;
-      3) HOMEINFO="abc"
+      3) HOMEINFO="App - $(cd ${DIR}app && du -c -h | grep total) "
 
          DIRLIST="$(ls ${DIR}home)"
-      while read -r line; do
-              HOMEINFO = "$HOMEINFO User $line - "
-              HOMEINFO= "$HOMEINFO $(cd ${DIR}home/$line && du -c -h | grep total)"
-           done <<< $DIRLIST
+         while read -r line; do
+           HOMEINFO="${HOMEINFO}User $line - $(cd ${DIR}home/$line && du -c -h | grep total) "
+         done <<< $DIRLIST
 
-         dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$HOMEINFO $(df)" 100 90 ;;
+         dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(df) $HOMEINFO" 100 90 ;;
       5) dialog --backtitle "PLLinux\device manager\network interfaces \(ip\)" --msgbox "$(ip link show)" 100 90 ;;
       6) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -vvv)" 100 90 ;;
       9) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;

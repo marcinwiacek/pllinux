@@ -139,7 +139,8 @@ User files are saved in the RAM (tmpfs) and you can for example make setup using
 
 # Building from sources
 
-
+Follow instructions from the GitHub. It includes installing host system (the best Debian 13.5), creating separate ext4 partition, running
+script compiling PLLinux software (it's doing practically everything) and setting up Grub start menu options with few easy steps.
 
 # Known issues
 
