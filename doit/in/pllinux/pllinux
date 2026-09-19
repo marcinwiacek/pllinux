@@ -1805,7 +1805,7 @@ kernel_modules_list() {
                 case $line2 in
                 *$1*) echo " $listnr "
                       case $IS_LOADED in
-                      *${LINE2X}*) echo  \" $line2 - STARTED\" ;;
+                      *${LINE2X}*) echo  \"$line2 - STARTED\" ;;
                       *) echo  " $line2"
                       esac
                       listnr=$(($listnr+1))
@@ -2245,9 +2245,11 @@ while true; do
   ETH_IP4="IP4 $CONF_FILE_VALUE"
   if [ "$CONF_FILE_VALUE" = "" ]; then ETH_IP4="IP4 DHCP"; fi
 
+#RAM $(cat /proc/meminfo | grep MemFree)/$(cat /proc/meminfo | grep MemTotal)" 
+
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
        --default-item $mainmenunum \
-       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r)), RAM $(cat /proc/meminfo | grep MemFree)/$(cat /proc/meminfo | grep MemTotal)" 0 0 24 \
+       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r))" 0 0 24 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
