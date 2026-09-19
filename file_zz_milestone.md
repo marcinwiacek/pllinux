@@ -12,6 +12,6 @@ echo - - - > /sys/class/scsi_host/host*/scan
 
 # Sound
 
-# CPU microcode and kernel packages
+# CPU microcode
 
 [Prev page](file_yp_milestone10.md) [Next page]

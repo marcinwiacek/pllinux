@@ -70,4 +70,6 @@ Background tasks could be started in two ways:
 PLLinux will start from number one - this is classical **cron** provided by **crond** from **busybox**. It doesn't have support for /etc/crontab, just
 for files from every user.
 
+# Kernel packages
+
 [Prev page](file_yq_milestone9.md) [Next page](file_zz_milestone.md)
