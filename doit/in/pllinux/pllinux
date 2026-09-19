@@ -1738,9 +1738,11 @@ kernel_modules_list() {
             if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
               PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
               while read -r line2; do
-                echo " $listnr "
-                echo  " $line2 "
-                listnr=$(($listnr+1))
+                case $line2 in
+                *$1*) echo " $listnr "
+                      echo  " $line2 "
+                      listnr=$(($listnr+1))
+                esac
               done <<< $PARAMS
             fi
           done
@@ -1753,12 +1755,20 @@ kernel_modules_list() {
 kernel_modules() {
 #    echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back"        --menu \"Linux kernel modules\" 0 0 8        $(kernel_modules_list) >> /tmp/y 
 
+    cmd=$(dialog --stdout --backtitle "$PROMPT\\task command" --cancel-label "Prev" \
+      --inputbox "Pls enter filename part (there will be displayed list with it). Empty value means everything." 15 100 "" )
+    if [ $? == 0 ]; then
+      FILTER="$cmd"
+    else
+      return
+    fi
+
   listnr3=1
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Linux kernel modules\" 0 0 8 \
-       $(kernel_modules_list) )
+       $(kernel_modules_list $FILTER) )
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       listnr3="$cmd"
@@ -1779,11 +1789,14 @@ kernel_modules() {
                 if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
                   PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
                   while read -r line2; do
-                    if [ "$cmd" = "$listnr" ]; then
-                      foundname="$line2"
-                      break
-                    fi
-                    listnr=$(($listnr+1))
+                    case $line2 in
+                    *$FILTER*)
+                      if [ "$cmd" = "$listnr" ]; then
+                        foundname="$line2"
+                      fi
+                      listnr=$(($listnr+1))
+                    esac
+                    if [ "$foundname" != "" ]; then break; fi
                   done <<< $PARAMS
                 fi
                 if [ "$foundname" != "" ]; then break; fi
