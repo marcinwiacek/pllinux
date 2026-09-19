@@ -1713,6 +1713,8 @@ kernel_module() {
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       case $cmd in
+      1) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(modprobe -s -v $1)" 100 90 ;;
+      2) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(modprobe -s -v -r $1)" 100 90 ;;
       4) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(modinfo $1)" 100 90 ;;
       esac
     else
