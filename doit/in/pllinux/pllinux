@@ -1620,7 +1620,7 @@ EOF
   done
 }
 
-service() {
+single_service() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
        --menu "Welcome to the PLLinux configuration" 0 0 8 \
@@ -1649,7 +1649,7 @@ service() {
   done
 }
 
-all_services() {
+services_list() {
   servicess=$(dinitctl list)
   listnr=1
   while read -r line; do
@@ -1682,7 +1682,7 @@ services() {
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\background services\" --cancel-label \"Quit\" --item-help \
        --menu \"Services support is provided by dinit package\" 0 0 8 \
-       $(all_services))
+       $(services_list))
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       servicess=$(dinitctl list)
@@ -1698,7 +1698,7 @@ EOF
           listnr=$(($listnr+1))
         fi
       done <<< $servicess
-      service $SERVICE_NAME
+      single_service $SERVICE_NAME
     else
       break;
     fi
@@ -1738,7 +1738,8 @@ kernel_modules_list() {
             if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
               PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
               while read -r line2; do
-                echo " $listnr $line2 "
+                echo " $listnr "
+                echo  " $line2 "
                 listnr=$(($listnr+1))
               done <<< $PARAMS
             fi
@@ -1749,14 +1750,18 @@ kernel_modules_list() {
   done
 }
 
-
 kernel_modules() {
+#    echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back"        --menu \"Linux kernel modules\" 0 0 8        $(kernel_modules_list) >> /tmp/y 
+
+  listnr3=1
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
+           --default-item $listnr3 \
        --menu \"Linux kernel modules\" 0 0 8 \
        $(kernel_modules_list) )
     cmd=$(eval $abc)
-    if [ $? == 0 ]; then
+    if [ $? = 0 ]; then
+      listnr3="$cmd"
       foundname=""
       listnr=1
       APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
@@ -1783,6 +1788,7 @@ kernel_modules() {
                 fi
                 if [ "$foundname" != "" ]; then break; fi
               done
+              IFS=$IFSORIG
             fi
             if [ "$foundname" != "" ]; then break; fi
           done < ${DIR}app/${APP_NAME}/current/readme.md
