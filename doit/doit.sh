@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="kernel"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="kmod"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -479,6 +479,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "e2fsp
     make install
     cp $curdir/in/e2fsprogs/* $output/app/e2fsprogs/$prefix$ver
     set_current_app_clean_strip_cd e2fsprogs $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod" ]; then
+  ver="34";
+  if should_make kmod $ver; then
+    install_host_deps "scdoc"
+    download_unpack_source https://github.com/kmod-project/kmod/archive/refs/tags/v$ver.tar.gz kmod kmod-$ver 1
+    meson setup -Dprefix=$output/app/kmod/$prefix$ver --buildtype release _build
+    meson compile -C _build
+    create_app kmod $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd kmod $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "initramfs" ]; then
