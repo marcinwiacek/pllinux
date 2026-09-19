@@ -1767,7 +1767,7 @@ kernel_modules() {
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
            --default-item $listnr3 \
-       --menu \"Linux kernel modules\" 0 0 8 \
+       --menu \"Linux kernel modules \(filter: '\"$FILTER\"'\)\" 0 0 8 \
        $(kernel_modules_list $FILTER) )
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
