@@ -259,8 +259,8 @@ Note: Linux kernel started this way too.
 
 **What about sudo?**
 
-Currently user sessions are sandboxed and the main idea is, that user is making admin tasks from root session
-(and don't use increasing privileges). This can change in the future and will be reviewed many times after
+Currently user sessions are sandboxed and the main idea is, that user is making admin tasks from unsanboxed root session
+(and don't use increasing privileges). This can partially change in the future and will be reviewed many times after
 Technology Preview (note: some actions like giving password to encrypted partitions will be handled without need of giving
 admin password)
 
