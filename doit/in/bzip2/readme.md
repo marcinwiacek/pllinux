@@ -1,5 +1,5 @@
 **License**
-GPL2
+BSD-style
 
 **PATH**
 bin
@@ -9,6 +9,7 @@ bin
 **Description**
 
 **Project**
+https://sourceware.org/bzip2/
 
 **Man**
-man
+man/man1

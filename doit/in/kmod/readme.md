@@ -1,4 +1,5 @@
 **License**
+LGPL2.1
 
 **Description**
 Core part of PLLINUX. Linux kernel modules managing.

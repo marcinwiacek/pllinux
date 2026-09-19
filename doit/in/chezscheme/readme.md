@@ -14,3 +14,4 @@ ncurses current
 bin
 
 **Man**
+share/man/man1

@@ -1,4 +1,5 @@
 **License**
+GPL3.0, LGPL2.1
 
 **PATH**
 bin

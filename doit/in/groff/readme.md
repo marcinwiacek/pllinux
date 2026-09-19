@@ -1,4 +1,5 @@
 **License**
+GPL2 or later
 
 **Project**
 https://www.gnu.org/software/groff/
