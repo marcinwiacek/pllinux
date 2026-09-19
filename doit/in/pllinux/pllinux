@@ -1898,11 +1898,13 @@ kernel_modules() {
 
 kernel_param_list() {
   listnr=1
-  LISTLIST=$(/app/busybox/current/bin/busybox sysctl -a)
+  LISTLIST=$(/app/busybox/current/bin/busybox sysctl -a 2> /dev/null)
   while read -r line; do
-      echo "$listnr "
-      echo \"$line\"
-      listnr=$(($listnr+1))
+      case $line in
+      *$1*) echo " $listnr "
+            echo \"$line\"
+            listnr=$(($listnr+1))
+      esac
   done <<< $LISTLIST
   echo " $listnr "
   echo "Add"
@@ -1911,23 +1913,43 @@ kernel_param_list() {
 }
 
 kernel_param() {
+  cmd=$(dialog --stdout --backtitle "PLLinux\kernel params\filter" --cancel-label "Back" \
+      --inputbox "Kernel params filter. Empty value means everything. Case sensitive." 15 100 "" )
+  if [ $? == 0 ]; then
+    FILTER="$cmd"
+  else
+    return
+  fi
   listnr3=1
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel params\" --cancel-label "Back" \
-       --menu \"Linux kernel parameters\" 0 0 8 \
-       $(kernel_param_list) )
+       --menu \"Linux kernel params \(filter: '\"$FILTER\"'\)\" 0 0 8 \
+       $(kernel_param_list $FILTER) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
       break;
     else
-      break;
+      if [ "$FILTER" != "" ]; then
+        cmd=$(dialog --stdout --backtitle "PLLinux\kernel params\filter" --cancel-label "Back" \
+         --inputbox "Kernel params filter. Empty value means everything. Case sensitive." 15 100 "$FILTER" )
+        if [ $? == 0 ]; then
+          FILTER="$cmd"
+        else
+         return
+        fi
+      else
+        break
+      fi
     fi
   done
 }
 
 devices() {
+  menunum=1
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" --menu \"Welcome to the device manager\" 0 0 14 \
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" \
+           --default-item $menunum \
+           --menu \"Welcome to the device manager\" 0 0 14 \
        1 \"CPU \(lscpu\)\" \
        2 \"Disk info, params and partitioning \(smartctl, hdparm, cfdisk\)\" \
        3 \"Display/monitor info \(read-edid\)\" \
@@ -1944,6 +1966,7 @@ devices() {
        15 \"UEFI \(dmidecode\)\")
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
+      menunum=$cmd
       case $cmd in
       1) dialog --backtitle "PLLinux\device manager\CPU\(lscpu\)" --msgbox "$(lscpu)" 100 90 ;;
       2) install_to 0 ;;
@@ -2282,8 +2305,6 @@ while true; do
     4) services ;;
     5) devices ;;
     6) HOMEINFO="App - $(cd ${DIR}app && du -c -h | grep total) \n"
-       CRUCIAL=0
-
        DIRLIST="$(ls ${DIR}home)"
        while read -r line; do
          HOMEINFO="${HOMEINFO}User $line - $(cd ${DIR}home/$line && du -c -h | grep total) \n"
