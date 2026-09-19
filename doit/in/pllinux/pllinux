@@ -120,6 +120,23 @@ EOF
         ETH_IP4_GATEWAY=$PARAM_VALUE ;;
       ETH_IP4_NETMASK*)
         ETH_IP4_NETMASK=$PARAM_VALUE ;;
+#      SERVICES_STOP*)
+#         IFS=":"
+#         for modname in $PARAM_VALUE; do
+#           if [ "$modname" != "" ]; then
+#             /app/dinit/current/bin/dinitctl stop $modname >> /tmp/x
+#           fi
+#         done 
+#         IFS=$IFSORIG ;;
+#      esac
+      KERNEL_MODULES_START*)
+         IFS=":"
+         for modname in $PARAM_VALUE; do
+           if [ "$modname" != "" ]; then
+             /app/kmod/current/sbin/insmod -s $modname
+           fi
+         done
+         IFS=$IFSORIG ;;
       esac
     done < $DIR$CFGFILE
     network_change_config_file "$ETH_IP4" "$ETH_IP4_NETMASK" "$ETH_IP4_GATEWAY"
