@@ -2230,7 +2230,7 @@ while true; do
 
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
        --default-item $mainmenunum \
-       --menu "Welcome to the PLLinux configuration (version from $VER)" 0 0 24 \
+       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r))" 0 0 24 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
