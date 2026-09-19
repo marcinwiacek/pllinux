@@ -1715,8 +1715,8 @@ EOF
 }
 
 kernel_module() {
-                LINE2X=${1##*/}
-                LINE2X=${LINE2X%%.ko.xz*}
+  LINE2X=${1##*/}
+  LINE2X=${LINE2X%%.ko.xz*}
   ISSTARTED=$2
   while true; do
     if [ "$ISSTARTED" = "1" ]; then
@@ -1791,6 +1791,7 @@ kernel_modules() {
 
   listnr3=1
   while true; do
+
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\list\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Linux kernel modules \(filter: '\"$FILTER\"'\)\" 0 0 8 \
@@ -1843,7 +1844,13 @@ kernel_modules() {
       done
       kernel_module $foundname $isstarted
     else
-      break;
+      cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
+        --inputbox "Kernel module filename filter. Empty value means everything. Case sensitive." 15 100 "$FILTER" )
+      if [ $? == 0 ]; then
+        FILTER="$cmd"
+      else
+        return
+      fi
     fi
   done
 }
@@ -2083,7 +2090,7 @@ swap_file() {
                chmod 600 /swapfile
                mkswap /swapfile
                swapon /swapfile
-             fi 
+             fi
              change_value_in_conf_file "SWAP_SIZE" "$line" ;;
           2) /app/busybox/current/bin/sysctl vm.swappiness=$line 
              change_value_in_conf_file "SWAP_AGGRESIVE" "$line" ;;
@@ -2234,6 +2241,8 @@ while true; do
     4) services ;;
     5) devices ;;
     6) HOMEINFO="App - $(cd ${DIR}app && du -c -h | grep total) \n"
+       CRUCIAL=0
+
        DIRLIST="$(ls ${DIR}home)"
        while read -r line; do
          HOMEINFO="${HOMEINFO}User $line - $(cd ${DIR}home/$line && du -c -h | grep total) \n"
