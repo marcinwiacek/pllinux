@@ -111,7 +111,7 @@ EOF
         fi
         ;;
       SWAP_AGGRESIVE* )
-        sysctl vm.swappiness=$PARAM_VALUE ;;
+        /app/busybox/current/sbin/sysctl vm.swappiness=$PARAM_VALUE ;;
       ETH_START*)
         ETH_START=$PARAM_VALUE;;
       ETH_IP4*)
@@ -1815,7 +1815,7 @@ kernel_modules() {
 
 kernel_param_list() {
   listnr=1
-  LISTLIST=$(busybox sysctl -a)
+  LISTLIST=$(/app/busybox/current/bin/busybox sysctl -a)
   while read -r line; do
       echo "$listnr "
       echo \"$line\"
@@ -2057,7 +2057,7 @@ swap_file() {
                swapon /swapfile
              fi 
              change_value_in_conf_file "SWAP_SIZE" "$line" ;;
-          2) sysctl vm.swappiness=$line 
+          2) /app/busybox/current/bin/sysctl vm.swappiness=$line 
              change_value_in_conf_file "SWAP_AGGRESIVE" "$line" ;;
           esac
           linenr=$(($linenr+1))
@@ -2082,7 +2082,7 @@ network_change_config_file() {
     fi
   else
     if [ -f ${DIR}etc/network/interfaces ]; then
-      file_content=$(cat ${DIR}etc/network/interfaces)
+      file_content=$(/app/busybox/current/bin/cat ${DIR}etc/network/interfaces)
       while read -r line; do
         if [ "$line" = "iface eth0 inet static" ]; then linenum=$(($linenum+1)); fi
         if [ "$line" = "address $1" ]; then linenum=$(($linenum+1)); fi
