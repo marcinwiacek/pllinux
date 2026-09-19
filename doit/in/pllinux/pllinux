@@ -1732,8 +1732,20 @@ kernel_module() {
     if [ $? = 0 ]; then
       case $cmd in
       1) dialog --backtitle "PLLinux\kernel modules\module $LINE2X\start (insmod)" --msgbox "$(insmod -s $1)" 100 90
+         get_value_from_conf_file "KERNEL_MODULES_START" ""
+         SWAP_ON_OFF="off"
+         change_value_in_conf_file "KERNEL_MODULES_START" "$CONF_FILE_VALUE:$1"
          ISSTARTED=1 ;;
       2) dialog --backtitle "PLLinux\kernel modules\module $LINE2X\stop (rmmod)" --msgbox "$(rmmod -s $1)" 100 90
+         get_value_from_conf_file "KERNEL_MODULES_START" ""
+         NEW_VALUE=""
+         IFS=":"
+         for modname in $CONF_FILE_VALUE; do
+           if [ "$modname" != "$1" ]; then
+             NEW_VALUE="$NEW_VALUE:$modname"
+           fi
+         done
+         change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE"
          ISSTARTED=0 ;;
       3) dialog --backtitle "PLLinux\kernel modules\module $LINE2X\info (modinfo)" --msgbox "$(modinfo $1)" 100 90 ;;
       esac
@@ -1781,17 +1793,15 @@ kernel_modules_list() {
 }
 
 kernel_modules() {
-    cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
+  cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
       --inputbox "Kernel module filename filter. Empty value means everything. Case sensitive." 15 100 "" )
-    if [ $? == 0 ]; then
-      FILTER="$cmd"
-    else
-      return
-    fi
-
+  if [ $? == 0 ]; then
+    FILTER="$cmd"
+  else
+    return
+  fi
   listnr3=1
   while true; do
-
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\list\" --cancel-label "Back" \
            --default-item $listnr3 \
        --menu \"Linux kernel modules \(filter: '\"$FILTER\"'\)\" 0 0 8 \
