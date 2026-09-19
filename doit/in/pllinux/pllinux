@@ -1753,10 +1753,8 @@ kernel_modules_list() {
 }
 
 kernel_modules() {
-#    echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back"        --menu \"Linux kernel modules\" 0 0 8        $(kernel_modules_list) >> /tmp/y 
-
-    cmd=$(dialog --stdout --backtitle "$PROMPT\\task command" --cancel-label "Prev" \
-      --inputbox "Pls enter filename part (there will be displayed list with it). Empty value means everything." 15 100 "" )
+    cmd=$(dialog --stdout --backtitle "$PROMPT\\task command" --cancel-label "Back" \
+      --inputbox "Kernel module filename filter. Empty value means everything. Case sensitive." 15 100 "" )
     if [ $? == 0 ]; then
       FILTER="$cmd"
     else
