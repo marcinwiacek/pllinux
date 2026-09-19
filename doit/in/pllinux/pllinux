@@ -111,7 +111,7 @@ EOF
         fi
         ;;
       SWAP_AGGRESIVE* )
-        /app/busybox/current/sbin/sysctl vm.swappiness=$PARAM_VALUE ;;
+        /app/busybox/current/sbin/sysctl vm.swappiness=$PARAM_VALUE > /dev/null ;;
       ETH_START*)
         ETH_START=$PARAM_VALUE;;
       ETH_IP4*)
@@ -1622,9 +1622,18 @@ EOF
 
 single_service() {
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
-       --menu "Welcome to the PLLinux configuration" 0 0 8 \
-       1 restart 2 stop 3 start 4 "internal log" 5 "history from /log/*/services syslogd file (if exists, q to quit)" )
+    IS_STARTED=$(dinitctl is-started $1)
+    case $IS_STARTED in
+    *STARTED* )
+      cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
+         --menu "Welcome to the PLLinux configuration" 0 0 8 \
+         1 restart 2 stop 4 "internal log" 5 "history from /log/*/daemon_services syslogd file (if exists, q to quit)" )
+      ;;
+    *STOPPED* )
+      cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
+         --menu "Welcome to the PLLinux configuration" 0 0 8 \
+         3 start 4 "internal log" 5 "history from /log/*/daemon_services syslogd file (if exists, q to quit)" )
+    esac
     if [ $? = 0 ]; then
       case $cmd in
       1) cmd2=$(dinitctl restart $1)
@@ -1636,8 +1645,8 @@ single_service() {
       4) cmd2=$(dinitctl catlog $1)
          dialog --msgbox "$cmd2" 10 30 ;;
       5) FNAME=""
-         if [ -f "/log/services" ]; then FNAME="/log/services"; fi
-         if [ -f "/log/tmp/services" ]; then FNAME="/log/tmp/services"; fi
+         if [ -f "/log/daemon_services" ]; then FNAME="/log/daemon_services"; fi
+         if [ -f "/log/tmp/daemon_services" ]; then FNAME="/log/tmp/daemon_services"; fi
          if [ "$FNAME" != "" ]; then
            clear
            cat $FNAME | grep $1 | less
@@ -1706,16 +1715,25 @@ EOF
 }
 
 kernel_module() {
+  ISSTARTED=$2
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
-       --menu \"Linux kernel module $1\" 0 0 8 \
-       1 start 2 stop 3 \"start on startup\" 4 info )
+    if [ "$ISSTARTED" = "1" ]; then
+      abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
+         --menu \"Linux kernel module $1\" 0 0 8 \
+         2 stop 3 info )
+    else
+      abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\" --cancel-label "Back" \
+         --menu \"Linux kernel module $1\" 0 0 8 \
+         1 start 3 info )
+    fi
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       case $cmd in
-      1) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(modprobe -s -v $1)" 100 90 ;;
-      2) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(modprobe -s -v -r $1)" 100 90 ;;
-      4) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(modinfo $1)" 100 90 ;;
+      1) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(insmod -s $1)" 100 90
+         ISSTARTED=1 ;;
+      2) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(rmmod -s $1)" 100 90
+         ISSTARTED=0 ;;
+      3) dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(modinfo $1)" 100 90 ;;
       esac
     else
       break;
@@ -1724,6 +1742,7 @@ kernel_module() {
 }
 
 kernel_modules_list() {
+  IS_LOADED=$(lsmod)
   listnr=1
   APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
   for APP_NAME in $APP_LIST; do
@@ -1740,9 +1759,14 @@ kernel_modules_list() {
             if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
               PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
               while read -r line2; do
+                LINE2X=${line2##*/}
+                LINE2X=${LINE2X%%.ko.xz*}
                 case $line2 in
                 *$1*) echo " $listnr "
-                      echo  " $line2 "
+                      case $IS_LOADED in
+                      *${LINE2X}*) echo  \" $line2 - STARTED\" ;;
+                      *) echo  " $line2"
+                      esac
                       listnr=$(($listnr+1))
                 esac
               done <<< $PARAMS
@@ -1772,7 +1796,9 @@ kernel_modules() {
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       listnr3="$cmd"
+      IS_LOADED=$(lsmod)
       foundname=""
+      isstarted=0
       listnr=1
       APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
       for APP_NAME in $APP_LIST; do
@@ -1792,6 +1818,11 @@ kernel_modules() {
                     case $line2 in
                     *$FILTER*)
                       if [ "$cmd" = "$listnr" ]; then
+                        LINE2X=${line2##*/}
+                        LINE2X=${LINE2X%%.ko.xz*}
+                        case $IS_LOADED in
+                        *${LINE2X}*) isstarted=1
+                        esac
                         foundname="$line2"
                       fi
                       listnr=$(($listnr+1))
@@ -1808,7 +1839,7 @@ kernel_modules() {
         fi
         if [ "$foundname" != "" ]; then break; fi
       done
-      kernel_module $foundname
+      kernel_module $foundname $isstarted
     else
       break;
     fi
