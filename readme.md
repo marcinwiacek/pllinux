@@ -47,10 +47,10 @@ Currently in early alpha. Some things are done and many still todo:
  11. [Milestone 11 - CPU microcode]
  12. Milestone 12 - dbus? AppArmor? SeLinux?
  14. Milestone 14 - more packages, software compiling and matrioszka (compiling PLLinux from PLLinux), etc.
- 15. Milestone 15 - installation with Secure Boot and shim
- 16. Milestone 16 - packages with optional config (for example installing some localization only or removing a files), 
-impossible things (like deleting to trash or firewall per process), quotas, managed installation, SMART logging, schedule "older than"
- 17. Milestone 17 - predictable network devices names, limiting CPU, RAM, bandwidth with user sessions, etc.
+ 15. Milestone 15 - installation with grub, partition encryption, Secure Boot and shim
+ 16. Milestone 16 - packages with optional config (for example installing some localization only or removing a files),
+impossible things (like deleting to trash or firewall per process), quotas, managed installation, SMART logging, schedule "older than", etc.
+ 17. Milestone 17 - predictable network devices names, limiting CPU, RAM, bandwidth with user sessions, BASH completion, etc.
  18. Milestone 18 - graphic UI
  19. Milestone 19 - big party?
 
