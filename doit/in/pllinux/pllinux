@@ -1967,31 +1967,32 @@ devices() {
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" \
            --default-item $menunum \
            --menu \"Welcome to the device manager\" 0 0 14 \
-       1 \"CPU \(lscpu\)\" \
-       2 \"Disk info, params and partitioning \(smartctl, hdparm, cfdisk\)\" \
-       3 \"Display/monitor info \(read-edid\)\" \
-       4 \"Mouse and touchpad\" \
-       5 \"Network interfaces \(ip\)\" \
-       6 \"PCI \(lspci\)\" \
-       7 \"Power options \(acpid, kernel options, etc.\)\" \
-       8 \"Power source \(battery, charging, etc.\)\" \
-       9 \"Printers\" \
-       10 \"RAM \(decode-dimms\)\" \
-       11 \"Sensors \(sensors\)\" \
-       12 \"Sound\" \
-       14 \"USB\" \
-       15 \"UEFI \(dmidecode\)\")
+       1 \"Bluetooth\" \
+       2 \"CPU \(lscpu\)\" \
+       3 \"Disk info, params and partitioning \(smartctl, hdparm, cfdisk\)\" \
+       4 \"Display/monitor info \(read-edid\)\" \
+       5 \"Mouse and touchpad\" \
+       6 \"Network interfaces \(ip\)\" \
+       7 \"PCI \(lspci\)\" \
+       8 \"Power options \(acpid, kernel options, etc.\)\" \
+       9 \"Power source \(battery, charging, etc.\)\" \
+       10 \"Printers\" \
+       11 \"RAM \(decode-dimms\)\" \
+       12 \"Sensors \(sensors\)\" \
+       14 \"Sound\" \
+       15 \"USB\" \
+       16 \"UEFI \(dmidecode\)\")
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       menunum=$cmd
       case $cmd in
-      1) dialog --backtitle "PLLinux\device manager\CPU\(lscpu\)" --msgbox "$(lscpu)" 100 90 ;;
-      2) install_to 0 ;;
-      5) dialog --backtitle "PLLinux\device manager\network interfaces \(ip\)" --msgbox "$(ip link show)" 100 90 ;;
-      6) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -vvv)" 100 90 ;;
-      10) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;
-      11) dialog --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
-      15) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
+      2) dialog --backtitle "PLLinux\device manager\CPU\(lscpu\)" --msgbox "$(lscpu)" 100 90 ;;
+      3) install_to 0 ;;
+      6) dialog --backtitle "PLLinux\device manager\network interfaces \(ip\)" --msgbox "$(ip link show)" 100 90 ;;
+      7) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -vvv)" 100 90 ;;
+      11) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;
+      12) dialog --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
+      16) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
       esac
     else
       break;
