@@ -52,9 +52,10 @@ get_value_from_conf_file() {
     IFS="=" read -r PARAM_NAME PARAM_VALUE << EOF
 $line
 EOF
-    case $PARAM_NAME in
-    $1=*) CONF_FILE_VALUE=$PARAM_VALUE
-    esac
+    if [ "$PARAM_NAME" = "$1" ]; then
+      CONF_FILE_VALUE="$PARAM_VALUE"
+      break
+    fi
   done < $DIR$CFGFILE
   IFS=$IFSORIG
 }
@@ -148,7 +149,7 @@ EOF
       for modname in $SYSTEM_SERVICES; do
         case $SERVICES_STOP in
           *$modname*)
-            /app/dinit/current/bin/dinitctl trigger $modname > /dev/null
+            /app/dinit/current/bin/dinitctl stop $modname > /dev/null
             ;;
           *) /app/dinit/current/bin/dinitctl start $modname
         esac
@@ -1659,9 +1660,15 @@ single_service() {
     IS_STARTED=$(dinitctl is-started $1)
     case $IS_STARTED in
     *STARTED* )
-      cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
+      if [ "$SERVICE_NAME" = "tty1" ] || [ "$SERVICE_NAME" = "syslogd" ]; then
+        cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
+         --menu "Welcome to the PLLinux configuration" 0 0 8 \
+         1 restart 4 "internal log" 5 "history from /log/*/daemon_services syslogd file (if exists, q to quit)" )
+      else
+        cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
          --menu "Welcome to the PLLinux configuration" 0 0 8 \
          1 restart 2 stop 4 "internal log" 5 "history from /log/*/daemon_services syslogd file (if exists, q to quit)" )
+      fi
       ;;
     *STOPPED* )
       cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
@@ -1674,19 +1681,19 @@ single_service() {
          dialog --msgbox "$cmd2" 10 30 ;;
       2) cmd2=$(dinitctl stop $1)
          dialog --msgbox "$cmd2" 10 30
-         get_value_from_conf_file "SERVICES_STOP" ""
-         change_value_in_conf_file "SERVICES_STOP" "$CONF_FILE_VALUE:$1" ;;
+         get_value_from_conf_file SERVICES_STOP ""
+         change_value_in_conf_file SERVICES_STOP "$CONF_FILE_VALUE:$1" ;;
       3) cmd2=$(dinitctl start $1)
          dialog --msgbox "$cmd2" 10 30
-         get_value_from_conf_file "SERVICES_STOP" ""
+         get_value_from_conf_file SERVICES_STOP ""
          NEW_VALUE=""
          IFS=":"
          for modname in $CONF_FILE_VALUE; do
-           if [ "$modname" != "$1" ]; then
+           if [ "$modname" != "$1" ] && [ "$modname" != "" ]; then
              NEW_VALUE="$NEW_VALUE:$modname"
            fi
          done
-         change_value_in_conf_file "SERVICES_STOP" "$NEW_VALUE" ;;
+         change_value_in_conf_file SERVICES_STOP "$NEW_VALUE" ;;
       4) cmd2=$(dinitctl catlog $1)
          dialog --msgbox "$cmd2" 10 30 ;;
       5) FNAME=""
@@ -1720,7 +1727,7 @@ EOF
         break
       done < "/etc/dinit.d/$SERVICE_NAME"
       echo " $listnr "
-      echo \"$SERVICE_NAME - $(dinitctl is-started $SERVICE_NAME) \"
+      echo \"$(/app/busybox/current/bin/realpath /etc/dinit.d/$SERVICE_NAME) - $(dinitctl is-started $SERVICE_NAME) \"
       echo \"$DESC\"
       listnr=$(($listnr+1))
     fi
@@ -1734,7 +1741,7 @@ services() {
     return
   fi
   while true; do
-    abc=$(echo dialog --stdout --backtitle \"PLLinux\\background services\" --cancel-label \"Quit\" --item-help \
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\background services\" --cancel-label \"Back\" --item-help \
        --menu \"Services support is provided by dinit package\" 0 0 8 \
        $(services_list))
     cmd=$(eval $abc)
@@ -1820,12 +1827,19 @@ kernel_modules_list() {
                 LINE2X=${line2##*/}
                 LINE2X=${LINE2X%%.ko.xz*}
                 case $line2 in
-                *$1*) echo " $listnr "
-                      case $IS_LOADED in
-                      *${LINE2X}*) echo  \"$line2 - STARTED\" ;;
-                      *) echo  " $line2"
+                *$1*) case $IS_LOADED in
+                      *${LINE2X}*)
+                         if [ "$2" = "1" ] || [ "$2" = "2" ]; then
+                           echo " $listnr "
+                           echo  \"$line2 - STARTED\"
+                           listnr=$(($listnr+1))
+                         fi ;;
+                      *) if [ "$2" = "0" ] || [ "$2" = "2" ]; then
+                           echo " $listnr "
+                           echo  \"$line2\"
+                           listnr=$(($listnr+1))
+                         fi
                       esac
-                      listnr=$(($listnr+1))
                 esac
               done <<< $PARAMS
             fi
@@ -1837,19 +1851,37 @@ kernel_modules_list() {
 }
 
 kernel_modules() {
-  cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
-      --inputbox "Kernel module filename filter. Empty value means everything. Case sensitive." 15 100 "" )
-  if [ $? == 0 ]; then
-    FILTER="$cmd"
-  else
-    return
+        cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
+          --form "Pls provide params for kernel module filename search" 0 0 8 \
+          "Show only stopped (0), started (1) or both (2)" 1 1 "2" 1 60 20 0 \
+          "Filename filter. Empty = everything. Case sensitive." 2 1 "" 2 60 20 0)
+
+    if [ $? == 0 ]; then
+        linenr=1
+        while read -r line; do
+          case $linenr in
+          1) FILTER_START="$line" ;;
+          2) FILTER="$line" ;;
+          esac
+          linenr=$(($linenr+1))
+        done <<< "$cmd"
+   else
+     return
   fi
+
+    echo   $(kernel_modules_list "$FILTER" $FILTER_START) >> /tmp/x
+
   listnr3=1
   while true; do
+    case $FILTER_START in
+    0) TYPE_INFO="only stopped";;
+    1) TYPE_INFO="only started";;
+    2) TYPE_INFO="started or stopped";;
+    esac
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\list\" --cancel-label "Back" \
            --default-item $listnr3 \
-       --menu \"Linux kernel modules \(filter: '\"$FILTER\"'\)\" 0 0 8 \
-       $(kernel_modules_list $FILTER) )
+       --menu \"Linux kernel modules \(filter: '\"$FILTER\"', $TYPE_INFO\)\" 0 0 8 \
+       $(kernel_modules_list "$FILTER" $FILTER_START) )
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       listnr3="$cmd"
@@ -1900,11 +1932,20 @@ kernel_modules() {
     else
       if [ "$FILTER" != "" ]; then
         cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
-         --inputbox "Kernel module filename filter. Empty value means everything. Case sensitive." 15 100 "$FILTER" )
+          --form "Pls provide params for kernel module filename search" 0 0 8 \
+          "Show only stopped (0), started (1) or both (2)" 1 1 "$FILTER_START" 1 60 20 0 \
+          "Filename filter. Empty = everything. Case sensitive." 2 1 "$FILTER" 2 60 20 0)
         if [ $? == 0 ]; then
-          FILTER="$cmd"
+          linenr=1
+          while read -r line; do
+            case $linenr in
+            1) FILTER_START="$line" ;;
+            2) FILTER="$line" ;;
+            esac
+            linenr=$(($linenr+1))
+          done <<< "$cmd"
         else
-         return
+          return
         fi
       else
         break
@@ -1966,7 +2007,7 @@ devices() {
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" \
            --default-item $menunum \
-           --menu \"Welcome to the device manager\" 0 0 14 \
+           --menu \"Welcome to the device manager\" 0 0 15 \
        1 \"Bluetooth\" \
        2 \"CPU \(lscpu\)\" \
        3 \"Disk info, params and partitioning \(smartctl, hdparm, cfdisk\)\" \
