@@ -2359,7 +2359,7 @@ while true; do
     3) tasks "crontab" ;;
     4) services ;;
     5) devices ;;
-    6) HOMEINFO="App - $(cd ${DIR}app && du -c -h | grep total) ("
+    6) HOMEINFO="App - $(cd ${DIR}app && du -c -h | grep total) (includes "
 
        LIST=""
        IFS=":"
