@@ -2359,7 +2359,17 @@ while true; do
     3) tasks "crontab" ;;
     4) services ;;
     5) devices ;;
-    6) HOMEINFO="App - $(cd ${DIR}app && du -c -h | grep total) \n"
+    6) HOMEINFO="App - $(cd ${DIR}app && du -c -h | grep total) ("
+
+       LIST=""
+       IFS=":"
+       for APP_NAME in $SYSTEM_APPS; do
+         LIST="$LIST ${DIR}app/$APP_NAME/current/*"
+       done
+       IFS=$IFSORIG
+
+       HOMEINFO="$HOMEINFO$(du -c -h $LIST | grep total) in core PLLinux apps)\n"
+
        DIRLIST="$(ls ${DIR}home)"
        while read -r line; do
          HOMEINFO="${HOMEINFO}User $line - $(cd ${DIR}home/$line && du -c -h | grep total) \n"
