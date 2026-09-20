@@ -9,16 +9,17 @@
 
 PLLinux contains solution for this and many other things. The biggest key points:
 
-  1. simplicity
+  1. simplicity and human face (it's prepared for normal users)
   2. escaping from technology debt with compatibility with Linux apps
   3. taking care about minimal resources usage
   4. technical approach (no politics)
-  5. stupid easy and fast implementing new software versions
+  5. easy and fast implementing new software versions
 
 Technology Preview release shows, in what direction could go modern OS. This version contains many working elements and can already give feeling,
 where existing systems seems to be obsolete (if you like analogies, you could compare it to the [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution
 was already visible, but not complete). Some solutions are similar to used in Android, Apple products or NixOS, but not the same.
+They can change before beta or first final release (like it was in Windows 95, see [The Early Windows 95 Builds Microsoft DIDN'T Want Us To See](https://www.youtube.com/watch?v=cgq7LcvRFA4))
 
 Note: project was started after finding various problems with existing Linux distributions and lack of dev reaction (more and more often they also remove
 existing for years functionalities or promote code, which was not tested).
@@ -35,8 +36,7 @@ layers in various situations
 4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
 
 We avoid changing existing software (two exceptions: [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md)
-and some permission details in "bwrap") and (excluding permissions and other directories names) system in many cases can run without any problems
-unmodified Linux binaries, which simply work... just after giving list of dependencies in readme.md manifest files described further (this is totally different
+and some permission details in "bwrap") and (excluding permissions and other directories names) system in many cases can run without any problems unmodified Linux binaries. This simply works... just after giving list of dependencies in readme.md manifest files described further (this is totally different
 approach from NixOS, where binaries normally need to be patched)
 
 There are just few services started:
@@ -52,7 +52,15 @@ miliseconds and it doesn't hurt.
 
 DHCP is not done with services now.
 
-Note: used architecture (especially bwrap) can make some scenarios potentially more difficult and normally
+**bwrap** sandboxing is used for:
+
+1. user sessions (they don't see real filesystem)
+2. running package manager (it doesn't see user files)
+3. running compilation/installation script from packages (generally all changes in main filesystem are done by package manager)
+
+Big pressure is put into limiting disk writes or memory usage. This is very important with current SSD/RAM prices.
+
+Note: used architecture (especially **bwrap**) can make some scenarios potentially more difficult and normally
 root actions are done from the terminal with logged root (honestly speaking you don't need to do them every second with good framework).
 
 # Managing system
@@ -201,18 +209,20 @@ Use for example GitHub or marcin ( at ) mwiacek ( dot ) com. I'm not answering v
 
 **Why not extend existing project?**
 
-They have technology dept and doesn't want to change it because of users or politics. There is required fresh air in this situation.
+They have technology dept and many times don't want to change because of users or politics. There is required fresh air in this situation.
 
 **Why opening opened doors?**
 
 Few years ago many people were thinking about Intel and AMD only. Apple created something different... and we have today very
-good Macbook Air, Pro or Mini (with ARM CPU). World simply needs different solutions and staying in 1980 year with OS design is bad idea.
+good Macbook Air, Pro or Mini (with ARM CPU). 
+
+In other words: world simply needs different solutions and staying in 1980 with OS design is bad idea.
 
 **Why not Rust or systemd or other project?**
 
 They will be used, when provide really added value. Starting and ending project info with "written in Rust" instead of advantages list
-is anti-advertisement (additionally please look, that we don't have Servo till today, Rust coreutils have many baby-age problems
-and systemd became big & fat thing staying far away from initial goals)
+is anti-advertisement (additionally we don't have complete Servo till today, Rust core-utils have many baby-age problems
+and systemd became big & fat & is staying far away from initial goals)
 
 **But systemd has got clear names for network interfaces**
 
@@ -228,11 +238,11 @@ Saying this like mantra will not improve situation. Propose better code if you c
 
 GUI is of course planned. And creating good system base is the most important in this stage.
 
-Note: and yes, text mode has got many disadvantages.
+Note: yes, text mode has got many disadvantages.
 
 **Projects like Vinix, Redox, Haiku, NixOS or even ReactOS or Omarchy are better**
 
-Concurrence is always good. Future will show, what will be more widely used in the future. And result cannot be sometimes predicted 
+Concurrence is always good. Future will show, what will be used in the future. And result cannot be sometimes predicted 
 (see situation with OS/2 and Windows 95)
 
 **This will be always few steps after Omarchy, Ubuntu, Debian, etc.**
@@ -247,9 +257,10 @@ It doesn't have at least just other wallpaper or branding.
 
 New products and ideas are always moving people forward. And making things by human (not AI) is extending their skills.
 
-**It's shipped with slow and obsolete GNU apps**
+**It's shipped with slow, obsolete and abandomed GNU apps. Why not musl or other?**
 
-Number of people critizing something is always much bigger than number of people doing something. Propose updates.
+Number of people critizing something is always much bigger than number of people doing something. Propose updates if there is
+alternative.
 
 **This is just small project written by one person and it will be abandomed soon**
 
@@ -263,6 +274,10 @@ Currently user sessions are sandboxed and the main idea is, that user is making 
 (and don't use increasing privileges). This can partially change in the future and will be reviewed many times after
 Technology Preview (note: some actions like giving password to encrypted partitions will be handled without need of giving
 admin password)
+
+**All PLLinux goals can be achieved by docker or virtualization**
+
+Yes. But we don't have distributions in mainstream doing this. And PLLinux is trying to make it with small amount of resources.
 
 # Schedule and future
 
