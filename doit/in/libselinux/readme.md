@@ -3,8 +3,10 @@ pcre2 current
 gcc current
 
 **License**
+See LICENSE
 
 **Project**
+https://github.com/SELinuxProject/selinux
 
 **Description**
 
