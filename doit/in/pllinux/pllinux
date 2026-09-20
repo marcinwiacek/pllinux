@@ -493,13 +493,21 @@ set_existing_user_password() {
 
 set_existing_user() {
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
+    if [ "$1" = "root" ]; then
+      cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
+           --menu "Set user $1" 0 0 6 2 "App language (todo)" \
+                   3 "Background scheduled tasks setup by this user (crond)" \
+                   5 "Keyboard and font (kbd)" \
+                   6 "Password (passwd)" )
+    else
+      cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
            --menu "Set user $1" 0 0 6 1 "Apps available to the user" \
                    2 "App language (todo)" \
                    3 "Background scheduled tasks setup by this user (crond)" \
                    4 "Features" \
                    5 "Keyboard and font (kbd)" \
                    6 "Password (passwd)" )
+    fi
     if [ $? == 0 ]; then
       case $cmd in
         1) set_existing_user_apps $1 ;;
@@ -2368,7 +2376,7 @@ while true; do
        done
        IFS=$IFSORIG
 
-       HOMEINFO="$HOMEINFO$(du -c -h $LIST | grep total) in core PLLinux apps)\n"
+       HOMEINFO="$HOMEINFO$(du -c -h $LIST | grep total) in core PLLinux apps)\n\n"
 
        DIRLIST="$(ls ${DIR}home)"
        while read -r line; do
