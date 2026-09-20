@@ -279,6 +279,10 @@ admin password)
 
 Yes. But we don't have distributions in mainstream doing this. And PLLinux is trying to make it with small amount of resources.
 
+**It will be never compatible with all dev tools**
+
+Never say never.
+
 # Schedule and future
 
 This project was started in April 2026 and already went into quite useable shape and form.
