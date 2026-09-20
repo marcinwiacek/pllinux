@@ -1,4 +1,5 @@
 **License**
+Different (see COPYING file)
 
 **Project**
 https://tukaani.org/ or https://github.com/tukaani-project/xz
