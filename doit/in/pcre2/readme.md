@@ -1,4 +1,5 @@
 **License**
+See LICENSE.md
 
 **Project**
 https://github.com/PCRE2Project/pcre2

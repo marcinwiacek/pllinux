@@ -1,4 +1,5 @@
 **License**
+LGPL2+
 
 **PATH**
 bin

@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="tzdb"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="lvm2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -972,9 +972,9 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lvm2"
     make -j$cpu_num
     create_app lvm2 $prefix$ver
     #it's broken, doesn't respect --prefix and tries to copy to /etc/lvm
-    make install
-    cd $output/app/lvm2/lib
-    ln -s libdevmapper.so.1.02.1 libdevmapper.so.1.02 # cross fingers this version works
+    make install || true
+    cd $output/app/lvm2/$prefix$ver/lib
+    ln -s libdevmapper.so.1.02 libdevmapper.so.1.02.1 # cross fingers this version works
     set_current_app_clean_strip_cd lvm2 $prefix$ver 1
   fi
 fi

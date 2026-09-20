@@ -1,4 +1,5 @@
 **License**
+See COPYING
 
 **Project**
 https://invisible-island.net/ncurses
