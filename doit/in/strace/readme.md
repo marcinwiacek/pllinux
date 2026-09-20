@@ -1,4 +1,5 @@
 **License**
+LGPL2.1 or later
 
 **Project**
 https://github.com/strace/strace
