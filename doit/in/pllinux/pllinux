@@ -1851,11 +1851,14 @@ kernel_modules_list() {
 }
 
 kernel_modules() {
-        cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
+  FILTER_START="2"
+  FILTER=""
+  listnr3=1
+  while true; do
+    cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
           --form "Pls provide params for kernel module filename search" 0 0 8 \
-          "Show only stopped (0), started (1) or both (2)" 1 1 "2" 1 60 20 0 \
-          "Filename filter. Empty = everything. Case sensitive." 2 1 "" 2 60 20 0)
-
+          "Show only stopped (0), started (1) or both (2)" 1 1 "$FILTER_START" 1 60 20 0 \
+          "Filename filter. Empty = everything. Case sensitive." 2 1 "$FILTER" 2 60 20 0)
     if [ $? == 0 ]; then
         linenr=1
         while read -r line; do
@@ -1865,14 +1868,15 @@ kernel_modules() {
           esac
           linenr=$(($linenr+1))
         done <<< "$cmd"
-   else
-     return
-  fi
-
-    echo   $(kernel_modules_list "$FILTER" $FILTER_START) >> /tmp/x
-
-  listnr3=1
-  while true; do
+    else
+      return
+    fi
+    LIST=$(kernel_modules_list "$FILTER" "$FILTER_START")
+    if [ "$LIST" = "" ]; then
+      dialog --backtitle "PLLinux\\kernel modules\\list" \
+        --msgbox "Search list is empty. Try again" 10 30
+      continue
+    fi
     case $FILTER_START in
     0) TYPE_INFO="only stopped";;
     1) TYPE_INFO="only started";;
@@ -1880,8 +1884,7 @@ kernel_modules() {
     esac
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\list\" --cancel-label "Back" \
            --default-item $listnr3 \
-       --menu \"Linux kernel modules \(filter: '\"$FILTER\"', $TYPE_INFO\)\" 0 0 8 \
-       $(kernel_modules_list "$FILTER" $FILTER_START) )
+       --menu \"Linux kernel modules \(filter: '\"$FILTER\"', $TYPE_INFO\)\" 0 0 8 $LIST)
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       listnr3="$cmd"
@@ -1931,22 +1934,7 @@ kernel_modules() {
       kernel_module $foundname $isstarted
     else
       if [ "$FILTER" != "" ]; then
-        cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
-          --form "Pls provide params for kernel module filename search" 0 0 8 \
-          "Show only stopped (0), started (1) or both (2)" 1 1 "$FILTER_START" 1 60 20 0 \
-          "Filename filter. Empty = everything. Case sensitive." 2 1 "$FILTER" 2 60 20 0)
-        if [ $? == 0 ]; then
-          linenr=1
-          while read -r line; do
-            case $linenr in
-            1) FILTER_START="$line" ;;
-            2) FILTER="$line" ;;
-            esac
-            linenr=$(($linenr+1))
-          done <<< "$cmd"
-        else
-          return
-        fi
+        continue
       else
         break
       fi
