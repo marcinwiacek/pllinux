@@ -1,4 +1,5 @@
 **License**
+GPL2
 
 **PATH**
 bin

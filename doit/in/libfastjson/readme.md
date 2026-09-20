@@ -2,11 +2,12 @@
 See COPYING
 
 **PATH**
-bin
 
 **Deps**
 
 **Description**
 
 **Project**
-https://www.gnupg.org/software/libksba/index.html
+https://github.com/rsyslog/libfastjson
+
+**Man**
