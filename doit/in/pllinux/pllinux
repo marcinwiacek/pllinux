@@ -1907,17 +1907,25 @@ kernel_modules() {
                 if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
                   PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
                   while read -r line2; do
+                    LINE2X=${line2##*/}
+                    LINE2X=${LINE2X%%.ko.xz*}
                     case $line2 in
-                    *$FILTER*)
-                      if [ "$cmd" = "$listnr" ]; then
-                        LINE2X=${line2##*/}
-                        LINE2X=${LINE2X%%.ko.xz*}
-                        case $IS_LOADED in
-                        *${LINE2X}*) isstarted=1
-                        esac
-                        foundname="$line2"
-                      fi
-                      listnr=$(($listnr+1))
+                    *$FILTER*) case $IS_LOADED in
+                      *${LINE2X}*)
+                         if [ "$FILTER_START" = "1" ] || [ "$FILTER_START" = "2" ]; then
+                           isstarted=1
+                           if [ "$cmd" = "$listnr" ]; then
+                              foundname="$line2"
+                           fi
+                           listnr=$(($listnr+1))
+                         fi ;;
+                      *) if [ "$FILTER_START" = "0" ] || [ "$FILTER_START" = "2" ]; then
+                           if [ "$cmd" = "$listnr" ]; then
+                              foundname="$line2"
+                           fi
+                           listnr=$(($listnr+1))
+                         fi
+                      esac
                     esac
                     if [ "$foundname" != "" ]; then break; fi
                   done <<< $PARAMS
