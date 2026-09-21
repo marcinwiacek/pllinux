@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="efibootmgr"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="shim"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1292,14 +1292,26 @@ if [ "$package" == "fs2" ] || [ "$package" == "efibootmgr" ]; then
     create_app efibootmgr $prefix$ver
     mkdir /app/efibootmgr/$prefix$ver/dynamic
     make -j$cpu_num EFIDIR=/app/efibootmgr/$prefix$ver/dynamic
-    
 #    ./Configure -d #-Dprefix=$output/app/perl/$prefix$ver
 #    ./perl -Ilib -I. installperl --destdir=$output/app/perl/$prefix$ver
 #    remove_duplicates_cd $output/app/perl/$prefix$ver/usr/local/bin
 #    set_current_app_clean_strip_cd perl $prefix$ver 1
   fi
 fi
-# rhboot/shim
+if [ "$package" == "fs2" ] || [ "$package" == "shim" ]; then
+  #work in progress
+  ver="16.1";
+  if should_make shim $ver; then
+    download_unpack_source https://github.com/rhboot/shim/archive/refs/tags/$ver.tar.gz shim shim-$ver 1
+#    create_app efibootmgr $prefix$ver
+#    mkdir /app/efibootmgr/$prefix$ver/dynamic
+#    make -j$cpu_num EFIDIR=/app/efibootmgr/$prefix$ver/dynamic
+#    ./Configure -d #-Dprefix=$output/app/perl/$prefix$ver
+#    ./perl -Ilib -I. installperl --destdir=$output/app/perl/$prefix$ver
+#    remove_duplicates_cd $output/app/perl/$prefix$ver/usr/local/bin
+#    set_current_app_clean_strip_cd perl $prefix$ver 1
+  fi
+fi
 # musl libc
 #if [ "$package" == "fs" ] || [ "$package" == "pciids" ]; then
   # https://pci-ids.ucw.cz/
