@@ -179,8 +179,8 @@ set_keyboard_font_general_or_user() {
            --menu "Set display and typing$PROMPT2" 0 0 5 \
            1 "Check" \
            2 "Set default" \
-           3 "Set font     - $NEW_FONT" \
-           4 "Set keyboard - $NEW_KEYB" \
+           3 "Font (setfont)      - $NEW_FONT" \
+           4 "Keyboard (loadkeys) - $NEW_KEYB" \
            5 "Save changes and back")
     if [ $? == 0 ]; then
       case $cmd in
@@ -497,7 +497,7 @@ set_existing_user() {
       cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
            --menu "Set user $1" 0 0 6 2 "App language (todo)" \
                    3 "Background scheduled tasks setup by this user (crond)" \
-                   5 "Keyboard and font (kbd)" \
+                   5 "Keyboard and font (setfont, loadkeys)" \
                    6 "Password (passwd)" )
     else
       cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
@@ -505,7 +505,7 @@ set_existing_user() {
                    2 "App language (todo)" \
                    3 "Background scheduled tasks setup by this user (crond)" \
                    4 "Features" \
-                   5 "Keyboard and font (kbd)" \
+                   5 "Keyboard and font (setfont, loadkeys)" \
                    6 "Password (passwd)" )
     fi
     if [ $? == 0 ]; then
@@ -1782,31 +1782,51 @@ kernel_module() {
     if [ "$ISSTARTED" = "1" ]; then
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1\" 0 0 8 \
-         2 \"stop \(rmmod\)\" 3 \"info \(modinfo\)\" )
+         1 \"info \(modinfo\)\" 3 \"stop \(rmmod\)\")
     else
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1\" 0 0 8 \
-         1 \"start \(insmod\)\" 3 \"info \(modinfo\)\" )
+         1 \"info \(modinfo\)\" 2 \"start \(insmod\)\")
     fi
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       case $cmd in
-      1) dialog --backtitle "PLLinux\kernel modules\module $LINE2X\start (insmod)" --msgbox "$(insmod -s $1)" 100 90
-         get_value_from_conf_file "KERNEL_MODULES_START" ""
-         change_value_in_conf_file "KERNEL_MODULES_START" "$CONF_FILE_VALUE:$1"
-         ISSTARTED=1 ;;
-      2) dialog --backtitle "PLLinux\kernel modules\module $LINE2X\stop (rmmod)" --msgbox "$(rmmod -s $1)" 100 90
-         get_value_from_conf_file "KERNEL_MODULES_START" ""
-         NEW_VALUE=""
-         IFS=":"
-         for modname in $CONF_FILE_VALUE; do
-           if [ "$modname" != "$1" ]; then
-             NEW_VALUE="$NEW_VALUE:$modname"
-           fi
-         done
-         change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE"
-         ISSTARTED=0 ;;
-      3) dialog --backtitle "PLLinux\kernel modules\module $LINE2X\info (modinfo)" --msgbox "$(modinfo $1)" 100 90 ;;
+      1) dialog --backtitle "PLLinux\kernel modules\module $LINE2X\info (modinfo)" --msgbox "$(modinfo $1)" 100 90 ;;
+      2) MSG="$(insmod $1 2>&1)"
+         IS_LOADED=$(lsmod 2>&1)
+         case $IS_LOADED in
+           *${LINE2X}*)
+              get_value_from_conf_file "KERNEL_MODULES_START" ""
+              NEW_VALUE="$CONF_FILE_VALUE"
+              if [ "$NEW_VALUE" != "" ]; then NEW_VALUE="$NEW_VALUE:"; fi
+              change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE$1"
+              ISSTARTED=1 ;;
+           *) MSG="Module $1 not started. Below insmod output\n\n$MSG"
+         esac
+         if [ "$MSG" != "" ]; then
+           dialog --backtitle "PLLinux\kernel modules\module $LINE2X\start (insmod)" --msgbox "$MSG" 100 90
+         fi
+         ;;
+      3) MSG="$(rmmod $1 2>&1)"
+         IS_LOADED=$(lsmod 2>&1)
+         case $IS_LOADED in
+           *${LINE2X}*)
+              MSG="Module $1 not stopped. Below rmmod output\n\n$MSG" ;;
+           *) get_value_from_conf_file "KERNEL_MODULES_START" ""
+              NEW_VALUE=""
+              IFS=":"
+              for modname in $CONF_FILE_VALUE; do
+                if [ "$modname" != "$1" ]; then
+                  NEW_VALUE="$NEW_VALUE:$modname"
+                fi
+              done
+              change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE"
+              ISSTARTED=0
+         esac
+         if [ "$MSG" != "" ]; then
+           dialog --backtitle "PLLinux\kernel modules\module $LINE2X\stop (rmmod)" --msgbox "$MSG" 100 90 
+         fi
+         ;;
       esac
     else
       break;
@@ -1815,7 +1835,7 @@ kernel_module() {
 }
 
 kernel_modules_list() {
-  IS_LOADED=$(lsmod)
+  IS_LOADED=$(lsmod 2>&1)
   listnr=1
   APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
   for APP_NAME in $APP_LIST; do
@@ -1862,12 +1882,14 @@ kernel_modules() {
   FILTER_START="2"
   FILTER=""
   listnr3=1
+  ret="0"
   while true; do
-    cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
+    if [ "$ret" = "0" ]; then
+      cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
           --form "Pls provide params for kernel module filename search" 0 0 8 \
           "Show only stopped (0), started (1) or both (2)" 1 1 "$FILTER_START" 1 60 20 0 \
           "Filename filter. Empty = everything. Case sensitive." 2 1 "$FILTER" 2 60 20 0)
-    if [ $? == 0 ]; then
+      if [ $? == 0 ]; then
         linenr=1
         while read -r line; do
           case $linenr in
@@ -1876,8 +1898,9 @@ kernel_modules() {
           esac
           linenr=$(($linenr+1))
         done <<< "$cmd"
-    else
-      return
+      else
+        return
+      fi
     fi
     LIST=$(kernel_modules_list "$FILTER" "$FILTER_START")
     if [ "$LIST" = "" ]; then
@@ -1896,9 +1919,9 @@ kernel_modules() {
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
       listnr3="$cmd"
-      IS_LOADED=$(lsmod)
+      IS_LOADED=$(lsmod 2>&1)
       foundname=""
-      isstarted=0
+      isstarted="0"
       listnr=1
       APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
       for APP_NAME in $APP_LIST; do
@@ -1919,21 +1942,21 @@ kernel_modules() {
                     LINE2X=${LINE2X%%.ko.xz*}
                     case $line2 in
                     *$FILTER*) case $IS_LOADED in
-                      *${LINE2X}*)
-                         if [ "$FILTER_START" = "1" ] || [ "$FILTER_START" = "2" ]; then
-                           isstarted=1
-                           if [ "$cmd" = "$listnr" ]; then
-                              foundname="$line2"
-                           fi
-                           listnr=$(($listnr+1))
-                         fi ;;
-                      *) if [ "$FILTER_START" = "0" ] || [ "$FILTER_START" = "2" ]; then
-                           if [ "$cmd" = "$listnr" ]; then
-                              foundname="$line2"
-                           fi
-                           listnr=$(($listnr+1))
-                         fi
-                      esac
+                               *${LINE2X}*)
+                                 if [ "$FILTER_START" = "1" ] || [ "$FILTER_START" = "2" ]; then
+                                   if [ "$cmd" = "$listnr" ]; then
+                                     isstarted="1"
+                                     foundname="$line2"
+                                   fi
+                                   listnr=$(($listnr+1))
+                                 fi ;;
+                               *) if [ "$FILTER_START" = "0" ] || [ "$FILTER_START" = "2" ]; then
+                                    if [ "$cmd" = "$listnr" ]; then
+                                      foundname="$line2"
+                                    fi
+                                    listnr=$(($listnr+1))
+                                  fi
+                               esac
                     esac
                     if [ "$foundname" != "" ]; then break; fi
                   done <<< $PARAMS
@@ -1948,6 +1971,7 @@ kernel_modules() {
         if [ "$foundname" != "" ]; then break; fi
       done
       kernel_module $foundname $isstarted
+      ret="1"
     else
       if [ "$FILTER" != "" ]; then
         continue
@@ -1968,15 +1992,11 @@ kernel_param_list() {
             listnr=$(($listnr+1))
       esac
   done <<< $LISTLIST
-  echo " $listnr "
-  echo "Add"
-  echo " $(($listnr+1)) "
-  echo "Delete"
 }
 
 kernel_param() {
   cmd=$(dialog --stdout --backtitle "PLLinux\kernel params\filter" --cancel-label "Back" \
-      --inputbox "Kernel params filter. Empty value means everything. Case sensitive." 15 100 "" )
+            --inputbox "Kernel params filter. Empty value means everything. Case sensitive." 15 100 "" )
   if [ $? == 0 ]; then
     FILTER="$cmd"
   else
@@ -1985,7 +2005,7 @@ kernel_param() {
   listnr3=1
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel params\" --cancel-label "Back" \
-       --menu \"Linux kernel params \(filter: '\"$FILTER\"'\)\" 0 0 8 \
+                  --menu \"Linux kernel params \(filter: '\"$FILTER\"'\)\" 0 0 8 \
        $(kernel_param_list $FILTER) )
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
@@ -1993,7 +2013,7 @@ kernel_param() {
     else
       if [ "$FILTER" != "" ]; then
         cmd=$(dialog --stdout --backtitle "PLLinux\kernel params\filter" --cancel-label "Back" \
-         --inputbox "Kernel params filter. Empty value means everything. Case sensitive." 15 100 "$FILTER" )
+                 --inputbox "Kernel params filter. Empty value means everything. Case sensitive." 15 100 "$FILTER" )
         if [ $? == 0 ]; then
           FILTER="$cmd"
         else
@@ -2351,11 +2371,11 @@ while true; do
        14 "System logs saved in files (syslogd)" \
        15 "Users (adduser, etc.)" \
        16 "User groups" \
-       17 "App language (todo)           - $LANG" \
-       18 "Keyboard and font (kbd)       - $KEYB, $FONT" \
-       19 "Network (ip)                  - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
-       20 "Swap file (swapon,off,mkswap) - $SWAP_ON_OFF" \
-       21 "Timezone                      - $TIMEZONE" \
+       17 "App language (todo)                   - $LANG" \
+       18 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
+       19 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
+       20 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
+       21 "Timezone                              - $TIMEZONE" \
        22 "Partition encryption password (todo)" \
        23 "Install or clone PLLinux to other partition" \
        24 "Setup UEFI boot menu (todo)" \

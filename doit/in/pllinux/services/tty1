@@ -7,4 +7,6 @@ termsignal = HUP
 smooth-recovery = true
 log-type = buffer
 
-after = syslogd
+#after = syslogd
+after = bootsh
+
