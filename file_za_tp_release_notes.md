@@ -154,7 +154,9 @@ Technology Preview contains three users: root (password root), user (password us
 
 User files are saved in the RAM (tmpfs) and you can for example make setup using root and later login into other account.
 
-# Building from sources
+You can partition disk and clone/install system to the separate partition.
+
+# Building partition from sources
 
 Follow instructions from the GitHub. It includes installing host system (the best Debian 13.5), creating separate ext4 partition, running
 script compiling PLLinux software (it's doing practically everything) and setting up Grub start menu options with few easy steps.
@@ -282,6 +284,11 @@ Yes. But we don't have distributions in mainstream doing this. And PLLinux is tr
 **It will be never compatible with all dev tools**
 
 Never say never.
+
+**It needs host system to build**
+
+Rome was not built in one day. Technical Preview was created for showing potential of the technology and next releases will achieve
+in one day full independence.
 
 # Schedule and future
 
