@@ -13,7 +13,7 @@ fi
 
 IFSORIG=$IFS
 
-SYSTEM_APPS="dialog:gcc:glib:glibc:gptfdisk:groff:ncurses:ncursesw:rsync:wget2:parted:busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:ldso:libc:libtinfo:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
+SYSTEM_APPS="dialog:gcc:glib:glibc:gptfdisk:groff:ncurses:ncursesw:rsync:wget2:parted:busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
 SYSTEM_SERVICES="syslogd:crond:tty2:tty3"
 
 # some default values
@@ -562,11 +562,13 @@ del_user() {
       IFS=":" read -r USER_NAME OTHER << EOF
 $line
 EOF
-      list="$list $listnr $USER_NAME"
-      listnr=$(($listnr+1))
+      if [ "$USER_NAME" != "root" ]; then
+        list="$list $listnr $USER_NAME"
+        listnr=$(($listnr+1))
+      fi
     done < "${DIR}etc/passwd"
-    cmd=$(dialog --stdout --backtitle "PLLinux\set users" --cancel-label "Back" \
-           --menu "Set users" 0 0 10 $list)
+    cmd=$(dialog --stdout --backtitle "PLLinux\del user" --cancel-label "Back" \
+           --menu "Delete user" 0 0 10 $list)
   #delete
 }
 
@@ -1867,7 +1869,8 @@ kernel_module() {
               IFS=":"
               for modname in $CONF_FILE_VALUE; do
                 if [ "$modname" != "$1" ]; then
-                  NEW_VALUE="$NEW_VALUE:$modname"
+                  if [ "$NEW_VALUE" != "" ]; then NEW_VALUE="$NEW_VALUE:"; fi
+                  NEW_VALUE="$NEW_VALUE$modname"
                 fi
               done
               change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE"
