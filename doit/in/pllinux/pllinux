@@ -1,7 +1,7 @@
 #!/app/busybox/current/bin/sh
 # Part of PLLINUX. Creating system cfg from conf file or asking user and creating conf file.
 
-VER="16 Sep 2026"
+VER="21 Sep 2026"
 
 DIR="/" # path with / in the end. In real system /
 if [ -d "/mnt/x" ]; then
@@ -555,6 +555,21 @@ EOF
   done
 }
 
+del_user() {
+    listnr=1
+    list=""
+    while read -r line; do
+      IFS=":" read -r USER_NAME OTHER << EOF
+$line
+EOF
+      list="$list $listnr $USER_NAME"
+      listnr=$(($listnr+1))
+    done < "${DIR}etc/passwd"
+    cmd=$(dialog --stdout --backtitle "PLLinux\set users" --cancel-label "Back" \
+           --menu "Set users" 0 0 10 $list)
+  #delete
+}
+
 set_users() {
   while true; do
     listnr=1
@@ -566,9 +581,9 @@ EOF
       list="$list $listnr $USER_NAME"
       listnr=$(($listnr+1))
     done < "${DIR}etc/passwd"
-    list="$list $listnr Add(todo)"
+    list="$list $listnr Add"
     listnr=$(($listnr+1))
-    list="$list $listnr Delete(todo)"
+    list="$list $listnr Delete"
     cmd=$(dialog --stdout --backtitle "PLLinux\set users" --cancel-label "Back" \
            --menu "Set users" 0 0 10 $list)
     if [ $? == 0 ]; then
@@ -585,7 +600,11 @@ EOF
         listnr=$(($listnr+1))
       done < "${DIR}etc/passwd"
       if [ "$USRUSR" = "" ]; then
-        add_new_user
+        if [ "$cmd" == "$(($listnr+1))" ]; then
+          del_user
+        else
+          add_new_user
+        fi
       else
         set_existing_user $USRUSR
       fi
@@ -2436,6 +2455,29 @@ while true; do
        while read -r line; do
          HOMEINFO="${HOMEINFO}User $line - $(cd ${DIR}home/$line && du -c -h | grep total) \n"
        done <<< $DIRLIST
+
+       disks=$(parted -l -m 2> /dev/null)
+       while read -r line; do
+          IFS=":" read -r PART_NUMER PART_START PART_END PART_SIZE PART_SYSTEM PART_OTHER PART_FLAGS << EOF
+$line
+EOF
+          case $PART_NUMER in
+          */dev/*) diskname=$PART_NUMER ;;
+          *) case $PART_SYSTEM in
+             *fat32*) flags=0
+                  case $PART_FLAGS in
+                     *boot*)          flags=$(($flags+1)) ;;
+                  esac
+                  case $PART_FLAGS in
+                     *esp*)          flags=$(($flags+1)) ;;
+                  esac
+                  if [ "$flags" == "2" ]; then
+                        HOMEINFO="\n\n${HOMEINFO}EFI partition -${diskname}p${PART_NUMER}"
+                  fi
+             esac
+          esac
+       done <<< "$disks"
+
        dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$HOMEINFO" 100 90 ;;
     8) top ;;
     10) kernel_modules ;;
