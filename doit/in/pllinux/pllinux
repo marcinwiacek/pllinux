@@ -2487,6 +2487,22 @@ EOF
        mount -t vfat $EFIPART $ROOTBOOT
        mkdir $ROOTBOOT/EFI/pllinux
        cp /app/shim/current/fedora/shimx64.efi $ROOTBOOT/EFI/pllinux
+
+       KERNEL_PARAMS=$(cat /proc/cmdline $X | tr " ")
+       ROOT_DEVICE_ID=""
+       for PARAM in $KERNEL_PARAMS
+       do
+          if [ "${PARAM:0:5}" == "root=" ]; then
+             ROOT_DEVICE_ID=${PARAM#root=}
+          fi
+       done
+
+       echo "search.fs_uuid $ROOT_DEVICE_ID root" > $ROOTBOOT/EFI/pllinux/grub.cfg
+       echo "set prefix=(\$root)'/boot/grub'" >> $ROOTBOOT/EFI/pllinux/grub.cfg
+       echo "configfile \$prefix/grub.cfg" >> $ROOTBOOT/EFI/pllinux/grub.cfg
+
+       efibootmgr -d $EFIPART -c -L "PLLinux" -l /EFI/pllinux/shimx64.efi
+
        dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$HOMEINFO" 100 90 ;;
     8) top ;;
     10) kernel_modules ;;
