@@ -81,7 +81,7 @@ Options provided by *dialog* are maybe not very big, but allow for creating quit
 
 ![Alt text](2026/sep_modules3.png)
 
-System should be easy (user shouldn't search for command line) and currently disabling something will do this action after restart. In the future there will be implemented starting for dependencies.
+System should be easy (user shouldn't search for command line) and currently disabling something will do this action after system restart. In the future there will be implemented starting with dependencies.
 
 # Boot sequence
 
