@@ -2369,6 +2369,45 @@ network() {
     fi
 }
 
+uefi_list() {
+  listnr=1
+  LISTLIST=$(efibootmgr)
+  LISTLIST=${LISTLIST//	/ }
+  while read -r line; do
+      case $line in
+      Boot0*) 
+        IFS=" " read -r UEFI_NUM UEFI_NAME UEFI_OTHER << EOF
+$line
+EOF
+            echo " $listnr "
+            echo \"$UEFI_NUM $UEFI_NAME\"
+            echo \"$UEFI_OTHER\"
+            listnr=$(($listnr+1))
+      esac
+  done <<< $LISTLIST
+}
+
+uefi() {
+  LISTLIST=$(efibootmgr)
+  INFO=""
+  while read -r line; do
+      case $line in
+      Boot0*) ;;
+      *) INFO="$INFO$line\n"
+      esac
+  done <<< $LISTLIST
+  while true; do
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\apps\" --cancel-label "Back" \
+             --item-help \
+             --menu \"UEFI boot menu\\n\\n$INFO\" 0 0 8 \
+              $(uefi_list))
+    cmd=$(eval $abc)
+    if [ $? != 0 ]; then
+      break;
+    fi
+  done
+}
+
 CFGFILE="etc/pllinux.conf"
 if [ "$1" = "BOOT" ]; then
   set_general_config 1
@@ -2473,7 +2512,7 @@ while true; do
     20) swap_file ;;
     21) set_time_zone ;;
     23) install_to 1 ;;
-    24) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
+    24) uefi ;;
     25) EFIPART=""
 
         disks=$(parted -l -m 2> /dev/null)
