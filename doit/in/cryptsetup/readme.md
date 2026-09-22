@@ -7,6 +7,7 @@ sbin
 **Deps**
 
 **Description**
+Managing encryptet devices.
 
 **Project**
 https://gitlab.com/cryptsetup/cryptsetup

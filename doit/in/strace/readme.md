@@ -20,3 +20,6 @@ share/man/man1
 
 **PATH**
 bin
+
+**Description**
+Diagnostic tool for checking process interactions.

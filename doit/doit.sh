@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="efivar"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="grub"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -759,7 +759,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurs
     set_current_app_clean_strip_cd ncursesw $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "gcc" ]; then
+# todo - split compiler with lib
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gcc" ]; then
 #  ver="16.1.0";
   ver="14.4.0";
   if should_make gcc $ver; then
@@ -1000,7 +1001,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "parte
     set_current_app_clean_strip_cd parted $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "cryptsetup" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "cryptsetup" ]; then
   ver="2.8.7";
   if should_make cryptsetup $ver; then
     install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
@@ -1012,7 +1013,7 @@ if [ "$package" == "fs" ] || [ "$package" == "cryptsetup" ]; then
     set_current_app_clean_strip_cd cryptsetup $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "libselinux" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libselinux" ]; then
   ver="3.11";
   if should_make libselinux $ver; then
     download_unpack_source https://github.com/SELinuxProject/selinux/releases/download/$ver/libselinux-$ver.tar.gz libselinux libselinux-$ver 1
@@ -1219,7 +1220,7 @@ if [ "$package" == "fs" ] || [ "$package" == "elfutils" ]; then
     set_current_app_clean_strip_cd elfutils $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "xzutils" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzutils" ]; then
   ver="5.8.4";
   if should_make xzutils $ver; then
     download_unpack_source https://github.com/tukaani-project/xz/releases/download/v$ver/xz-$ver.tar.xz xzutils xz-$ver 1
@@ -1234,7 +1235,7 @@ if [ "$package" == "fs" ] || [ "$package" == "xzutils" ]; then
     set_current_app_clean_strip_cd xzutils $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bzip2" ]; then
   ver="1.0.8";
   if should_make bzip2 $ver; then
     download_unpack_source https://sourceware.org/pub/bzip2/bzip2-$ver.tar.gz bzip2 bzip2-$ver 1
@@ -1247,17 +1248,14 @@ if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
     set_current_app_clean_strip_cd bzip2 $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs2" ] || [ "$package" == "grub" ]; then
-  #work in progress
-  #any alternative?
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub" ]; then
   ver="2.14";
   if should_make grub $ver; then
     install_host_deps "autoconf-archive"
     download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
-#    autoconf
     ./bootstrap
     ./autogen.sh
-    ./configure --prefix=$output/app/grub/$prefix$ver
+    ./configure --prefix=$output/app/grub/$prefix$ver --target=x86_64 --with-platform=efi
     make all -j$cpu_num
     create_app grub $prefix$ver
     make install
@@ -1276,7 +1274,7 @@ if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
     set_current_app_clean_strip_cd perl $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "efivar" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efivar" ]; then
   ver="39";
   if should_make efivar $ver; then
     install_host_deps "mandoc"
@@ -1288,7 +1286,7 @@ if [ "$package" == "fs" ] || [ "$package" == "efivar" ]; then
     set_current_app_clean_strip_cd efivar $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs2" ] || [ "$package" == "efibootmgr" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efibootmgr" ]; then
   ver="18";
   if should_make efibootmgr $ver; then
     install_host_deps "libefivar-dev efivar pkg-config libefiboot-dev"
@@ -1300,7 +1298,7 @@ if [ "$package" == "fs2" ] || [ "$package" == "efibootmgr" ]; then
     set_current_app_clean_strip_cd efibootmgr $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs2" ] || [ "$package" == "shim" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "shim" ]; then
   # Source https://github.com/rhboot/shim
   # Currently we take signed package from the https://koji.fedoraproject.org/koji/packageinfo?packageID=14502
   # This must be resolved in the future
