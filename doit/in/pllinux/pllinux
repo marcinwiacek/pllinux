@@ -2434,8 +2434,8 @@ while true; do
        21 "Timezone                              - $TIMEZONE" \
        22 "Partition encryption password (todo)" \
        23 "Install or clone PLLinux to other partition" \
-       24 "Setup UEFI boot menu (todo)" \
-       25 "Setup UEFI fat32 boot partition (todo)" )
+       24 "UEFI boot menu" \
+       25 "Setup UEFI boot menu, fat32 boot partition and boot manager (todo)" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
