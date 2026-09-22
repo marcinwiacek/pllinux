@@ -2408,6 +2408,30 @@ uefi() {
   done
 }
 
+groups_list() {
+  listnr=1
+  while read -r line; do
+        IFS=":" read -r NAME DESCRIPTION NUMBER << EOF
+$line
+EOF
+            echo " $listnr "
+            echo \"$NAME - $NUMBER\"
+            listnr=$(($listnr+1))
+  done < ${DIR}etc/group
+}
+
+groups() {
+  while true; do
+    abc=$(echo dialog --stdout --backtitle \"PLLinux\\apps\" --cancel-label "Back" \
+             --menu \"Groups\" 0 0 8 \
+              $(groups_list))
+    cmd=$(eval $abc)
+    if [ $? != 0 ]; then
+      break;
+    fi
+  done
+}
+
 CFGFILE="etc/pllinux.conf"
 if [ "$1" = "BOOT" ]; then
   set_general_config 1
@@ -2505,6 +2529,7 @@ while true; do
     12) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
     14) logs ;;
     15) set_users ;;
+    16) groups ;;
     18) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
