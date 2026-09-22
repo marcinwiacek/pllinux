@@ -31,6 +31,7 @@ fi
 
 /app/util-linux/current/bin/mount mount -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
 /app/util-linux/current/bin/mount mount -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /log/tmp
+/app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl
