@@ -2456,13 +2456,28 @@ while true; do
 
        DIRLIST="$(ls ${DIR}home)"
        while read -r line; do
-         HOMEINFO="${HOMEINFO}User $line - $(cd ${DIR}home/$line && du -c -h | grep total) \n"
+         HOMEINFO="${HOMEINFO}User $line - $(cd ${DIR}home/$line && du -c -h | grep total)\n"
        done <<< $DIRLIST
 
-       EFIPART=""
-       
-       disks=$(parted -l -m 2> /dev/null)
-       while read -r line; do
+       dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$HOMEINFO" 100 90 ;;
+    8) top ;;
+    10) kernel_modules ;;
+    11) kernel_param ;;
+    12) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
+    14) logs ;;
+    15) set_users ;;
+    18) NEW_KEYB="$KEYB"
+        NEW_FONT="$FONT"
+        set_keyboard_font_general_or_user "" ;;
+    19) network ;;
+    20) swap_file ;;
+    21) set_time_zone ;;
+    23) install_to 1 ;;
+    24) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
+    25) EFIPART=""
+
+        disks=$(parted -l -m 2> /dev/null)
+        while read -r line; do
           IFS=":" read -r PART_NUMER PART_START PART_END PART_SIZE PART_SYSTEM PART_OTHER PART_FLAGS << EOF
 $line
 EOF
@@ -2482,42 +2497,29 @@ EOF
                   fi
              esac
           esac
-       done <<< "$disks"
-       ROOTBOOT="/app/efibootmgr/current/dynamic"
-       mount -t vfat $EFIPART $ROOTBOOT
-       mkdir $ROOTBOOT/EFI/pllinux
-       cp /app/shim/current/fedora/shimx64.efi $ROOTBOOT/EFI/pllinux
+        done <<< "$disks"
+        ROOTBOOT="/app/efibootmgr/current/dynamic"
+        mount -t vfat $EFIPART $ROOTBOOT
+        mkdir $ROOTBOOT/EFI/pllinux
+        cp /app/shim/current/fedora/shimx64.efi $ROOTBOOT/EFI/pllinux
 
-       KERNEL_PARAMS=$(cat /proc/cmdline $X | tr " ")
-       ROOT_DEVICE_ID=""
-       for PARAM in $KERNEL_PARAMS
-       do
+        KERNEL_PARAMS=$(cat /proc/cmdline $X | tr " ")
+        ROOT_DEVICE_ID=""
+        for PARAM in $KERNEL_PARAMS
+        do
           if [ "${PARAM:0:5}" == "root=" ]; then
              ROOT_DEVICE_ID=${PARAM#root=}
           fi
-       done
+        done
+        ROOT_DEVICE_ID=${ROOT_DEVICE_ID#UUID=}
 
-       echo "search.fs_uuid $ROOT_DEVICE_ID root" > $ROOTBOOT/EFI/pllinux/grub.cfg
-       echo "set prefix=(\$root)'/boot/grub'" >> $ROOTBOOT/EFI/pllinux/grub.cfg
-       echo "configfile \$prefix/grub.cfg" >> $ROOTBOOT/EFI/pllinux/grub.cfg
+        echo "search.fs_uuid $ROOT_DEVICE_ID root" > $ROOTBOOT/EFI/pllinux/grub.cfg
+        echo "set prefix=(\$root)'/boot/grub'" >> $ROOTBOOT/EFI/pllinux/grub.cfg
+        echo "configfile \$prefix/grub.cfg" >> $ROOTBOOT/EFI/pllinux/grub.cfg
 
-       efibootmgr -d $EFIPART -c -L "PLLinux" -l /EFI/pllinux/shimx64.efi
-
-       dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$HOMEINFO" 100 90 ;;
-    8) top ;;
-    10) kernel_modules ;;
-    11) kernel_param ;;
-    12) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
-    14) logs ;;
-    15) set_users ;;
-    18) NEW_KEYB="$KEYB"
-        NEW_FONT="$FONT"
-        set_keyboard_font_general_or_user "" ;;
-    19) network ;;
-    20) swap_file ;;
-    21) set_time_zone ;;
-    23) install_to 1 ;;
-    24) dialog --backtitle "PLLinux\setup UEFI boot menu" --msgbox "$(efibootmgr)" 100 90 ;;
+        if [ "$(efibootmgr | grep PLLinux)" == "" ]; then
+          efibootmgr -d $EFIPART -c -L "PLLinux" -l /EFI/pllinux/shimx64.efi
+        fi
     esac
   else
     break
