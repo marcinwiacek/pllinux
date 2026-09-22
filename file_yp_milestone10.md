@@ -67,9 +67,24 @@ Background tasks could be started in two ways:
 1. on the specified time (but should happen, when this is missed?)
 2. after some specified time (for example once a day)
 
-PLLinux will start from number one - this is classical **cron** provided by **crond** from **busybox**. It doesn't have support for /etc/crontab, just
-for files from every user.
+PLLinux will start from number one - this is classical **cron** provided by **crond** from **busybox**. It doesn't have support for /etc/crontab, just for files from every user.
 
-# Kernel packages
+# Kernel modules
+
+In the beginning kernel modules required 5GB, but after few tweaks (disabling debug, packing, etc.) it was possible to go below 60MB. Interesting is that all indexing files required extra 4MB (we could probably resign from them in the future - another binary or text indexing files gone).
+
+Options provided by *dialog* are maybe not very big, but allow for creating quite impresive menus, for example:
+
+![Alt text](2026/sep_modules1.jpg)
+
+![Alt text](2026/sep_modules2.jpg)
+
+![Alt text](2026/sep_modules3.png)
+
+System should be easy (user shouldn't search for command line) and currently disabling something will do this action after restart. In the future there will be implemented starting for dependencies.
+
+# Boot sequence
+
+After enabling efivarfs and some other elements it was possible to see and change UEFI boot menu, with mounting boot fat32 partition, signed EFI modules and few other things it's actually already possible to build full boot chain.
 
 [Prev page](file_yq_milestone9.md) [Next page](file_zz_milestone.md)
