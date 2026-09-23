@@ -70,6 +70,7 @@ banks or telecommunication providers) and various gaps in current builds are con
 process - we have disk partitioning, selecting partition for installation and installing, we still need setting up UEFI partition/menu and
 encryption for main filesystem.
   7. 13 and 14 Sep 2026 - there are visible first effects with **rsyslog** and **crond**
+  8. 23 Sep 2026 - first working boot chain with GRUB (partition without encryption)
 
 **Building and starting system from the partition (in the host system)**
 
