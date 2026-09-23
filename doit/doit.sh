@@ -1239,7 +1239,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzuti
     set_current_app_clean_strip_cd xzutils $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bzip2" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
   ver="1.0.8";
   if should_make bzip2 $ver; then
     download_unpack_source https://sourceware.org/pub/bzip2/bzip2-$ver.tar.gz bzip2 bzip2-$ver 1

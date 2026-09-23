@@ -13,7 +13,11 @@ fi
 
 IFSORIG=$IFS
 
-SYSTEM_APPS="dialog:gcc:glib:glibc:gptfdisk:groff:ncurses:ncursesw:rsync:wget2:parted:busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
+# we cannot remove "current" version for these apps
+SYSTEM_APPS="bash:brotli:busybox:bwrap:cryptsetup:dialog:dinit:e2fsprogs:efibootmgr:efivar:gcclib:glib:glibc:gptfdisk:groff:grub:initramfs:kbd"
+SYSTEM_APPS="${SYSTEM_APPS}:kernel:kmod:less:libestr:libfastjson:libselinux:lvm2:mc:ncurses:ncursesw:nftables:openssl:parted:pciutils"
+SYSTEM_APPS="${SYSTEM_APPS}:pcre2:pllinux:popt:readline:rsync:rsyslog:shim:smartmontools:tzdb:util-linux:wget2:xzutils:zlib:zstd"
+
 SYSTEM_SERVICES="syslogd:crond:tty2:tty3"
 
 # some default values
