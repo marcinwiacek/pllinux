@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="grub"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="util-linux"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -387,9 +387,10 @@ fi
 #  cd ../../..
 #fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "util-linux" ]; then
-  ver="2.42";
+  ver1="2.42";
+  ver="2.42.4";
   if should_make util-linux $ver; then
-    download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
+    download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver1/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
     ./configure --prefix=$output/app/util-linux/$prefix$ver --without-systemd --disable-lsfd --disable-enosys \
         --disable-bash-completion  --disable-makeinstall-chown  --disable-makeinstall-setuid  --disable-makeinstall-tty-setgid
     make all -j$cpu_num
