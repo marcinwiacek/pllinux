@@ -2573,33 +2573,42 @@ EOF
                      *esp*)          flags=$(($flags+1)) ;;
                   esac
                   if [ "$flags" == "2" ]; then
-                        HOMEINFO="\n\n${HOMEINFO}EFI partition -${diskname}p${PART_NUMER}"
+        #                HOMEINFO="\n\n${HOMEINFO}EFI partition -${diskname}p${PART_NUMER}"
                         EFIPART="${diskname}p${PART_NUMER}"
                   fi
              esac
           esac
         done <<< "$disks"
-        ROOTBOOT="/app/efibootmgr/current/dynamic"
-        mount -t vfat $EFIPART $ROOTBOOT
-        mkdir $ROOTBOOT/EFI/pllinux
-        cp /app/shim/current/fedora/shimx64.efi $ROOTBOOT/EFI/pllinux
+        if [ "$EFIPART" == "" ]; then
+          dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "EFI boot partition not detected" 100 90
+        elif [ "$(efibootmgr)" == "" ]; then
+          dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "No info about EFI menu" 100 90
+        else
+          dialog --yesno "Are you sure to setup EFI partition $EFIPART and EFI boot menu ?" 20 40
+          if [ $? == 0 ]; then
+            ROOTBOOT="/app/efibootmgr/current/dynamic"
+            mount -t vfat $EFIPART $ROOTBOOT
+            mkdir $ROOTBOOT/EFI/pllinux
+            cp /app/shim/current/fedora/shimx64.efi $ROOTBOOT/EFI/pllinux
 
-        KERNEL_PARAMS=$(cat /proc/cmdline $X | tr " ")
-        ROOT_DEVICE_ID=""
-        for PARAM in $KERNEL_PARAMS
-        do
-          if [ "${PARAM:0:5}" == "root=" ]; then
-             ROOT_DEVICE_ID=${PARAM#root=}
+            KERNEL_PARAMS=$(cat /proc/cmdline $X | tr " ")
+            ROOT_DEVICE_ID=""
+            for PARAM in $KERNEL_PARAMS
+            do
+              if [ "${PARAM:0:5}" == "root=" ]; then
+                 ROOT_DEVICE_ID=${PARAM#root=}
+              fi
+            done
+            ROOT_DEVICE_ID=${ROOT_DEVICE_ID#UUID=}
+
+            echo "search.fs_uuid $ROOT_DEVICE_ID root" > $ROOTBOOT/EFI/pllinux/grub.cfg
+            echo "set prefix=(\$root)'/boot/grub'" >> $ROOTBOOT/EFI/pllinux/grub.cfg
+            echo "configfile \$prefix/grub.cfg" >> $ROOTBOOT/EFI/pllinux/grub.cfg
+
+            if [ "$(efibootmgr | grep PLLinux)" == "" ]; then
+              efibootmgr -d $EFIPART -c -L "PLLinux" -l /EFI/pllinux/shimx64.efi
+            fi
           fi
-        done
-        ROOT_DEVICE_ID=${ROOT_DEVICE_ID#UUID=}
-
-        echo "search.fs_uuid $ROOT_DEVICE_ID root" > $ROOTBOOT/EFI/pllinux/grub.cfg
-        echo "set prefix=(\$root)'/boot/grub'" >> $ROOTBOOT/EFI/pllinux/grub.cfg
-        echo "configfile \$prefix/grub.cfg" >> $ROOTBOOT/EFI/pllinux/grub.cfg
-
-        if [ "$(efibootmgr | grep PLLinux)" == "" ]; then
-          efibootmgr -d $EFIPART -c -L "PLLinux" -l /EFI/pllinux/shimx64.efi
         fi
     esac
   else
