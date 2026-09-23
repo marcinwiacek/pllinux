@@ -5,7 +5,7 @@ GPL2+
 https://www.smartmontools.org/
 
 **Deps**
-gcc current
+gcclib current
 glibc current
 
 **PATH**

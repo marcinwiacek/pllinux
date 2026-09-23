@@ -8,7 +8,7 @@ bin
 util-linux current
 ncurses current
 ncursesw current
-gcc current
+gcclib current
 
 **Description**
 Core part of PLLINUX. GPT (GUID Partition Table) disk partitioning tools.

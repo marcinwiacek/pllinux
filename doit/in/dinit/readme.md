@@ -11,7 +11,7 @@ https://davmac.org/projects/dinit/
 Apache 2.0
 
 **Deps**
-gcc current
+gcclib current
 glibc current
 
 **Man**

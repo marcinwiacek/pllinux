@@ -1,6 +1,6 @@
 **Deps**
 pcre2 current
-gcc current
+gcclib current
 
 **License**
 See LICENSE

@@ -11,7 +11,7 @@ libselinux current
 ncurses current
 pcre2 current
 util-linux current
-gcc current
+gcclib current
 
 **Description**
 Core part of PLLINUX. Disk partition editor.

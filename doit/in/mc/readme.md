@@ -9,7 +9,7 @@ Midnight Commander - clone of Norton Commander.
 
 **Deps**
 bwrap current
-gcc current
+gcclib current
 glib current
 glibc current
 ncurses current

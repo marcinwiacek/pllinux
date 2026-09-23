@@ -7,7 +7,7 @@ https://github.com/strace/strace
 **Deps**
 bzip2 current
 elfutils current
-gcc current
+gcclib current
 libselinux current
 ncurses current
 pcre2 current

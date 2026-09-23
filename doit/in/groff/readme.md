@@ -11,7 +11,7 @@ Core part of PLLINUX. Typesetting system for creating Postscript, PDF, HTML or D
 .:bin
 
 **Deps**
-gcc current
+gcclib current
 glibc current
 
 **Man**

@@ -8,7 +8,7 @@ xzutils current
 lvm2 current
 libselinux current
 pcre2 current
-gcc current
+gcclib current
 
 **Description**
 
