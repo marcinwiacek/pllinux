@@ -2393,6 +2393,10 @@ EOF
 
 uefi() {
   LISTLIST=$(efibootmgr)
+  if [ "$LISTLIST" == "" ]; then
+          dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "No info about EFI boot menu. No support in kernel or not mounted efivarfs or no support for UEFI" 100 90
+          return
+  fi
   INFO=""
   while read -r line; do
       case $line in
@@ -2582,7 +2586,7 @@ EOF
         if [ "$EFIPART" == "" ]; then
           dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "EFI boot partition not detected" 100 90
         elif [ "$(efibootmgr)" == "" ]; then
-          dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "No info about EFI menu" 100 90
+          dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "No info about EFI boot menu. No support in kernel or not mounted efivarfs or no support for UEFI" 100 90
         else
           dialog --yesno "Are you sure to setup EFI partition $EFIPART and EFI boot menu ?" 20 40
           if [ $? == 0 ]; then
