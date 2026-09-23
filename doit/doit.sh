@@ -896,7 +896,7 @@ fi
 if [ "$package" == "iso" ]; then
   mkdir $output/boot
   mkdir $output/boot/grub
-  cp $curdir/in/boot/* $output/boot/grub
+  cp $curdir/in/iso/* $output/boot/grub
   sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
   rm -r $output/boot
 fi
