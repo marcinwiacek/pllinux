@@ -2605,9 +2605,47 @@ EOF
             done
             ROOT_DEVICE_ID=${ROOT_DEVICE_ID#UUID=}
 
-            echo "search.fs_uuid $ROOT_DEVICE_ID root" > $ROOTBOOT/EFI/pllinux/grub.cfg
-            echo "set prefix=(\$root)'/boot/grub'" >> $ROOTBOOT/EFI/pllinux/grub.cfg
-            echo "configfile \$prefix/grub.cfg" >> $ROOTBOOT/EFI/pllinux/grub.cfg
+            ${DIR}app/busybox/current/bin/cat <<EOF > $ROOTBOOT/EFI/pllinux/grub.cfg
+#Recreated by pllinux script
+search.fs_uuid $ROOT_DEVICE_ID root
+set prefix=(\$root)'/etc'
+configfile \$prefix/grub.conf
+EOF
+
+            ${DIR}app/busybox/current/bin/cat <<EOF > ${DIR}etc/grub.conf
+#Recreated by pllinux script
+set default="0"
+set timeout=30
+set gfxmode=1920x1080
+set menu_color_normal=cyan/blue
+set menu_color_highlight=white/blue
+
+insmod part_gpt
+insmod ext2
+insmod all_video
+insmod gfxterm
+insmod gettext
+insmod part_gpt
+insmod ext2
+
+loadfont unicode
+
+terminal_output gfxterm
+
+fwsetup --is-supported
+if [ "$?" = 0 ]; then
+    menuentry 'UEFI setup menu (normally available with Esc, F8, F10 or Del)' $menuentry_id_option 'uefi-firmware' {
+       fwsetup
+    }
+fi
+
+menuentry 'PLLINUX' --class ubuntu --class gnu-linux --class gnu --class os $menuentry_id_option 'PL' {
+    set root='hd1,gpt1'
+    echo 'Loading PLLINUX ...'
+    linux /app/kernel/current/bzImage root=UUID=$ROOT_DEVICE_ID rw
+    initrd /app/initramfs/current/initramfs.gz
+}
+EOF
 
             if [ "$(efibootmgr | grep PLLinux)" == "" ]; then
               efibootmgr -d $EFIPART -c -L "PLLinux" -l /EFI/pllinux/shimx64.efi
