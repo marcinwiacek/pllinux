@@ -91,17 +91,25 @@ And then I started analysing things more deeply... and was terrified.
 
 Why?
 
-I looked in my Ubuntu and Debian installation. First of all they have few copies of the same font file (unicode.pf2) in few places.
+I looked in my Ubuntu and Debian installations. First of all they have few copies of the same font file (unicode.pf2) in few places.
 
-"No big deal" - somebody could say. These are just 2MB saved in other places. That's correct, only 2MB... but 2MB, 2MB there and there. And it only confirms, that Open Source became big and bloated (or it was always this way).
+"No big deal" - somebody could say - "this is just 2MB saved in other places".
+
+That's correct, only 2MB... but 2MB, 2MB there and there. Add into it providing always access to EFI boot partition and EFI variables, complicated Grub config files (for example they temporally mount some disk just for getting wallpaper) and many other things and it's clear, that small things became big and bloated (or it was always this way).
+
+Small offtopic:
+
+![Alt text](2026/sep_disk_usage.jpg)
+
+Adding really basic OS functionalities requires more and more disk space - currently it's more than 400MB. And do you remember Windows 95 with 50MB or 98 with minimum 120MB? Open Source really need to learn many things (note: this is partially sign of our times and it's quite good explained in the video [Why your NEW computer is SLOWER than your OLD computer! By a Retired Microsoft Engineer.](https://www.youtube.com/watch?v=t992ul_IKtc))
 
 Anyway, minimalistic boot chain (without encryption) looks this way:
 
 1. menu in UEFI pointing to FAT32 partition and shimx64.efi (it will be used in the future in the Secure Boot and it will check if everything is nice signed)
 2. on the EFI32 partition: shimx64.efi pointing to the grubx64.efi (this one is displaying menu, loading kernel, etc.)
 3. on the EFI32 partition: grubx64.efi reading config file showing location of the main config file in the main partition (in this case PLLinux partition)
+4. on the EFI32 partition: grubx64.efi loading modules, etc.
 
-
-3. 
+The biggest challenges are connected now with providing correct *.efi files and nice easy config files.
 
 [Prev page](file_yq_milestone9.md) [Next page](file_zz_milestone.md)
