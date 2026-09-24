@@ -2114,7 +2114,7 @@ devices() {
       2) dialog --backtitle "PLLinux\device manager\CPU\(lscpu\)" --msgbox "$(lscpu)" 100 90 ;;
       3) install_to 0 ;;
       6) dialog --backtitle "PLLinux\device manager\network interfaces \(ip\)" --msgbox "$(ip link show)" 100 90 ;;
-      7) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -vvv)" 100 90 ;;
+      7) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -t -vvv && echo && echo && lspci -vvv)" 100 90 ;;
       11) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;
       12) dialog --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
       16) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
