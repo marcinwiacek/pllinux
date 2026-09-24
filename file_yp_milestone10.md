@@ -110,7 +110,7 @@ Anyway, minimalistic boot chain (without encryption) looks this way:
 3. on the EFI32 partition: grubx64.efi reading config file showing location of the main config file in the main partition (in this case PLLinux partition)
 4. on the EFI32 partition: grubx64.efi loading modules, etc.
 
-This is of course top of the iceberg (although I pointed, that Grub config and boot setup is big and bloated in typical distro, they offer more than that). The biggest challenges are connected now with providing correct efi files and nice easy config. Let's start from something easy and later add new pieces. And integrate it with **pllinux** to give user nice way of configuring basic things (this is what made Microsoft tools so popular).
+This is of course top of the iceberg (although I pointed, that Grub config and boot setup are big and bloated in typical distro, they offer more than that). The biggest challenges are connected with providing correct efi files and nice easy config now. Let's start from something small and later add new pieces. And integrate it with **pllinux** to give user nice way of configuring basic things (this is what made Microsoft tools so popular).
 
 ![Alt text](2026/sep_boot_menu.jpg)
 
