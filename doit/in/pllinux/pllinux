@@ -2377,18 +2377,33 @@ uefi_list() {
   listnr=1
   LISTLIST=$(efibootmgr)
   LISTLIST=${LISTLIST//	/ }
+  BOOTORDER=""
   while read -r line; do
       case $line in
-      Boot0*) 
+      BootOrder*)
+        IFS=" " read -r BOOTINFO1 BOOTORDER << EOF
+$line
+EOF
+        break
+      esac
+  done <<< $LISTLIST
+  IFS=","
+  for PARAM in $BOOTORDER; do
+    while read -r line; do
+      case $line in
+      Boot$PARAM*)
         IFS=" " read -r UEFI_NUM UEFI_NAME UEFI_OTHER << EOF
 $line
 EOF
-            echo " $listnr "
-            echo \"$UEFI_NUM $UEFI_NAME\"
-            echo \"$UEFI_OTHER\"
-            listnr=$(($listnr+1))
+        echo " $listnr "
+        echo \"$UEFI_NUM $UEFI_NAME\"
+        echo \"$UEFI_OTHER\"
+        listnr=$(($listnr+1))
+        break
       esac
-  done <<< $LISTLIST
+    done <<< $LISTLIST
+  done
+  IFS=$IFSORIG
 }
 
 uefi() {
@@ -2577,7 +2592,6 @@ EOF
                      *esp*)          flags=$(($flags+1)) ;;
                   esac
                   if [ "$flags" == "2" ]; then
-        #                HOMEINFO="\n\n${HOMEINFO}EFI partition -${diskname}p${PART_NUMER}"
                         EFIPART="${diskname}p${PART_NUMER}"
                   fi
              esac
