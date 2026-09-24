@@ -95,7 +95,7 @@ I looked in my Ubuntu and Debian installations. First of all they have few copie
 
 "No big deal" - somebody could say - "this is just 2MB saved in other places".
 
-That's correct, only 2MB... but 2MB, 2MB there and there. Add into it providing always access to EFI boot partition and EFI variables, complicated Grub config files (for example they temporally mount some disk just for getting wallpaper) and many other things and it's clear, that small things became big and bloated (or it was always this way).
+That's correct, only 2MB... but 2MB, 2MB there and there. Please add into it providing always access to EFI boot partition and EFI variables, complicated Grub config files (for example they temporally mount some disk just for getting wallpaper) and many other things and it's clear, that small things became big and bloated (or it was always this way?).
 
 Small offtopic:
 
@@ -112,8 +112,8 @@ Anyway, minimalistic boot chain (without encryption) looks this way:
 
 This is of course top of the iceberg (although I pointed, that Grub config and boot setup is big and bloated in typical distro, they offer more than that). The biggest challenges are connected now with providing correct efi files and nice easy config. Let's start from something easy and later add new pieces. And integrate it with **pllinux** to give user nice way of configuring basic things (this is what made Microsoft tools so popular).
 
-This looks like good beginning (of course big challenge is connected with doing it with quite limited **dialog**):
-
 ![Alt text](2026/sep_boot_menu.jpg)
+
+This looks like good beginning (of course big challenge is connected with doing it very intuitive and user friendly with quite limited **dialog**):
 
 [Prev page](file_yq_milestone9.md) [Next page](file_zz_milestone.md)
