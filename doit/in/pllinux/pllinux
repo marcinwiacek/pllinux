@@ -1729,13 +1729,13 @@ single_service() {
       else
         cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
          --menu "Welcome to the PLLinux configuration" 0 0 8 \
-         1 restart 2 stop 4 "internal log" 5 "history from /log/*/daemon_services syslogd file (if exists, q to quit)" )
+         1 restart 2 "stop and don't load after system restart" 4 "internal log" 5 "history from /log/*/daemon_services syslogd file (if exists, q to quit)" )
       fi
       ;;
     *STOPPED* )
       cmd=$(dialog --stdout --backtitle "PLLinux\background services\\$1" --cancel-label "Back" \
          --menu "Welcome to the PLLinux configuration" 0 0 8 \
-         3 start 4 "internal log" 5 "history from /log/*/daemon_services syslogd file (if exists, q to quit)" )
+         3 "start and load after system restart" 4 "internal log" 5 "history from /log/*/daemon_services syslogd file (if exists, q to quit)" )
     esac
     if [ $? = 0 ]; then
       case $cmd in
@@ -1837,11 +1837,11 @@ kernel_module() {
     if [ "$ISSTARTED" = "1" ]; then
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1\" 0 0 8 \
-         1 \"info \(modinfo\)\" 3 \"stop \(rmmod\)\")
+         1 \"info \(modinfo\)\" 3 \"stop and don\'t load after system restart \(rmmod\)\")
     else
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1\" 0 0 8 \
-         1 \"info \(modinfo\)\" 2 \"start \(insmod\)\")
+         1 \"info \(modinfo\)\" 2 \"start and load after system restart \(insmod\)\")
     fi
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
