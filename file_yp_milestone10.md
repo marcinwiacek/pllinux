@@ -85,6 +85,23 @@ System should be easy (user shouldn't search for command line) and currently dis
 
 # Boot sequence
 
-After enabling efivarfs and some other elements it was possible to see and change UEFI boot menu, with mounting boot fat32 partition, signed EFI modules and few other things it's actually already possible to build full boot chain.
+After enabling efivarfs and some other elements it was possible to see and change UEFI boot menu. With mounting boot fat32 partition, signed EFI modules and few other things it's actually already possible to build full boot chain.
+
+And then I started analysing things more deeply... and was terrified.
+
+Why?
+
+I looked in my Ubuntu and Debian installation. First of all they have few copies of the same font file (unicode.pf2) in few places.
+
+"No big deal" - somebody could say. These are just 2MB saved in other places. That's correct, only 2MB... but 2MB, 2MB there and there. And it only confirms, that Open Source became big and bloated (or it was always this way).
+
+Anyway, minimalistic boot chain (without encryption) looks this way:
+
+1. menu in UEFI pointing to FAT32 partition and shimx64.efi (it will be used in the future in the Secure Boot and it will check if everything is nice signed)
+2. on the EFI32 partition: shimx64.efi pointing to the grubx64.efi (this one is displaying menu, loading kernel, etc.)
+3. on the EFI32 partition: grubx64.efi reading config file showing location of the main config file in the main partition (in this case PLLinux partition)
+
+
+3. 
 
 [Prev page](file_yq_milestone9.md) [Next page](file_zz_milestone.md)
