@@ -763,7 +763,7 @@ process_one_disk() {
     fi
     abc=$(echo dialog --stdout --backtitle \"PLLinux/install to other disk/device $1\" --cancel-label "Back" \
            --menu \"Disk $1\" 0 0 6 \
-           1 \"Partition disk \(cfdisk\)\" \
+           1 \"Disk partitioning \(cfdisk\)\" \
            2 \"SMART disk info \(smartctl\)\" \
            $(process_one_disk_list $1 $2) )
     cmd=$(eval $abc)
@@ -2421,19 +2421,19 @@ EOF
 $line
 EOF
           if [ "$PART_SYSTEM" = "ext4" ]; then
-            list="$list ${DEV_NAME}p${PART_NUMER} ${DEV_NAME}_${PART_NUMER}_${PART_SIZE}"
+            list="$list ${DEV_NAME}p${PART_NUMER} ${PART_SIZE}"
             listnr=$(($listnr+1))
           fi
        fi
     esac
   done <<< "$disks"
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
-       --menu "EFI partition $EFIPART" 0 0 24 \
+       --menu "EFI partition $EFIPART, list of ext4 partitions below" 0 0 24 \
        $list)
   if [ $? != 0 ]; then
     return
   fi
-  
+
   LISTLIST=$(efibootmgr)
   LISTLIST=${LISTLIST//	/ }
 
@@ -2447,9 +2447,9 @@ EOF
           IFS=" " read -r UEFI_NUM UEFI_NAME UEFI_OTHER << EOF
 $line
 EOF
-  	  if [ "$UEFI_NAME" == "$NEW_NAME" ]; then
-	      NEW_NAME=""
-	  fi
+          if [ "$UEFI_NAME" == "$NEW_NAME" ]; then
+            NEW_NAME=""
+          fi
       esac
     done <<< $LISTLIST
     if [ "$NEW_NAME" != "" ]; then
@@ -2470,11 +2470,11 @@ EOF
     IFS=" "
   for PARAM in $BLKID; do
     if [ "${PARAM:0:5}" == "UUID=" ]; then
-      ROOT_DEVICE_ID="${PARAM:7}"
+      ROOT_DEVICE_ID="${PARAM:6}"
       ROOT_DEVICE_ID="${ROOT_DEVICE_ID:0:-1}"
     fi
   done
-    IFS=$IFSORIG
+  IFS=$IFSORIG
 
   dialog --yesno "Are you sure to setup EFI partition $EFIPART, EFI boot menu ($NEW_NAME) and default Grub config on the $cmd partition ${ROOT_DEVICE_ID} ? THIS IS LAST WARNING" 20 40
   if [ $? != 0 ]; then
@@ -2490,6 +2490,8 @@ search.fs_uuid $ROOT_DEVICE_ID root
 set prefix=(\$root)'/etc'
 configfile \$prefix/grub.conf
 EOF
+
+  cp ${DIR}etc/grub.conf ${DIR}etc/grub.conf-
 
   ${DIR}app/busybox/current/bin/cat <<EOF > ${DIR}etc/grub.conf
 #Recreated by pllinux script
@@ -2511,20 +2513,21 @@ loadfont unicode
 
 terminal_output gfxterm
 
-fwsetup --is-supported
-if [ "$?" = 0 ]; then
-    menuentry 'UEFI setup menu (normally available with Esc, F8, F10 or Del)' $menuentry_id_option 'uefi-firmware' {
-       fwsetup
-    }
-fi
-
-menuentry '$NEW_NAME' --class ubuntu --class gnu-linux --class gnu --class os $menuentry_id_option 'PL' {
+menuentry '$NEW_NAME' --class ubuntu --class gnu-linux --class gnu --class os {
     echo 'Loading PLLINUX ...'
     linux /app/kernel/current/bzImage root=UUID=$ROOT_DEVICE_ID rw
     initrd /app/initramfs/current/initramfs.gz
 }
 
+fwsetup --is-supported
+if [ "$?" = 0 ]; then
+    menuentry 'UEFI setup menu (normally available with Esc, F8, F10 or Del)' {
+       fwsetup
+    }
+fi
+
 EOF
+
   efibootmgr -d $EFIPART -c -L "$NEW_NAME" -l /EFI/$NEW_NAME/shimx64.efi
 }
 
@@ -2643,10 +2646,10 @@ EOF
     done <<< $LISTLIST
   done
   echo " $listnr "
-  echo \"Add new PLLinux boot setup \(UEFI menu entry, files in FAT32 and Grub setup on PLLinux partition\)\"
+  echo \"Add PLLinux setup \(UEFI menu entry, files in FAT32 and GRUB setup on PLLinux partition\)\"
   echo \"\"
   echo " $(($listnr+1)) "
-  echo \"Add new UEFI boot entry\"
+  echo \"Add UEFI boot entry\"
   echo \"\"
   IFS=$IFSORIG
 }
