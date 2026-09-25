@@ -2374,50 +2374,55 @@ network() {
 }
 
 new_pllinux_entry() {
-    disks=$(parted -l -m 2> /dev/null | grep /dev)
-    if [ "$disks" = "" ]; then
-      dialog --backtitle "PLLinux\install to other partition" \
-        --msgbox "No disks detected. Looks like running from mc sandbox or lack of rights/permissions." 10 30
-      return
-    fi
-    listnr=1
-    list=""
-    while read -r line; do
-      IFS=":" read -r DEV_NAME OTHER << EOF
+  EFIPART=""
+  disks=$(parted -l -m 2> /dev/null)
+  while read -r line; do
+    IFS=":" read -r PART_NUMER PART_START PART_END PART_SIZE PART_SYSTEM PART_OTHER PART_FLAGS << EOF
 $line
 EOF
-      list="$list $listnr $DEV_NAME "
-      listnr=$(($listnr+1))
-    done <<< "$disks"
-
-    disks=$(parted -l -m 2> /dev/null)
-    thisdisk=0
-    list=""
-    listnr=3
-    while read -r line; do
-      if [ "$thisdisk" = "0" ]; then
-        case $line in
-          $1*) thisdisk=1
-        esac
-      else
-        if [ "$line" = "" ]; then
-          thisdisk=0
-        else
+    case $PART_NUMER in
+      */dev/*) diskname=$PART_NUMER ;;
+      *) case $PART_SYSTEM in
+           *fat32*) flags=0
+                    case $PART_FLAGS in
+                      *boot*) flags=$(($flags+1)) ;;
+                    esac
+                    case $PART_FLAGS in
+                      *esp*) flags=$(($flags+1)) ;;
+                    esac
+                    if [ "$flags" == "2" ]; then
+                      EFIPART="${diskname}p${PART_NUMER}"
+                    fi
+         esac
+     esac
+  done <<< "$disks"
+  if [ "$EFIPART" == "" ]; then
+    dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "EFI boot partition not detected" 100 90
+    return
+  elif [ "$(efibootmgr)" == "" ]; then
+    dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "No info about EFI boot menu. No support in kernel or not mounted efivarfs or no support for UEFI" 100 90
+    return
+  fi
+  list=""
+  listnr=1
+  while read -r line; do
+    case $line in
+      /dev*) IFS=":" read -r DEV_NAME OTHER << EOF
+$line
+EOF
+        ;;
+     *) if [ "$line" != "" ]; then
           IFS=":" read -r PART_NUMER PART_START PART_END PART_SIZE PART_SYSTEM PART_OTHER PART_FLAGS << EOF
 $line
 EOF
-          echo $list
-          echo $listnr
-          if [ "$PART_FLAGS" != ";" ]; then
-            PART_FLAGS=" $PART_FLAGS"
-          else
-            PART_FLAGS=""
-          fi
-          echo \"Partition $(($listnr-2)) \(${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}\) - format to ext4 and copy PLLinux there\"
+          list="$list $listnr $DEV_NAMEp$PART_NUMER"
           listnr=$(($listnr+1))
-        fi
-      fi
-    done <<< "$disks"
+       fi
+    esac
+  done <<< "$disks"
+    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
+       --menu "EFI partition $EFIPART" 0 0 24 \
+       $list)
 }
 
 uefi_entry() {
@@ -2536,6 +2541,9 @@ EOF
   done
   echo " $listnr "
   echo \"Add new PLLinux boot entry\"
+  echo \"\"
+  echo " $(($listnr+1)) "
+  echo \"Add other boot entry\"
   echo \"\"
   IFS=$IFSORIG
 }
@@ -2743,8 +2751,9 @@ while true; do
     21) set_time_zone ;;
     22) install_to 1 ;;
     23) uefi ;;
-    25) EFIPART=""
+    25) 
 
+EFIPART=""
         disks=$(parted -l -m 2> /dev/null)
         while read -r line; do
           IFS=":" read -r PART_NUMER PART_START PART_END PART_SIZE PART_SYSTEM PART_OTHER PART_FLAGS << EOF
