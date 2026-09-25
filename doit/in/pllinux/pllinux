@@ -2373,6 +2373,9 @@ network() {
     fi
 }
 
+uefi_entry() {
+}
+
 uefi_list() {
   listnr=1
   LISTLIST=$(efibootmgr)
@@ -2518,10 +2521,8 @@ while true; do
        19 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
        20 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
        21 "Timezone                              - $TIMEZONE" \
-       22 "Partition encryption password (todo)" \
-       23 "Install or clone PLLinux to other partition" \
-       24 "UEFI boot menu" \
-       25 "Setup UEFI boot menu, fat32 boot partition and boot manager (todo)" )
+       22 "Install or clone PLLinux to other partition" \
+       23 "Boot options (UEFI boot menu & partition, boot manager, encryption password, etc.)" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
@@ -2572,8 +2573,8 @@ while true; do
     19) network ;;
     20) swap_file ;;
     21) set_time_zone ;;
-    23) install_to 1 ;;
-    24) uefi ;;
+    22) install_to 1 ;;
+    23) uefi ;;
     25) EFIPART=""
 
         disks=$(parted -l -m 2> /dev/null)
