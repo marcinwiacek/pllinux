@@ -2373,6 +2373,53 @@ network() {
     fi
 }
 
+new_pllinux_entry() {
+    disks=$(parted -l -m 2> /dev/null | grep /dev)
+    if [ "$disks" = "" ]; then
+      dialog --backtitle "PLLinux\install to other partition" \
+        --msgbox "No disks detected. Looks like running from mc sandbox or lack of rights/permissions." 10 30
+      return
+    fi
+    listnr=1
+    list=""
+    while read -r line; do
+      IFS=":" read -r DEV_NAME OTHER << EOF
+$line
+EOF
+      list="$list $listnr $DEV_NAME "
+      listnr=$(($listnr+1))
+    done <<< "$disks"
+
+    disks=$(parted -l -m 2> /dev/null)
+    thisdisk=0
+    list=""
+    listnr=3
+    while read -r line; do
+      if [ "$thisdisk" = "0" ]; then
+        case $line in
+          $1*) thisdisk=1
+        esac
+      else
+        if [ "$line" = "" ]; then
+          thisdisk=0
+        else
+          IFS=":" read -r PART_NUMER PART_START PART_END PART_SIZE PART_SYSTEM PART_OTHER PART_FLAGS << EOF
+$line
+EOF
+          echo $list
+          echo $listnr
+          if [ "$PART_FLAGS" != ";" ]; then
+            PART_FLAGS=" $PART_FLAGS"
+          else
+            PART_FLAGS=""
+          fi
+          echo \"Partition $(($listnr-2)) \(${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}\) - format to ext4 and copy PLLinux there\"
+          listnr=$(($listnr+1))
+        fi
+      fi
+    done <<< "$disks"
+}
+
 uefi_entry() {
   while true; do
     LISTLIST=$(efibootmgr)
@@ -2405,8 +2452,9 @@ EOF
        --menu "$1 $2\n\nPosition $curnum in UEFI boot menu" 0 0 24 \
        1 "Move up in UEFI boot menu" \
        2 "Move down in UEFI boot menu" \
-       3 "Edit in UEFI boot menu" \
-       4 "Delete from UEFI boot menu")
+       3 "Rename" \
+       4 "Edit command" \
+       5 "Delete from UEFI boot menu")
     if [ $? = 0 ]; then
       case $cmd in
       1) NEWBOOTORDER=""
@@ -2423,26 +2471,28 @@ EOF
            listnr=$(($listnr+1))
          done
          IFS=$IFSORIG
-#         dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "old $BOOTORDER\nnew ${NEWBOOTORDER:1}" 100 90
+#         dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$curnum\nold $BOOTORDER\nnew ${NEWBOOTORDER:1}" 100 90
          efibootmgr -o ${NEWBOOTORDER:1} ;;
       2) NEWBOOTORDER=""
          IFS=","
          listnr=1
          for PARAM in $BOOTORDER; do
-           if [ "$listnr" == "$(($curnum+1))" ]; then
-             NEWBOOTORDER="$NEWBOOTORDER,$curnumber"
-           fi
            case $1 in
              Boot$PARAM*) ;;
              *) NEWBOOTORDER="$NEWBOOTORDER,$PARAM"
            esac
            listnr=$(($listnr+1))
+           if [ "$listnr" == "$(($curnum+2))" ]; then
+             NEWBOOTORDER="$NEWBOOTORDER,$curnumber"
+           fi
          done
          IFS=$IFSORIG
-#         dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "old $BOOTORDER\nnew ${NEWBOOTORDER:1}" 100 90
-         efibootmgr -o ${NEWBOOTORDER:1} ;;
+#         dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$curnum\nold $BOOTORDER\nnew ${NEWBOOTORDER:1}" 100 90
+         efibootmgr -o ${NEWBOOTORDER:1} 
+         ;;
       3) ;;
-      4) dialog --yesno "Do you want to delete entry $2? THIS CANNOT BE REVERSED. THIS IS FINAL WARNING." 20 40
+      4) ;;
+      5) dialog --yesno "Do you want to delete entry $2? THIS CANNOT BE REVERSED. THIS IS FINAL WARNING." 20 40
          if [ $? == 0 ]; then
            efibootmgr -b $curnumber -B
            break
@@ -2484,6 +2534,9 @@ EOF
       esac
     done <<< $LISTLIST
   done
+  echo " $listnr "
+  echo \"Add new PLLinux boot entry\"
+  echo \"\"
   IFS=$IFSORIG
 }
 
@@ -2538,7 +2591,11 @@ EOF
       done
       IFS=$IFSORIG
 
-      uefi_entry $UEFI_NUM $UEFI_NAME
+      if [ "$UEFI_NUM" = "" ]; then
+        new_pllinux_entry
+      else
+        uefi_entry $UEFI_NUM $UEFI_NAME
+      fi
     else
       break;
     fi
