@@ -2389,11 +2389,13 @@ EOF
     done <<< $LISTLIST
     listnr=1
     curnum=-1
+    curnumber=""
     IFS=","
     for PARAM in $BOOTORDER; do
        case $1 in
          Boot$PARAM*)
             curnum=$listnr
+            curnumber=$PARAM
        esac
           listnr=$(($listnr+1))
     done
@@ -2405,7 +2407,25 @@ EOF
        2 "Move down in UEFI boot menu" \
        3 "Edit in UEFI boot menu" \
        4 "Delete from UEFI boot menu")
-    if [ $? != 0 ]; then
+    if [ $? = 0 ]; then
+      case $cmd in
+      1) NEWBOOTORDER=""
+         IFS=","
+         listnr=1
+         for PARAM in $BOOTORDER; do
+           if [ "$listnr" == "$(($curnum-1))" ]; then
+             NEWBOOTORDER="$NEWBOOTORDER,$curnumber"
+           fi
+           case $1 in
+             Boot$PARAM*) ;;
+             *) NEWBOOTORDER="$NEWBOOTORDER,$PARAM"
+           esac
+           listnr=$(($listnr+1))
+         done
+         IFS=$IFSORIG
+         dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "old $BOOTORDER\nnew $NEWBOOTORDER" 100 90
+      esac
+    else
       break
     fi
   done
