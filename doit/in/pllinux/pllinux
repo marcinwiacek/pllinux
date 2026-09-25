@@ -2373,8 +2373,8 @@ network() {
     fi
 }
 
-uefi_entry() {
-}
+#uefi_entry() {
+#}
 
 uefi_list() {
   listnr=1
