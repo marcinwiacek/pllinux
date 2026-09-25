@@ -2400,7 +2400,7 @@ EOF
     IFS=$IFSORIG
 
     cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
-       --menu "$1 $2 Position $curnum in UEFI boot menu" 0 0 24 \
+       --menu "$1 $2\n\nPosition $curnum in UEFI boot menu" 0 0 24 \
        1 "Move up in UEFI boot menu" \
        2 "Move down in UEFI boot menu" \
        3 "Edit in UEFI boot menu" \
