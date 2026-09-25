@@ -2373,8 +2373,9 @@ network() {
     fi
 }
 
-#uefi_entry() {
-#}
+uefi_entry() {
+          dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$1 $2" 100 90
+}
 
 uefi_list() {
   listnr=1
@@ -2428,7 +2429,41 @@ uefi() {
              --menu \"UEFI boot menu\\n\\n$INFO\" 0 0 8 \
               $(uefi_list))
     cmd=$(eval $abc)
-    if [ $? != 0 ]; then
+    if [ $? = 0 ]; then
+
+  LISTLIST=$(efibootmgr)
+  LISTLIST=${LISTLIST//	/ }
+  BOOTORDER=""
+  while read -r line; do
+      case $line in
+      BootOrder*)
+        IFS=" " read -r BOOTINFO1 BOOTORDER << EOF
+$line
+EOF
+        break
+      esac
+  done <<< $LISTLIST
+
+  listnr=1
+  UEFI_NUM=""
+  UEFI_NAME=""
+  IFS=","
+  for PARAM in $BOOTORDER; do
+    while read -r line; do
+      case $line in
+      Boot$PARAM*)
+        if [ "$cmd" == "$listnr" ]; then
+          IFS=" " read -r UEFI_NUM UEFI_NAME UEFI_OTHER << EOF
+$line
+EOF
+        fi
+        listnr=$(($listnr+1))
+      esac
+    done <<< $LISTLIST
+  done
+
+      uefi_entry $UEFI_NUM $UEFI_NAME
+    else
       break;
     fi
   done
@@ -2522,7 +2557,7 @@ while true; do
        20 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
        21 "Timezone                              - $TIMEZONE" \
        22 "Install or clone PLLinux to other partition" \
-       23 "Boot options (UEFI boot menu & partition, boot manager, encryption password, etc.)" )
+       23 "Boot (UEFI boot menu & FAT32 partition, boot manager, encryption password, etc.)" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
