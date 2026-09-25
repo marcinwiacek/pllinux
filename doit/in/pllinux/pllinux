@@ -2443,17 +2443,13 @@ EOF
   while true; do
     while read -r line; do
       case $line in
-        Boot$PARAM*)
+        Boot*)
           IFS=" " read -r UEFI_NUM UEFI_NAME UEFI_OTHER << EOF
 $line
 EOF
-  	  if [ "$UEFI_NAME" = "$NEW_NAME" ]; then
+  	  if [ "$UEFI_NAME" == "$NEW_NAME" ]; then
 	      NEW_NAME=""
 	  fi
-          echo " $listnr "
-          echo \"$UEFI_NUM $UEFI_NAME\"
-          echo \"$UEFI_OTHER\"
-          break
       esac
     done <<< $LISTLIST
     if [ "$NEW_NAME" != "" ]; then
@@ -2469,16 +2465,18 @@ EOF
     break
   done
 
-  BLKID="$(/app/busybox/current/bin/blkid | grep $cmd)"
+  BLKID="$(/app/busybox/current/sbin/blkid | grep $cmd)"
   ROOT_DEVICE_ID=""
+    IFS=" "
   for PARAM in $BLKID; do
     if [ "${PARAM:0:5}" == "UUID=" ]; then
       ROOT_DEVICE_ID="${PARAM:7}"
-      ROOT_DEVICE_ID="${ROOT_DEVICE_ID:-1}"
+      ROOT_DEVICE_ID="${ROOT_DEVICE_ID:0:-1}"
     fi
   done
+    IFS=$IFSORIG
 
-  dialog --yesno "Are you sure to setup EFI partition $EFIPART, EFI boot menu ($NEW_NAME) and default grub config on the $cmd partition \($ROOT_DEVICE_ID\)? THIS IS LAST WARNING" 20 40
+  dialog --yesno "Are you sure to setup EFI partition $EFIPART, EFI boot menu ($NEW_NAME) and default Grub config on the $cmd partition ${ROOT_DEVICE_ID} ? THIS IS LAST WARNING" 20 40
   if [ $? != 0 ]; then
     return
   fi
@@ -2486,7 +2484,7 @@ EOF
   mkdir $ROOTBOOT/EFI/$NEW_NAME
   cp /app/shim/current/fedora/shimx64.efi $ROOTBOOT/EFI/$NEW_NAME
 
-  ${DIR}app/busybox/current/bin/cat <<EOF > $ROOTBOOT/EFI/pllinux/grub.cfg
+  ${DIR}app/busybox/current/bin/cat <<EOF > $ROOTBOOT/EFI/$NEW_NAME/grub.cfg
 #Recreated by pllinux script
 search.fs_uuid $ROOT_DEVICE_ID root
 set prefix=(\$root)'/etc'
@@ -2520,13 +2518,14 @@ if [ "$?" = 0 ]; then
     }
 fi
 
-menuentry 'PLLINUX' --class ubuntu --class gnu-linux --class gnu --class os $menuentry_id_option 'PL' {
+menuentry '$NEW_NAME' --class ubuntu --class gnu-linux --class gnu --class os $menuentry_id_option 'PL' {
     echo 'Loading PLLINUX ...'
     linux /app/kernel/current/bzImage root=UUID=$ROOT_DEVICE_ID rw
     initrd /app/initramfs/current/initramfs.gz
 }
+
 EOF
-  efibootmgr -d $EFIPART -c -L "$NEW_NAME" -l /EFI/pllinux/shimx64.efi
+  efibootmgr -d $EFIPART -c -L "$NEW_NAME" -l /EFI/$NEW_NAME/shimx64.efi
 }
 
 uefi_entry() {
@@ -2644,10 +2643,10 @@ EOF
     done <<< $LISTLIST
   done
   echo " $listnr "
-  echo \"Add new PLLinux boot entry to UEFI, FAT32 partition and setup grub on PLLinux partition\"
+  echo \"Add new PLLinux boot setup \(UEFI menu entry, files in FAT32 and Grub setup on PLLinux partition\)\"
   echo \"\"
   echo " $(($listnr+1)) "
-  echo \"Add other boot entry\"
+  echo \"Add new UEFI boot entry\"
   echo \"\"
   IFS=$IFSORIG
 }
@@ -2655,7 +2654,8 @@ EOF
 uefi() {
   LISTLIST=$(efibootmgr)
   if [ "$LISTLIST" == "" ]; then
-          dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "No info about EFI boot menu. No support in kernel or not mounted efivarfs or no support for UEFI" 100 90
+          dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" \
+          --msgbox "No info about EFI boot menu. No support in kernel or not mounted efivarfs or no support for UEFI" 100 90
           return
   fi
   INFO=""
@@ -2668,7 +2668,7 @@ uefi() {
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\apps\" --cancel-label "Back" \
              --item-help \
-             --menu \"UEFI boot menu\\n\\n$INFO\" 0 0 8 \
+             --menu \"UEFI boot menu\\n\\n$INFO\" 0 0 20 \
               $(uefi_list))
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
