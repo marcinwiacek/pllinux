@@ -2374,7 +2374,41 @@ network() {
 }
 
 uefi_entry() {
-          dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$1 $2" 100 90
+  while true; do
+    LISTLIST=$(efibootmgr)
+    LISTLIST=${LISTLIST//	/ }
+    BOOTORDER=""
+    while read -r line; do
+      case $line in
+      BootOrder*)
+        IFS=" " read -r BOOTINFO1 BOOTORDER << EOF
+$line
+EOF
+        break
+      esac
+    done <<< $LISTLIST
+    listnr=1
+    curnum=-1
+    IFS=","
+    for PARAM in $BOOTORDER; do
+       case $1 in
+         Boot$PARAM*)
+            curnum=$listnr
+       esac
+          listnr=$(($listnr+1))
+    done
+    IFS=$IFSORIG
+
+    cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
+       --menu "$1 $2 Position $curnum in UEFI boot menu" 0 0 24 \
+       1 "Move up in UEFI boot menu" \
+       2 "Move down in UEFI boot menu" \
+       3 "Edit in UEFI boot menu" \
+       4 "Delete from UEFI boot menu")
+    if [ $? != 0 ]; then
+      break
+    fi
+  done
 }
 
 uefi_list() {
@@ -2430,37 +2464,36 @@ uefi() {
               $(uefi_list))
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
-
-  LISTLIST=$(efibootmgr)
-  LISTLIST=${LISTLIST//	/ }
-  BOOTORDER=""
-  while read -r line; do
-      case $line in
-      BootOrder*)
-        IFS=" " read -r BOOTINFO1 BOOTORDER << EOF
+      LISTLIST=$(efibootmgr)
+      LISTLIST=${LISTLIST//	/ }
+      BOOTORDER=""
+      while read -r line; do
+        case $line in
+        BootOrder*)
+          IFS=" " read -r BOOTINFO1 BOOTORDER << EOF
 $line
 EOF
-        break
-      esac
-  done <<< $LISTLIST
+        esac
+      done <<< $LISTLIST
 
-  listnr=1
-  UEFI_NUM=""
-  UEFI_NAME=""
-  IFS=","
-  for PARAM in $BOOTORDER; do
-    while read -r line; do
-      case $line in
-      Boot$PARAM*)
-        if [ "$cmd" == "$listnr" ]; then
-          IFS=" " read -r UEFI_NUM UEFI_NAME UEFI_OTHER << EOF
+      listnr=1
+      UEFI_NUM=""
+      UEFI_NAME=""
+      IFS=","
+      for PARAM in $BOOTORDER; do
+        while read -r line; do
+          case $line in
+          Boot$PARAM*)
+            if [ "$cmd" == "$listnr" ]; then
+              IFS=" " read -r UEFI_NUM UEFI_NAME UEFI_OTHER << EOF
 $line
 EOF
-        fi
-        listnr=$(($listnr+1))
-      esac
-    done <<< $LISTLIST
-  done
+            fi
+            listnr=$(($listnr+1))
+          esac
+        done <<< $LISTLIST
+      done
+      IFS=$IFSORIG
 
       uefi_entry $UEFI_NUM $UEFI_NAME
     else
@@ -2557,7 +2590,7 @@ while true; do
        20 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
        21 "Timezone                              - $TIMEZONE" \
        22 "Install or clone PLLinux to other partition" \
-       23 "Boot (UEFI boot menu & FAT32 partition, boot manager, encryption password, etc.)" )
+       23 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
