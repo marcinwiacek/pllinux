@@ -1340,7 +1340,7 @@ if [ "$package" == "fs" ] || [ "$package" == "chezscheme" ]; then
     set_current_app_clean_strip_cd chezscheme $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "lm-sensors" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lm-sensors" ]; then
   ver="3-6-2";
   if should_make lm-sensors $ver; then
     download_unpack_source https://github.com/lm-sensors/lm-sensors/archive/refs/tags/V$ver.tar.gz lm-sensors lm-sensors-$ver 1
