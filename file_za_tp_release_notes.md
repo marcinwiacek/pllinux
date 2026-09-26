@@ -65,15 +65,15 @@ root actions are done from the terminal with logged root (honestly speaking you 
 
 # Managing system
 
-There are just two commands required:
+To work with PLLinux normally you just need one command **pllinux**
+(text mode manager for managing apps and system settings, reinstalling, cloning, fixing boot issues, etc.).
 
-* **app** (command line manager for managing apps)
-* **pllinux** (text mode manager for managing apps and system settings)
+In some rare cases you can be maybe interested in the **app** (command line manager for managing apps normally called from **pllinux**)
+and **doit** (not included in ISO file, available in GitHub and used for making practically all distribution and packages from the source).
 
-They're created using shell scripts (can be easy modified even by medium experienced person).
+They're all created using shell scripts. It's clear, that this is NOT the best way of writing code, from the other hand it really makes work and you don't need anything more for apps used from time to time, additionally code can be easy modified and audited even by medium experienced person.
 
-Note: it's clear, that shell script is not the best way of writing code (from the other hand: it really makes work and you don't need
-anything more for apps used just from time to time)
+Simplicity at all!
 
 # Filesystem
 
@@ -156,10 +156,9 @@ User files are saved in the RAM (tmpfs) and you can for example make setup using
 
 You can partition disk and clone/install system to the separate partition.
 
-# Building partition from sources
+# Building ISO, PLLinux partition or packages from sources
 
-Follow instructions from the GitHub. It includes installing host system (the best Debian 13.5), creating separate ext4 partition, running
-script compiling PLLinux software (it's doing practically everything) and setting up Grub start menu options with few easy steps.
+Follow [instructions from the GitHub](https://github.com/marcinwiacek/pllinux). Steps include installing host system (the best Debian 13.7), creating separate ext4 partition and running script compiling PLLinux software named **doit** (it's doing practically everything) and in the end setting up GRUB start menu options with few easy steps.
 
 # Known issues
 
