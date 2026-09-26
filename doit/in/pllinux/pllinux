@@ -123,7 +123,9 @@ EOF
         fi
         ;;
       SWAP_AGGRESIVE* )
-        /app/busybox/current/sbin/sysctl vm.swappiness=$PARAM_VALUE > /dev/null ;;
+        if [ "$1" = "1" ]; then
+          /app/busybox/current/sbin/sysctl vm.swappiness=$PARAM_VALUE > /dev/null
+        fi ;;
       ETH_START*)
         ETH_START=$PARAM_VALUE;;
       ETH_IP4*)
@@ -2407,6 +2409,8 @@ EOF
   ROOTBOOT="/app/efibootmgr/current/dynamic"
   mount -t vfat $EFIPART $ROOTBOOT
 
+  MOUNTS=$(mount | grep "on / ")
+
   list=""
   listnr=1
   while read -r line; do
@@ -2422,6 +2426,9 @@ $line
 EOF
           if [ "$PART_SYSTEM" = "ext4" ]; then
             list="$list ${DEV_NAME}p${PART_NUMER} ${PART_SIZE}"
+            case $MOUNTS in
+            ${DEV_NAME}p${PART_NUMER}*) list="$list(current)"
+            esac
             listnr=$(($listnr+1))
           fi
        fi

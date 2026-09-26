@@ -48,8 +48,10 @@ export LANG=$(/app/pllinux/current/pllinux LANG)
 export LANGUAGE=$(/app/pllinux/current/pllinux LANG)
 #export NCURSES_NO_UTF8_ACS=1
 export PATH=$path
-export SHELL=/app/busybox/current/bin/sh
-export HOME=/other/app/sh
+#export SHELL=/app/busybox/current/bin/sh
+#export HOME=/other/app/sh
+export SHELL=/app/bash/current/bin/bash
+export HOME=/other/app/bash
 export TERMINFO=/app/ncurses/current/share/terminfo
 mkdir $HOME 2> /dev/null
 

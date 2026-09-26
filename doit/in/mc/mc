@@ -2,7 +2,7 @@
 DIR=$(dirname $0)
 if [ -d "/etc." ]; then
   # root
-  APP=" --dev dev --bind /app app --bind $DIR/etc/mc etc/mc "
+  APP=" --dev dev --bind /app app --bind /log log --bind $DIR/etc/mc etc/mc "
 else
   # non root
   APP=" --dev dev --ro-bind /app app --ro-bind $DIR/etc/mc etc/mc --ro-bind /etc/localtime etc/localtime "
@@ -29,9 +29,9 @@ mkdir /other/app/mc 2> /dev/null
     --ro-bind $DIR/bin bin \
     --ro-bind /lib64 lib64 \
     --setenv PS1 "[\t] $USER # " \
-    --setenv SHELL /app/busybox/current/bin/sh \
     $APP3 \
     $DIR/bin/mc
+#    --setenv SHELL /app/busybox/current/bin/sh \
     # no clean before running command in options
 # -u will disable subshell
 # don't show internal commands from MC in the shell history
