@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="grub"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="lm-sensors"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1338,6 +1338,16 @@ if [ "$package" == "fs" ] || [ "$package" == "chezscheme" ]; then
     make install
     remove_duplicates_cd $output/app/chezscheme/$prefix$ver/lib/csv$ver/ta6le
     set_current_app_clean_strip_cd chezscheme $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "lm-sensors" ]; then
+  ver="3-6-2";
+  if should_make lm-sensors $ver; then
+    download_unpack_source https://github.com/lm-sensors/lm-sensors/archive/refs/tags/V$ver.tar.gz lm-sensors lm-sensors-$ver 1
+    make -j$cpu_num
+    create_app lm-sensors $prefix$ver
+    make install PREFIX=$output/app/lm-sensors/$prefix$ver
+    set_current_app_clean_strip_cd lm-sensors $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "brotli" ]; then
