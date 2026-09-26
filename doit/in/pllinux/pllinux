@@ -2572,8 +2572,9 @@ EOF
        --menu "$1 $2\n\nPosition $curnum in UEFI boot menu" 0 0 24 \
        1 "Move up in UEFI boot menu" \
        2 "Move down in UEFI boot menu" \
-       3 "Recreate with new values" \
-       4 "Delete from UEFI boot menu")
+       3 "One time boot into it (with next reset)" \
+       4 "Recreate with new values" \
+       5 "Delete from UEFI boot menu")
     if [ $? = 0 ]; then
       case $cmd in
       1) NEWBOOTORDER=""
@@ -2609,7 +2610,8 @@ EOF
 #         dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$curnum\nold $BOOTORDER\nnew ${NEWBOOTORDER:1}" 100 90
          efibootmgr -o ${NEWBOOTORDER:1} 
          ;;
-      3) 
+      3) efibootmgr --bootnext $curnumber ;;
+      4) 
         EFIPART=""
         disks=$(parted -l -m 2> /dev/null)
         while read -r line; do
@@ -2703,7 +2705,7 @@ EOF
          fi
          break
          ;;
-      4) dialog --yesno "Do you want to delete entry $2? THIS CANNOT BE REVERSED. THIS IS FINAL WARNING." 20 40
+      5) dialog --yesno "Do you want to delete entry $2? THIS CANNOT BE REVERSED. THIS IS FINAL WARNING." 20 40
          if [ $? == 0 ]; then
            efibootmgr -b $curnumber -B
            break
@@ -2883,11 +2885,11 @@ while true; do
 
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
        --default-item $mainmenunum \
-       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r))" 0 0 24 \
+       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r))" 0 0 26 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
-       4 "Background tasks running after specified time period" \
+       4 "Background tasks running after specified period of time" \
        5 "Background services (dinit)" \
        6 "Devices (info, power options, partitioning, etc.)" \
        7 "Disk usage" \
@@ -2896,18 +2898,19 @@ while true; do
        10 "Time" \
        11 "Kernel modules (insmod, rmmod, modinfo)" \
        12 "Kernel params (sysctl)" \
-       14 "Kernel logs (dmesg, can be saved with syslogd, q to quit)" \
-       15 "System logs saved in files (syslogd)" \
-       16 "Users (adduser, deluser, etc.)" \
-       17 "User groups" \
-       18 "App language (todo)                   - $LANG" \
-       19 "App locale for installed/updated pkg  - all" \
-       20 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
-       21 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
-       22 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
-       23 "Timezone                              - $TIMEZONE" \
-       24 "Install or clone PLLinux to other partition" \
-       25 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
+       14 "Kernel logs (dmesg, can be saved to disk with syslogd, q to quit)" \
+       15 "Partition mounting in /mnt" \
+       16 "System logs saved in files (syslogd)" \
+       17 "Users (adduser, deluser, etc.)" \
+       18 "User groups" \
+       19 "App language (todo)                   - $LANG" \
+       20 "Locale for new installed/updated app  - all" \
+       21 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
+       22 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
+       23 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
+       24 "Timezone                              - $TIMEZONE" \
+       25 "Install or clone PLLinux to other partition" \
+       26 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
@@ -2949,17 +2952,17 @@ while true; do
     11) kernel_modules ;;
     12) kernel_param ;;
     14) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
-    15) logs ;;
-    16) set_users ;;
-    17) groups ;;
-    20) NEW_KEYB="$KEYB"
+    16) logs ;;
+    17) set_users ;;
+    18) groups ;;
+    21) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
-    21) network ;;
-    22) swap_file ;;
-    23) set_time_zone ;;
-    24) install_to 1 ;;
-    25) uefi ;;
+    22) network ;;
+    23) swap_file ;;
+    24) set_time_zone ;;
+    25) install_to 1 ;;
+    26) uefi ;;
     esac
   else
     break
