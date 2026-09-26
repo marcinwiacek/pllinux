@@ -130,4 +130,14 @@ script - we take all modules, set output platform, compress output file and that
 
 Why compiled module cannot by default search for all partitions and (by default) cannot take grub.cfg from the same directory in FAT32 partition? Would be it too easy? And why commands in GRUB console are not the most intuitive? (in moments like that I fully understand, why Linux doesn't have 100% of the market)
 
+And here comes the magic - I tried many things (like including grub.cfg from FAT32 partition inside), but in the end helped command
+
+**sudo ./grub-mkimage -O x86_64-efi -c grub.cfg -o grubx64.efi -C xz -p /boot/efi all_video boot cat chain configfile echo efifwsetup efinet ext2 fat font gettext gfxmenu gfxterm gfxterm_background gzio halt help hfsplus jpeg keystatus loadenv loopback linux ls lsefi lsefimmap lsefisystab lssal memdisk minicmd normal ntfs part_msdos part_gpt password_pbkdf2 png probe reboot regexp search search_fs_uuid search_fs_file search_label sleep smbios test true video xfs zfs zfscrypt zfsinfo**
+
+Help came from the [GRUB Arch Wiki](https://wiki.archlinux.org/title/GRUB) and [their link to the Ubuntu script](https://git.launchpad.net/~ubuntu-core-dev/grub/+git/ubuntu/tree/debian/build-efi-images?h=debian/2.06-2ubuntu12)
+
+Currently system boots (efi file needs to have grub.cfg inside), there is only required further playing with console font.
+
+But why? Was problem with overlapping modules or correct order? No idea, happily currently all disks are recognized and PLLinux is step further.
+
 [Prev page](file_yq_milestone9.md) [Next page](file_zz_milestone.md)

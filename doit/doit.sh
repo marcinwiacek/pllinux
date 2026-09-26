@@ -1259,7 +1259,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub"
     download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
     ./bootstrap
     ./autogen.sh
-    ./configure --prefix=$output/app/grub/$prefix$ver --target=x86_64 --with-platform=efi
+    ./configure --prefix=/app/grub/$prefix$ver --target=x86_64 --with-platform=efi
     make all -j$cpu_num
     create_app grub $prefix$ver
     make install
