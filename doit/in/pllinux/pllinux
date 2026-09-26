@@ -2258,7 +2258,7 @@ install_from_file() {
 set_system_apps() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\apps" --cancel-label "Back" --menu "Manage apps in the /app" 0 0 8 \
-       1 "Install from repo" 2 "Install from file"  3 Delete )
+       1 "Install from repo" 2 "Install from file"  3 Delete)
     if [ $? = 0 ]; then
       case $cmd in
       1) install_system_apps ;;
@@ -2901,12 +2901,13 @@ while true; do
        16 "Users (adduser, deluser, etc.)" \
        17 "User groups" \
        18 "App language (todo)                   - $LANG" \
-       19 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
-       20 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
-       21 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
-       22 "Timezone                              - $TIMEZONE" \
-       23 "Install or clone PLLinux to other partition" \
-       24 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
+       19 "App locale for installed/updated pkg  - all" \
+       20 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
+       21 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
+       22 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
+       23 "Timezone                              - $TIMEZONE" \
+       24 "Install or clone PLLinux to other partition" \
+       25 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
@@ -2951,14 +2952,14 @@ while true; do
     15) logs ;;
     16) set_users ;;
     17) groups ;;
-    19) NEW_KEYB="$KEYB"
+    20) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
-    20) network ;;
-    21) swap_file ;;
-    22) set_time_zone ;;
-    23) install_to 1 ;;
-    24) uefi ;;
+    21) network ;;
+    22) swap_file ;;
+    23) set_time_zone ;;
+    24) install_to 1 ;;
+    25) uefi ;;
     esac
   else
     break
