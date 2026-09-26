@@ -203,11 +203,11 @@ Solution unknown. Will be investigated.
   4. further updates for existing dynamic loader or making other development - always welcome (mainly C or Bash shell scripting now)
   5. packaging software - always welcome (mainly Bash shell scripting now)
 
-#Contact
+# Contact
 
 Use for example GitHub or marcin ( at ) mwiacek ( dot ) com. I'm not answering very fast, but in the end it always happens.
 
-#FAQ
+# FAQ
 
 **Why not extend existing project?**
 
