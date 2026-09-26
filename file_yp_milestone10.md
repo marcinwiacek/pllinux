@@ -114,6 +114,20 @@ This is of course top of the iceberg (although I pointed, that Grub config and b
 
 ![Alt text](2026/sep_boot_menu.jpg)
 
-This looks like good beginning (of course big challenge is connected with doing it very intuitive and user friendly with quite limited **dialog**):
+This looks like good beginning (of course big challenge is connected with doing it very intuitive and user friendly with quite limited **dialog**).
+
+But what about shimx64 and grubx64 files?
+
+First can be compiled from the source + must be signed (from Microsoft) to allow for Secure Boot - because of it it will be probably for now from some system with BSD license taken. Second, well second can be created for example with
+
+    list=""
+    for fn in $(ls /mnt/x/app/grub/current/lib/grub/x86_64-efi/*.mod); do
+       list=" $list $fn"
+    done
+    sudo ./grub-mkimage -O x86_64-efi -o grubx64.efi -C xz -p . $list -v
+
+script - we take all modules, set output platform, compress output file and that's it (it should be signed too, but let's forget about it for now). Looks easy, but file created this way doesn't allow for successfull boot like Debian or Ubuntu version. Everything shows, that there is required some internal config inside file (which I cannot find) or compiled file from them is reaching their partition, which is NOT I want.
+
+Why compiled module cannot by default search for all partitions and (by default) cannot take grub.cfg from the same directory in FAT32 partition? Would be it too easy? And why commands in GRUB console are not the most intuitive? (in moments like that I fully understand, why Linux doesn't have 100% of the market)
 
 [Prev page](file_yq_milestone9.md) [Next page](file_zz_milestone.md)
