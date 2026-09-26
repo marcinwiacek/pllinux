@@ -801,7 +801,7 @@ EOF
     done <<< "$disks"
     cmd=$(dialog --stdout --backtitle "PLLinux\install to other disk" --cancel-label "Back" \
            --default-item $defnum \
-           --menu "Install PLLinux to other partition or disk" 0 0 6 $list )
+           --menu "Install PLLinux to other partition or disk. System needs UEFI FAT32 partition with boot flag for boot files (can be used existing one, about 6MB free space required) and partition for main filesystem (it will be formatted to EXT4)" 0 0 6 $list )
     if [ $? == 0 ]; then
         listnr=1
         list=""
@@ -2787,33 +2787,34 @@ while true; do
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
-       4 "Background services (dinit)" \
-       5 "Devices (info, power options, partitioning, etc.)" \
-       6 "Disk usage" \
-       7 "Network firewall (nftables)" \
-       8 "Task manager (top, q to quit)" \
-       9 "Time" \
-       10 "Kernel modules (insmod, rmmod, modinfo)" \
-       11 "Kernel params (sysctl)" \
-       12 "Kernel logs (dmesg, can be saved with syslogd, q to quit)" \
-       14 "System logs saved in files (syslogd)" \
-       15 "Users (adduser, deluser, etc.)" \
-       16 "User groups" \
-       17 "App language (todo)                   - $LANG" \
-       18 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
-       19 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
-       20 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
-       21 "Timezone                              - $TIMEZONE" \
-       22 "Install or clone PLLinux to other partition" \
-       23 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
+       4 "Background tasks running after specified time period" \
+       5 "Background services (dinit)" \
+       6 "Devices (info, power options, partitioning, etc.)" \
+       7 "Disk usage" \
+       8 "Network firewall (nftables)" \
+       9 "Task manager (top, q to quit)" \
+       10 "Time" \
+       11 "Kernel modules (insmod, rmmod, modinfo)" \
+       12 "Kernel params (sysctl)" \
+       14 "Kernel logs (dmesg, can be saved with syslogd, q to quit)" \
+       15 "System logs saved in files (syslogd)" \
+       16 "Users (adduser, deluser, etc.)" \
+       17 "User groups" \
+       18 "App language (todo)                   - $LANG" \
+       19 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
+       20 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
+       21 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
+       22 "Timezone                              - $TIMEZONE" \
+       23 "Install or clone PLLinux to other partition" \
+       24 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
     1) set_system_apps ;;
     3) tasks "crontab" ;;
-    4) services ;;
-    5) devices ;;
-    6) LIST=""
+    5) services ;;
+    6) devices ;;
+    7) LIST=""
        IFS=":"
        for APP_NAME in $SYSTEM_APPS; do
          LIST="$LIST ${DIR}app/$APP_NAME/current/*"
@@ -2843,21 +2844,21 @@ while true; do
        HOMEINFO=${HOMEINFO//"total"}
 
        dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$HOMEINFO" 100 90 ;;
-    8) top ;;
-    10) kernel_modules ;;
-    11) kernel_param ;;
-    12) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
-    14) logs ;;
-    15) set_users ;;
-    16) groups ;;
-    18) NEW_KEYB="$KEYB"
+    9) top ;;
+    11) kernel_modules ;;
+    12) kernel_param ;;
+    14) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
+    15) logs ;;
+    16) set_users ;;
+    17) groups ;;
+    19) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
-    19) network ;;
-    20) swap_file ;;
-    21) set_time_zone ;;
-    22) install_to 1 ;;
-    23) uefi ;;
+    20) network ;;
+    21) swap_file ;;
+    22) set_time_zone ;;
+    23) install_to 1 ;;
+    24) uefi ;;
     esac
   else
     break
