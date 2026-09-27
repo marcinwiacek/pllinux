@@ -2828,7 +2828,7 @@ EOF
 }
 
 uefi() {
-  /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars 2> /tmp/x
+  /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
   LISTLIST=$(efibootmgr)
   umount /sys/firmware/efi/efivars
   if [ "$LISTLIST" == "" ]; then
