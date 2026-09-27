@@ -2,10 +2,10 @@
 DIR=$(dirname $0)
 if [ -d "/etc." ]; then
   # root
-  APP=" --dev dev --bind /app app --bind /log log --bind $DIR/etc/mc etc/mc "
+  APP=" --bind /app app --bind $DIR/etc/mc etc/mc "
 else
   # non root
-  APP=" --dev dev --ro-bind /app app --ro-bind $DIR/etc/mc etc/mc --ro-bind /etc/localtime etc/localtime "
+  APP=" --ro-bind /app app --ro-bind $DIR/etc/mc etc/mc --ro-bind /etc/localtime etc/localtime "
 fi
 if [ -d "/iso" ]; then
   # iso image
@@ -18,12 +18,15 @@ mkdir /other/app/mc 2> /dev/null
 /app/bwrap/current/bin/bwrap \
     --setenv HOME /other/app/mc \
     $APP \
+    --dev dev \
     --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
     --proc proc \
     --bind /tmp tmp \
+    --bind /home home \
     --bind-try /run run \
     --bind-try /mnt mnt \
-    --bind /home home \
+    --bind-try /sys sys \
+    --bind-try /log log \
     --bind-try /other other \
     --bind-try /etc. etc \
     --ro-bind $DIR/bin bin \

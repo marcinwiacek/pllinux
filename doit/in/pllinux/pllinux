@@ -1837,8 +1837,19 @@ kernel_module() {
   ISSTARTED=$2
   while true; do
     if [ "$ISSTARTED" = "1" ]; then
+              get_value_from_conf_file "KERNEL_MODULES_START" ""
+              IFS=":"
+              for modname in $CONF_FILE_VALUE; do
+    IFS=" " read -r SERVICE_NAME SERVICE_PARAMS << EOF
+${modname}
+EOF
+                if [ "$modname" = "$1" ]; then
+                   break
+                fi
+              done
+              
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
-         --menu \"Linux kernel module $1\" 0 0 8 \
+         --menu \"Linux kernel module $1. Started with params $SERVICE_PARAMS\" 0 0 8 \
          1 \"info \(modinfo\)\" 3 \"stop and don\'t load after system restart \(rmmod\)\")
     else
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
@@ -1849,7 +1860,9 @@ kernel_module() {
     if [ $? = 0 ]; then
       case $cmd in
       1) dialog --backtitle "PLLinux\kernel modules\module $LINE2X\info (modinfo)" --msgbox "$(modinfo $1)" 100 90 ;;
-      2) MSG="$(insmod $1 2>&1)"
+      2) cmd=$(dialog --stdout --backtitle "PLLinux\kernel params\filter" --cancel-label "Back" \
+              --inputbox "Module params. Can be empty." 15 100 "" )
+         MSG="$(insmod $1 $cmd 2>&1)"
          #MSG="$(modprobe $1 2>&1)"
          IS_LOADED=$(lsmod 2>&1)
          case $IS_LOADED in
@@ -1857,7 +1870,7 @@ kernel_module() {
               get_value_from_conf_file "KERNEL_MODULES_START" ""
               NEW_VALUE="$CONF_FILE_VALUE"
               if [ "$NEW_VALUE" != "" ]; then NEW_VALUE="$NEW_VALUE:"; fi
-              change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE$1"
+              change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE$1 $cmd"
               ISSTARTED=1 ;;
            *) MSG="Module $1 not started. Below insmod output\n\n$MSG"
          esac
@@ -1874,7 +1887,10 @@ kernel_module() {
               NEW_VALUE=""
               IFS=":"
               for modname in $CONF_FILE_VALUE; do
-                if [ "$modname" != "$1" ]; then
+    IFS=" " read -r SERVICE_NAME SERVICE_PARAMS << EOF
+${modname}
+EOF
+                if [ "$SERVICE_NAME" != "$1" ]; then
                   if [ "$NEW_VALUE" != "" ]; then NEW_VALUE="$NEW_VALUE:"; fi
                   NEW_VALUE="$NEW_VALUE$modname"
                 fi
@@ -1951,6 +1967,8 @@ kernel_modules() {
           "Filename filter. Empty = everything. Case sensitive." 2 1 "$FILTER" 2 60 20 0)
       if [ $? = 0 ]; then
         linenr=1
+        FILTER_START="2";
+        FILTER="";
         while read -r line; do
           case $linenr in
           1) FILTER_START="$line" ;;

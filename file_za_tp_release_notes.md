@@ -68,8 +68,10 @@ root actions are done from the terminal with logged root (honestly speaking you 
 To work with PLLinux normally you just need one command **pllinux**
 (text mode manager for managing apps and system settings, reinstalling, cloning, fixing boot issues, etc.).
 
-In some rare cases you can be maybe interested in the **app** (command line manager for managing apps normally called from **pllinux**)
-and **doit** (not included in ISO file, available in GitHub and used for making practically all distribution and packages from the source).
+In some rare cases you can be maybe interested in two more:
+
+1. **app** (command line manager for managing apps normally called from **pllinux**)
+2. **doit** (not included in ISO file, available in GitHub and used for making practically all distribution and packages from the source).
 
 They're all created using shell scripts. It's clear, that this is NOT the best way of writing code, from the other hand it really makes work and you don't need anything more for apps used from time to time, additionally code can be easy modified and audited even by medium experienced person.
 
