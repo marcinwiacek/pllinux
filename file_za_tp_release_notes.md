@@ -14,15 +14,17 @@ PLLinux contains solution for this and many other things. The biggest key points
   3. taking care about minimal resources usage (no more duplicating the same files, saving unnecessary logs and sending everywhere telemetry)
   4. technical approach (no politics)
   5. easy and fast implementing new software
+  6. reliable results (whatever is setup or done, it should always give repeatable and clear reaction)
 
-Technology Preview release shows, in what direction could go modern OS. This version contains many working elements and can already give feeling,
-where existing systems seems to be obsolete (if you like analogies, you could compare it to the [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
+In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should always do whatever user want and expect.
+
+Technology Preview already release shows, in what direction could go modern OS. This version contains many working elements and can give feeling, where existing "modern" systems seems to be obsolete (if you like analogies, you could compare it to the [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution
-was already visible, but not complete). Some solutions are similar to used in Android, Apple products or NixOS, but not the same.
-They can change before beta or first final release (like it was in Windows 95, see [The Early Windows 95 Builds Microsoft DIDN'T Want Us To See](https://www.youtube.com/watch?v=cgq7LcvRFA4))
+was already visible, but not complete). 
 
-Note: project was started after finding various problems with existing Linux distributions and lack of dev reaction (more and more often they also remove
-existing for years functionalities or promote code, which was not tested).
+Some solutions are similar to used in Android, Apple products or NixOS, but not the same - they can change before beta or first final release (like it was in Windows 95, see [The Early Windows 95 Builds Microsoft DIDN'T Want Us To See](https://www.youtube.com/watch?v=cgq7LcvRFA4))
+
+Note: project was started after finding various problems with existing Linux distributions and lack of dev reaction (more and more often they also remove existing for years functionalities or promote code, which was not tested).
 
 # Architecture
 
