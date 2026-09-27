@@ -10,10 +10,10 @@
 PLLinux contains solution for this and many other things. The biggest key points:
 
   1. simplicity and human face (it's prepared for normal users)
-  2. escaping from technology debt with compatibility with Linux apps
-  3. taking care about minimal resources usage
+  2. escaping from technology debt with compatibility with exsiting (Linux) apps
+  3. taking care about minimal resources usage (no more duplicating the same files, saving unnecessary logs and sending everywhere telemetry)
   4. technical approach (no politics)
-  5. easy and fast implementing new software versions
+  5. easy and fast implementing new software
 
 Technology Preview release shows, in what direction could go modern OS. This version contains many working elements and can already give feeling,
 where existing systems seems to be obsolete (if you like analogies, you could compare it to the [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
@@ -29,10 +29,9 @@ existing for years functionalities or promote code, which was not tested).
 System is based on long-supported code and tools with known reputation:
 
 1. [Linux kernel](https://kernel.org) (there were other considered too, but for now let's hope, that this code won't be damaged by AI and other things)
-2. [busybox](https://busybox.net/), when possible (when it's good enough) and other tools (like [util-linux](https://github.com/util-linux/util-linux)), when
+2. [busybox](https://busybox.net/), when possible (when it's good enough) or other tools (like [util-linux](https://github.com/util-linux/util-linux)), when
 busybox has got known issues or limits
-3. [bwrap or bubblewrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation
-layers in various situations
+3. [bwrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation layers in various situations
 4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
 
 We avoid changing existing software (two exceptions: [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md)
@@ -65,13 +64,13 @@ root actions are done from the terminal with logged root (honestly speaking you 
 
 # Managing system
 
-To work with PLLinux normally you just need one command **pllinux**
-(text mode manager for managing apps and system settings, reinstalling, cloning, fixing boot issues, etc.).
+To work with PLLinux normally you just need one command **pllinux** (text mode manager for managing apps and system settings, reinstalling, cloning, fixing boot issues, etc.).
 
-In some rare cases you can be maybe interested in two more:
+In some edge cases you can be maybe interested in two more:
 
 1. **app** (command line manager for managing apps normally called from **pllinux**)
-2. **doit** (not included in ISO file, available in GitHub and used for making practically all distribution and packages from the source).
+2. **doit** (not included in ISO file, available [in GitHub](https://github.com/marcinwiacek/pllinux) and used for making practically all distribution files
+and packages from the source).
 
 They're all created using shell scripts. It's clear, that this is NOT the best way of writing code, from the other hand it really makes work and you don't need anything more for apps used from time to time, additionally code can be easy modified and audited even by medium experienced person.
 
@@ -179,8 +178,8 @@ Seems to be cosmetic (no known side effects excluding error message).
 
 **There is saved a lot of printf garbabe in Midnight Commander history log**
 
-Old topic, see [https://github.com/MidnightCommander/mc/issues/2104](https://github.com/MidnightCommander/mc/issues/2104).
-You need to use for example Bash with your user.
+Old thing, see [https://github.com/MidnightCommander/mc/issues/2104](https://github.com/MidnightCommander/mc/issues/2104).
+You need to avoid sh and use for example Bash with your user (it's done with default ISO config)
 
 **Non-admin users logging info is not saved in logs**
 
@@ -223,9 +222,9 @@ In other words: world simply needs different solutions and staying in 1980 with 
 
 **Why not Rust or systemd or other project?**
 
-They will be used, when provide really added value. Starting and ending project info with "written in Rust" instead of advantages list
-is anti-advertisement (additionally we don't have complete Servo till today, Rust core-utils have many baby-age problems
-and systemd became big & fat & is staying far away from initial goals)
+They will be used, when provide really added value. Starting and ending project info mainly with "written in Rust" words
+instead of advantages list is anti-advertisement (additionally we don't have complete Servo till today,
+Rust core-utils have many baby-age problems and systemd became big & fat & is staying far away from initial goals)
 
 **But systemd has got clear names for network interfaces**
 
@@ -235,17 +234,17 @@ Note: stable network interfaces names will be implemented in the future.
 
 **It's not memory safe and contains very bad code**
 
-Saying this like mantra will not improve situation. Propose better code if you can. Nothing stops you.
+Saying this like mantra will not improve situation. Propose better code if you can. Nothing stops you from it.
 
 **Why limited console and not GUI?**
 
-GUI is of course planned. And creating good system base is the most important in this stage.
+Creating good system base is the most important in this stage. And GUI is of course planned.
 
-Note: yes, text mode has got many disadvantages.
+Note: yes, text mode has got many disadvantages. And some advantages too.
 
 **Projects like Vinix, Redox, Haiku, NixOS or even ReactOS or Omarchy are better**
 
-Concurrence is always good. Future will show, what will be used in the future. And result cannot be sometimes predicted 
+Concurrence is always good. Future will show, what will be used in the future. And results cannot be sometimes predicted
 (see situation with OS/2 and Windows 95)
 
 **This will be always few steps after Omarchy, Ubuntu, Debian, etc.**

@@ -1,4 +1,4 @@
-[Prev page](file_yq_milestone9.md) [Next page](file_zz_milestone.md)
+[Prev page](file_yq_milestone9.md) [Next page](file_yo_milestone11.md)
 
 # Milestone 10
 
@@ -140,4 +140,4 @@ Currently system boots (efi file needs to have grub.cfg inside), there is only r
 
 But why? Was problem with overlapping modules or correct order? No idea, happily currently all disks are recognized and PLLinux is step further.
 
-[Prev page](file_yq_milestone9.md) [Next page](file_zz_milestone.md)
+[Prev page](file_yq_milestone9.md) [Next page](file_yo_milestone11.md)
