@@ -1,5 +1,10 @@
 #!/app/busybox/current/bin/sh
 
+if [ "$1" = "" ]; then
+  echo Please provide page name
+  exit
+fi
+
 FOUND_PATH=""
 APP_LIST=$(/app/busybox/current/bin/ls /app)
 for APP_NAME in $APP_LIST; do
@@ -31,26 +36,24 @@ for APP_NAME in $APP_LIST; do
 $line2
 EOF
                     if [ -e "/app/${APP_NAME}/current/$folder/../$FILENAME" ]; then
-                      groff -E -C -S -M /app/groff/current/share/groff/current/tmac \
-                        -F /app/groff/current/share/groff/current/font -Tascii -man \
-                        "/app/${APP_NAME}/current/$folder/../$FILENAME" \
-                      | less -R -M -S
-                      return
+                      OUT=$(groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
+                        -F /app/groff/current/share/groff/current/font \
+                        "/app/${APP_NAME}/current/$folder/../$FILENAME")
+                      echo $OUT 2> /dev/null | less -R -M -s
+                      exit
                     fi
                   esac
-                  break
                 done < "/app/${APP_NAME}/current/$folder/$1.$nr"
-                groff -E -C -S -M /app/groff/current/share/groff/current/tmac \
-                   -F /app/groff/current/share/groff/current/font -Tascii -man \
-                   "/app/${APP_NAME}/current/$folder/$1.$nr" \
-                   | less -R -M -S
-#                   | more
+                OUT=$(groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
+                   -F /app/groff/current/share/groff/current/font \
+                   "/app/${APP_NAME}/current/$folder/$1.$nr")
+                echo $OUT 2> /dev/null | less -R -M -s
                 exit
               elif [ -e "/app/${APP_NAME}/current/$folder/$1.$nr.gz" ]; then
-                gunzip -c "/app/${APP_NAME}/current/$folder/$1.$nr.gz" | \
-                groff -E -C -S -M /app/groff/current/share/groff/current/tmac \
-                   -F /app/groff/current/share/groff/current/font -Tascii -man \
-                   | less -R -M -S
+                OUT=$(gunzip -c "/app/${APP_NAME}/current/$folder/$1.$nr.gz" | \
+                groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
+                   -F /app/groff/current/share/groff/current/font)
+                echo $OUT 2> /dev/null | less -R -M -s
                 exit
               fi
             done

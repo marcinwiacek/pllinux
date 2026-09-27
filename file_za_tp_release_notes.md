@@ -170,18 +170,11 @@ Follow [instructions from the GitHub](https://github.com/marcinwiacek/pllinux). 
 This is typical in Open Source - various packages are used and mentioned everywhere, but not updated even after years. Here we have
 probably situation, that "kbd" package won't be completed, because GUI have done it much better.
 
-**No man pages with util-linux (groff package problem)**
-
-"Encountered end of file while defining macro LR" - no solution known yet
-
-**"grotty:<standard input>: fatal error: output error" sometimes with man pages (groff package problem?)**
-
-Seems to be cosmetic (no known side effects excluding error message).
-
 **There is saved a lot of printf garbabe in Midnight Commander history log**
 
 Old thing, see [https://github.com/MidnightCommander/mc/issues/2104](https://github.com/MidnightCommander/mc/issues/2104).
-You need to avoid sh and use for example Bash with your user (it's done with default ISO config)
+
+Solution: you need to avoid sh and use for example Bash with your user (it's done with default ISO config)
 
 **Non-admin users logging info is not saved in logs**
 
