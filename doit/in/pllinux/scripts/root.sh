@@ -1,6 +1,11 @@
 #!/app/busybox/current/bin/sh
 # Script for logging root from console
 
+if [ ! -d "/log" ]; then
+  echo "Cannot be run from host"
+  return
+fi
+
 cd /
 
 APP_LIST=$(/app/busybox/current/bin/ls /app)

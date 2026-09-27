@@ -8,6 +8,11 @@
 #          "app name1 ver1:name2 ver2:name3 ver3" - access to apps
 # Example: mnt "app mc current:bash current"
 
+if [ ! -d "/log" ]; then
+  echo "Cannot be run from host"
+  return
+fi
+
 # green [time] user:folder $
 # OR
 # green [time] user:folder amber git branch name $

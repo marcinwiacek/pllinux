@@ -1,6 +1,11 @@
 #!/app/busybox/current/bin/sh
 # Script for running during system start from boot service (started from init from initramfs)
 
+if [ ! -d "/log" ]; then
+  echo "Cannot be run from host"
+  return
+fi
+
 export PATH=/app/busybox/current/bin:/app/busybox/current/sbin
 
 #export LD_PLLINUX_DEBUG=1
@@ -30,7 +35,12 @@ fi
 /app/util-linux/current/bin/mount --make-shared /mnt
 
 /app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
-/app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /log/tmp
+
+#/app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /log/tmp
+echo lz4 > /sys/block/zram0/comp_algorithm
+echo 1G > /sys/block/zram0/disksize
+/app/e2fsprogs/current/sbin/mkfs.ext4 /dev/zram0
+/app/util-linux/current/bin/mount /dev/zram0 /log/tmp -o rw,noatime,nosuid,noexec
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl

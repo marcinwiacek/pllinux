@@ -716,6 +716,7 @@ process_one_disk_list() {
     thisdisk=0
     list=""
     listnr=3
+    MOUNTS=$(mount | grep "on / ") # contains name of current partition
     while read -r line; do
       if [ "$thisdisk" = "0" ]; then
         case $line in
@@ -728,14 +729,17 @@ process_one_disk_list() {
           IFS=":" read -r PART_NUMER PART_START PART_END PART_SIZE PART_SYSTEM PART_OTHER PART_FLAGS << EOF
 $line
 EOF
-          echo $list
-          echo $listnr
           if [ "$PART_FLAGS" != ";" ]; then
             PART_FLAGS=" $PART_FLAGS"
           else
             PART_FLAGS=""
           fi
-          echo \"Partition $(($listnr-2)) \(${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}\) - format to ext4 and copy PLLinux there\"
+          case $MOUNTS in
+              *$1p$(($listnr-2))*) ;;
+              *) echo $list
+                 echo $listnr
+                 echo \"Partition $(($listnr-2)) \(${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}\) - format to ext4 and copy PLLinux there\" ;;
+          esac
           listnr=$(($listnr+1))
         fi
       fi
@@ -763,11 +767,26 @@ process_one_disk() {
         fi
       done <<< "$disks"
     fi
-    abc=$(echo dialog --stdout --backtitle \"PLLinux/install to other disk/device $1\" --cancel-label "Back" \
-           --menu \"Disk $1\" 0 0 6 \
+    MOUNTS=$(mount | grep "on / ") # contains name of current partition
+    IFS=" " read -r DEV_NAME OTHER << EOF
+$MOUNTS
+EOF
+    case $DEV_NAME in
+    $1*) CURRINFO="\n\nWARNING: $DEV_NAME is CURRENT system partition" ;;
+    *) CURRINFO=""
+    esac
+    if [ $2 = "1" ]; then
+      abc=$(echo dialog --stdout --backtitle \"PLLinux/install to other disk/device $1\" --cancel-label "Back" \
+           --menu \"Disk $1$CURRINFO\" 0 0 6 \
            1 \"Disk partitioning \(cfdisk\)\" \
            2 \"SMART disk info \(smartctl\)\" \
            $(process_one_disk_list $1 $2) )
+    else
+      abc=$(echo dialog --stdout --backtitle \"PLLinux/devices/disk managent/device $1\" --cancel-label "Back" \
+           --menu \"Disk $1$CURRINFO\" 0 0 6 \
+           1 \"Disk partitioning \(cfdisk\)\" \
+           2 \"SMART disk info \(smartctl\)\")
+    fi
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
       if [ "$cmd" = "1" ]; then
@@ -798,12 +817,21 @@ install_to() {
       IFS=":" read -r DEV_NAME OTHER << EOF
 $line
 EOF
-      list="$list $listnr $DEV_NAME "
-      listnr=$(($listnr+1))
+      case $DEV_NAME in
+        /dev/zram*) ;;
+        *) list="$list $listnr $DEV_NAME "
+           listnr=$(($listnr+1))
+      esac
     done <<< "$disks"
-    cmd=$(dialog --stdout --backtitle "PLLinux\install to other disk" --cancel-label "Back" \
+    if [ $1 = "1" ]; then
+      cmd=$(dialog --stdout --backtitle "PLLinux\install to other disk" --cancel-label "Back" \
            --default-item $defnum \
            --menu "Install PLLinux to other partition or disk. System needs UEFI FAT32 partition with boot flag for boot files (can be used existing one, about 6MB free space required) and partition for main filesystem (it will be formatted to EXT4)" 0 0 6 $list )
+    else
+      cmd=$(dialog --stdout --backtitle "PLLinux\device manager\disk info" --cancel-label "Back" \
+           --default-item $defnum \
+           --menu "Disk management" 0 0 6 $list )
+    fi
     if [ $? == 0 ]; then
         listnr=1
         list=""
@@ -1847,7 +1875,7 @@ EOF
                    break
                 fi
               done
-              
+
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1. Started with params $SERVICE_PARAMS\" 0 0 8 \
          1 \"info \(modinfo\)\" 3 \"stop and don\'t load after system restart \(rmmod\)\")
@@ -2131,13 +2159,13 @@ devices() {
     if [ $? = 0 ]; then
       menunum=$cmd
       case $cmd in
-      2) dialog --backtitle "PLLinux\device manager\CPU\(lscpu\)" --msgbox "$(lscpu)" 100 90 ;;
+      2) dialog --cr-wrap --backtitle "PLLinux\device manager\CPU\(lscpu\)" --msgbox "$(lscpu)" 100 90 ;;
       3) install_to 0 ;;
-      6) dialog --backtitle "PLLinux\device manager\network interfaces \(ip\)" --msgbox "$(ip link show)" 100 90 ;;
-      7) dialog --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -t -vvv && echo && echo && lspci -vvv)" 100 90 ;;
-      11) dialog --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(decode-dimms)" 100 90 ;;
-      12) dialog --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
-      16) dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
+      6) dialog --cr-wrap --backtitle "PLLinux\device manager\network interfaces \(ip\)" --msgbox "$(ip link show)" 100 90 ;;
+      7) dialog --cr-wrap --backtitle "PLLinux\device manager\PCI info \(lspci\)" --msgbox "$(lspci -t -vvv && echo && echo && lspci -vvv)" 100 90 ;;
+      11) dialog --cr-wrap --backtitle "PLLinux\device manager\RAM info \(decode-dimms\)" --msgbox "$(free -h && echo && decode-dimms)" 100 90 ;;
+      12) dialog --cr-wrap --backtitle "PLLinux\device manager\sensors info \(sensors\)" --msgbox "$(sensors)" 100 90 ;;
+      16) dialog --cr-wrap --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$(dmidecode)" 100 90 ;;
       esac
     else
       break;
@@ -2428,7 +2456,7 @@ new_pllinux_entry() {
 #    return
   fi
 
-  MOUNTS=$(mount | grep "on / ")
+  MOUNTS=$(mount | grep "on / ") # contains name of current partition
 
   list=""
   listnr=1
@@ -2443,13 +2471,17 @@ EOF
           IFS=":" read -r PART_NUMER PART_START PART_END PART_SIZE PART_SYSTEM PART_OTHER PART_FLAGS << EOF
 $line
 EOF
-          if [ "$PART_SYSTEM" = "ext4" ]; then
-            list="$list ${DEV_NAME}p${PART_NUMER} ${PART_SIZE}"
-            case $MOUNTS in
-            ${DEV_NAME}p${PART_NUMER}*) list="$list(current)"
-            esac
-            listnr=$(($listnr+1))
-          fi
+           case $DEV_NAME in
+           /dev/zram*) ;;
+           *)
+            if [ "$PART_SYSTEM" = "ext4" ]; then
+              list="$list ${DEV_NAME}p${PART_NUMER} ${PART_SIZE}"
+              case $MOUNTS in
+              ${DEV_NAME}p${PART_NUMER}*) list="$list(current)"
+              esac
+              listnr=$(($listnr+1))
+            fi
+          esac
        fi
     esac
   done <<< "$disks"

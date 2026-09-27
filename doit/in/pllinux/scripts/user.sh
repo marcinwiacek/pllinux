@@ -1,6 +1,11 @@
 #!/app/busybox/current/bin/sh
 #Script for logging normal user from console
 
+if [ ! -d "/log" ]; then
+  echo "Cannot be run from host"
+  return
+fi
+
 CONS=$(/app/busybox/current/bin/tty)
 #echo User $USER on console $CONS
 
