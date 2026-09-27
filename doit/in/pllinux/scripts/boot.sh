@@ -29,10 +29,8 @@ fi
 # allow propagating /mnt mount into bwrap sandboxes
 /app/util-linux/current/bin/mount --make-shared /mnt
 
-/app/util-linux/current/bin/mount mount -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
-/app/util-linux/current/bin/mount mount -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /log/tmp
-#fixme - in the future it will be enabled and disabled in pllinux script
-#/app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
+/app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
+/app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /log/tmp
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl

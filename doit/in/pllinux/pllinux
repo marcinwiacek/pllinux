@@ -2990,7 +2990,7 @@ while true; do
 
        HOMEINFO=${HOMEINFO//"total"}
 
-       dialog --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$HOMEINFO" 100 90 ;;
+       dialog --cr-wrap --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(df -h && echo && echo $HOMEINFO)" 100 150 ;;
     9) top ;;
     11) kernel_modules ;;
     12) kernel_param ;;
