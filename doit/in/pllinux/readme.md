@@ -8,6 +8,7 @@ Excluding modified script dhcp4.sh from busybox - I don't care
 Core part of PLLINUX. Some crucial scripts and services.
 
 **Deps**
+e2fsprogs current
 busybox current
 bwrap current
 dialog current

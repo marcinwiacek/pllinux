@@ -19,6 +19,7 @@ mkdir /other/app/mc 2> /dev/null
     --setenv HOME /other/app/mc \
     $APP \
     --dev dev \
+    --dev-bind-try /dev/log /dev/log \
     --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
     --proc proc \
     --bind /tmp tmp \

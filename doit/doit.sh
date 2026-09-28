@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="lm-sensors"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="eudev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -454,6 +454,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mc" ]
     cd $out/mc/mc-$ver
     make install
     cd $output/app/mc/$prefix$ver/bin
+    ln -s /app/bash/current/bin/bash bash
     ln -s /app/busybox/current/bin/sh sh
 #    cd $output/app/mc/$prefix$ver
 #    mkdir usr
@@ -1359,6 +1360,19 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "brotl
     create_app brotli $prefix$ver
     cmake --build . --config Release --target install
     set_current_app_clean_strip_cd brotli $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "eudev" ]; then
+  ver="3.2.15";
+  if should_make eudev $ver; then
+    download_unpack_source https://github.com/eudev-project/eudev/archive/refs/tags/v$ver.tar.gz eudev eudev-$ver 1
+    install_host_deps "gperf"
+    ./autogen.sh
+    ./configure --prefix=$output/app/eudev/$prefix$ver
+    make -j$cpu_num
+    create_app eudev $prefix$ver
+    make install
+    set_current_app_clean_strip_cd eudev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "usbutils" ]; then

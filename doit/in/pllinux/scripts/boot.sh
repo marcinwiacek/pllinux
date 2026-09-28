@@ -47,6 +47,11 @@ echo 1G > /sys/block/zram0/disksize
 
 # starts and configures automatic mounting devices (USB pendrives, memory cards, etc.)
 # (enable mdev on request and process already connected devices)
+#echo > /dev/mdev.seq
+#echo > /dev/mdev.log
+if [ -f "/sys/block/sr0/events_poll_msecs" ]; then
+  echo 2000 > /sys/block/sr0/events_poll_msecs  #CDROM needs to be polled
+fi
 /app/busybox/current/bin/echo /app/busybox/current/sbin/mdev > /proc/sys/kernel/hotplug
 /app/busybox/current/sbin/mdev -s
 

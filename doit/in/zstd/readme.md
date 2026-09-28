@@ -7,3 +7,4 @@ https://github.com/facebook/zstd
 **Deps**
 glibc current
 zlib current
+xzutils current
