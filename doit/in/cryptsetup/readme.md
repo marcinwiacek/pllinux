@@ -5,6 +5,10 @@ GPL2 or later
 sbin
 
 **Deps**
+popt current
+util-linux current
+lvm2 current
+openssl 260725_3.6.3
 
 **Description**
 Managing encryptet devices.

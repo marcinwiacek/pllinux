@@ -778,24 +778,22 @@ EOF
     if [ $2 = "1" ]; then
       abc=$(echo dialog --stdout --backtitle \"PLLinux/install to other disk/device $1\" --cancel-label "Back" \
            --menu \"Disk $1$CURRINFO\" 0 0 6 \
-           1 \"Disk partitioning \(cfdisk\)\" \
-           2 \"SMART disk info \(smartctl\)\" \
+           1 \"SMART disk info \(smartctl\)\" \
+           2 \"Disk partitioning \(cfdisk\)\" \
            $(process_one_disk_list $1 $2) )
     else
       abc=$(echo dialog --stdout --backtitle \"PLLinux/devices/disk managent/device $1\" --cancel-label "Back" \
            --menu \"Disk $1$CURRINFO\" 0 0 6 \
-           1 \"Disk partitioning \(cfdisk\)\" \
-           2 \"SMART disk info \(smartctl\)\")
+           1 \"SMART disk info \(smartctl\)\" \
+           2 \"Disk partitioning \(cfdisk\)\")
     fi
     cmd=$(eval $abc)
     if [ $? == 0 ]; then
-      if [ "$cmd" = "1" ]; then
-        cfdisk $1
-      elif [ "$cmd" = "2" ]; then
-        dialog --msgbox "$(smartctl -a $1)" 100 100
-      else
-        format_install $1p$(($cmd-2))
-      fi
+      case $cmd in
+      1) dialog --msgbox "$(smartctl -a $1)" 100 100 ;;
+      2) cfdisk $1 ;;
+      *) format_install $1p$(($cmd-2))
+      esac
     else
       break
     fi
@@ -840,11 +838,14 @@ EOF
           IFS=":" read -r DEV_NAME OTHER << EOF
 $line
 EOF
-          if [ "$listnr" == "$cmd" ]; then
-            DEVDEV=$DEV_NAME
-            defnum=$listnr
-          fi
+          case $DEV_NAME in
+           /dev/zram*) ;;
+           *)  if [ "$listnr" == "$cmd" ]; then
+                 DEVDEV=$DEV_NAME
+                 defnum=$listnr
+               fi
           listnr=$(($listnr+1))
+          esac
         done <<< "$disks"
         # this must be called after while
         process_one_disk $DEVDEV $1
