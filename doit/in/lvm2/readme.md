@@ -5,6 +5,9 @@ GPL2.0 or BSD-2 clause license or LGPL2.1 ?
 sbin
 
 **Deps**
+libselinux current
+pcre2 current
+gcclib current
 
 **Description**
 
