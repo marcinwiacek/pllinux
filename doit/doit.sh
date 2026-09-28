@@ -375,17 +375,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glibc
     chmod a+x $output/app/glibc/$prefix$ver/lib/ld-linux-x86-64.so.2
   fi
 fi
-#if [ "$package" == "all" ] || [ "$package" == "binutils" ]; then
-#  ver="2.46.1";
-#  download_unpack_source https://sourceware.org/pub/binutils/releases/binutils-2.46.1.tar.xz binutils binutils-$ver 0
-#  create_app binutils $prefix$ver
-#  cd out/binutils/binutils-$ver
-#  ./configure
-#  make all -j$cpu_num
-#  ./configure --prefix=$(pwd)/../../../app/binutils/$prefix$ver
-#  make install
-#  cd ../../..
-#fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "util-linux" ]; then
   ver1="2.42";
   ver="2.42.4";
@@ -1086,75 +1075,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pciut
     set_current_app_clean_strip_cd pciutils $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
-  #work in progress
-  ver="3.0.2";
-  if should_make read-edid $ver; then
-    install_host_deps "cmake libx86-dev"
-    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-3.0.2.tar.gz read-edid read-edid-$ver 1
-#needs cmake version in cmakelists.txt
-    cmake .
-    make 
-    make install
-#    create_app read-edid $prefix$ver
-#    mkdir $output/app/read-edid/$prefix$ver/bin
-#    for binentry in example lspci pcilmr setpci update-pciids update-pciids.sh; do
-#      cp $binentry $output/app/pciutils/$prefix$ver/bin
-#    done
-#    mkdir $output/app/pciutils/$prefix$ver/man
-#    cp *.5 $output/app/pciutils/$prefix$ver/man
-#    cp *.7 $output/app/pciutils/$prefix$ver/man
-#    cp *.8 $output/app/pciutils/$prefix$ver/man
-#    set_current_app_clean_strip_cd pciutils $prefix$ver 1
-  fi
-fi
-#if [ "$package" == "gpm" ]; then
-#  code seems to be obsolete
-#  ver="1.20.7";
-#  if should_make gpm $ver; then
-#    install_host_deps "libtool"
-#    download_unpack_source https://github.com/telmich/gpm/archive/refs/tags/$ver.tar.gz gpm gpm-$ver 0
-#    create_app gpm $prefix$ver
-#    cd out/gpm/gpm-$ver
-#    ./autogen.sh
-#    autoupdate
-#    ./autogen.sh
-#    ./configure --prefix=$output/app/gpm/$prefix$ver
-#    make all -j$cpu_num
-#    make install
-#    chmod a-x $output/app/slang/$prefix$ver/lib/*
-#    cd ../../..
-#    set_current_app_clean_strip_cd slang $prefix$ver
-#  fi
-#fi
-#if [ "$package" == "fs" ] || [ "$package" == "man-db" ]; then
-  #we don't need it in this moment? groff enough?
-  #work in progress
-#  ver="2.13.1";
-#  if should_make man-db $ver; then
-#    install_host_deps "autopoint libpipeline-dev"
-#    download_unpack_source https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 man-db man-db-$ver 1
-#    ./bootstrap
-#    ./configure --prefix=$output/app/man-db/$prefix$ver
-#    make -j$cpu_num
-#    create_app man-db $prefix$ver
-#    make install
-#    set_current_app_clean_strip_cd man-db $prefix$ver 1
-#  fi
-#fi
-#if [ "$package" == "fs" ] || [ "$package" == "syslog-ng" ]; then
-#  ver="4.12.0";
-#  if should_make syslog-ng $ver; then
-#    download_unpack_source https://github.com/syslog-ng/syslog-ng/releases/download/syslog-ng-$ver/syslog-ng-$ver.tar.gz syslog-ng syslog-ng-$ver 1
-#    mkdir $out/syslog-ng/syslog-ng-$ver-build
-#    cd $out/syslog-ng/syslog-ng-$ver-build
-#    ../syslog-ng-$ver/configure --prefix=$output/app/syslog-ng/$prefix$ver
-#    make -j$cpu_num
-#    create_app syslog-ng $prefix$ver
-#    make install
-#    set_current_app_clean_strip_cd syslog-ng $prefix$ver 1
-#  fi
-#fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsyslog" ]; then
   ver="8.2608.0";
   if should_make rsyslog $ver; then
@@ -1316,19 +1236,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "shim"
     set_current_app_clean_strip_cd shim $prefix$ver 0
   fi
 fi
-# musl libc
-#if [ "$package" == "fs" ] || [ "$package" == "pciids" ]; then
-  # https://pci-ids.ucw.cz/
-  # could be used by pciutils, they have own version inside
-#  ver="20260815";
-#  if should_make pciids $ver; then
-#    download_unpack_source https://pci-ids.ucw.cz/v2.2/pci.ids.xz pci.ids.$ver pci.ids 1
-#    create_app pciids $prefix$ver
-#    cd $curdir
-#    cp download/pci.ids.$ver-pci.ids.xz $output/app/pciids/$prefix$ver
-#    set_current_app_clean_strip_cd pciids $prefix$ver 1
-#  fi
-#fi
 if [ "$package" == "fs" ] || [ "$package" == "chezscheme" ]; then
   ver="10.4.1";
   if should_make chezscheme $ver; then
@@ -1390,3 +1297,98 @@ if [ "$package" == "fs2" ] || [ "$package" == "usbutils" ]; then
 #    set_current_app_clean_strip_cd usbutils $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
+  #work in progress
+  ver="3.0.2";
+  if should_make read-edid $ver; then
+    install_host_deps "cmake libx86-dev"
+    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-3.0.2.tar.gz read-edid read-edid-$ver 1
+#needs cmake version in cmakelists.txt
+    cmake .
+    make 
+    make install
+#    create_app read-edid $prefix$ver
+#    mkdir $output/app/read-edid/$prefix$ver/bin
+#    for binentry in example lspci pcilmr setpci update-pciids update-pciids.sh; do
+#      cp $binentry $output/app/pciutils/$prefix$ver/bin
+#    done
+#    mkdir $output/app/pciutils/$prefix$ver/man
+#    cp *.5 $output/app/pciutils/$prefix$ver/man
+#    cp *.7 $output/app/pciutils/$prefix$ver/man
+#    cp *.8 $output/app/pciutils/$prefix$ver/man
+#    set_current_app_clean_strip_cd pciutils $prefix$ver 1
+  fi
+fi
+#
+# musl libc
+#
+#if [ "$package" == "fs2" ] || [ "$package" == "pciids" ]; then
+  # https://pci-ids.ucw.cz/
+  # could be used by pciutils, they have own version inside
+#  ver="20260815";
+#  if should_make pciids $ver; then
+#    download_unpack_source https://pci-ids.ucw.cz/v2.2/pci.ids.xz pci.ids.$ver pci.ids 1
+#    create_app pciids $prefix$ver
+#    cd $curdir
+#    cp download/pci.ids.$ver-pci.ids.xz $output/app/pciids/$prefix$ver
+#    set_current_app_clean_strip_cd pciids $prefix$ver 1
+#  fi
+#fi
+#if [ "$package" == "fs2" ] || [ "$package" == "man-db" ]; then
+  #we don't need it in this moment? groff enough?
+  #work in progress
+#  ver="2.13.1";
+#  if should_make man-db $ver; then
+#    install_host_deps "autopoint libpipeline-dev"
+#    download_unpack_source https://gitlab.com/man-db/man-db/-/archive/$ver/man-db-$ver.tar.bz2 man-db man-db-$ver 1
+#    ./bootstrap
+#    ./configure --prefix=$output/app/man-db/$prefix$ver
+#    make -j$cpu_num
+#    create_app man-db $prefix$ver
+#    make install
+#    set_current_app_clean_strip_cd man-db $prefix$ver 1
+#  fi
+#fi
+#if [ "$package" == "fs2" ] || [ "$package" == "syslog-ng" ]; then
+#  ver="4.12.0";
+#  if should_make syslog-ng $ver; then
+#    download_unpack_source https://github.com/syslog-ng/syslog-ng/releases/download/syslog-ng-$ver/syslog-ng-$ver.tar.gz syslog-ng syslog-ng-$ver 1
+#    mkdir $out/syslog-ng/syslog-ng-$ver-build
+#    cd $out/syslog-ng/syslog-ng-$ver-build
+#    ../syslog-ng-$ver/configure --prefix=$output/app/syslog-ng/$prefix$ver
+#    make -j$cpu_num
+#    create_app syslog-ng $prefix$ver
+#    make install
+#    set_current_app_clean_strip_cd syslog-ng $prefix$ver 1
+#  fi
+#fi
+#if [ "$package" == "gpm" ]; then
+#  code seems to be obsolete
+#  ver="1.20.7";
+#  if should_make gpm $ver; then
+#    install_host_deps "libtool"
+#    download_unpack_source https://github.com/telmich/gpm/archive/refs/tags/$ver.tar.gz gpm gpm-$ver 0
+#    create_app gpm $prefix$ver
+#    cd out/gpm/gpm-$ver
+#    ./autogen.sh
+#    autoupdate
+#    ./autogen.sh
+#    ./configure --prefix=$output/app/gpm/$prefix$ver
+#    make all -j$cpu_num
+#    make install
+#    chmod a-x $output/app/slang/$prefix$ver/lib/*
+#    cd ../../..
+#    set_current_app_clean_strip_cd slang $prefix$ver
+#  fi
+#fi
+#if [ "$package" == "all" ] || [ "$package" == "binutils" ]; then
+#  ver="2.46.1";
+#  download_unpack_source https://sourceware.org/pub/binutils/releases/binutils-2.46.1.tar.xz binutils binutils-$ver 0
+#  create_app binutils $prefix$ver
+#  cd out/binutils/binutils-$ver
+#  ./configure
+#  make all -j$cpu_num
+#  ./configure --prefix=$(pwd)/../../../app/binutils/$prefix$ver
+#  make install
+#  cd ../../..
+#fi
