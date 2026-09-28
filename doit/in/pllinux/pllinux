@@ -627,8 +627,13 @@ format_install2() {
     if [ $? == 0 ]; then
       clear
 
-      mkfs -V -t ext4 $1
+#      cryptsetup luksFormat $1
+#      cryptSetup luksOpen $1 encryptedpartition
+#      mkfs -V -t ext4 /dev/mapper/encryptedpartition
+#      mkdir /mnt/install
+#      /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync /dev/mapper/encryptedpartition /mnt/install
 
+      mkfs -V -t ext4 $1
       mkdir /mnt/install
       /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync $1 /mnt/install
 
@@ -672,7 +677,8 @@ format_install2() {
       chmod a+x ld-linux-x86-64.so.2
       cd ..
 
-      /app/busybox/current/bin/umount -f .mnt/install
+      /app/busybox/current/bin/umount /mnt/install
+#      cryptsetup luksClose encryptedpartition
       rmdir /mnt/install
 
       UUID=$(/app/busybox/current/sbin/blkid | grep $1)
@@ -2140,7 +2146,7 @@ devices() {
   while true; do
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\device manager\" --cancel-label "Back" \
            --default-item $menunum \
-           --menu \"Welcome to the device manager\" 0 0 15 \
+           --menu \"Welcome to the device manager\" 0 0 16 \
        1 \"Bluetooth\" \
        2 \"CPU \(lscpu\)\" \
        3 \"Disk info, params and partitioning \(smartctl, hdparm, cfdisk\)\" \
@@ -2151,7 +2157,7 @@ devices() {
        8 \"Power options \(acpid, kernel options, etc.\)\" \
        9 \"Power source \(battery, charging, etc.\)\" \
        10 \"Printers\" \
-       11 \"RAM \(decode-dimms\)\" \
+       11 \"RAM \(decode-dimms, free\)\" \
        12 \"Sensors \(sensors\)\" \
        14 \"Sound\" \
        15 \"USB\" \

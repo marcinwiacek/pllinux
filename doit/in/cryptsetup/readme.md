@@ -9,6 +9,13 @@ popt current
 util-linux current
 lvm2 current
 openssl 260725_3.6.3
+libssh current
+json-c current
+libselinux current
+zlib current
+nftables current
+pcre2 current
+gcclib current
 
 **Description**
 Managing encryptet devices.
