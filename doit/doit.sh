@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 23 July 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="eudev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="json-c"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1267,6 +1267,20 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "brotl
     create_app brotli $prefix$ver
     cmake --build . --config Release --target install
     set_current_app_clean_strip_cd brotli $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "json-c" ]; then
+  #work in progress
+  ver="0.19-20260627";
+  if should_make json-c $ver; then
+    download_unpack_source https://github.com/json-c/json-c/archive/refs/tags/json-c-$ver.tar.gz json-c json-c-json-c-$ver 1
+    meson setup -Dprefix=$output/app/json-c/$prefix$ver --buildtype release _build
+    meson compile -C _build
+    create_app json-c $prefix$ver
+    meson install -C _build
+    rsync -a $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/json-c/$prefix$ver/lib
+    rm -r $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/
+    set_current_app_clean_strip_cd json-c $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "eudev" ]; then
