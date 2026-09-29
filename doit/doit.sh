@@ -753,7 +753,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurs
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gcc" ]; then
-#  ver="16.1.0";
   ver="14.4.0";
   if should_make gcc $ver; then
     # we unpack and download prerequisities to the normal disk (to allow compilation offline)
