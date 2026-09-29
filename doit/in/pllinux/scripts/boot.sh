@@ -24,11 +24,12 @@ if [ "$ROOT_DEVICE_ID" != "" ] && [ "$ROOT_DEVICE_ID" != "rsync" ]; then
   ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/grep ${ROOT_DEVICE_ID#UUID=})
   if [ -f "/forcefsck" ]; then
     /app/e2fsprogs/current/sbin/fsck.ext4 ${ROOT_DEVICE_NAME%%:*} -f
+    /app/busybox/current/bin/mount -o remount $ROOT_DEVICE_ID /
     rm /forcefsck
   else
     /app/e2fsprogs/current/sbin/fsck.ext4 ${ROOT_DEVICE_NAME%%:*}
+    /app/busybox/current/bin/mount -o remount $ROOT_DEVICE_ID /
   fi
-  /app/busybox/current/bin/mount -o remount $ROOT_DEVICE_ID /
 fi
 
 if [ ! -x /app/glibc/current/lib/ld-linux-x86-64.so.2 ]; then
