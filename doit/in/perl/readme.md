@@ -14,4 +14,6 @@ Programming language
 **Project**
 https://www.cpan.org/
 
-**Man**
+**Links**
+bin/perl /bin/perl
+bin/perl /usr/local/bin/perl

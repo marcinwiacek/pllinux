@@ -14,3 +14,6 @@ Compiled from source with static linking and some path and minor config changes 
 
 **Project**
 https://busybox.net
+
+**Links**
+bin/sh /bin/sh

@@ -19,3 +19,6 @@ ncurses current
 
 **Man**
 share/man/man1
+
+**Links**
+bin/bash /bin/bash
