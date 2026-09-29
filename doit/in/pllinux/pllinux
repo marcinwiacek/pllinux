@@ -625,19 +625,38 @@ EOF
 format_install2() {
   dialog --yesno "Really? This is LAST WARNING. $1 will be cleaned from previous data. THIS CANNOT BE REVERSED" 20 40
     if [ $? == 0 ]; then
+        cmd=$(dialog --stdout --backtitle "PLLinux\\network" --cancel-label "Back" \
+      --form "Pls provide params" 0 0 8 \
+      "Partition encryption (1) or no-encryption (0)" 1 1 "0" 1 50 20 0 \
+      "Install/copy all apps (1) or only system apps (0)" 2 1 "1" 2 50 20 0 )
+      if [ $? == 0 ]; then
+        linenr=1
+        while read -r line; do
+          case $linenr in
+          1) ENCRYPTION="$line" ;;
+          2) ALLAPPS="$line" ;;
+          esac
+          linenr=$(($linenr+1))
+        done <<< "$cmd"
+      else
+        return
+      fi
+
       clear
 
-      cryptsetup luksFormat $1
-      cryptsetup luksOpen $1 encryptedpartition
-      echo formatting
-      mkfs -V -t ext4 /dev/mapper/encryptedpartition
-      mkdir /mnt/install
-      echo mount
-      /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync /dev/mapper/encryptedpartition /mnt/install
-
-#      mkfs -V -t ext4 $1
-#      mkdir /mnt/install
-#      /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync $1 /mnt/install
+      if [ "$ENCRYPTION" = "1" ]; then
+        cryptsetup luksFormat $1
+        cryptsetup luksOpen $1 encryptedpartition
+        echo formatting
+        mkfs -V -t ext4 /dev/mapper/encryptedpartition
+        mkdir /mnt/install
+        echo mount
+        /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync /dev/mapper/encryptedpartition /mnt/install
+      else
+        mkfs -V -t ext4 $1
+        mkdir /mnt/install
+        /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync $1 /mnt/install
+      fi
 
       cd /mnt/install
 
@@ -645,8 +664,10 @@ format_install2() {
 
       /app/rsync/current/bin/rsync -a --info=progress2 /etc/ etc
 
-      echo "Copying /app. This will need some time (even 20-30 seconds or more)"
-      /app/rsync/current/bin/rsync -a --info=progress2 /app/ app
+      if [ "$ALLAPPS" = "1" ]; then
+        echo "Copying /app. This will need some time (even 20-30 seconds or more)"
+        /app/rsync/current/bin/rsync -a --info=progress2 /app/ app
+      fi
 
       for userentry in root user user2; do 
         case $userentry in
@@ -682,7 +703,9 @@ format_install2() {
       cd /
 
       /app/busybox/current/bin/umount -l /mnt/install
-      cryptsetup luksClose encryptedpartition
+      if [ "$ENCRYPTION" = "1" ]; then
+        cryptsetup luksClose encryptedpartition
+      fi
       rmdir /mnt/install
 
       UUID=$(/app/busybox/current/sbin/blkid | grep $1)
@@ -713,6 +736,11 @@ format_install2() {
 }
 
 format_install() {
+  if [ -d "/mnt/install" ]; then
+             dialog --backtitle "$PROMPT\\task command" \
+          --msgbox "Something wrong. /mnt/install already exists" 10 30
+    return
+  fi
   dialog --yesno "Do you want to format and use partition $1 for new installation? THIS CANNOT BE REVERSED" 20 40
   if [ $? == 0 ]; then
     format_install2 $1
