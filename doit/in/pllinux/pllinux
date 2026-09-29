@@ -3015,7 +3015,7 @@ EOF
 
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
        --default-item $mainmenunum \
-       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r), disk: $DISKAVAIL/$DISKSIZE free, RAM: $RAMFREE/$RAMTOTAL free)" 0 0 27 \
+       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r), disk: $DISKAVAIL/$DISKSIZE free, RAM: $RAMFREE/$RAMTOTAL free)" 0 0 28 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
@@ -3034,14 +3034,15 @@ EOF
        17 "Users (adduser, deluser, etc.)" \
        18 "User groups" \
        19 "App language (todo)                   - $LANG" \
-       20 "Locale for new installed/updated app  - all" \
-       21 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
-       22 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
-       23 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
-       24 "Timezone                              - $TIMEZONE" \
-       25 "Schedule main filesystem check on next reboot (/forcefsck, fsck.ext4)" \
-       26 "Install or clone PLLinux to other partition" \
-       27 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
+       20 "CD-ROM polling                        - off" \
+       21 "Locale for new installed/updated app  - all" \
+       22 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
+       23 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
+       24 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
+       25 "Timezone                              - $TIMEZONE" \
+       26 "Schedule main filesystem check on next reboot (/forcefsck, fsck.ext4)" \
+       27 "Install or clone PLLinux to other partition" \
+       28 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
@@ -3086,15 +3087,15 @@ EOF
     16) logs ;;
     17) set_users ;;
     18) groups ;;
-    21) NEW_KEYB="$KEYB"
+    22) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
-    22) network ;;
-    23) swap_file ;;
-    24) set_time_zone ;;
-    25) echo > /forcefsck ;;
-    26) install_to 1 ;;
-    27) uefi ;;
+    23) network ;;
+    24) swap_file ;;
+    25) set_time_zone ;;
+    26) echo > /forcefsck ;;
+    27) install_to 1 ;;
+    28) uefi ;;
     esac
   else
     break
