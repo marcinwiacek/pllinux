@@ -9,16 +9,16 @@
 
 PLLinux contains solution for this and many other things. The biggest key points:
 
-  1. simplicity and human face (it's prepared for normal users)
-  2. escaping from technology debt with compatibility with exsiting (Linux) apps
+  1. simplicity and human face (it's prepared for normal users, not technical geeks)
+  2. escaping from technology debt with compatibility with existing (Linux) apps
   3. taking care about minimal resources usage (no more duplicating the same files, saving unnecessary logs and sending everywhere telemetry)
   4. technical approach (no politics)
   5. easy and fast implementing new software
-  6. reliable results (whatever is setup or done, it should always give repeatable and clear reaction)
+  6. reliable results (whatever is setup or done, it should always give repeatable and clear reaction and shouldn't be changed without user action)
 
 In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should always do whatever user want and expect.
 
-Technology Preview already release shows, in what direction could go modern OS. This version contains many working elements and can give feeling, where existing "modern" systems seems to be obsolete (if you like analogies, you could compare it to the [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
+Technology Preview already shows, in what direction could go modern OS. This version contains many working elements and can give feeling, where existing "modern" systems seems to be obsolete (if you like analogies, you could compare it to the [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution
 was already visible, but not complete). 
 
@@ -217,9 +217,11 @@ In other words: world simply needs different solutions and staying in 1980 with 
 
 **Why not Rust or systemd or other project?**
 
-They will be used, when provide really added value. Starting and ending project info mainly with "written in Rust" words
-instead of advantages list is anti-advertisement (additionally we don't have complete Servo till today,
-Rust core-utils have many baby-age problems and systemd became big & fat & is staying far away from initial goals)
+They will be used, when provide really added value. Starting and ending project info with "written in Rust" words,
+covering everything with it and pushing it like AI sloop instead of real technical discussion is anti-advertisement
+and no-go for me (additionally we don't have complete Servo till today and Rust core-utils have many baby-age problems).
+
+Systemd has got advantages, but in the same time became big & fat & is staying far away from initial goals.
 
 **But systemd has got clear names for network interfaces**
 
@@ -283,7 +285,12 @@ Never say never.
 **It needs host system to build**
 
 Rome was not built in one day. Technical Preview was created for showing potential of the technology and next releases will achieve
-in one day full independence.
+in some day full independence.
+
+**It's much bigger than Puppy Linux, Tiny Core Linux and other small distributions**
+
+Goal for PLLinux is building desktop class system with all features. Technical Preview is bigger, but next versions have in goals
+removing unnecessary things - with app splitting you immediately see, which one is nice and clean and which one is full of politics or garbage.
 
 # Schedule and future
 

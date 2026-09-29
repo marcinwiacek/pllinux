@@ -627,15 +627,17 @@ format_install2() {
     if [ $? == 0 ]; then
       clear
 
-#      cryptsetup luksFormat $1
-#      cryptsetup luksOpen $1 encryptedpartition
-#      mkfs -V -t ext4 /dev/mapper/encryptedpartition
-#      mkdir /mnt/install
-#      /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync /dev/mapper/encryptedpartition /mnt/install
-
-      mkfs -V -t ext4 $1
+      cryptsetup luksFormat $1
+      cryptsetup luksOpen $1 encryptedpartition
+      echo formatting
+      mkfs -V -t ext4 /dev/mapper/encryptedpartition
       mkdir /mnt/install
-      /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync $1 /mnt/install
+      echo mount
+      /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync /dev/mapper/encryptedpartition /mnt/install
+
+#      mkfs -V -t ext4 $1
+#      mkdir /mnt/install
+#      /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync $1 /mnt/install
 
       cd /mnt/install
 
@@ -654,14 +656,14 @@ format_install2() {
         esac
 
         for direntry in home/$userentry home/$userentry/app home/$userentry/files; do
-          sudo mkdir $direntry
-          sudo chown $GRP $direntry
-          sudo chgrp $GRP $direntry
+          mkdir $direntry
+          chown $GRP $direntry
+          chgrp $GRP $direntry
         done
 
-        sudo chmod u+rwx home/$userentry
-        sudo chmod g-rwx home/$userentry
-        sudo chmod o-rwx home/$userentry
+        chmod u+rwx home/$userentry
+        chmod g-rwx home/$userentry
+        chmod o-rwx home/$userentry
       done
 
       if [ ! -d "etc." ]; then ln -s etc etc.; fi
@@ -677,8 +679,10 @@ format_install2() {
       chmod a+x ld-linux-x86-64.so.2
       cd ..
 
-      /app/busybox/current/bin/umount /mnt/install
-#      cryptsetup luksClose encryptedpartition
+      cd /
+
+      /app/busybox/current/bin/umount -l /mnt/install
+      cryptsetup luksClose encryptedpartition
       rmdir /mnt/install
 
       UUID=$(/app/busybox/current/sbin/blkid | grep $1)
@@ -703,6 +707,7 @@ format_install2() {
       chmod a+x /tmp/42_custom
 
       echo System cloned into $1 partition. Example GRUB file for starting it saved in the /tmp/42_custom file.
+      echo Press any key to continue.
       read x
     fi
 }
