@@ -28,6 +28,7 @@ mkdir /other/app/mc 2> /dev/null
     --bind-try /mnt mnt \
     --bind-try /sys sys \
     --bind-try /log log \
+    --bind-try /usr usr \
     --bind-try /other other \
     --bind-try /etc. etc \
     --ro-bind $DIR/bin bin \

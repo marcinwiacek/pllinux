@@ -628,7 +628,7 @@ format_install2() {
       clear
 
 #      cryptsetup luksFormat $1
-#      cryptSetup luksOpen $1 encryptedpartition
+#      cryptsetup luksOpen $1 encryptedpartition
 #      mkfs -V -t ext4 /dev/mapper/encryptedpartition
 #      mkdir /mnt/install
 #      /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync /dev/mapper/encryptedpartition /mnt/install

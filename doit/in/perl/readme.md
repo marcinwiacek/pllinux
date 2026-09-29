@@ -2,7 +2,7 @@
 GPL1 or artistic license?
 
 **PATH**
-usr/local/bin
+bin
 
 **Deps**
 libxcrypt current
