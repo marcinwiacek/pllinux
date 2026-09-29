@@ -39,8 +39,8 @@ fi
 #/app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /log/tmp
 echo lz4 > /sys/block/zram0/comp_algorithm
 echo 1G > /sys/block/zram0/disksize
-/app/e2fsprogs/current/sbin/mkfs.ext4 /dev/zram0
-/app/util-linux/current/bin/mount /dev/zram0 /log/tmp -o rw,noatime,nosuid,noexec
+/app/e2fsprogs/current/sbin/mkfs.ext4 /dev/zram0 > /dev/null
+/app/util-linux/current/bin/mount /dev/zram0 /log/tmp -o rw,noatime,nosuid,noexec > /dev/null
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl

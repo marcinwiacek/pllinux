@@ -14,9 +14,11 @@ if [ "$ACTION" == "remove" ]; then
 elif [ "$ACTION" == "add" ] || [ "$ACTION" == "change" ]; then
   DEVICE_INFO=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/grep /dev/$MDEV)
   if [ "$DEVICE_INFO" = "" ]; then
-    # this happens with CDROM /dev/sr0
-    /app/util-linux/current/bin/umount -l "/mnt/$MDEV" || true
-    /app/busybox/current/bin/rmdir "/mnt/$MDEV" || true
+    if [ -d "/mnt/$MDEV" ]; then
+      # this happens with CDROM /dev/sr0
+      /app/util-linux/current/bin/umount -l "/mnt/$MDEV" || true
+      /app/busybox/current/bin/rmdir "/mnt/$MDEV" || true
+    fi
   else
     for PARAM in $DEVICE_INFO
     do
