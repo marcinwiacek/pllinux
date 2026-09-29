@@ -44,12 +44,12 @@ Let's summarize some current points:
 7. saving RAM memory - tmpfs was replaced with zram at least in one place and it requires initially more, but can give profits with bigger files ([some info](https://bbs.archlinux.org/viewtopic.php?id=243939))
 8. compiling software - gcc doesn't work yet, Java and many other were not tried
 
-Basic system is around 430MB big and I'm thinking about some modern tools, for example found some possible inspirations here: 
+Basic system is around 430MB big and I'm thinking about some modern tools, for example found some possible inspirations here:
 
-[5 Rust-Written CLI Tools That Replace Legacy Unix Commands on Linux](https://www.fosslinux.com/162085/rust-cli-tools-replace-legacy-unix-commands.htm). 
+[5 Rust-Written CLI Tools That Replace Legacy Unix Commands on Linux](https://www.fosslinux.com/162085/rust-cli-tools-replace-legacy-unix-commands.htm).
 
 And no - Rust itself is not important, important is, what functionality, stability, etc. can be provided.
 
-Next days will be obviously connected with some next design decisions - should I first implement encryption, go into compiling software or something else?
+Next days will be obviously connected with some next design decisions - should I first implement encryption, go into compiling software or something else? Or maybe try to achieve system size in small tiny Linux distributions?
 
 [Prev page](file_yp_milestone10.md) [Next page](file_zz_milestone.md)
