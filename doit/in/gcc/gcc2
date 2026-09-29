@@ -1,0 +1,48 @@
+#!/app/busybox/current/bin/sh
+
+DIR="/" # path with / in the end. In real system /
+if [ -d "/mnt/x" ]; then
+  DIR="/mnt/x/"
+fi
+
+IFSORIG=$IFS
+
+PARAMS=""
+
+APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
+for APP_NAME in $APP_LIST; do
+  if [ -e "${DIR}app/${APP_NAME}/current/readme.md" ]; then
+    sectionInclude=0
+    while read -r line; do
+      if [ "$line" = "**Include**" ]; then
+        sectionInclude=1
+      elif [ "$line" = "" ]; then
+        sectionInclude=0;
+      elif [ "$sectionInclude" = 1 ]; then
+        IFS=":"
+        for folder in $line; do
+          if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
+            PARAMS=" $PARAMS -I /app/${APP_NAME}/current/$folder"
+          fi
+        done
+      fi
+    done < ${DIR}app/${APP_NAME}/current/readme.md
+  fi
+  if [ -d "${DIR}app/${APP_NAME}/current/lib" ]; then
+            PARAMS=" $PARAMS --library-directory=/app/${APP_NAME}/current/lib"
+  fi
+done
+
+echo $PARAMS
+
+gcc $PARAMS $@
+
+#--library-directory=dir
+
+#/app/bwrap/current/bin/bwrap \
+#    --unshare-all \
+#    --share-net \
+#    --tmpfs tmp \
+#    --bind /app app \
+#    --dev dev \
+#    /app/busybox/current/bin/sh /app/pllinux/current/scripts/app.sh $@

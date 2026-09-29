@@ -39,10 +39,10 @@ Let's summarize some current points:
 4. man - OK (in the end)
 5. logging - some issues with logger & non-root users, etc. (should we change rsyslog with something else?)
 6. automatic mounting devices - currently mdev (works quite ok with USB and CD)
-7. network - basic support for eth OK (with firewall)
+7. network - very basic support for eth OK (with firewall)
 8. tasks - cron
 7. saving RAM memory - tmpfs was replaced with zram at least in one place and it requires initially more, but can give profits with bigger files ([some info](https://bbs.archlinux.org/viewtopic.php?id=243939))
-8. compiling software - gcc doesn't work yet, Java and many other were not tried
+8. compiling software - gcc doesn't fully work yet (it starts, just need to have correct dirs), Java and many other were not tried, perl seems to be quite OK
 
 Basic system is around 430MB big and I'm thinking about some modern tools, for example found some possible inspirations here:
 
