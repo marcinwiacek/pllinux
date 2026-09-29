@@ -1272,7 +1272,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "brotl
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "json-c" ]; then
-  #work in progress
   ver="0.19-20260627";
   if should_make json-c $ver; then
     download_unpack_source https://github.com/json-c/json-c/archive/refs/tags/json-c-$ver.tar.gz json-c json-c-json-c-$ver 1
@@ -1296,19 +1295,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libss
     make
     make install
     set_current_app_clean_strip_cd libssh $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "eudev" ]; then
-  ver="3.2.15";
-  if should_make eudev $ver; then
-    download_unpack_source https://github.com/eudev-project/eudev/archive/refs/tags/v$ver.tar.gz eudev eudev-$ver 1
-    install_host_deps "gperf"
-    ./autogen.sh
-    ./configure --prefix=$output/app/eudev/$prefix$ver
-    make -j$cpu_num
-    create_app eudev $prefix$ver
-    make install
-    set_current_app_clean_strip_cd eudev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "usbutils" ]; then
@@ -1420,4 +1406,17 @@ fi
 #  ./configure --prefix=$(pwd)/../../../app/binutils/$prefix$ver
 #  make install
 #  cd ../../..
+#fi
+#if [ "$package" == "fs2" ] || [ "$package" == "eudev" ]; then
+#  ver="3.2.15";
+#  if should_make eudev $ver; then
+#    download_unpack_source https://github.com/eudev-project/eudev/archive/refs/tags/v$ver.tar.gz eudev eudev-$ver 1
+#    install_host_deps "gperf"
+#    ./autogen.sh
+#    ./configure --prefix=$output/app/eudev/$prefix$ver
+#    make -j$cpu_num
+#    create_app eudev $prefix$ver
+#    make install
+#    set_current_app_clean_strip_cd eudev $prefix$ver 1
+#  fi
 #fi
