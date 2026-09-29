@@ -1,7 +1,7 @@
 #!/app/busybox/current/bin/sh
 # Part of PLLINUX. Creating system cfg from conf file or asking user and creating conf file.
 
-VER="21 Sep 2026"
+VER="29 Sep 2026"
 
 DIR="/" # path with / in the end. In real system /
 if [ -d "/mnt/x" ]; then
