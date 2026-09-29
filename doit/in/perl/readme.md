@@ -6,6 +6,7 @@ bin
 
 **Deps**
 libxcrypt current
+glibc current
 
 **Description**
 Programming language

@@ -1193,9 +1193,13 @@ if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
   ver="5.42.2";
   if should_make perl $ver; then
     download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 1
-    ./Configure -d -Dprefix=/app/perl/$prefix$ver
+    ./Configure -d -Dprefix=/app/perl/current
     make -j$cpu_num
     create_app perl $prefix$ver
+    rm /app/perl/current
+    cd /app/perl
+    ln -s /app/perl/$prefix$ver current
+    cd $out/perl/perl-$ver
     ./perl -Ilib -I. installperl --destdir=/
     remove_duplicates_cd /app/perl/$prefix$ver/bin
     set_current_app_clean_strip_cd perl $prefix$ver 1
