@@ -2972,7 +2972,7 @@ while true; do
 
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
        --default-item $mainmenunum \
-       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r))" 0 0 26 \
+       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r))" 0 0 27 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
@@ -2996,8 +2996,9 @@ while true; do
        22 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
        23 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
        24 "Timezone                              - $TIMEZONE" \
-       25 "Install or clone PLLinux to other partition" \
-       26 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
+       25 "Schedule main filesystem check on next reboot" \
+       26 "Install or clone PLLinux to other partition" \
+       27 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
@@ -3048,8 +3049,8 @@ while true; do
     22) network ;;
     23) swap_file ;;
     24) set_time_zone ;;
-    25) install_to 1 ;;
-    26) uefi ;;
+    26) install_to 1 ;;
+    27) uefi ;;
     esac
   else
     break
