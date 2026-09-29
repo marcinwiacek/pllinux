@@ -3033,7 +3033,7 @@ EOF
        22 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
        23 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
        24 "Timezone                              - $TIMEZONE" \
-       25 "Schedule main filesystem check on next reboot" \
+       25 "Schedule main filesystem check on next reboot (/forcefsck, fsck.ext4)" \
        26 "Install or clone PLLinux to other partition" \
        27 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
   if [ $? == 0 ]; then
@@ -3086,6 +3086,7 @@ EOF
     22) network ;;
     23) swap_file ;;
     24) set_time_zone ;;
+    25) echo > /forcefsck ;;
     26) install_to 1 ;;
     27) uefi ;;
     esac

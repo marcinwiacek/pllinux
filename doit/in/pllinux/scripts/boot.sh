@@ -22,7 +22,12 @@ do
 done
 if [ "$ROOT_DEVICE_ID" != "" ] && [ "$ROOT_DEVICE_ID" != "rsync" ]; then
   ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | /app/busybox/current/bin/grep ${ROOT_DEVICE_ID#UUID=})
-  /app/e2fsprogs/current/sbin/fsck.ext4 ${ROOT_DEVICE_NAME%%:*}
+  if [ -f "/forcefsck" ]; then
+    /app/e2fsprogs/current/sbin/fsck.ext4 ${ROOT_DEVICE_NAME%%:*} -f
+    rm /forcefsck
+  else
+    /app/e2fsprogs/current/sbin/fsck.ext4 ${ROOT_DEVICE_NAME%%:*}
+  fi
   /app/busybox/current/bin/mount -o remount $ROOT_DEVICE_ID /
 fi
 
