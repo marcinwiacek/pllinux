@@ -649,12 +649,29 @@ format_install2() {
       clear
 
       if [ "$ENCRYPTION" = "1" ]; then
-        cryptsetup luksFormat $1
-        cryptsetup luksOpen $1 encryptedpartition
-        echo formatting
+        while true; do
+          cryptsetup luksFormat $1
+          if [ $? != 0 ]; then
+            echo error
+            continue
+          fi
+          break
+        done
+        while true; do
+          cryptsetup luksOpen $1 encryptedpartition
+          if [ $? != 0 ]; then
+            echo error
+            continue
+          fi
+          break
+        done
         mkfs -V -t ext4 /dev/mapper/encryptedpartition
+          if [ $? != 0 ]; then
+            echo error
+            echo Press any key to continue.
+            read x
+          fi
         mkdir /mnt/install
-        echo mount
         /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync /dev/mapper/encryptedpartition /mnt/install
       else
         mkfs -V -t ext4 $1
@@ -2502,6 +2519,8 @@ new_pllinux_entry() {
 
   MOUNTS=$(mount | grep "on / ") # contains name of current partition
 
+  disks2=$(blkid | grep crypto_LUKS)
+
   list=""
   listnr=1
   while read -r line; do
@@ -2524,13 +2543,23 @@ EOF
               ${DEV_NAME}p${PART_NUMER}*) list="$list(current)"
               esac
               listnr=$(($listnr+1))
+            elif [ "$PART_SYSTEM" = "" ]; then
+              case $disks2 in
+                *${DEV_NAME}p${PART_NUMER}*)
+                  list="$list ${DEV_NAME}p${PART_NUMER} ${PART_SIZE}"
+                  case $MOUNTS in
+                  ${DEV_NAME}p${PART_NUMER}*) list="$list(current)"
+                  esac
+                  listnr=$(($listnr+1))
+                  esac
             fi
           esac
        fi
     esac
   done <<< "$disks"
+
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
-       --menu "EFI partition $EFIPART, list of ext4 partitions below" 0 0 24 \
+       --menu "EFI partition $EFIPART, list of ext4 or luks partitions below" 0 0 24 \
        $list)
   if [ $? != 0 ]; then
     return
@@ -3099,7 +3128,11 @@ EOF
     17) logs ;;
     18) set_users ;;
     19) groups ;;
-    23) echo > /forcefsck ;;
+    23)   if [ -f "/forcefsck" ]; then
+             rm /forcefsck
+          else
+            echo > /forcefsck
+          fi ;;
     24) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
