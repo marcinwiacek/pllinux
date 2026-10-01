@@ -3015,7 +3015,7 @@ EOF
 
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
        --default-item $mainmenunum \
-       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r), disk: $DISKAVAIL/$DISKSIZE free, RAM: $RAMFREE/$RAMTOTAL free)" 0 0 28 \
+       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r), disk: $DISKAVAIL/$DISKSIZE free, RAM: $RAMFREE/$RAMTOTAL free)" 0 0 29 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
@@ -3023,26 +3023,27 @@ EOF
        5 "Background services (dinit)" \
        6 "Devices (info, power options, partitioning, etc.)" \
        7 "Disk usage" \
-       8 "Network firewall (nftables)" \
-       9 "Task manager (top, q to quit)" \
-       10 "Time" \
-       11 "Kernel modules (insmod, rmmod, modinfo)" \
-       12 "Kernel params (sysctl)" \
-       14 "Kernel logs (dmesg, can be saved to disk with syslogd, q to quit)" \
-       15 "Partition mounting in /mnt" \
-       16 "System logs saved in files (syslogd)" \
-       17 "Users (adduser, deluser, etc.)" \
-       18 "User groups" \
-       19 "App language (todo)                   - $LANG" \
-       20 "CD-ROM polling                        - off" \
-       21 "Locale for new installed/updated app  - all" \
-       22 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
-       23 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
-       24 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
-       25 "Timezone                              - $TIMEZONE" \
-       26 "Schedule main filesystem check on next reboot (/forcefsck, fsck.ext4)" \
-       27 "Install or clone PLLinux to other partition" \
-       28 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
+       8 "File interpreters (associations) and shebang support" \
+       9 "Network firewall (nftables)" \
+       10 "Task manager (top, q to quit)" \
+       11 "Time" \
+       12 "Kernel modules (insmod, rmmod, modinfo)" \
+       14 "Kernel params (sysctl)" \
+       15 "Kernel logs (dmesg, can be saved to disk with syslogd, q to quit)" \
+       16 "Partition mounting in /mnt" \
+       17 "System logs saved in files (syslogd)" \
+       18 "Users (adduser, deluser, etc.)" \
+       19 "User groups" \
+       20 "App language (todo)                   - $LANG" \
+       21 "CD-ROM polling                        - off" \
+       22 "Locale for new installed/updated app  - all" \
+       23 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
+       24 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
+       25 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
+       26 "Timezone                              - $TIMEZONE" \
+       27 "Schedule main filesystem check on next reboot (/forcefsck, fsck.ext4)" \
+       28 "Install or clone PLLinux to other partition" \
+       29 "Boot (UEFI menu & FAT32 partition, boot manager, encryption password, etc.)" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
@@ -3080,22 +3081,22 @@ EOF
        HOMEINFO=${HOMEINFO//"total"}
 
        dialog --cr-wrap --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(df -h && echo && echo $HOMEINFO)" 100 150 ;;
-    9) top ;;
-    11) kernel_modules ;;
-    12) kernel_param ;;
-    14) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
-    16) logs ;;
-    17) set_users ;;
-    18) groups ;;
-    22) NEW_KEYB="$KEYB"
+    10) top ;;
+    12) kernel_modules ;;
+    14) kernel_param ;;
+    15) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
+    17) logs ;;
+    18) set_users ;;
+    19) groups ;;
+    23) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
-    23) network ;;
-    24) swap_file ;;
-    25) set_time_zone ;;
-    26) echo > /forcefsck ;;
-    27) install_to 1 ;;
-    28) uefi ;;
+    24) network ;;
+    25) swap_file ;;
+    26) set_time_zone ;;
+    27) echo > /forcefsck ;;
+    28) install_to 1 ;;
+    29) uefi ;;
     esac
   else
     break
