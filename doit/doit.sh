@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 29 Sep 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="libdrm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="kernel"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -223,10 +223,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
   cd $output
   if [ ! -d "etc." ]; then ln -s etc etc.; fi
   if [ ! -d "other" ]; then ln -s home/root other; fi
-  cd bin
-  ln -s /app/busybox/current/bin/sh sh
-  ln -s /app/bash/current/bin/bash bash
-  cd ..
+#  cd bin
+#  ln -s /app/busybox/current/bin/sh sh
+#  ln -s /app/bash/current/bin/bash bash
+#  cd ..
   cd lib64
   ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
   chmod a+x ld-linux-x86-64.so.2
@@ -268,7 +268,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busyb
     make CONFIG_PREFIX=$output/app/busybox/$prefix$ver install
     cp $curdir/in/busybox/* $output/app/busybox/$prefix$ver
     rm $output/app/busybox/$prefix$ver/linuxrc
-    set_current_app_clean_strip_cd busybox $prefix$ver 1
+#    set_current_app_clean_strip_cd busybox $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftables" ]; then
@@ -446,7 +446,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mc" ]
     cd $out/mc/mc-$ver
     make install
     cd $output/app/mc/$prefix$ver/bin
-    ln -s /app/bash/current/bin/bash bash
+#    ln -s /app/bash/current/bin/bash bash
     ln -s /app/busybox/current/bin/sh sh
 #    cd $output/app/mc/$prefix$ver
 #    mkdir usr

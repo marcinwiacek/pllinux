@@ -690,10 +690,10 @@ format_install2() {
       if [ ! -d "etc." ]; then ln -s etc etc.; fi
       if [ ! -d "other" ]; then ln -s home/root other; fi
 
-      cd bin
-      ln -s /sh sh
-      ln -s /app/bash/current/bin/bash bash
-      cd ..
+#      cd bin
+#      ln -s /sh sh
+#      ln -s /app/bash/current/bin/bash bash
+#      cd ..
 
       cd lib64
       ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2

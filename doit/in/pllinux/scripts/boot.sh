@@ -6,6 +6,7 @@ if [ ! -d "/log" ]; then
   return
 fi
 
+
 export PATH=/app/busybox/current/bin:/app/busybox/current/sbin
 
 #export LD_PLLINUX_DEBUG=1
@@ -31,6 +32,13 @@ if [ "$ROOT_DEVICE_ID" != "" ] && [ "$ROOT_DEVICE_ID" != "rsync" ]; then
     /app/busybox/current/bin/mount -o remount $ROOT_DEVICE_ID /
   fi
 fi
+
+mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
+cd /proc/sys/fs/binfmt_misc
+echo ':bash:M::#!/bin/bash::/app/bash/current/bin/bash:' > register
+echo ':sh:M::#!/bin/sh::/app/busybox/current/bin/sh:' > register
+echo ':perl1:M::#!/usr/bin/perl::/app/perl/current/bin/perl:' > register
+echo ':perl2:M::#!/usr/local/bin/perl::/app/perl/current/bin/perl:' > register
 
 if [ ! -x /app/glibc/current/lib/ld-linux-x86-64.so.2 ]; then
   echo "/app/glibc/current/lib/ld-linux-x86-64.so.2 not executable. Fixing"

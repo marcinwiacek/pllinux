@@ -52,4 +52,17 @@ And no - Rust itself is not important, important is, what functionality, stabili
 
 Next days will be obviously connected with some next design decisions - should I first implement encryption, go into compiling software or something else? Or maybe try to achieve system size in small tiny Linux distributions?
 
+# Shebang
+
+In many (Unix) Linux systems scripts start with #!path_to_the_script_interpreter and this is interpreted by kernel and called shebang. PLLinux design should
+be clean and filesystem shouldn't have links from typical known binary locations to packages inside /app. The solution with it is called
+binfmt_misc - kernel can recognize concrete byte sequences or files extensions and run interpreter.
+
+In first version setup is done in pllinux package in boot.sh script - we mount /proc/sys/fm/binfmt_sys and later for example say:
+
+when file starts wih #!/bin/sh, then run /app/busybox/current/bin/sh
+
+Feature will be in the future configurable with readme.md files from packages and the pllinux script - after disabling "standard" shebang features
+it will be possible to control precisely, which binary interpreters could be started. It's maybe not perfect, but quite OK.
+
 [Prev page](file_yp_milestone10.md) [Next page](file_zz_milestone.md)

@@ -1,7 +1,7 @@
 [Prev page](file_yr_milestone8.md) [Next page](file_yp_milestone10.md)
 
 # Milestone 9
-# Correct man
+# Man done correctly
 
 It's time to make PLLinux more nice looking. First with man - solution was using more advanced less command
 than available from busybox.
