@@ -16,5 +16,5 @@ Core part of PLLINUX. GPT (GUID Partition Table) disk partitioning tools.
 **Project**
 https://sourceforge.net/projects/gptfdisk/
 
-**man**
+**Man**
 man
