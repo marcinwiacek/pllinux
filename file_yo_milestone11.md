@@ -63,4 +63,9 @@ In first version setup is done in the **pllinux** package in the [boot.sh script
 Feature will be later configurable with **readme.md** files from packages and the **pllinux** script - after disabling "standard" shebang feature
 it will be possible to control precisely, which binary interpreters could be started. It's maybe not perfect, but quite OK.
 
+But what about shebang with params? (for example many manuals are proposing first line **#!/usr/bin/env command**)
+
+In this concrete example you need to redirect **#!/usr/bin/env** to script, which will read first, will do binary path replacement & call it with params
+from shebang and filename. It's maybe not perfect but works quite good too.
+
 [Prev page](file_yp_milestone10.md) [Next page](file_zz_milestone.md)
