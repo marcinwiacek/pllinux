@@ -268,7 +268,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busyb
     make CONFIG_PREFIX=$output/app/busybox/$prefix$ver install
     cp $curdir/in/busybox/* $output/app/busybox/$prefix$ver
     rm $output/app/busybox/$prefix$ver/linuxrc
-#    set_current_app_clean_strip_cd busybox $prefix$ver 1
+    set_current_app_clean_strip_cd busybox $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftables" ]; then
