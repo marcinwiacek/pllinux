@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 29 Sep 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="grub"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libdrm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1208,6 +1208,43 @@ if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
     set_current_app_clean_strip_cd perl $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
+  ver="3.4.16";
+  if should_make sdl $ver; then
+    install_host_deps "cmake ninja-build libasound2-dev libpulse-dev \
+    libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
+    libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
+    libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+    libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
+    download_unpack_source https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz sdl SDL3-$ver 1
+    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+       -DSDL_WAYLAND=OFF -DSDL_X11=OFF -DSDL_UNIX_CONSOLE_BUILD=ON \
+       -DSDL_KMSDRM=ON \
+       -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON
+     # -DSDL_RENDER_VULKAN=OFF \
+#-DSDL_GBM=ON -DSDL_EGL=ON \
+    cmake --build build
+    create_app sdl $prefix$ver
+    cmake --install build --prefix $output/app/sdl/$prefix$ver
+    set_current_app_clean_strip_cd sdl $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libdrm" ]; then
+  ver="2.4.134";
+  if should_make libdrm $ver; then
+    download_unpack_source https://dri.freedesktop.org/libdrm/libdrm-$ver.tar.xz libdrm libdrm-$ver 1
+    meson setup builddir/ --prefix=/app/libdrm/$prefix$ver
+    create_app libdrm $prefix$ver
+    ninja -C builddir/ install
+
+#    make -j$cpu_num
+#    create_app libdrm $prefix$ver
+#    make install PREFIX=
+#    mv /app/efivar/$prefix$ver/lib64 /app/efivar/$prefix$ver/lib
+#    set_current_app_clean_strip_cd efivar $prefix$ver 1
+  fi
+fi
+
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efivar" ]; then
   ver="39";
   if should_make efivar $ver; then
