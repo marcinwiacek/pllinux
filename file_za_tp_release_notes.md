@@ -36,7 +36,7 @@ busybox has got known issues or limits
 3. [bwrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation layers in various situations
 4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
 
-We avoid changing existing software (two exceptions: [dynamic loader in "libc"](file_yt_milestone6.md)
+We avoid changing existing software (two exceptions: [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md)
 and some permission details in "bwrap") and (excluding permissions and other directories names) system in many cases can run without any problems unmodified Linux binaries. This simply works... just after giving list of dependencies in readme.md manifest files described further (this is totally different
 approach from NixOS, where binaries normally need to be patched)
 
