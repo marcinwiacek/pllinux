@@ -24,7 +24,7 @@ PLLINUX during development and usage is trying to fight with problem of high usa
   1. such directories like /mnt or /tmp are always maintaned in RAM
   2. compiling smaller software with [doit.sh](doit/doit.sh) script can be done and is done in RAM
   3. downloading files with [doit.sh](doit/doit.sh) is done in /tmp (RAM) and they're copied to download AFTER full download
-  4. [app package manager](doit/in/pllinux/helper/app.sh) is downloading and unpacking to the /tmp (RAM)
+  4. [app package manager](doit/in/pllinux/scripts/app.sh) is downloading and unpacking to the /tmp (RAM)
   5. packages are or will be cleaned from useless content (currently it includes for example eliminating duplicats and stripping binaries,
 in plan I have adding option for installing selected locales)
 
@@ -69,7 +69,7 @@ and it didn't work. The solution was changing font - it was found, that it's hig
 
 Initially simple shell script, which makes two things:
 
-1. gives series of questions and is creating [system config file /etc/pllinux.cfg](doit/in/etc/pllinux.cfg)
+1. gives series of questions and is creating [system config file /etc/pllinux.cfg](doit/in/pllinux.etc/pllinux.conf)
 2. takes system config file and makes updates based on it
 
 This design helps with preparing automated installations in the future. [New script is named nomen omen pllinux](doit/in/pllinux/pllinux) (which seems to be very logical especially that [script managing /app is called app.sh and called from app command](doit/in/pllinux/helper/app.sh))
