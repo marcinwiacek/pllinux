@@ -2519,7 +2519,7 @@ new_pllinux_entry() {
 
   MOUNTS=$(mount | grep "on / ") # contains name of current partition
 
-  disks2=$(blkid | grep crypto_LUKS)
+  blkid_disks=$(blkid)
 
   list=""
   listnr=1
@@ -2537,29 +2537,37 @@ EOF
            case $DEV_NAME in
            /dev/zram*) ;;
            *)
-            if [ "$PART_SYSTEM" = "ext4" ]; then
-              list="$list ${DEV_NAME}p${PART_NUMER} ${PART_SIZE}"
-              case $MOUNTS in
-              ${DEV_NAME}p${PART_NUMER}*) list="$list(current)"
-              esac
-              listnr=$(($listnr+1))
-            elif [ "$PART_SYSTEM" = "" ]; then
-              case $disks2 in
+            while read -r line2; do
+              case $line2 in
                 *${DEV_NAME}p${PART_NUMER}*)
-                  list="$list ${DEV_NAME}p${PART_NUMER} ${PART_SIZE}"
-                  case $MOUNTS in
-                  ${DEV_NAME}p${PART_NUMER}*) list="$list(current)"
+                  system=""
+                  case $line2 in
+                    *crypto_LUKS*) system="(luks)" ;;
+                    *) if [ "$PART_SYSTEM" = "ext4" ]; then system="(ext4)"; fi
                   esac
-                  listnr=$(($listnr+1))
-                  esac
-            fi
+                  if [ "$system" != "" ]; then
+                    list="$list ${DEV_NAME}p${PART_NUMER} ${PART_SIZE}$system"
+                    case $MOUNTS in
+                      ${DEV_NAME}p${PART_NUMER}*) list="$list(current)"
+                    esac
+                    IFS=" "
+                    for PARAM in $line2; do
+                      case $PARAM in
+                        *LABEL=*)
+                           list="$list\($PARAM\)"
+                      esac
+                    done
+                    IFS=$IFSORIG
+                  fi
+              esac
+            done <<< "$blkid_disks"
           esac
        fi
     esac
   done <<< "$disks"
 
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
-       --menu "EFI partition $EFIPART, list of ext4 or luks partitions below" 0 0 24 \
+       --menu "EFI partition $EFIPART, list of Linux partitions below" 0 0 24 \
        $list)
   if [ $? != 0 ]; then
     return
@@ -2629,6 +2637,28 @@ EOF
     umount $ROOTBOOT
     rm $ROOTBOOT
   fi
+  case $MOUNTS in
+    ${cmd}*) ROOTPART="" ;; # don't need to mount current partition
+    *) ROOTPART="/tmp/linux"
+       mkdir $ROOTPART
+      case $BLKID in
+        *crypto_LUKS*)
+           clear
+           while true; do
+              cryptsetup luksOpen $cmd encryptedpartition
+              if [ $? != 0 ]; then
+                echo error
+                continue
+              fi
+              break
+           done
+           /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync /dev/mapper/encryptedpartition $ROOTPART
+           ;;
+         *) 
+                    /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync $cmd $ROOTPART
+      esac
+  esac
+
   mkdir $ROOTBOOT
   mount -t vfat $EFIPART $ROOTBOOT
 
@@ -2644,7 +2674,7 @@ EOF
 
   cp ${DIR}etc/grub.conf ${DIR}etc/grub.conf-
 
-  ${DIR}app/busybox/current/bin/cat <<EOF > ${DIR}etc/grub.conf
+  ${DIR}app/busybox/current/bin/cat <<EOF > ${ROOTPART}/etc/grub.conf
 #Recreated by pllinux script
 set default="0"
 set timeout=30
@@ -2679,6 +2709,17 @@ EOF
 
   /app/grub/current/bin/grub-mkimage -O x86_64-efi -c /tmp/grub.cfg -o $ROOTBOOT/EFI/$NEW_NAME/grubx64.efi -C xz -p /boot/efi all_video boot cat chain configfile echo efifwsetup efinet ext2 fat font gettext gfxmenu gfxterm gfxterm_background gzio halt help hfsplus jpeg keystatus loadenv loopback linux ls lsefi lsefimmap lsefisystab lssal memdisk minicmd normal ntfs part_msdos part_gpt password_pbkdf2 png probe reboot regexp search search_fs_uuid search_fs_file search_label sleep smbios test true video xfs zfs zfscrypt zfsinfo \
      cryptodisk
+
+  case $MOUNTS in
+    ${cmd}*) ;; # don't need to mount current partition
+    *) 
+      case $BLKID in
+        *crypto_LUKS*)
+            cryptsetup luksClose encryptedpartition ;;
+      esac
+      umount $ROOTPART
+      rm -r $ROOTPART
+  esac
 
   umount $ROOTBOOT
   rm -r $ROOTBOOT
