@@ -10,3 +10,4 @@ glibc current
 **Project**
 
 **Man**
+share/man/man3:share/man/man7

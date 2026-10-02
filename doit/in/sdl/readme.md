@@ -4,6 +4,7 @@
 
 **Deps**
 glibc current
+libdrm current
 
 **Description**
 
