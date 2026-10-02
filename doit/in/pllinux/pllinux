@@ -2643,21 +2643,18 @@ EOF
        mkdir $ROOTPART
       case $BLKID in
         *crypto_LUKS*)
-           clear
-           while true; do
+            clear
+            while true; do
               cryptsetup luksOpen $cmd encryptedpartition
               if [ $? != 0 ]; then
                 echo error
                 continue
               fi
               break
-           done
-           /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync /dev/mapper/encryptedpartition $ROOTPART
-
-
-           ;;
-         *) 
-                    /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync $cmd $ROOTPART
+            done
+            /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync /dev/mapper/encryptedpartition $ROOTPART
+            ;;
+         *) /app/util-linux/current/bin/mount -t ext4 -o rw,noatime,nodiratime,sync $cmd $ROOTPART
       esac
   esac
 
@@ -2693,34 +2690,28 @@ insmod gettext
 loadfont unicode
 
 terminal_output gfxterm
-
 EOF
 
-      case $BLKID in
-        *crypto_LUKS*)
-  ${DIR}app/busybox/current/bin/cat <<EOF >> ${ROOTPART}/etc/grub.conf
-     insmod cryptodisk
-     insmod luks2
-
-insmod   gcry_crc
-insmod     gcry_md4
-insmod     gcry_md5
-insmod     gcry_rmd160
-insmod     gcry_sha1
-insmod     gcry_sha256
-insmod     gcry_sha512
-insmod     gcry_whirlpool
-
-
-
-insmod     gcry_blowfish
-insmod     gcry_camellia
-insmod    gcry_cast5
-insmod     gcry_des
-insmod   gcry_rijndael
-insmod     gcry_serpent
-insmod     gcry_twofish
-
+  case $BLKID in
+    *crypto_LUKS*)
+       ${DIR}app/busybox/current/bin/cat <<EOF >> ${ROOTPART}/etc/grub.conf
+insmod cryptodisk
+insmod luks2
+insmod gcry_crc
+insmod gcry_md4
+insmod gcry_md5
+insmod gcry_rmd160
+insmod gcry_sha1
+insmod gcry_sha256
+insmod gcry_sha512
+insmod gcry_whirlpool
+insmod gcry_blowfish
+insmod gcry_camellia
+insmod gcry_cast5
+insmod gcry_des
+insmod gcry_rijndael
+insmod gcry_serpent
+insmod gcry_twofish
 insmod pbkdf2
 
 menuentry '$NEW_NAME' --class ubuntu --class gnu-linux --class gnu --class os {
@@ -2729,52 +2720,41 @@ menuentry '$NEW_NAME' --class ubuntu --class gnu-linux --class gnu --class os {
     linux /app/kernel/current/bzImage root=UUID=$ROOT_DEVICE_ID rw
     initrd /app/initramfs/current/initramfs.gz
 }
-
 EOF
-;;
-*)
-  ${DIR}app/busybox/current/bin/cat <<EOF >> ${ROOTPART}/etc/grub.conf
+      ;;
+   *) ${DIR}app/busybox/current/bin/cat <<EOF >> ${ROOTPART}/etc/grub.conf
 menuentry '$NEW_NAME' --class ubuntu --class gnu-linux --class gnu --class os {
-
     echo 'Loading PLLINUX ...'
     linux /app/kernel/current/bzImage root=UUID=$ROOT_DEVICE_ID rw
     initrd /app/initramfs/current/initramfs.gz
 }
 EOF
-esac
+  esac
 
   ${DIR}app/busybox/current/bin/cat <<EOF >> ${ROOTPART}/etc/grub.conf
-
-
 fwsetup --is-supported
 if [ "$?" = 0 ]; then
     menuentry 'UEFI setup menu (normally available with Esc, F8, F10 or Del key)' {
        fwsetup
     }
 fi
-
 EOF
 
-      case $BLKID in
-        *crypto_LUKS*)
-        
+  case $BLKID in
+    *crypto_LUKS*)
           /app/grub/current/bin/grub-mkimage -O x86_64-efi -c /tmp/grub.cfg -o $ROOTBOOT/EFI/$NEW_NAME/grubx64.efi -C xz -p /boot/efi all_video boot cat chain \
-     configfile echo efifwsetup efinet ext2 fat font gettext gfxmenu gfxterm gfxterm_background gzio halt help hfsplus jpeg keystatus \
-     loadenv loopback linux ls lsefi lsefimmap lsefisystab lssal memdisk minicmd normal ntfs part_msdos part_gpt password_pbkdf2 \
-     png probe reboot regexp search search_fs_uuid search_fs_file search_label sleep \
-     smbios test true video xfs zfs zfscrypt zfsinfo \
-     cryptodisk luks2 gcry_crc     gcry_md4     gcry_md5     gcry_rmd160     gcry_sha1     gcry_sha256     gcry_sha512     gcry_whirlpool \
-     gcry_blowfish     gcry_camellia    gcry_cast5     gcry_des   gcry_rijndael     gcry_serpent     gcry_twofish pbkdf2 ;;
-
-        *)
-        
-          /app/grub/current/bin/grub-mkimage -O x86_64-efi -c /tmp/grub.cfg -o $ROOTBOOT/EFI/$NEW_NAME/grubx64.efi -C xz -p /boot/efi all_video boot cat chain \
-     configfile echo efifwsetup efinet ext2 fat font gettext gfxmenu gfxterm gfxterm_background gzio halt help hfsplus jpeg keystatus \
-     loadenv loopback linux ls lsefi lsefimmap lsefisystab lssal memdisk minicmd normal ntfs part_msdos part_gpt password_pbkdf2 \
-     png probe reboot regexp search search_fs_uuid search_fs_file search_label sleep \
-     smbios test true video xfs zfs zfscrypt zfsinfo
-
-      esac
+            configfile echo efifwsetup efinet ext2 fat font gettext gfxmenu gfxterm gfxterm_background gzio halt help hfsplus jpeg keystatus \
+            loadenv loopback linux ls lsefi lsefimmap lsefisystab lssal memdisk minicmd normal ntfs part_msdos part_gpt password_pbkdf2 \
+            png probe reboot regexp search search_fs_uuid search_fs_file search_label sleep \
+            smbios test true video xfs zfs zfscrypt zfsinfo \
+            cryptodisk luks2 gcry_crc     gcry_md4     gcry_md5     gcry_rmd160     gcry_sha1     gcry_sha256     gcry_sha512     gcry_whirlpool \
+            gcry_blowfish     gcry_camellia    gcry_cast5     gcry_des   gcry_rijndael     gcry_serpent     gcry_twofish pbkdf2 ;;
+     *)   /app/grub/current/bin/grub-mkimage -O x86_64-efi -c /tmp/grub.cfg -o $ROOTBOOT/EFI/$NEW_NAME/grubx64.efi -C xz -p /boot/efi all_video boot cat chain \
+            configfile echo efifwsetup efinet ext2 fat font gettext gfxmenu gfxterm gfxterm_background gzio halt help hfsplus jpeg keystatus \
+            loadenv loopback linux ls lsefi lsefimmap lsefisystab lssal memdisk minicmd normal ntfs part_msdos part_gpt password_pbkdf2 \
+            png probe reboot regexp search search_fs_uuid search_fs_file search_label sleep \
+            smbios test true video xfs zfs zfscrypt zfsinfo
+  esac
 
   case $MOUNTS in
     ${cmd}*) ;; # don't need to unmount current partition
@@ -2782,7 +2762,7 @@ EOF
       umount $ROOTPART
       case $BLKID in
         *crypto_LUKS*)
-            cryptsetup luksClose encryptedpartition ;;
+           cryptsetup luksClose encryptedpartition ;;
       esac
       rm -r $ROOTPART
   esac
@@ -2792,9 +2772,9 @@ EOF
 
   rm /tmp/grub.cfg
 
-    /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
+  /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
   efibootmgr -d $EFIPART -c -L "$NEW_NAME" -l /EFI/$NEW_NAME/shimx64.efi > /dev/null
-    umount /sys/firmware/efi/efivars
+  umount /sys/firmware/efi/efivars
 }
 
 uefi_entry() {
