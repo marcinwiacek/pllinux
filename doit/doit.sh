@@ -200,7 +200,7 @@ mkdir download || true
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
   for folderentry in app bin dev etc home mnt proc run sys tmp lib64 log log/tmp; do mkdir $output/$folderentry; done
 
-  rsync -a in/etc/ $output/etc
+  rsync -a in/pllinux.etc/ $output/etc
 
   for userentry in root user user2; do 
     case $userentry in
@@ -891,7 +891,7 @@ fi
 if [ "$package" == "iso" ]; then
   mkdir $output/boot
   mkdir $output/boot/grub
-  cp $curdir/in/iso/* $output/boot/grub
+  cp $curdir/in/pllinux.iso/* $output/boot/grub
   sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
   rm -r $output/boot
 fi
