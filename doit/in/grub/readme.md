@@ -9,7 +9,6 @@ lvm2 current
 libselinux current
 pcre2 current
 gcclib current
-grub-dejavu-fonts current
 
 **Description**
 
