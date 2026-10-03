@@ -2865,7 +2865,8 @@ EOF
        2 "Move down in UEFI boot menu" \
        3 "One time boot into it (with next reset)" \
        4 "Recreate with new values" \
-       5 "Delete from UEFI boot menu")
+       5 "Delete from UEFI boot menu" \
+       6 "Delete from UEFI boot menu and UEFI FAT32 partition")
     if [ $? = 0 ]; then
       case $cmd in
       1) NEWBOOTORDER=""
@@ -2916,10 +2917,10 @@ EOF
           break
         fi
 
-         /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
+        /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
         LISTLIST=$(efibootmgr)
         LISTLIST=${LISTLIST//	/ }
-    umount /sys/firmware/efi/efivars
+        umount /sys/firmware/efi/efivars
 
         UEFI_NAME=""
         UEFI_VALUE=""
@@ -2972,11 +2973,11 @@ EOF
                if [ $? != 0 ]; then
                   break
                fi
-         /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
-                 efibootmgr -b $curnumber -B
-                 efibootmgr -d $EFIPART -c -L "$UEFI_NAME" -l "$UEFI_VALUE"
-                     umount /sys/firmware/efi/efivars
-                 break
+               /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
+               efibootmgr -b $curnumber -B
+               efibootmgr -d $EFIPART -c -L "$UEFI_NAME" -l "$UEFI_VALUE"
+               umount /sys/firmware/efi/efivars
+               break
              else
                break
              fi
@@ -2991,6 +2992,60 @@ EOF
                umount /sys/firmware/efi/efivars
 
            break
+         fi ;;
+      6) dialog --yesno "Do you want to delete entry $2? THIS CANNOT BE REVERSED. THIS IS FINAL WARNING." 20 40
+         if [ $? == 0 ]; then
+           
+           find_efi_fat32_partition
+        if [ "$EFIPART" == "" ]; then
+          dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "EFI boot partition not detected" 100 90
+          break
+        fi
+
+        /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
+        LISTLIST=$(efibootmgr)
+        LISTLIST=${LISTLIST//	/ }
+        umount /sys/firmware/efi/efivars
+
+        UEFI_NAME=""
+        UEFI_VALUE=""
+        IFS=","
+        while read -r line; do
+          case $line in
+          $1*)
+            IFS=" " read -r UEFI_NUM UEFI_NAME UEFI_VALUE << EOF
+$line
+EOF
+          esac
+        done <<< $LISTLIST
+        echo after first loop $1 >> /tmp/x
+        nr=1
+        while true; do
+          if [ "${UEFI_VALUE:$nr:1}" == "/" ]; then
+            break
+          fi
+          nr=$(($nr+1))
+        done
+        echo after second loop $1 >> /tmp/x
+        UEFI_VALUE=${UEFI_VALUE:$(($nr+1))}
+        IFS=$IFSORIG
+
+echo $UEFI_VALUE >> /tmp/x
+
+  ROOTBOOT="/tmp/EFI"
+  if [ -d $ROOTBOOT ]; then
+    umount $ROOTBOOT
+    rm $ROOTBOOT
+  fi
+  mkdir $ROOTBOOT
+  mount -t vfat $EFIPART $ROOTBOOT
+
+exit
+           /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
+           efibootmgr -b $curnumber -B
+           umount /sys/firmware/efi/efivars
+
+           break
          fi
       esac
     else
@@ -3000,10 +3055,29 @@ EOF
 }
 
 uefi_list() {
-  /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
+#  if [ "$(ls /sys/firmware/efi/efivars)" = "" ]; then
+    /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
+#  fi
   LISTLIST=$(efibootmgr)
   LISTLIST=${LISTLIST//	/ }
-  umount /sys/firmware/efi/efivars
+  umount /sys/firmware/efi/efivars > /dev/null
+
+  BLKID=$(blkid)
+
+  EFIPART=""
+  if [ "$BLKID" != "" ]; then
+    find_efi_fat32_partition
+    if [ $EFIPART != "" ]; then
+       ROOTBOOT="/tmp/EFI"
+      if [ -d $ROOTBOOT ]; then
+        umount $ROOTBOOT
+        rm $ROOTBOOT
+      fi
+      mkdir $ROOTBOOT
+      mount -t vfat $EFIPART $ROOTBOOT
+    fi
+  fi
+
   listnr=1
   BOOTORDER=""
   while read -r line; do
@@ -3015,17 +3089,54 @@ EOF
         break
       esac
   done <<< $LISTLIST
+
   IFS=","
   for PARAM in $BOOTORDER; do
     while read -r line; do
       case $line in
       Boot$PARAM*)
-        IFS=" " read -r UEFI_NUM UEFI_NAME UEFI_OTHER << EOF
+        IFS=" " read -r UEFI_NUM UEFI_NAME UEFI_VALUE << EOF
 $line
 EOF
+        OSFOUND=""
+        if [ $EFIPART != "" ]; then
+          nr=1
+          while true; do
+            if [ "${UEFI_VALUE:$nr:1}" == "/" ]; then
+              break
+            fi
+            nr=$(($nr+1))
+          done
+          UEFI_VALUE=${UEFI_VALUE:$(($nr+1))}
+
+          nr=0
+          case $UEFI_VALUE in
+          \EFI\*) nr=$(($nr+1));;
+          *shimx64.efi*) nr=$(($nr+1));;
+          esac
+          if [ $nr == 2 ]; then
+            UEFI_VALUE=${UEFI_VALUE:6:-11}
+            if [ -d "${ROOTBOOT}/EFI/$UEFI_VALUE" ]; then
+              while read -r line; do
+                for PARAM2 in $blkid_line; do
+                  RES=$(cat $ROOTBOOT/EFI/$UEFI_VALUE/grub.cfg | grep ${PARAM:7:-1})
+                  if [ $RES != "" ]; then
+                    OSFOUND="Other OS with GRUB on ${PARAM:7:-1}"
+                  else
+                    RES=$(cat $ROOTBOOT/EFI/$UEFI_VALUE/shimx64.efi | grep ${PARAM:7:-1})
+                    if [ $RES != "" ]; then
+                      OSFOUND="PLLinux on ${PARAM:7:-1}"
+                    fi
+                  fi
+                done
+              done <<< $BLKID
+            fi
+          fi
+        fi
+
         echo " $listnr "
-        echo \"$UEFI_NUM $UEFI_NAME\"
-        echo \"$UEFI_OTHER\"
+        echo \"$UEFI_NUM $UEFI_NAME $OSFOUND\"
+        echo \"$UEFI_VALUE\"
         listnr=$(($listnr+1))
         break
       esac
