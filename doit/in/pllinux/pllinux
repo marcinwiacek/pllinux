@@ -153,7 +153,7 @@ EOF
       esac
     done < $DIR$CFGFILE
 
-#fixme: adding start to non-system services
+    #fixme: adding start to non-system services
     if [ "$1" = "1" ]; then
       IFS=":"
       for modname in $SYSTEM_SERVICES; do
@@ -798,7 +798,11 @@ EOF
               *$1p$(($listnr-2))*) ;;
               *) echo $list
                  echo $listnr
-                 echo \"Partition $(($listnr-2)) \(${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}\) - format to ext4 and copy PLLinux there\" ;;
+                 if [ "$PART_SYSTEM" != "" ]; then
+                   echo \"Partition $(($listnr-2)) \(${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}\) - format to ext4 and copy PLLinux there\"
+                 else
+                   echo \"Partition $(($listnr-2)) \(${PART_SIZE}\) - format to ext4 and copy PLLinux there\"
+                 fi
           esac
           listnr=$(($listnr+1))
         fi
@@ -2634,15 +2638,15 @@ EOF
   ROOTBOOT="/tmp/EFI"
   if [ -d $ROOTBOOT ]; then
     umount $ROOTBOOT
-    rm $ROOTBOOT
+    rm -r $ROOTBOOT
   fi
   mkdir $ROOTBOOT
   mount -t vfat $EFIPART $ROOTBOOT
 
-    /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
+  /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
   LISTLIST=$(efibootmgr)
   LISTLIST=${LISTLIST//	/ }
-    umount /sys/firmware/efi/efivars
+  umount /sys/firmware/efi/efivars
 
   # find non-used name in boot menu
   listnr=1
@@ -2674,7 +2678,7 @@ EOF
 
   BLKID="$(/app/busybox/current/sbin/blkid | grep $cmd)"
   ROOT_DEVICE_ID=""
-    IFS=" "
+  IFS=" "
   for PARAM in $BLKID; do
     if [ "${PARAM:0:5}" == "UUID=" ]; then
       ROOT_DEVICE_ID="${PARAM:6}"
@@ -2693,14 +2697,14 @@ EOF
 
   if [ -d $ROOTBOOT ]; then
     umount $ROOTBOOT
-    rm $ROOTBOOT
+    rm -r $ROOTBOOT
   fi
   case $MOUNTS in
     ${cmd}*) ROOTPART="" ;; # don't need to mount current partition
     *) ROOTPART="/tmp/linux"
        mkdir $ROOTPART
-      case $BLKID in
-        *crypto_LUKS*)
+       case $BLKID in
+         *crypto_LUKS*)
             clear
             while true; do
               cryptsetup luksOpen $cmd encryptedpartition
@@ -2749,7 +2753,13 @@ set root=(crypto0)
 set prefix=(\$root)'/etc'
 configfile \$prefix/grub.conf
 EOF
-    ;;
+    /app/grub/current/bin/grub-mkimage -O x86_64-efi -c /tmp/grub.cfg -o $ROOTBOOT/EFI/$NEW_NAME/grubx64.efi -C xz -p /boot/efi all_video boot cat chain \
+            configfile echo efifwsetup efinet ext2 fat font gettext gfxmenu gfxterm gfxterm_background gzio halt help hfsplus jpeg keystatus \
+            loadenv loopback linux ls lsefi lsefimmap lsefisystab lssal memdisk minicmd normal ntfs part_msdos part_gpt password_pbkdf2 \
+            png probe reboot regexp search search_fs_uuid search_fs_file search_label sleep \
+            smbios test true video xfs zfs zfscrypt zfsinfo \
+            cryptodisk luks2 gcry_crc     gcry_md4     gcry_md5     gcry_rmd160     gcry_sha1     gcry_sha256     gcry_sha512     gcry_whirlpool \
+            gcry_blowfish     gcry_camellia    gcry_cast5     gcry_des   gcry_rijndael     gcry_serpent     gcry_twofish pbkdf2 ;;
     *)
        ${DIR}app/busybox/current/bin/cat <<EOF > /tmp/grub.cfg
 # Recreated by pllinux script
@@ -2757,7 +2767,14 @@ search.fs_uuid $ROOT_DEVICE_ID root
 set prefix=(\$root)'/etc'
 configfile \$prefix/grub.conf
 EOF
+    /app/grub/current/bin/grub-mkimage -O x86_64-efi -c /tmp/grub.cfg -o $ROOTBOOT/EFI/$NEW_NAME/grubx64.efi -C xz -p /boot/efi all_video boot cat chain \
+            configfile echo efifwsetup efinet ext2 fat font gettext gfxmenu gfxterm gfxterm_background gzio halt help hfsplus jpeg keystatus \
+            loadenv loopback linux ls lsefi lsefimmap lsefisystab lssal memdisk minicmd normal ntfs part_msdos part_gpt password_pbkdf2 \
+            png probe reboot regexp search search_fs_uuid search_fs_file search_label sleep \
+            smbios test true video xfs zfs zfscrypt zfsinfo
   esac
+  rm /tmp/grub.cfg
+
   cp ${ROOTPART}/etc/grub.conf ${ROOTPART}/etc/grub.conf-
 
   ${DIR}app/busybox/current/bin/cat <<EOF > ${ROOTPART}/etc/grub.conf
@@ -2792,37 +2809,18 @@ if [ "$?" = 0 ]; then
 fi
 EOF
 
-  case $BLKID in
-    *crypto_LUKS*)
-          /app/grub/current/bin/grub-mkimage -O x86_64-efi -c /tmp/grub.cfg -o $ROOTBOOT/EFI/$NEW_NAME/grubx64.efi -C xz -p /boot/efi all_video boot cat chain \
-            configfile echo efifwsetup efinet ext2 fat font gettext gfxmenu gfxterm gfxterm_background gzio halt help hfsplus jpeg keystatus \
-            loadenv loopback linux ls lsefi lsefimmap lsefisystab lssal memdisk minicmd normal ntfs part_msdos part_gpt password_pbkdf2 \
-            png probe reboot regexp search search_fs_uuid search_fs_file search_label sleep \
-            smbios test true video xfs zfs zfscrypt zfsinfo \
-            cryptodisk luks2 gcry_crc     gcry_md4     gcry_md5     gcry_rmd160     gcry_sha1     gcry_sha256     gcry_sha512     gcry_whirlpool \
-            gcry_blowfish     gcry_camellia    gcry_cast5     gcry_des   gcry_rijndael     gcry_serpent     gcry_twofish pbkdf2 ;;
-     *)   /app/grub/current/bin/grub-mkimage -O x86_64-efi -c /tmp/grub.cfg -o $ROOTBOOT/EFI/$NEW_NAME/grubx64.efi -C xz -p /boot/efi all_video boot cat chain \
-            configfile echo efifwsetup efinet ext2 fat font gettext gfxmenu gfxterm gfxterm_background gzio halt help hfsplus jpeg keystatus \
-            loadenv loopback linux ls lsefi lsefimmap lsefisystab lssal memdisk minicmd normal ntfs part_msdos part_gpt password_pbkdf2 \
-            png probe reboot regexp search search_fs_uuid search_fs_file search_label sleep \
-            smbios test true video xfs zfs zfscrypt zfsinfo
-  esac
-
   case $MOUNTS in
     ${cmd}*) ;; # don't need to unmount current partition
-    *) 
-      umount $ROOTPART
-      case $BLKID in
-        *crypto_LUKS*)
-           cryptsetup luksClose encryptedpartition ;;
-      esac
-      rm -r $ROOTPART
+    *) umount $ROOTPART
+       case $BLKID in
+         *crypto_LUKS*)
+           cryptsetup luksClose encryptedpartition
+       esac
+       rm -r $ROOTPART
   esac
 
   umount $ROOTBOOT
   rm -r $ROOTBOOT
-
-  rm /tmp/grub.cfg
 
   /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
   efibootmgr -d $EFIPART -c -L "$NEW_NAME" -l /EFI/$NEW_NAME/shimx64.efi > /dev/null
@@ -2830,9 +2828,10 @@ EOF
 }
 
 uefi_entry() {
+  menunum2=1
   while true; do
     /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
-    LISTLIST=$(efibootmgr)
+    LISTLIST=$(efibootmgr) 2> /dev/null
     LISTLIST=${LISTLIST//	/ }
     umount /sys/firmware/efi/efivars
 
@@ -2857,7 +2856,7 @@ EOF
             curnum=$listnr
             curnumber=$PARAM
        esac
-          listnr=$(($listnr+1))
+       listnr=$(($listnr+1))
     done
 
     canChangeUEFIFAT=0
@@ -2881,35 +2880,36 @@ EOF
           fi
           nr=$(($nr+1))
         done
-        UEFI_VALUE2=${UEFI_VALUE:$(($nr+1))}
+        UEFI_VALUE=${UEFI_VALUE:$(($nr+1))}
 
         ROOTBOOT="/tmp/EFI"
         if [ -d $ROOTBOOT ]; then
           umount $ROOTBOOT
-          rm $ROOTBOOT
+          rm -r $ROOTBOOT
         fi
         mkdir $ROOTBOOT
         mount -t vfat $EFIPART $ROOTBOOT
 
         nr=0
-        case $UEFI_VALUE2 in
+        case $UEFI_VALUE in
         *EFI*) nr=$(($nr+1));;
         esac
-        case $UEFI_VALUE2 in
+        case $UEFI_VALUE in
         *shimx64.efi*) nr=$(($nr+1));;
         esac
 
-        if [ $nr == 2 ]; then
+        if [ "$nr" = "2" ]; then
           canChangeUEFIFAT=1
         fi
 
-#           umount $ROOTBOOT
-#           rm $ROOTBOOT
+        umount $ROOTBOOT
+        rm -r $ROOTBOOT
     fi
     IFS=$IFSORIG
 
     if [ "$canChangeUEFIFAT" = "1" ]; then
       cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
+             --default-item $menunum2 \
          --menu "$1 $2\n\nPosition $curnum in UEFI boot menu" 0 0 24 \
          1 "Move up in UEFI boot menu" \
          2 "Move down in UEFI boot menu" \
@@ -2918,12 +2918,14 @@ EOF
          5 "Delete from UEFI boot menu (and UEFI FAT32 partition if possible)")
     else
       cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
+             --default-item $menunum2 \
          --menu "$1 $2\n\nPosition $curnum in UEFI boot menu" 0 0 24 \
          1 "Move up in UEFI boot menu" \
          2 "Move down in UEFI boot menu" \
          3 "One time boot into it (with next reset)")
     fi
     if [ $? = 0 ]; then
+      menunum2=$cmd
       case $cmd in
       1) NEWBOOTORDER=""
          IFS=","
@@ -2941,9 +2943,9 @@ EOF
          IFS=$IFSORIG
 #         dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$curnum\nold $BOOTORDER\nnew ${NEWBOOTORDER:1}" 100 90
          /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
-         efibootmgr -o ${NEWBOOTORDER:1} 
-             umount /sys/firmware/efi/efivars
-              ;;
+         efibootmgr -o ${NEWBOOTORDER:1} > /dev/null
+         umount /sys/firmware/efi/efivars
+         ;;
       2) NEWBOOTORDER=""
          IFS=","
          listnr=1
@@ -2960,11 +2962,11 @@ EOF
          IFS=$IFSORIG
 #         dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" --msgbox "$curnum\nold $BOOTORDER\nnew ${NEWBOOTORDER:1}" 100 90
          /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
-         efibootmgr -o ${NEWBOOTORDER:1}
-             umount /sys/firmware/efi/efivars
+         efibootmgr -o ${NEWBOOTORDER:1} > /dev/null
+         umount /sys/firmware/efi/efivars
          ;;
       3) /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
-         efibootmgr --bootnext $curnumber 
+         efibootmgr --bootnext $curnumber > /dev/null
          umount /sys/firmware/efi/efivars
          ;;
       4) OLD_UEFI_NAME=$UEFI_NAME
@@ -3001,36 +3003,36 @@ EOF
                fi
 
                /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
-               efibootmgr -b $curnumber -B
-               efibootmgr -d $EFIPART -c -L "$UEFI_NAME" -l "$UEFI_VALUE"
+               efibootmgr -b $curnumber -B > /dev/null
+               efibootmgr -d $EFIPART -c -L "$UEFI_NAME" -l "$UEFI_VALUE" > /dev/null
                umount /sys/firmware/efi/efivars
              fi
              break
            done
          fi
-         break
          ;;
       5) dialog --yesno "Do you want to delete entry $2? THIS CANNOT BE REVERSED. THIS IS FINAL WARNING." 20 40
          if [ $? == 0 ]; then
-            UEFI_VALUE2=${UEFI_VALUE2:5:-12}
+            UEFI_VALUE2=${UEFI_VALUE:5:-12}
 
             ROOTBOOT="/tmp/EFI"
             if [ -d $ROOTBOOT ]; then
               umount $ROOTBOOT
-              rm $ROOTBOOT
+              rm -r $ROOTBOOT
             fi
             mkdir $ROOTBOOT
             mount -t vfat $EFIPART $ROOTBOOT
 
             if [ -d "${ROOTBOOT}/EFI/$UEFI_VALUE2" ]; then
-              echo deleting "${ROOTBOOT}/EFI/$UEFI_VALUE2" >> /tmp/deldel
+#              echo deleting "${ROOTBOOT}/EFI/$UEFI_VALUE2" >> /tmp/deldel
               rm -r "${ROOTBOOT}/EFI/$UEFI_VALUE2"
             fi
-#           umount $ROOTBOOT
-#           rm $ROOTBOOT
+
+            umount $ROOTBOOT
+            rm -r $ROOTBOOT
 
             /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
-            efibootmgr -b $curnumber -B
+            efibootmgr -b $curnumber -B > /dev/null
             umount /sys/firmware/efi/efivars
 
             break
@@ -3043,13 +3045,6 @@ EOF
 }
 
 uefi_list() {
-#  if [ "$(ls /sys/firmware/efi/efivars)" = "" ]; then
-  /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
-#  fi
-  LISTLIST=$(efibootmgr)
-  LISTLIST=${LISTLIST//	/ }
-  umount /sys/firmware/efi/efivars > /dev/null
-
   BLKID=$(blkid)
   EFIPART=""
   if [ "$BLKID" != "" ]; then
@@ -3058,14 +3053,13 @@ uefi_list() {
        ROOTBOOT="/tmp/EFI"
       if [ -d $ROOTBOOT ]; then
         umount $ROOTBOOT
-        rm $ROOTBOOT
+        rm -r $ROOTBOOT
       fi
       mkdir $ROOTBOOT
       mount -t vfat $EFIPART $ROOTBOOT
     fi
   fi
 
-  listnr=1
   BOOTORDER=""
   while read -r line; do
       case $line in
@@ -3075,8 +3069,9 @@ $line
 EOF
         break
       esac
-  done <<< $LISTLIST
+  done <<< "$1"
 
+  listnr=1
   IFS=","
   for PARAM in $BOOTORDER; do
     while read -r line; do
@@ -3129,51 +3124,56 @@ EOF
             fi
           fi
         fi
-
         echo " $listnr "
         echo \"$UEFI_NUM $UEFI_NAME\"
         echo \"$UEFI_VALUE $OSFOUND\"
         listnr=$(($listnr+1))
         break
       esac
-    done <<< $LISTLIST
+    done <<< "$1"
   done
+
+  if [ $EFIPART != "" ]; then
+    umount $ROOTBOOT
+    rm -r $ROOTBOOT
+  fi
+
   echo " $listnr "
   echo \"Add PLLinux setup \(UEFI menu entry, files in FAT32 and GRUB setup on PLLinux partition\)\"
   echo \"\"
-  echo " $(($listnr+1)) "
-  echo \"Add UEFI boot entry\"
-  echo \"\"
+#  echo " $(($listnr+1)) "
+#  echo \"Add UEFI boot entry\"
+#  echo \"\"
   IFS=$IFSORIG
 }
 
 uefi() {
-  /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
-  LISTLIST=$(efibootmgr)
-  umount /sys/firmware/efi/efivars
-  if [ "$LISTLIST" == "" ]; then
+  menunum=1
+  while true; do
+    /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
+    LISTLIST=$(efibootmgr)
+    LISTLIST=${LISTLIST//	/ }
+    umount /sys/firmware/efi/efivars
+    if [ "$LISTLIST" == "" ]; then
           dialog --backtitle "PLLinux\device manager\UEFI info \(dmidecode\)" \
           --msgbox "No info about EFI boot menu. No support in kernel or not mounted efivarfs or no support for UEFI" 100 90
           return
-  fi
-  INFO=""
-  while read -r line; do
+    fi
+    INFO=""
+    while read -r line; do
       case $line in
       Boot0*) ;;
       *) INFO="$INFO$line\n"
       esac
-  done <<< $LISTLIST
-  while true; do
+    done <<< $LISTLIST
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\apps\" --cancel-label "Back" \
              --item-help \
+             --default-item $menunum \
              --menu \"UEFI boot menu\\n\\n$INFO\" 0 0 20 \
-              $(uefi_list))
+              $(uefi_list "$LISTLIST"))
     cmd=$(eval $abc)
     if [ $? = 0 ]; then
-      /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
-      LISTLIST=$(efibootmgr)
-      LISTLIST=${LISTLIST//	/ }
-      umount /sys/firmware/efi/efivars
+      menunum=$cmd
       BOOTORDER=""
       while read -r line; do
         case $line in
@@ -3217,12 +3217,12 @@ EOF
 groups_list() {
   listnr=1
   while read -r line; do
-        IFS=":" read -r NAME DESCRIPTION NUMBER << EOF
+    IFS=":" read -r NAME DESCRIPTION NUMBER << EOF
 $line
 EOF
-            echo " $listnr "
-            echo \"$NAME - $NUMBER\"
-            listnr=$(($listnr+1))
+    echo " $listnr "
+    echo \"$NAME - $NUMBER\"
+    listnr=$(($listnr+1))
   done < ${DIR}etc/group
 }
 
@@ -3276,19 +3276,19 @@ while true; do
   ETH_IP4="IP4 $CONF_FILE_VALUE"
   if [ "$CONF_FILE_VALUE" = "" ]; then ETH_IP4="IP4 DHCP"; fi
 
- DISK=$(df -h)
-        while read -r line; do
-          IFS=" " read -r DISKNAME DISKSIZE DISKUSED DISKAVAIL DISKUSEPERC DISKMOUNT << EOF
+  DISK=$(df -h)
+  while read -r line; do
+    IFS=" " read -r DISKNAME DISKSIZE DISKUSED DISKAVAIL DISKUSEPERC DISKMOUNT << EOF
 $line
 EOF
-          if [ "$DISKMOUNT" == "/" ]; then
-             break
-          fi
-        done <<< $DISK
+    if [ "$DISKMOUNT" == "/" ]; then
+      break
+    fi
+  done <<< $DISK
 
-#RAM $(cat /proc/meminfo | grep MemFree)/$(cat /proc/meminfo | grep MemTotal)" 
-RAM=$(free -h | grep Mem)
-        IFS=" " read -r RAMNAME RAMTOTAL RAMUSED RAMFREE RAMOTHER << EOF
+  #RAM $(cat /proc/meminfo | grep MemFree)/$(cat /proc/meminfo | grep MemTotal)" 
+  RAM=$(free -h | grep Mem)
+  IFS=" " read -r RAMNAME RAMTOTAL RAMUSED RAMFREE RAMOTHER << EOF
 $RAM
 EOF
 
@@ -3374,11 +3374,11 @@ EOF
     17) logs ;;
     18) set_users ;;
     19) groups ;;
-    23)   if [ -f "/forcefsck" ]; then
-             rm /forcefsck
-          else
-            echo > /forcefsck
-          fi ;;
+    23) if [ -f "/forcefsck" ]; then
+          rm /forcefsck
+        else
+          echo > /forcefsck
+        fi ;;
     24) NEW_KEYB="$KEYB"
         NEW_FONT="$FONT"
         set_keyboard_font_general_or_user "" ;;
