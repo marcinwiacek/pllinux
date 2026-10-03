@@ -15,3 +15,4 @@ gcclib current
 https://github.com/lvmteam/lvm2
 
 **Man**
+usr/share/man5:usr/share/man7:usr/share/man8
