@@ -73,7 +73,7 @@ from shebang and filename. It's maybe not perfect but works quite good too.
 Life couldn't be easy:
 
 1. many sources are still saying, that Grub doesn't support LUKS2 (although it's not actual)
-2. Grub needs special font format PF2 and of course package cannot have even default one
+2. Grub needs special font format PF2
 3. opening encrypted partition in bootloader is soooo slow (needs investigation)
 4. after opening encrypted partition in bootloader (giving password) Grub can load kernel and initramfs... but... initramfs needs to open partition
 again (it needs cryptsetup and giving password second time) - some pages say, that initramfs shouldn have authorization with file, but then

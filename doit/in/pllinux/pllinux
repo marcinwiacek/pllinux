@@ -2792,7 +2792,7 @@ insmod ext2
 insmod efi_gop
 insmod gfxterm
 
-loadfont /app/grub-dejavu-fonts/current/DejaVuSans.pf2
+loadfont /app/grub/current/share/grub/themes/starfield/dejavu_16.pf2
 
 terminal_output gfxterm
 
