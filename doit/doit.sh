@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 29 Sep 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="libdrm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="initramfs"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -50,6 +50,7 @@ download_unpack_source() {
       localfile=${packagename}-${localfile}
   esac
 
+echo checking for file download/$localfile
   if [ ! -f "download/$localfile" ]; then
     echo $url
     wget -O /tmp/$localfile.tmp $url;
@@ -504,13 +505,27 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "initr
     mkdir $out/initramfs
     cp $curdir/in/initramfs/init $out/initramfs
 
-    for folderentry in app dev proc mnt run sys etc lib64; do mkdir $out/initramfs/$folderentry; done
+    for folderentry in app dev proc mnt run sys etc; do mkdir $out/initramfs/$folderentry; done
 
     for app in busybox; do mkdir $out/initramfs/app/$app; rsync -a $output/app/$app/ $out/initramfs/app/$app; done
 
-    cd $out/initramfs/lib64
-    ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
-    chmod a+x ld-linux-x86-64.so.2
+#    cd $out/initramfs/lib64
+#    ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
+#    chmod a+x ld-linux-x86-64.so.2
+
+    ver2="2.8.7";
+    install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
+    download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver2.tar.xz cryptsetup cryptsetup-$ver2 1
+    ./configure --prefix=$output/app/cryptsetup/$prefix$ver --enable-static --disable-shared
+    make -j$cpu_num
+
+    mkdir $out/initramfs/app/cryptsetup
+    mkdir $out/initramfs/app/cryptsetup/$prefix$ver2
+    cd $out/initramfs/app/cryptsetup
+    ln -s $prefix$ver2 current
+    mkdir $out/initramfs/app/cryptsetup/current/sbin
+    cp $out/cryptsetup/cryptsetup-$ver2/cryptsetup $out/initramfs/app/cryptsetup/current/sbin
+    cp in/cryptsetup/readme.md $out/initramfs/app/cryptsetup/current
 
     cd $out/initramfs
     find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $output/app/initramfs/$prefix$ver/initramfs.gz

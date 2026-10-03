@@ -13,7 +13,6 @@ do
      ROOT_DEVICE_ID=${PARAM#root=}
   fi
 done
-#ROOT_DEVICE_NAME=$(/app/busybox/current/sbin/blkid | grep ${ROOT_DEVICE_ID#UUID=})
 
 if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
   # we don't have filesystem param or we have rsync
@@ -91,7 +90,24 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
 else
   # we have real filesystem param
   # this looks like booting from disk
-  mount -r -t ext4 $ROOT_DEVICE_ID /mnt > /dev/null 2>&1
+  ROOT_DEVICE_INFO=$(/app/busybox/current/sbin/blkid | grep ${ROOT_DEVICE_ID#UUID=})
+  case $ROOT_DEVICE_INFO in
+    *LUKS* )
+#      while true; do
+        /app/busybox/current/sbin/blkid
+        /app/busybox/current/bin/ls /app/cryptsetup/current/sbin
+        echo $ROOT_DEVICE_ID
+        /app/cryptsetup/current/sbin/cryptsetup luksOpen $ROOT_DEVICE_ID encryptedpartitionmain -v
+#        if [ $? != 0 ]; then
+#          continue
+#        fi
+#        break
+        read
+#      done
+      mount -r -t ext4 /dev/mapper/encryptedpartitionmain /mnt > /dev/null 2>&1 ;;
+    *)
+      mount -r -t ext4 $ROOT_DEVICE_ID /mnt > /dev/null 2>&1
+  esac
   cd /mnt
 fi
 
