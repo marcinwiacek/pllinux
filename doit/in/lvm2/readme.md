@@ -8,6 +8,8 @@ sbin
 libselinux current
 pcre2 current
 gcclib current
+readline current
+util-linux current
 
 **Description**
 
@@ -15,4 +17,4 @@ gcclib current
 https://github.com/lvmteam/lvm2
 
 **Man**
-usr/share/man5:usr/share/man7:usr/share/man8
+usr/share/man/man5:usr/share/man/man7:usr/share/man/man8
