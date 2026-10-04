@@ -36,7 +36,7 @@ for APP_NAME in $APP_LIST; do
 $line2
 EOF
                     if [ -e "/app/${APP_NAME}/current/$folder/../$FILENAME" ]; then
-                      OUT=$(groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
+                      OUT=$(groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
                         -F /app/groff/current/share/groff/current/font \
                         "/app/${APP_NAME}/current/$folder/../$FILENAME")
                       echo $OUT 2> /dev/null | less -R -M -s
@@ -44,14 +44,14 @@ EOF
                     fi
                   esac
                 done < "/app/${APP_NAME}/current/$folder/$1.$nr"
-                OUT=$(groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
+                OUT=$(groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
                    -F /app/groff/current/share/groff/current/font \
                    "/app/${APP_NAME}/current/$folder/$1.$nr")
                 echo $OUT 2> /dev/null | less -R -M -s
                 exit
               elif [ -e "/app/${APP_NAME}/current/$folder/$1.$nr.gz" ]; then
                 OUT=$(gunzip -c "/app/${APP_NAME}/current/$folder/$1.$nr.gz" | \
-                groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
+                groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
                    -F /app/groff/current/share/groff/current/font)
                 echo $OUT 2> /dev/null | less -R -M -s
                 exit
