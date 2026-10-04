@@ -2883,8 +2883,8 @@ EOF
 uefi_entry() {
   menunum2=1
   while true; do
-    /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
-    LISTLIST=$(efibootmgr) 2> /dev/null
+    /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars 2> /dev/null
+    LISTLIST=$(efibootmgr)
     LISTLIST=${LISTLIST//	/ }
     umount /sys/firmware/efi/efivars
 
@@ -3203,7 +3203,7 @@ EOF
 uefi() {
   menunum=1
   while true; do
-    /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars
+    /app/util-linux/current/bin/mount mount -t efivarfs /sys/firmware/efi/efivars 2> /dev/null
     LISTLIST=$(efibootmgr)
     LISTLIST=${LISTLIST//	/ }
     umount /sys/firmware/efi/efivars
