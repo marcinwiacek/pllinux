@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 29 Sep 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system
-package="grub"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="initramfs"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -517,8 +517,14 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "initr
     install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
     install_host_deps "make autoconf automake autopoint pkg-config libtool gettext libssl-dev libdevmapper-dev libpopt-dev uuid-dev libsepol-dev libjson-c-dev libssh-dev libblkid-dev tar asciidoctor"
     download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver2.tar.xz cryptsetup cryptsetup-$ver2 1
-    ./configure --prefix=$output/app/cryptsetup/$prefix$ver #--enable-static-cryptsetup --enable-static --disable-shared
-    make -j$cpu_num
+#    meson setup -Dprefix=$output/app/cryptsetup/$prefix$ver -Dstatic-cryptsetup=true -Dudev=false -Dveritysetup=false  _build
+#    meson compile -C _build
+#    create_app glib $prefix$ver
+#    meson install -C _build
+#    ./configure --prefix=$output/app/cryptsetup/$prefix$ver --enable-static \
+#         LDFLAGS=-L/app/lvm2/current/usr/lib \
+#         --enable-static-cryptsetup --disable-udev --disable-verity-setup #--enable-static --disable-shared
+#    make -j$cpu_num
 
     mkdir $out/initramfs/app/cryptsetup
     mkdir $out/initramfs/app/cryptsetup/$prefix$ver2
@@ -992,7 +998,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lvm2"
   if should_make lvm2 $ver; then
     install_host_deps "libaio-dev"
     download_unpack_source https://sourceware.org/pub/lvm2/releases/LVM2.$ver.tgz lvm2 LVM2.$ver 1
-    ./configure  #--prefix=$output/app/lvm2/$prefix$ver --enable-pkgconfig
+    ./configure --enable-static-link --disable-selinux #--prefix=$output/app/lvm2/$prefix$ver --enable-pkgconfig
     make -j$cpu_num
     create_app lvm2 $prefix$ver
     make DESTDIR=$output/app/lvm2/$prefix$ver install
