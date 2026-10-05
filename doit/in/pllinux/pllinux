@@ -14,7 +14,7 @@ fi
 IFSORIG=$IFS
 
 # we cannot remove "current" version for these apps
-SYSTEM_APPS="bash:brotli:busybox:bwrap:cryptsetup:dialog:dinit:e2fsprogs:efibootmgr:efivar:gcclib:glib:glibc:gptfdisk:groff:grub"
+SYSTEM_APPS="bash:brotli:busybox:bwrap:cryptsetup:dialog:dinit:dosfstools:e2fsprogs:efibootmgr:efivar:gcclib:glib:glibc:gptfdisk:groff:grub"
 SYSTEM_APPS="${SYSTEM_APPS}:initramfs:json-c:kbd"
 SYSTEM_APPS="${SYSTEM_APPS}:kernel:kmod:less:libestr:libfastjson:libselinux:libssh:lm-sensors:lvm2:mc:ncurses:ncursesw:nftables:openssl:parted:pciutils"
 SYSTEM_APPS="${SYSTEM_APPS}:pcre2:pllinux:popt:readline:rsync:rsyslog:shim:smartmontools:tzdb:util-linux:wget2:xzutils:zlib:zstd"
