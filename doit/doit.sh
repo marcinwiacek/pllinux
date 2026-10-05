@@ -584,6 +584,7 @@ $DEP
 EOF
         find_app_deps $output/app/$APP_NAME/$APP_VER "Deps" 1
       done
+      break
     done
 
     for DEP in $DEPS; do
