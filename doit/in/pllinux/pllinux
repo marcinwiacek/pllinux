@@ -2942,6 +2942,25 @@ EOF
       esac
     done <<< $LISTLIST
 
+  BOOTNEXT=""
+  while read -r line; do
+      case $line in
+      BootNext*)
+        IFS=" " read -r BOOTINFO1 BOOTNEXT << EOF
+$line
+EOF
+        break
+      esac
+  done <<< "$LISTLIST"
+  if [ "$BOOTNEXT" != "" ]; then
+    
+    case $1 in
+          *$BOOTNEXT*) BOOTNEXT="\n\nScheduled for next boot" ;;
+          *) BOOTNEXT=""
+        esac
+
+  fi
+
     listnr=1
     curnum=-1
     curnumber=""
@@ -3006,7 +3025,7 @@ EOF
     if [ "$canChangeUEFIFAT" = "1" ]; then
       cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
              --default-item $menunum2 \
-         --menu "$1 $2\n\nPosition $curnum in UEFI boot menu" 0 0 24 \
+         --menu "$1 $2$BOOTNEXT" 0 0 24 \
          1 "Move up in UEFI boot menu" \
          2 "Move down in UEFI boot menu" \
          3 "One time boot into it (with next reset)" \
@@ -3015,7 +3034,7 @@ EOF
     else
       cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Back" \
              --default-item $menunum2 \
-         --menu "$1 $2\n\nPosition $curnum in UEFI boot menu" 0 0 24 \
+         --menu "$1 $2$BOOTNEXT" 0 0 24 \
          1 "Move up in UEFI boot menu" \
          2 "Move down in UEFI boot menu" \
          3 "One time boot into it (with next reset)")
@@ -3167,6 +3186,17 @@ EOF
       esac
   done <<< "$1"
 
+  BOOTNEXT=""
+  while read -r line; do
+      case $line in
+      BootNext*)
+        IFS=" " read -r BOOTINFO1 BOOTNEXT << EOF
+$line
+EOF
+        break
+      esac
+  done <<< "$1"
+
   listnr=1
   IFS=","
   for PARAM in $BOOTORDER; do
@@ -3221,7 +3251,10 @@ EOF
           fi
         fi
         echo " $listnr "
-        echo \"$UEFI_NUM $UEFI_NAME\"
+        case $UEFI_NUM in
+          *$BOOTNEXT*) echo \"$UEFI_NUM $UEFI_NAME \(next\)\" ;;
+          *) echo \"$UEFI_NUM $UEFI_NAME\"
+        esac
         echo \"$UEFI_VALUE $OSFOUND\"
         listnr=$(($listnr+1))
         break
