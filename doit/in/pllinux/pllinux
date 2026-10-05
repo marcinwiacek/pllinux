@@ -1,7 +1,7 @@
 #!/app/busybox/current/bin/sh
 # Part of PLLINUX. Creating system cfg from conf file or asking user and creating conf file.
 
-VER="29 Sep 2026"
+VER="5 Oct 2026"
 
 DIR="/" # path with / in the end. In real system /
 if [ -d "/mnt/x" ]; then
@@ -828,13 +828,17 @@ EOF
             fat32)
               RETVAL="${RETVAL}$listnr "
               RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - check filesystem\" "
-              COMMANDVAL="${COMMANDVAL}du $1p$PART_NUMBER\n"
+              COMMANDVAL="${COMMANDVAL}fsck.fat $1p$PART_NUMBER\n"
               listnr=$(($listnr+1))
               ;;
             *LUKS*)
               RETVAL="${RETVAL}$listnr "
               RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - check filesystem\" "
               COMMANDVAL="${COMMANDVAL}check $1p$PART_NUMBER\n"
+              listnr=$(($listnr+1))
+              RETVAL="${RETVAL}$listnr "
+              RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - change password\" "
+              COMMANDVAL="${COMMANDVAL}cryptsetup luksChangeKey $1p$PART_NUMBER\n"  #todo multislot situation
               listnr=$(($listnr+1))
               RETVAL="${RETVAL}$listnr "
               RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - LUKS info\" "
@@ -2953,12 +2957,10 @@ EOF
       esac
   done <<< "$LISTLIST"
   if [ "$BOOTNEXT" != "" ]; then
-    
     case $1 in
           *$BOOTNEXT*) BOOTNEXT="\n\nScheduled for next boot" ;;
           *) BOOTNEXT=""
         esac
-
   fi
 
     listnr=1
@@ -3186,7 +3188,7 @@ EOF
       esac
   done <<< "$1"
 
-  BOOTNEXT=""
+  BOOTNEXT="MWMWMW"
   while read -r line; do
       case $line in
       BootNext*)
