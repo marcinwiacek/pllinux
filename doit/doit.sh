@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 29 Sep 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="dosfstools"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="usbutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1450,8 +1450,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dosfs
     set_current_app_clean_strip_cd dosfstools $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs2" ] || [ "$package" == "usbutils" ]; then
-  #work in progress
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "usbutils" ]; then
   ver="019";
   if should_make usbutils $ver; then
     download_unpack_source https://github.com/gregkh/usbutils/archive/refs/tags/v$ver.tar.gz usbutils usbutils-$ver 1
@@ -1461,8 +1460,7 @@ if [ "$package" == "fs2" ] || [ "$package" == "usbutils" ]; then
     meson compile -C _build
     create_app usbutils $prefix$ver
     meson install -C _build
-
-#    set_current_app_clean_strip_cd usbutils $prefix$ver 1
+    set_current_app_clean_strip_cd usbutils $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
