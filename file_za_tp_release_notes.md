@@ -1,26 +1,31 @@
 # Technology preview release notes
 
-  * Are you tired with waiting for next release of your favourite Linux distribution?
-  * Are you annoyed with learning command line tools and searching in the internet for the solution for problems known in Linux for years?
+  * Are you tired with waiting for next release of your Linux distribution?
+  * Are you annoyed with learning command line tools?
+  * Do you want to avoid searching in the internet for the solution for problems known in Linux for years?
   * Do you want to see immediately latest and gratest versions of various apps?
-  * Do you want to be able to easy switch and check some software version without resigning from stable or working environment?
-  * Do you want to see, what is what in your disk without headache or IT studies?
+  * Do you want to be able to easy switch and check some software version without resigning from stable and working environment?
+  * Do you want to see, what is what in your disk without headache or long IT studies?
   * And finally: do you expect security higher than ever without using too much RAM or disk?
 
 PLLinux contains solution for this and many other things. The biggest key points:
 
   1. simplicity and human face (it's prepared for normal users, not technical geeks)
-  2. escaping from technology debt with compatibility with existing (Linux) apps
-  3. taking care about minimal resources usage (no more duplicating the same files, saving unnecessary logs and sending everywhere telemetry)
+  2. escaping from obsolete technology with compatibility with existing (Linux) apps
+  3. taking care about minimal resources usage (no more duplicating files, saving unnecessary logs and sending everywhere telemetry)
   4. technical approach (no politics)
   5. easy and fast implementing new software
-  6. reliable results (whatever is setup or done, it should always give repeatable and clear reaction and shouldn't be changed without user action)
+  6. system is doing what is setup and nothing less and nothing more (results are always reliable, repetable and expected
+and things are not hidden or changed without user actions)
 
-In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should always do whatever user want and expect.
+In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should always do
+whatever user want and expect.
 
-Technology Preview already shows, in what direction could go modern OS. This version contains many working elements and can give feeling, where existing "modern" systems seems to be obsolete (if you like analogies, you could compare it to the [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
+This Technology Preview already shows, how could look and work basic elements of the modern OS. Current version contains many componentes already and
+can give feeling, where existing systems are obsolete (if you like analogies, you could compare this to the 
+[Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution
-was already visible, but not complete). 
+was already started and somehow visible, but definitely not completed).
 
 Some solutions are similar to used in Android, Apple products or NixOS, but not the same - they can change before beta or first final release (like it was in Windows 95, see [The Early Windows 95 Builds Microsoft DIDN'T Want Us To See](https://www.youtube.com/watch?v=cgq7LcvRFA4))
 
@@ -36,17 +41,22 @@ busybox has got known issues or limits
 3. [bwrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation layers in various situations
 4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
 
-We avoid changing existing software (two exceptions: [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md)
-and some permission details in "bwrap") and (excluding permissions and other directories names) system in many cases can run without any problems unmodified Linux binaries. This simply works... just after giving list of dependencies in readme.md manifest files described further (this is totally different
-approach from NixOS, where binaries normally need to be patched)
+We avoid changing existing software and there are only two exceptions:
+
+1. [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md)
+2. some permission details in "bwrap"
+
+Excluding permissions and other directories names system in many cases can run without any problems unmodified Linux binaries. 
+This simply works... just after giving list of dependencies in readme.md manifest files described below (this is totally different
+approach from NixOS, where binaries normally need to be patched).
 
 There are just few services started:
 
-1. tty1-tty3 for starting terminals
-2. boot and bootsh used for system boot actions
-3. recovery started when something fails during boot process
-4. crond for tasks started with schedule in background
-5. syslogd for saving logs in the disk
+1. **tty1-tty3** for starting terminals
+2. **boot** and **bootsh** used for system boot actions
+3. **recovery** started when something fails during boot process
+4. **crond** for tasks started with schedule in background
+5. **syslogd** for saving logs in the disk
 
 Other actions (starting and stopping network, synchronizing time using NTP, mounting USB drives, etc.) are done mainly on event - you can wait some
 miliseconds and it doesn't hurt.
@@ -61,8 +71,8 @@ DHCP is not done with services now.
 
 Big pressure is put into limiting disk writes or memory usage. This is very important with current SSD/RAM prices.
 
-Note: used architecture (especially **bwrap**) can make some scenarios potentially more difficult and normally
-root actions are done from the terminal with logged root (honestly speaking you don't need to do them every second with good framework).
+Note: used architecture (especially **bwrap**) can make some scenarios potentially more difficult and
+root actions are normally done from the terminal with logged root (honestly speaking you don't need to do them every second with good work framework).
 
 # Managing system
 
@@ -74,7 +84,8 @@ In some edge cases you can be maybe interested in two more:
 2. **doit** (not included in ISO file, available [in GitHub](https://github.com/marcinwiacek/pllinux) and used for making practically all distribution files
 and packages from the source).
 
-They're all created using shell scripts. It's clear, that this is NOT the best way of writing code, from the other hand it really makes work and you don't need anything more for apps used from time to time, additionally code can be easy modified and audited even by medium experienced person.
+They're all created using shell scripts. It's clear, that this is NOT the best way of writing code, from the other hand it really makes work and 
+you don't need anything more for apps used from time to time, additionally code can be easy modified and audited even by medium experienced people.
 
 Simplicity at all!
 
@@ -198,8 +209,8 @@ Solution unknown. Will be investigated.
   1. proposing new ideas - it's never too late for them
   2. showing this project to other people - good party must be big & nothing helps more than testers, users and developers
   3. submitting bugs - project is very early stage, but don't be shy, when have something to say
-  4. further updates for existing dynamic loader or making other development - always welcome (mainly C or Bash shell scripting now)
-  5. packaging software - always welcome (mainly Bash shell scripting now)
+  4. further updates for existing dynamic loader or making other development - always welcome (mainly C or Bash shell scripting required now)
+  5. packaging software - always welcome (needs mainly Bash shell scripting now)
 
 # Contact
 
