@@ -93,18 +93,22 @@ else
   ROOT_DEVICE_INFO=$(/app/busybox/current/sbin/blkid | grep ${ROOT_DEVICE_ID#UUID=})
   case $ROOT_DEVICE_INFO in
     *LUKS* )
-#      while true; do
+      while true; do
         /app/busybox/current/sbin/blkid
         /app/busybox/current/bin/ls /app/cryptsetup/current/sbin
         echo $ROOT_DEVICE_ID
-        /app/cryptsetup/current/sbin/cryptsetup luksOpen $ROOT_DEVICE_ID encryptedpartitionmain -v
-#        if [ $? != 0 ]; then
-#          continue
-#        fi
-#        break
-        read
-#      done
-      mount -r -t ext4 /dev/mapper/encryptedpartitionmain /mnt > /dev/null 2>&1 ;;
+        read -r ROOT_DEVICE_NAME ROOT_DEVICE_OTHER_INFO << EOF
+$ROOT_DEVICE_INFO
+EOF
+        echo ${ROOT_DEVICE_NAME:0:-1}
+        /app/cryptsetup/current/sbin/cryptsetup luksOpen ${ROOT_DEVICE_NAME:0:-1} encryptedpartitionmain
+        if [ $? != 0 ]; then
+          continue
+        fi
+        break
+      done
+      mount -r -t ext4 /dev/mapper/encryptedpartitionmain /mnt > /dev/null 2>&1
+      ;;
     *)
       mount -r -t ext4 $ROOT_DEVICE_ID /mnt > /dev/null 2>&1
   esac

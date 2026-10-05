@@ -51,7 +51,7 @@ Currently in early alpha. Some things are done and many still todo:
  16. Milestone 16 - packages with optional config (for example installing some localization only or removing a files),
 impossible things (like deleting to trash or firewall per process), quotas, managed installation, SMART logging, schedule "older than", etc.
  17. Milestone 17 - predictable network devices names, limiting CPU, RAM, bandwidth with user sessions, BASH completion, etc.
- 18. Milestone 18 - graphic UI
+ 18. Milestone 18 - graphic drivers and UI, SDL support, etc.
  19. Milestone 19 - big party?
 
 This can change without earlier notice.
@@ -71,6 +71,7 @@ process - we have disk partitioning, selecting partition for installation and in
 encryption for main filesystem.
   7. 13 and 14 Sep 2026 - there are visible first effects with **rsyslog** and **crond**
   8. 23 Sep 2026 - first working boot chain with GRUB (partition without encryption)
+  9. 5 Oct 2026 - first complete booting with LUKS2 encryption
 
 **Building and starting system from the partition (in the host system)**
 

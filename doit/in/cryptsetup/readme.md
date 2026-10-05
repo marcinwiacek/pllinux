@@ -16,6 +16,7 @@ zlib current
 nftables current
 pcre2 current
 gcclib current
+glibc current
 
 **Description**
 Managing encryptet devices.

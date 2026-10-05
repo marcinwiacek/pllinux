@@ -74,9 +74,14 @@ Life couldn't be easy:
 
 1. many sources are still saying, that Grub doesn't support LUKS2 (although it's not actual)
 2. Grub needs special font format PF2
-3. opening encrypted partition in bootloader is soooo slow (needs investigation)
+3. opening encrypted partition in bootloader is soooo slow (needs investigation - it needs around 18 sec, when cryptsetup operation needs ca. 2 seconds)
 4. after opening encrypted partition in bootloader (giving password) Grub can load kernel and initramfs... but... initramfs needs to open partition
 again (it needs cryptsetup and giving password second time) - some pages say, that initramfs shouldn have authorization with file, but then
 you need to save this file in filesystem & this is generally broken idea
+5. there are many problems with compiling cryptsetup static - for first working version there were copied many (unnecessary too) libraries and
+initramfs size was increased from 2 to 22 MB
+
+It sill needs a lot of work, but... today (5 Oct 2026) PLLinux has got practically complete support for LUKS2 and can create such partition, install there
+system, boot it or check filesystem there. This is huge milestone.
 
 [Prev page](file_yp_milestone10.md) [Next page](file_zz_milestone.md)

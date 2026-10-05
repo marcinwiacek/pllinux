@@ -189,6 +189,44 @@ remove_duplicates_cd() {
   cd $curdir
 }
 
+# function copied "as is" from app.sh script
+# getting app dependencies from app readme.md
+find_app_deps() {
+  local DIR=$1
+  local SECTION=$2
+  local GET_CURRENT=$3
+  if [ -e "$DIR/readme.md" ]; then
+     sectionDeps=0
+     while read -r line; do
+       if [ "$line" = "**$SECTION**" ]; then
+         sectionDeps=1
+       elif [ "$line" = "" ]; then
+         sectionDeps=0;
+       elif [ "$sectionDeps" = 1 ]; then
+         case $DEPS in
+           *$line* )
+              ;;
+           * )
+              SAVE=1
+              case $line in
+                *current* )
+                    SAVE=$GET_CURRENT
+                    ;;
+              esac
+              if [ "$SAVE" == "1" ]; then
+                complete=0
+                if [ "$DEPS" != "" ]; then
+                  DEPS="$DEPS:"
+                fi
+                DEPS="$DEPS$line"
+              fi
+              ;;
+         esac
+       fi
+     done < $DIR/readme.md
+  fi
+}
+
 if [ ! -d "$output" ]; then
   echo "output folder $output does not exist."
   exit
@@ -505,34 +543,62 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "initr
     mkdir $out/initramfs
     cp $curdir/in/initramfs/init $out/initramfs
 
-    for folderentry in app dev proc mnt run sys etc; do mkdir $out/initramfs/$folderentry; done
+    for folderentry in app dev lib64 proc mnt run sys etc; do mkdir $out/initramfs/$folderentry; done
 
     for app in busybox; do mkdir $out/initramfs/app/$app; rsync -a $output/app/$app/ $out/initramfs/app/$app; done
 
-#    cd $out/initramfs/lib64
-#    ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
-#    chmod a+x ld-linux-x86-64.so.2
+    # we should have cryptsetup command compiled static with minimum size
+    # instead of this we copy a lot of libraries and unnecessary dependencies
+    # current solution is temporary, in the future:
+    # 1. we need to decrease amount of copied elements OR
+    # 2. compile cryptsetup static (this is much better)
 
-    ver2="2.8.7";
-    install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
-    install_host_deps "make autoconf automake autopoint pkg-config libtool gettext libssl-dev libdevmapper-dev libpopt-dev uuid-dev libsepol-dev libjson-c-dev libssh-dev libblkid-dev tar asciidoctor"
-    download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver2.tar.xz cryptsetup cryptsetup-$ver2 1
+#    ver2="2.8.8";
+#    install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
+#    install_host_deps "make autoconf automake autopoint pkg-config libtool gettext libssl-dev libdevmapper-dev libpopt-dev uuid-dev libsepol-dev libjson-c-dev libssh-dev libblkid-dev tar asciidoctor"
+#    download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver2.tar.xz cryptsetup cryptsetup-$ver2 1
 #    meson setup -Dprefix=$output/app/cryptsetup/$prefix$ver -Dstatic-cryptsetup=true -Dudev=false -Dveritysetup=false  _build
 #    meson compile -C _build
 #    create_app glib $prefix$ver
 #    meson install -C _build
-#    ./configure --prefix=$output/app/cryptsetup/$prefix$ver --enable-static \
+#    ./configure --prefix=$output/app/cryptsetup/$prefix$ver \
+#--enable-static-cryptsetup --enable-static --disable-udev \
+#LIBS="-L/app/lvm2/current/usr/lib "
+#DEVMAPPER_CFLAGS="-I/app/lvm2/current/usr/include" \
 #         LDFLAGS=-L/app/lvm2/current/usr/lib \
-#         --enable-static-cryptsetup --disable-udev --disable-verity-setup #--enable-static --disable-shared
+#      --disable-udev --disable-selinux --disable-veritysetup --disable-integritysetup          
 #    make -j$cpu_num
 
     mkdir $out/initramfs/app/cryptsetup
-    mkdir $out/initramfs/app/cryptsetup/$prefix$ver2
-    cd $out/initramfs/app/cryptsetup
-    ln -s $prefix$ver2 current
+    mkdir $out/initramfs/app/cryptsetup/current
     mkdir $out/initramfs/app/cryptsetup/current/sbin
-    cp $out/cryptsetup/cryptsetup-$ver2/cryptsetup $out/initramfs/app/cryptsetup/current/sbin
-    cp in/cryptsetup/readme.md $out/initramfs/app/cryptsetup/current
+    cp $output/app/cryptsetup/current/sbin/cryptsetup $out/initramfs/app/cryptsetup/current/sbin
+    cp $output/app/cryptsetup/current/readme.md $out/initramfs/app/cryptsetup/current
+
+    DEPS="glibc current:cryptsetup current:openssl 260725_3.6.3"
+    while true; do
+      IFS=":"
+      for DEP in $DEPS; do
+        IFS=" " read -r APP_NAME APP_VER << EOF
+$DEP
+EOF
+        find_app_deps $output/app/$APP_NAME/$APP_VER "Deps" 1
+      done
+    done
+
+    for DEP in $DEPS; do
+      IFS=" " read -r APP_NAME3 APP_VER3 << EOF
+$DEP
+EOF
+      mkdir $out/initramfs/app/$APP_NAME3
+      mkdir $out/initramfs/app/$APP_NAME3/$APP_VER3
+      rsync -a $output/app/$APP_NAME3/$APP_VER3/lib $out/initramfs/app/$APP_NAME3/$APP_VER3
+      cp $output/app/$APP_NAME3/$APP_VER3/readme.md $out/initramfs/app/$APP_NAME3/$APP_VER3
+    done
+
+    cd $out/initramfs/lib64
+    ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
+    chmod a+x ld-linux-x86-64.so.2
 
     cd $out/initramfs
     find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $output/app/initramfs/$prefix$ver/initramfs.gz
@@ -998,7 +1064,9 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lvm2"
   if should_make lvm2 $ver; then
     install_host_deps "libaio-dev"
     download_unpack_source https://sourceware.org/pub/lvm2/releases/LVM2.$ver.tgz lvm2 LVM2.$ver 1
-    ./configure --enable-static-link --disable-selinux #--prefix=$output/app/lvm2/$prefix$ver --enable-pkgconfig
+    ./configure --enable-static_link --without-udev
+#    ./configure --enable-static-link --disable-selinux --disable-shared --without-udev --without-systemd \
+#           --disable-udev_sync --disable-udev_rules --disable-udev-rule-exec-detection #--prefix=$output/app/lvm2/$prefix$ver --enable-pkgconfig
     make -j$cpu_num
     create_app lvm2 $prefix$ver
     make DESTDIR=$output/app/lvm2/$prefix$ver install
@@ -1022,7 +1090,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "parte
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "cryptsetup" ]; then
-  ver="2.8.7";
+  ver="2.8.8";
   if should_make cryptsetup $ver; then
     install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
     download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver.tar.xz cryptsetup cryptsetup-$ver 1

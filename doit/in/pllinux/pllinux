@@ -815,21 +815,33 @@ EOF
                RETVAL="${RETVAL}$listnr "
                RETVAL="${RETVAL}\"Current partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - LUKS info\" "
                COMMANDVAL="${COMMANDVAL}cryptsetup luksDump $1p$PART_NUMBER\n"
+               listnr=$(($listnr+1))
             esac
             ;;
          *) case $PART_SYSTEM in
-            fat32|ext4)
+            ext4)
+              RETVAL="${RETVAL}$listnr "
+              RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - check filesystem\" "
+              COMMANDVAL="${COMMANDVAL}fsck.ext4 $1p$PART_NUMBER -f\n"
+              listnr=$(($listnr+1))
+              ;;
+            fat32)
               RETVAL="${RETVAL}$listnr "
               RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - check filesystem\" "
               COMMANDVAL="${COMMANDVAL}du $1p$PART_NUMBER\n"
+              listnr=$(($listnr+1))
               ;;
             *LUKS*)
               RETVAL="${RETVAL}$listnr "
+              RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - check filesystem\" "
+              COMMANDVAL="${COMMANDVAL}check $1p$PART_NUMBER\n"
+              listnr=$(($listnr+1))
+              RETVAL="${RETVAL}$listnr "
               RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - LUKS info\" "
               COMMANDVAL="${COMMANDVAL}cryptsetup luksDump $1p$PART_NUMBER\n"
+              listnr=$(($listnr+1))
             esac
         esac
-        listnr=$(($listnr+1))
       fi
     done <<< "$disks"
     thisdisk=0
@@ -860,8 +872,8 @@ EOF
           *) RETVAL="${RETVAL}$listnr "
              RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - format to ext4 and install/copy PLLinux there\" "
              COMMANDVAL="${COMMANDVAL}install $1p$PART_NUMBER\n"
+             listnr=$(($listnr+1))
         esac
-        listnr=$(($listnr+1))
       fi
     done <<< "$disks"
     COMMANDVAL=$(echo -e $COMMANDVAL)
@@ -920,6 +932,20 @@ EOF
              fi ;;
            diskusage) main_disk_usage ;;
            install*) format_install ${CMDCOMMAND:8} ;;
+           check*)
+              clear
+              while true; do
+                cryptsetup luksOpen ${CMDCOMMAND:6} encryptedpartition
+                if [ $? != 0 ]; then
+                  echo error
+                  continue
+                fi
+                break
+              done
+              fsck.ext4 /dev/mapper/encryptedpartition -f
+              cryptsetup luksClose encryptedpartition
+              echo Press any key to continue
+              read x ;;
            *) clear
               eval $line
               echo Press any key to continue
