@@ -1,6 +1,6 @@
-[Prev page](file_yp_milestone10.md) [Next page](file_zz_milestone.md)
+[Prev page](file_yp_milestone10.md) [Next page](file_yn_milestone12.md)
 
-# Milestone
+# Milestone 11
 
 # Mounting CD
 
@@ -84,4 +84,4 @@ initramfs size was increased from 2 to 22 MB
 It sill needs a lot of work, but... today (5 Oct 2026) PLLinux has got practically complete support for LUKS2 and can create such partition, install there
 system, boot it or check filesystem there. This is huge milestone.
 
-[Prev page](file_yp_milestone10.md) [Next page](file_zz_milestone.md)
+[Prev page](file_yp_milestone10.md) [Next page](file_yn_milestone12.md)

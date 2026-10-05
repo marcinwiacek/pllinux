@@ -45,14 +45,15 @@ Currently in early alpha. Some things are done and many still todo:
  9. [Milestone 9 - correct man, configurator with dialog, partitioning, device manager](file_yq_milestone9.md)
  10. [Milestone 10 - logging, scheduler, kernel modules, boot sequence](file_yp_milestone10.md)
  11. [Milestone 11 - mounting CD, design decisions, shebang, booting with encryption](file_yo_milestone11.md)
- 12. Milestone 12 - dbus? AppArmor? SeLinux?
- 14. Milestone 14 - more packages, software compiling and matrioszka (compiling PLLinux from PLLinux), CPU microcode, etc.
- 15. Milestone 15 - installation with Secure Boot
- 16. Milestone 16 - packages with optional config (for example installing some localization only or removing a files),
+ 12. [Milestone 12 - software compiling, graphic drivers and SDL/framebuffer support](file_yn_milestone12.md)
+ 14. Milestone 14 - dbus? AppArmor? SeLinux?
+ 15. Milestone 15 - more packages, matrioszka (compiling PLLinux from PLLinux), CPU microcode, etc.
+ 16. Milestone 16 - installation with Secure Boot
+ 17. Milestone 17 - packages with optional config (for example installing some localization only or removing a files),
 impossible things (like deleting to trash or firewall per process), quotas, managed installation, SMART logging, schedule "older than", etc.
- 17. Milestone 17 - predictable network devices names, limiting CPU, RAM, bandwidth with user sessions, BASH completion, etc.
- 18. Milestone 18 - graphic drivers and UI, SDL support, etc.
- 19. Milestone 19 - big party?
+ 18. Milestone 18 - predictable network devices names, limiting CPU, RAM, bandwidth with user sessions, BASH completion, etc.
+ 19. Milestone 19 - graphic UI, etc.
+ 20. Milestone 20 - big party?
 
 This can change without earlier notice.
 
