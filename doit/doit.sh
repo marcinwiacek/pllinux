@@ -1477,11 +1477,11 @@ if [ "$package" == "fs" ] || [ "$package" == "node" ]; then
   ver="26.10.0";
   if should_make node $ver; then
     download_unpack_source https://github.com/nodejs/node/archive/refs/tags/v26.10.0.tar.gz node node-$ver 1
-    ./configure --prefix=$output/app/node/$prefix$ver
+    ./configure --prefix=$output/app/node/$prefix$ver --ninja
     make all -j$cpu_num
     create_app node $prefix$ver
     make install
-#    set_current_app_clean_strip_cd cpython $prefix$ver 1
+    set_current_app_clean_strip_cd node $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then

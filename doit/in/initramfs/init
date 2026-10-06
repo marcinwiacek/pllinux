@@ -94,13 +94,13 @@ else
   case $ROOT_DEVICE_INFO in
     *LUKS* )
       while true; do
-        /app/busybox/current/sbin/blkid
-        /app/busybox/current/bin/ls /app/cryptsetup/current/sbin
-        echo $ROOT_DEVICE_ID
+#        /app/busybox/current/sbin/blkid
+#        /app/busybox/current/bin/ls /app/cryptsetup/current/sbin
+#        echo $ROOT_DEVICE_ID
         read -r ROOT_DEVICE_NAME ROOT_DEVICE_OTHER_INFO << EOF
 $ROOT_DEVICE_INFO
 EOF
-        echo ${ROOT_DEVICE_NAME:0:-1}
+#        echo ${ROOT_DEVICE_NAME:0:-1}
         /app/cryptsetup/current/sbin/cryptsetup luksOpen ${ROOT_DEVICE_NAME:0:-1} encryptedpartitionmain
         if [ $? != 0 ]; then
           continue
