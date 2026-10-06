@@ -20,6 +20,11 @@ and of course in other implementations it can be different a little bit because 
 7. **gcc** with C/C++ - 252+19MB
 8. **jdk** - 1181MB
 
+I tried to compile as well V (errors), PHP (still need to install some libraries) and FreePascal / FPC (totally different world
+and although I would like to try it, need to move it into the future).
+
+And now - when compiler needs thousands of MB, there is something wrong.
+
 # Graphic drivers and SDL/framebuffer support
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
