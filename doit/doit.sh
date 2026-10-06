@@ -1484,7 +1484,7 @@ if [ "$package" == "fs" ] || [ "$package" == "node" ]; then
     set_current_app_clean_strip_cd node $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "php" ]; then
+if [ "$package" == "fs2" ] || [ "$package" == "php" ]; then
 #work in progress
   ver="8.5.11";
   if should_make php $ver; then
@@ -1498,7 +1498,7 @@ if [ "$package" == "fs" ] || [ "$package" == "php" ]; then
 #    set_current_app_clean_strip_cd php $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "v" ]; then
+if [ "$package" == "fs2" ] || [ "$package" == "v" ]; then
 #work in progress
   ver="0.5.2";
   if should_make v $ver; then
@@ -1512,7 +1512,7 @@ if [ "$package" == "fs" ] || [ "$package" == "v" ]; then
 #    set_current_app_clean_strip_cd php $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fpc" ]; then
+if [ "$package" == "fs2" ] || [ "$package" == "fpc" ]; then
 #work in progress
   ver="3.2.2";
   if should_make fpc $ver; then
