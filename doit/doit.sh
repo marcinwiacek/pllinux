@@ -1591,6 +1591,20 @@ if [ "$package" == "fs2" ] || [ "$package" == "fpc" ]; then
 #    set_current_app_clean_strip_cd php $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
+#https://wiki.mozilla.org/CA/Included_Certificates
+#work in progress
+  ver="261006";
+  if should_make ccadb $ver; then
+    download_unpack_source http://downloads.freepascal.org/fpc/dist/3.2.2/source/fpc-3.2.2.source.tar.gz fpc fpc-$ver 1
+#    autoconf
+#    ./configure --prefix=$output/app/v/$prefix$ver
+#    make all -j$cpu_num
+#    create_app v $prefix$ver
+#    make install
+#    set_current_app_clean_strip_cd php $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
   #work in progress
   ver="3.0.2";
