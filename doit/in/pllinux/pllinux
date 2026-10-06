@@ -2040,6 +2040,7 @@ search_path_for_kernel_module() {
             if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
               PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
               while read -r line2; do
+echo $line2 >> /tmp/x
                 LINE2X=${line2##*/}
                 LINE2X=${LINE2X%%.ko.xz*}
                 LINE2X=${LINE2X//-/_} # a little bit tricky
@@ -2107,7 +2108,13 @@ EOF
            for modname in $depsy; do
              search_path_for_kernel_module $modname
              deps_list="$kernel_module_found\n$deps_list"
+             if [ $kernel_module_found != "" ]; then
+               deps_changed=1
+             fi
            done
+           if [ "$deps_changed" = "0" ]; then
+              break
+           fi
          done ;;
       1) #dialog --backtitle "PLLinux\kernel modules\module $LINE2X\info (modinfo)" --msgbox "$(modinfo $1)" 100 90 ;;
          modinfo $1 | less ;;
