@@ -151,6 +151,9 @@ Readme.md is semi-text file with some elements, for example:
     **Links**
     bin/sh /bin/sh
 
+    **Last**
+    20260505
+
 # Full freedom
 
 With PLLinux you decide, if you want to use compiled packages or whether you want to create them from source. 
