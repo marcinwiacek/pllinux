@@ -96,20 +96,21 @@ create_app() {
 
   mkdir $output/app/$packagename || true
   mkdir $output/app/$packagename/$version || true
-  if [ -f "$curdir/in/$packagename/readme.md" ]; then cp $curdir/in/$packagename/readme.md $output/app/$packagename/$version; fi
+  if [ -f "$curdir/in/$packagename/readme.md" ]; then 
+    cp $curdir/in/$packagename/readme.md $output/app/$packagename/$version;
+    IFS=" " read -r LATEST_FILE OTHER << EOF
+$(ls -c)
+EOF
+    echo "" >> $output/app/$packagename/$version/readme.md
+    echo "**Last**" >> $output/app/$packagename/$version/readme.md
+    echo "$(date -r $LATEST_FILE +%Y%m%d)" >> $output/app/$packagename/$version/readme.md
+  fi
 }
 
 set_current_app_clean_strip_cd() {
   packagename=$1
   version=$2
   stripapp=$3
-
-  IFS=" " read -r LATEST OTHER << EOF
-$(ls -c -lt)
-EOF
-
-  echo "**Last**" >> $output/app/$packagename/$version/readme.md
-  echo "$(date -r $LATEST)" >> $output/$packagename/$version/readme.md
 
   #set "current" directory to the new installed app
   cd $output/app/$1
