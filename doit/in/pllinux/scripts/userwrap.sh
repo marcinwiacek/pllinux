@@ -160,6 +160,7 @@ EOF
     fi
   done
 fi
+PARAMS="$PARAMS --setenv TZ Europe/Warsaw "
 PARAMS="$PARAMS --setenv PATH $path "
 PARAMS="$PARAMS --setenv SHELL $shell "
 PARAMS="$PARAMS --setenv TERMINFO /app/ncurses/current/share/terminfo "

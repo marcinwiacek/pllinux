@@ -36,10 +36,14 @@ mkdir /other/app/mc 2> /dev/null
     --setenv PS1 "[\t] $USER # " \
     $APP3 \
     $DIR/bin/mc
-#    --setenv SHELL /app/busybox/current/bin/sh \
+
+    # devices are mapped, but... problem with shell prompt
+    #--dev-bind /dev /dev \
+
     # no clean before running command in options
-# -u will disable subshell
-# don't show internal commands from MC in the shell history
-#    --setenv HISTCONTROL ignorespace \
-#    --ro-bind $DIR/usr usr \
-#    --tmpfs tmp \
+    #    --setenv SHELL /app/busybox/current/bin/sh \
+
+    # in BASH don't show internal commands from MC in the shell history
+    #    --setenv HISTCONTROL ignorespace \
+
+    # -u will disable subshell
