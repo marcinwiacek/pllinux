@@ -87,10 +87,14 @@ download_unpack_source() {
       cd out/$packagename/$unpackeddir
     fi
   fi
-  IFS=" " read -r LATEST_FILE OTHER << EOF
-$(ls -c)
-EOF
-  LATEST_FILE_UPDATE="$(date -r $LATEST_FILE +%Y%m%d)"
+  TODAY_DATE="$(date +%Y%m%d)"
+  IFS=" "
+  while read -r LATEST_FILE; do
+    LATEST_FILE_UPDATE="$(date -r $LATEST_FILE +%Y%m%d)"
+    if [ "$LATEST_FILE_UPDATE" != "$TODAY_DATE" ]; then
+      break
+    fi
+  done <<< "$(ls -c)"
 }
 
 #creating directory with the app
@@ -102,8 +106,10 @@ create_app() {
   mkdir $output/app/$packagename/$version || true
   if [ -f "$curdir/in/$packagename/readme.md" ]; then 
     cp $curdir/in/$packagename/readme.md $output/app/$packagename/$version;
+    echo "" >> $output/app/$packagename/$version/readme.md
+  else
+    rm $output/app/$packagename/$version/readme.md
   fi
-  echo "" >> $output/app/$packagename/$version/readme.md
   echo "**Last**" >> $output/app/$packagename/$version/readme.md
   echo "$LATEST_FILE_UPDATE" >> $output/app/$packagename/$version/readme.md
 }
