@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="initramfs"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libgbm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1553,6 +1553,19 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "usbut
     set_current_app_clean_strip_cd usbutils $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libgbm" ]; then
+#this is extraction. should we use mesa implementation?
+  ver="1.0.9";
+  if should_make libgbm $ver; then
+    download_unpack_source https://github.com/glfs-book/libgbm/archive/refs/tags/1.0.9.tar.gz libgbm libgbm-$ver 1
+#    install_host_deps "libusb-dev libudev-dev"
+    meson setup -Dprefix=$output/app/libgbm/$prefix$ver _build
+    meson compile -C _build
+    create_app libgbm $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libgbm $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "cpython" ]; then
   ver="3.11.17";
   if should_make cpython $ver; then
@@ -1615,6 +1628,7 @@ if [ "$package" == "fs2" ] || [ "$package" == "v" ]; then
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "fpc" ]; then
+#Free Pascal Compiler
 #work in progress
   ver="3.2.2";
   if should_make fpc $ver; then
