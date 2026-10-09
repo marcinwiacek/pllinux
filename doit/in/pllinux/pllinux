@@ -682,6 +682,8 @@ format_install2() {
 
       cd /mnt/install
 
+      #don't forget about sync with doit and initramfs
+
       for folderentry in app bin dev etc home mnt proc run sys tmp lib64 log log/tmp; do mkdir $folderentry; done
 
       /app/rsync/current/bin/rsync -a --info=progress2 /etc/ etc
@@ -721,6 +723,12 @@ format_install2() {
       ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
       chmod a+x ld-linux-x86-64.so.2
       cd ..
+      cd usr/share
+      ln -s /app/tzdb/current/usr/share/zoneinfo zoneinfo
+      cd ..
+      cd ..
+  
+      #don't forget about sync with doit and initramfs
 
       cd /
 
@@ -791,6 +799,17 @@ EOF
         else
           PART_FLAGS=""
         fi
+
+line2=$(blkid | grep $1p$PART_NUMBER)
+                    IFS=" "
+                    for PARAM in $line2; do
+                      case $PARAM in
+                        *LABEL=*)
+                           PART_FLAGS="$PART_FLAGS $PARAM"
+                      esac
+                    done
+                    IFS=$IFSORIG
+
         if [ "$PART_SYSTEM" = "" ]; then
           case $(blkid | grep "$1p$PART_NUMBER") in
             *crypto_LUKS*) PART_SYSTEM="LUKS"
@@ -840,10 +859,10 @@ EOF
               RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - check filesystem\" "
               COMMANDVAL="${COMMANDVAL}check $1p$PART_NUMBER\n"
               listnr=$(($listnr+1))
-              RETVAL="${RETVAL}$listnr "
-              RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - defragment filesystem\" "
-              COMMANDVAL="${COMMANDVAL}luksdefrag $1p$PART_NUMBER\n"
-              listnr=$(($listnr+1))
+#              RETVAL="${RETVAL}$listnr "
+#              RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - defragment filesystem\" "
+#              COMMANDVAL="${COMMANDVAL}luksdefrag $1p$PART_NUMBER\n"
+#              listnr=$(($listnr+1))
               RETVAL="${RETVAL}$listnr "
               RETVAL="${RETVAL}\"Partition $PART_NUMBER (${PART_SIZE}, ${PART_SYSTEM}${PART_FLAGS}) - change password\" "
               COMMANDVAL="${COMMANDVAL}cryptsetup luksChangeKey $1p$PART_NUMBER\n"  #todo multislot situation

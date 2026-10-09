@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="busybox"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="initramfs"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -254,6 +254,9 @@ install_host_deps "rsync"
 mkdir out || true
 mkdir download || true
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
+
+  #don't forget about sync with pllinux and initramfs
+  
   for folderentry in app bin dev etc home mnt proc run sys tmp lib64 log log/tmp usr usr/share; do mkdir $output/$folderentry; done
 
   rsync -a in/pllinux.etc/ $output/etc
@@ -289,6 +292,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
   cd ..
   cd usr/share
   ln -s /app/tzdb/current/usr/share/zoneinfo zoneinfo
+
+  #don't forget about sync with pllinux and initramfs
 
   cd $curdir
 fi

@@ -53,6 +53,8 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
 #  done
 #  cd /mnt
 
+  #don't forget about sync with pllinux and initramfs
+
   for folderentry in bin dev etc home mnt proc run sys tmp lib64 log log/tmp usr usr/share; do mkdir $folderentry; done
 
   /app/rsync/current/bin/rsync -a --info=progress2 iso/etc/ etc
@@ -92,6 +94,8 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
   ln -s /app/tzdb/current/usr/share/zoneinfo zoneinfo
   cd ..
   cd ..
+  
+  #don't forget about sync with pllinux and initramfs
 else
   # we have real filesystem param
   # this looks like booting from disk
