@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libgbm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="sdl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1412,13 +1412,14 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
     cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
        -DSDL_WAYLAND=OFF -DSDL_X11=OFF -DSDL_UNIX_CONSOLE_BUILD=ON \
        -DSDL_KMSDRM=ON \
-       -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON
+       -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON \
+    -DSDL_LIBUDEV=OFF
      # -DSDL_RENDER_VULKAN=OFF \
 #-DSDL_GBM=ON -DSDL_EGL=ON \
     cmake --build build
     create_app sdl $prefix$ver
     cmake --install build --prefix $output/app/sdl/$prefix$ver
-    set_current_app_clean_strip_cd sdl $prefix$ver 1
+#    set_current_app_clean_strip_cd sdl $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libdrm" ]; then
