@@ -29,4 +29,6 @@ shell file in /bin although SHELL variable points to other location). This is me
 
 # Graphic drivers and SDL/framebuffer support
 
+1. debugging with strace
+
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
