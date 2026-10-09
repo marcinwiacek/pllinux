@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libudev-zero"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="git"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -114,6 +114,21 @@ create_app() {
   fi
   echo "**Last**" >> $output/app/$packagename/$version/readme.md
   echo "$LATEST_FILE_UPDATE" >> $output/app/$packagename/$version/readme.md
+}
+
+set_current_app() {
+  packagename=$1
+  version=$2
+  stripapp=$3
+
+  curdir2=$(pwd)
+
+  #set "current" directory to the new installed app
+  cd $output/app/$1
+  rm current || true
+  ln -s $version current
+
+  cd $curdir2
 }
 
 set_current_app_clean_strip_cd() {
@@ -713,7 +728,8 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
     ./configure
     make -j$cpu_num all doc info NO_RUST=1
     create_app git $prefix$ver
-    make prefix=$output/app/git/$prefix$ver install install-doc install-html install-info NO_RUST=1
+    set_current_app git $prefix$ver 1
+    make prefix=/app/git/current install install-doc install-html install-info NO_RUST=1
     set_current_app_clean_strip_cd git $prefix$ver 1
     remove_duplicates_cd $output/app/git/$prefix$ver/bin
     remove_duplicates_cd $output/app/git/$prefix$ver/libexec/git-core
