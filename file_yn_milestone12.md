@@ -23,7 +23,11 @@ and of course in other implementations it can be different a little bit because 
 I tried to compile as well V (errors), PHP (still need to install some libraries) and FreePascal / FPC (totally different world
 and although I would like to try it, need to move it into the future).
 
-And now - when compiler needs thousands of MB, there is something wrong.
+And now - when compiler needs thousands of MB, there is something wrong. And... also I have found, that various software is compiled
+with hardcoded paths (for example they expect /usr/share/zoneinfo directory, although have file /etc/localtime, or they expect
+shell file in /bin although SHELL variable points to other location).
+
+This is mess.
 
 # Graphic drivers and SDL/framebuffer support
 
