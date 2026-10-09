@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="git"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="popt"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -858,7 +858,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "popt"
   if should_make popt $ver; then
     download_unpack_source https://github.com/rpm-software-management/popt/archive/refs/tags/popt-$ver-release.tar.gz popt popt-popt-$ver-release 1
     ./autogen.sh
-    ./configure --prefix=$output/app/popt/$prefix$ver
+    ./configure --prefix=/app/popt/$prefix$ver
     make all -j$cpu_num
     create_app popt $prefix$ver
     make install
@@ -929,11 +929,15 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurs
   ver="6.6";
   if should_make ncurses $ver; then
     download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver 1
-    ./configure --prefix=$output/app/ncurses/$prefix$ver --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
+    ./configure --prefix=/app/ncurses/current --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
     make all -j$cpu_num
     create_app ncurses $prefix$ver
+    set_current_app ncurses $prefix$ver 1
     make install
     rsync -a $curdir/in/ncurses/ $output/app/ncurses/$prefix$ver
+    echo "" >> /app/ncurses/current/readme.md
+    echo "**Last**" >> /app/ncurses/current/readme.md
+    echo "$LATEST_FILE_UPDATE" >> /app/ncurses/current/readme.md
     cp $out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
     set_current_app_clean_strip_cd ncurses $prefix$ver 1
   fi
@@ -942,11 +946,15 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurs
   ver="6.6";
   if should_make ncursesw $ver; then
     download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncursesw ncurses-$ver 1
-    ./configure --prefix=$output/app/ncursesw/$prefix$ver --with-shared  --enable-widec --with-cxx-shared --with-versioned-syms --without-normal
+    ./configure --prefix=/app/ncursesw/current --with-shared  --enable-widec --with-cxx-shared --with-versioned-syms --without-normal
     make all -j$cpu_num
     create_app ncursesw $prefix$ver
+    set_current_app ncursesw $prefix$ver 1
     make install
     rsync -a $curdir/in/ncurses/ $output/app/ncursesw/$prefix$ver
+    echo "" >> /app/ncursesw/current/readme.md
+    echo "**Last**" >> /app/ncursesw/current/readme.md
+    echo "$LATEST_FILE_UPDATE" >> /app/ncursesw/current/readme.md
     cp $out/ncursesw/ncurses-$ver/COPYING $output/app/ncursesw/$prefix$ver
     set_current_app_clean_strip_cd ncursesw $prefix$ver 1
   fi
@@ -1147,7 +1155,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libxcrypt" ]; then
     download_unpack_source https://github.com/besser82/libxcrypt/releases/download/v$ver/libxcrypt-$ver.tar.xz libxcrypt libxcrypt-$ver 1
     mkdir $out/libxcrypt/libxcrypt-$ver-build
     cd $out/libxcrypt/libxcrypt-$ver-build
-    ../libxcrypt-$ver/configure --prefix=$output/app/libxcrypt/$prefix$ver
+    ../libxcrypt-$ver/configure --prefix=/app/libxcrypt/$prefix$ver
     make -j$cpu_num
     create_app libxcrypt $prefix$ver
     make install
@@ -1202,7 +1210,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "crypt
   if should_make cryptsetup $ver; then
     install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
     download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver.tar.xz cryptsetup cryptsetup-$ver 1
-    ./configure --prefix=$output/app/cryptsetup/$prefix$ver
+    ./configure --prefix=/app/cryptsetup/$prefix$ver
     make -j$cpu_num
     create_app cryptsetup $prefix$ver
     make install
@@ -1241,9 +1249,10 @@ if [ "$package" == "fs" ] || [ "$package" == "nano" ]; then
   ver="9.2";
   if should_make nano $ver; then
     download_unpack_source https://www.nano-editor.org/dist/v9/nano-$ver.tar.xz nano nano-$ver 1
-    ./configure --prefix=$output/app/nano/$prefix$ver
+    ./configure --prefix=/app/nano/current
     make -j$cpu_num
     create_app nano $prefix$ver
+    set_current_app nano $prefix$ver 1
     make install
     set_current_app_clean_strip_cd nano $prefix$ver 1
   fi

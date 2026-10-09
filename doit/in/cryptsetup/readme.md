@@ -19,7 +19,7 @@ gcclib current
 glibc current
 
 **Description**
-Managing encryptet devices.
+Managing encrypted devices.
 
 **Project**
 https://gitlab.com/cryptsetup/cryptsetup
