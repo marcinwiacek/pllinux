@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="tzdb"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="util-linux"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -462,14 +462,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "util-
   ver="2.42.4";
   if should_make util-linux $ver; then
     download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver1/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
-    ./configure --prefix=$output/app/util-linux/$prefix$ver --without-systemd --disable-lsfd --disable-enosys \
-        --disable-bash-completion  --disable-makeinstall-chown  --disable-makeinstall-setuid  --disable-makeinstall-tty-setgid
+    #without --disable-makeinstall... tries to remove files from /usr/share... doesn't respect --prefix
+    #without --disable-bash-compiletion similar story
+    ./configure --prefix=/app/util-linux/current --without-systemd --disable-lsfd --disable-enosys \
+        --disable-bash-completion --disable-makeinstall-chown  --disable-makeinstall-setuid  --disable-makeinstall-tty-setgid
     make all -j$cpu_num
     create_app util-linux $prefix$ver
-    #fakeroot
-    #fixme: without --disable-makeinstall... tries to remove files from /usr/share... doesn't respect --prefix
+    set_current_app util-linux $prefix$ver 1
     make install || true
     cp $curdir/in/util-linux/* $output/app/util-linux/$prefix$ver
+    echo "" >> /app/util-linux/current/readme.md
+    echo "**Last**" >> /app/util-linux/current/readme.md
+    echo "$LATEST_FILE_UPDATE" >> /app/util-linux/current/readme.md
     set_current_app_clean_strip_cd util-linux $prefix$ver 1
   fi
 fi
