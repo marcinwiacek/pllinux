@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libexpat"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1607,20 +1607,32 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "usbut
     set_current_app_clean_strip_cd usbutils $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libgbm" ]; then
+#if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libgbm" ]; then
 #this is extraction. should we use mesa implementation?
-  ver="1.0.9";
-  if should_make libgbm $ver; then
-    download_unpack_source https://github.com/glfs-book/libgbm/archive/refs/tags/1.0.9.tar.gz libgbm libgbm-$ver 1
-#    install_host_deps "libusb-dev libudev-dev"
-    meson setup -Dprefix=/app/libgbm/current _build -Dlibdir=lib
-    meson compile -C _build
-    create_app libgbm $prefix$ver
-    set_current_app libgbm $prefix$ver 1
-    meson install -C _build
-#    rsync -a $output/app/libgbm/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libgbm/$prefix$ver/lib
-#    rm -r $output/app/libgbm/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd libgbm $prefix$ver 1
+ # ver="1.0.9";
+#  if should_make libgbm $ver; then
+#    download_unpack_source https://github.com/glfs-book/libgbm/archive/refs/tags/1.0.9.tar.gz libgbm libgbm-$ver 1
+#    meson setup -Dprefix=/app/libgbm/current _build -Dlibdir=lib
+#    meson compile -C _build
+#    create_app libgbm $prefix$ver
+#    set_current_app libgbm $prefix$ver 1
+#    meson install -C _build
+#    set_current_app_clean_strip_cd libgbm $prefix$ver 1
+#  fi
+#fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libexpat" ]; then
+  ver="2.9.0";
+  if should_make libexpat $ver; then
+    download_unpack_source https://github.com/libexpat/libexpat/releases/download/R_2_9_0/expat-2.9.0.tar.xz libexpat expat-$ver 1
+    ./configure --prefix=/app/libexpat/current
+    make all -j$cpu_num
+    create_app libexpat $prefix$ver
+    set_current_app libexpat $prefix$ver 1
+    make install
+    echo "" >> /app/libexpat/current/readme.md
+    echo "**Last**" >> /app/libexpat/current/readme.md
+    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
+    set_current_app_clean_strip_cd libexpat $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "mesa" ]; then
@@ -1628,9 +1640,12 @@ if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "mes
 #  ver="26.1.8";
   ver="26.0.8";
   if should_make mesa $ver; then
+
 #    install_host_deps "glslang-tools rustc bindgen python3-mako"   #26.2.4
 #libllvmspirvlib-19-dev libunwind-22-dev"   #26.1.8
-    install_host_deps "libclc-22-dev"
+#    install_host_deps "libclc-22-dev"
+
+# sudo apt-get build-dep mesa
     download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
     meson setup -Dprefix=/app/mesa/current _build #-Dgallium-rusticl=false
     meson compile -C _build
