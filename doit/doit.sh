@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="pcre2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libssh"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1574,9 +1574,13 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libss
     mkdir build
     cd build
     create_app libssh $prefix$ver
-    cmake -DCMAKE_INSTALL_PREFIX=$output/app/libssh/$prefix$ver -DCMAKE_BUILD_TYPE=Release ..
+    set_current_app libssh $prefix$ver 1
+    cmake -DCMAKE_INSTALL_PREFIX=/app/libssh/current -DCMAKE_BUILD_TYPE=Release ..
     make
     make install
+#    echo "" >> /app/libssh/current/readme.md
+#    echo "**Last**" >> /app/libssh/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/libssh/current/readme.md
     set_current_app_clean_strip_cd libssh $prefix$ver 1
   fi
 fi
