@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libssh"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1621,6 +1621,23 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libgb
 #    rsync -a $output/app/libgbm/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libgbm/$prefix$ver/lib
 #    rm -r $output/app/libgbm/$prefix$ver/lib/x86_64-linux-gnu/
     set_current_app_clean_strip_cd libgbm $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "mesa" ]; then
+#  ver="26.2.4";
+#  ver="26.1.8";
+  ver="26.0.8";
+  if should_make mesa $ver; then
+#    install_host_deps "glslang-tools rustc bindgen python3-mako"   #26.2.4
+#libllvmspirvlib-19-dev libunwind-22-dev"   #26.1.8
+    install_host_deps "libclc-22-dev"
+    download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
+    meson setup -Dprefix=/app/mesa/current _build #-Dgallium-rusticl=false
+    meson compile -C _build
+    create_app mesa $prefix$ver
+    set_current_app mesa $prefix$ver 1
+    meson install -C _build
+#    set_current_app_clean_strip_cd libgbm $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libudev-zero" ]; then
