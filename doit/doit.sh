@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="llvm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="tzdb"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -640,9 +640,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod"
   if should_make kmod $ver; then
     install_host_deps "scdoc"
     download_unpack_source https://github.com/kmod-project/kmod/archive/refs/tags/v$ver.tar.gz kmod kmod-$ver 1
-    meson setup -Dprefix=$output/app/kmod/$prefix$ver --buildtype release _build
+    meson setup -Dprefix=/app/kmod/current --buildtype release _build
     meson compile -C _build
     create_app kmod $prefix$ver
+    set_current_app kmod $prefix$ver 1
     meson install -C _build
     rsync -a $output/app/kmod/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/kmod/$prefix$ver/lib
     rm -r $output/app/kmod/$prefix$ver/lib/x86_64-linux-gnu/
@@ -1087,7 +1088,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "tzdb"
   if should_make tzdata $ver; then
     download_unpack_source https://data.iana.org/time-zones/releases/tzdb-$ver.tar.lz tzdb tzdb-$ver 1
     create_app tzdb $prefix$ver
-    make TOPDIR="$output/app/tzdb/$prefix$ver" install
+    set_current_app tzdb $prefix$ver 1
+    make TOPDIR="/app/tzdb/current" install
     cp LICENSE $output/app/tzdb/$prefix$ver
     set_current_app_clean_strip_cd tzdb $prefix$ver 1
   fi
