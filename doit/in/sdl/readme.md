@@ -5,7 +5,10 @@
 **Deps**
 glibc current
 libdrm current
-libgbm current
+mesa current
+libudev-zero current
+libexpat current
+gcclib current
 
 **Description**
 
