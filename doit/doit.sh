@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="util-linux"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="nftables"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -360,11 +360,13 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftab
       sudo apt-get install download/libnftnl11_1.3.1-1_amd64.deb
     fi
     download_unpack_source https://netfilter.org/projects/nftables/files/nftables-$ver.tar.xz nftables nftables-$ver 1
-    ./configure --prefix=$output/app/nftables/$prefix$ver
+    ./configure --prefix=/app/nftables/current
     make -j$cpu_num
     create_app nftables $prefix$ver
+    set_current_app nftables $prefix$ver 1
     make install
-    find_binary_lib $output/app/nftables/$prefix$ver sbin/nft
+#    find_binary_lib $output/app/nftables/$prefix$ver sbin/nft #fixme
+    find_binary_lib $output/app/nftables/$prefix$ver lib/libnftables.so.1.1.0 #fixme
     rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
     set_current_app_clean_strip_cd nftables $prefix$ver 1
   fi
@@ -1007,9 +1009,10 @@ if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
   ver="2.3.3";
   if should_make slang $ver; then
     download_unpack_source https://www.jedsoft.org/releases/slang/slang-$ver.tar.bz2 slang slang-$ver 1
-    ./configure --prefix=$output/app/slang/$prefix$ver
+    ./configure --prefix=/app/slang/current
     make all -j$cpu_num
     create_app slang $prefix$ver
+    set_current_app slang $prefix$ver 1
     make install
     chmod a-x $output/app/slang/$prefix$ver/lib/slang/v2/modules/*.so
     set_current_app_clean_strip_cd slang $prefix$ver 1
@@ -1228,9 +1231,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "parte
     download_unpack_source https://ftp.gnu.org/gnu/parted/parted-$ver.tar.xz parted parted-$ver 1
     mkdir $out/parted/parted-$ver-build
     cd $out/parted/parted-$ver-build
-    ../parted-$ver/configure --prefix=$output/app/parted/$prefix$ver
+    ../parted-$ver/configure --prefix=/app/parted/current
     make -j$cpu_num
     create_app parted $prefix$ver
+    set_current_app parted $prefix$ver 1
     make install
     set_current_app_clean_strip_cd parted $prefix$ver 1
   fi
