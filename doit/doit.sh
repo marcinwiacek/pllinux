@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="smartmontools"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libgbm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1601,12 +1601,13 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libgb
   if should_make libgbm $ver; then
     download_unpack_source https://github.com/glfs-book/libgbm/archive/refs/tags/1.0.9.tar.gz libgbm libgbm-$ver 1
 #    install_host_deps "libusb-dev libudev-dev"
-    meson setup -Dprefix=/app/libgbm/current _build
+    meson setup -Dprefix=/app/libgbm/current _build -Dlibdir=lib
     meson compile -C _build
     create_app libgbm $prefix$ver
+    set_current_app libgbm $prefix$ver 1
     meson install -C _build
-    rsync -a $output/app/libgm/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libgbm/$prefix$ver/lib
-    rm -r $output/app/libgbm/$prefix$ver/lib/x86_64-linux-gnu/
+#    rsync -a $output/app/libgbm/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libgbm/$prefix$ver/lib
+#    rm -r $output/app/libgbm/$prefix$ver/lib/x86_64-linux-gnu/
     set_current_app_clean_strip_cd libgbm $prefix$ver 1
   fi
 fi
