@@ -12,6 +12,8 @@ glibc current
 ncurses current
 libbsd current
 libmd current
+libedit current
+gmp current
 
 **Man**
 share/man/man3:share/man/man5:share/man/man8
