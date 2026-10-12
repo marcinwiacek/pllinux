@@ -685,7 +685,7 @@ format_install2() {
 
       #don't forget about sync with doit and initramfs
 
-      for folderentry in app bin dev etc home mnt proc run sys tmp lib64 log log/tmp; do mkdir $folderentry; done
+      for folderentry in app bin dev etc home mnt proc run sys tmp lib64 log log/tmp usr usr/share; do mkdir $folderentry; done
 
       /app/rsync/current/bin/rsync -a --info=progress2 /etc/ etc
 
@@ -728,7 +728,7 @@ format_install2() {
       ln -s /app/tzdb/current/usr/share/zoneinfo zoneinfo
       cd ..
       cd ..
-  
+
       #don't forget about sync with doit and initramfs
 
       cd /
