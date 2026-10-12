@@ -13,6 +13,9 @@ llvm current
 zlib current
 zstd current
 lm-sensors current
+libxcb current
+libxshmfence current
+elfutils current
 
 **Description**
 
