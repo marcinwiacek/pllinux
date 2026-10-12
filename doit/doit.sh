@@ -1737,28 +1737,16 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libex
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llvm" ]; then
 #work in progress
-  ver="23.1.3";
+#  ver="23.1.3";
+  ver="19.1.7";
   if should_make llvm $ver; then
-    download_unpack_source https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-23.1.3.tar.gz llvm llvm-project-llvmorg-$ver 1
-#    cd ..
-#    mkdir build
-#    cd build
+    download_unpack_source https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-$ver.tar.gz llvm llvm-project-llvmorg-$ver 1
     cmake -S llvm -B builddir -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=X86 \
-       -DCMAKE_INSTALL_PREFIX=/app/llvm/current
-#    cmake --build build
+       -DCMAKE_INSTALL_PREFIX=/app/llvm/current -DLLVM_BUILD_LLVM_DYLIB=true
     create_app llvm $prefix$ver
     set_current_app llvm $prefix$ver 1
     ninja -C builddir install
-
-#    ./configure --prefix=/app/libexpat/current
-#    make all -j$cpu_num
-#    create_app libexpat $prefix$ver
-#    set_current_app libexpat $prefix$ver 1
-#    make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
-#    set_current_app_clean_strip_cd libexpat $prefix$ver 1
+    set_current_app_clean_strip_cd llvm $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "mesa" ]; then
