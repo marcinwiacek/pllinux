@@ -395,11 +395,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftab
     create_app nftables $prefix$ver
     set_current_app nftables $prefix$ver 1
     make install
-    find_binary_lib $output/app/nftables/$prefix$ver sbin/nft
-    rm -r $output/app/nftables/$prefix$ver/lib/libtedit* || true
-    rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
-    rm -r $output/app/nftables/$prefix$ver/lib/libbsd* || true
-    rm -r $output/app/nftables/$prefix$ver/lib/libmd* || true
+#    find_binary_lib $output/app/nftables/$prefix$ver sbin/nft
+#    rm -r $output/app/nftables/$prefix$ver/lib/libtedit* || true
+#    rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
+#    rm -r $output/app/nftables/$prefix$ver/lib/libbsd* || true
+#    rm -r $output/app/nftables/$prefix$ver/lib/libmd* || true
     set_current_app_clean_strip_cd nftables $prefix$ver 1
   fi
 fi
