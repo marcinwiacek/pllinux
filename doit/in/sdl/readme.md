@@ -9,6 +9,10 @@ mesa current
 libudev-zero current
 libexpat current
 gcclib current
+llvm current
+zlib current
+zstd current
+lm-sensors current
 
 **Description**
 
