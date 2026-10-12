@@ -14,6 +14,8 @@ libbsd current
 libmd current
 libedit current
 gmp current
+libmnl current
+libnftnl current
 
 **Man**
 share/man/man3:share/man/man5:share/man/man8

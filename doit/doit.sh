@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="gmp"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libnftnl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -354,6 +354,30 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busyb
     cp $curdir/in/busybox/* $output/app/busybox/$prefix$ver
     rm $output/app/busybox/$prefix$ver/linuxrc
     set_current_app_clean_strip_cd busybox $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libmnl" ]; then
+  ver="1.0.5";
+  if should_make libmnl $ver; then
+    download_unpack_source https://netfilter.org/projects/libmnl/files/libmnl-1.0.5.tar.bz2 libmnl libmnl-$ver 1
+    ./configure --prefix=/app/libmnl/current
+    make -j$cpu_num
+    create_app libmnl $prefix$ver
+    set_current_app libmnl $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd libmnl $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libnftnl" ]; then
+  ver="1.3.2";
+  if should_make libnftnl $ver; then
+    download_unpack_source https://netfilter.org/projects/libnftnl/files/libnftnl-1.3.2.tar.xz libnftnl libnftnl-$ver 1
+    ./configure --prefix=/app/libnftnl/current
+    make -j$cpu_num
+    create_app libnftnl $prefix$ver
+    set_current_app libnftnl $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd libnftnl $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftables" ]; then
