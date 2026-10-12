@@ -5,6 +5,7 @@ GPL2
 glibc current
 ncurses current
 ncursesw current
+readline current
 
 **Project**
 https://github.com/util-linux/util-linux

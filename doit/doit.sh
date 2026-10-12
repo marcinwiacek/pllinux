@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libexpat"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="nftables"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -15,6 +15,8 @@ if [ "$use_tmpfs" = "1" ]; then
 fi
 curdir=$(pwd)
 prefix="$(date +"%y%m%d")_" # prefix for packages versions in /app in new system
+
+IFSORIG=$IFS
 
 # Check if makes sense to build the whole package
 should_make() {
@@ -97,6 +99,7 @@ download_unpack_source() {
       fi
     fi
   done <<< "$(ls -c)"
+  IFS=$IFSORIG
 }
 
 #creating directory with the app
@@ -181,7 +184,10 @@ find_binary_lib() {
   binary=$2
   mkdir -p $appdir/lib
   list="$(ldd $appdir/$binary | egrep -o '/lib.*\.[0-9]')"
-  for lib in $list; do rsync -a ${lib%.so*}.so* "$appdir/lib"; done
+  for lib in $list; do 
+#    echo found lib ${lib%.so*} 
+    rsync -a ${lib%.so*}.so* "$appdir/lib";
+  done
   rm -r $appdir/lib/ld-linux-x86-64.so.2 || true
   rm -r $appdir/lib64 || true
   rm -r $appdir/lib/libc.so* || true
@@ -365,9 +371,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftab
     create_app nftables $prefix$ver
     set_current_app nftables $prefix$ver 1
     make install
-#    find_binary_lib $output/app/nftables/$prefix$ver sbin/nft #fixme
-    find_binary_lib $output/app/nftables/$prefix$ver lib/libnftables.so.1.1.0 #fixme
+    find_binary_lib $output/app/nftables/$prefix$ver sbin/nft
     rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
+    rm -r $output/app/nftables/$prefix$ver/lib/libbsd* || true
+    rm -r $output/app/nftables/$prefix$ver/lib/libmd* || true
     set_current_app_clean_strip_cd nftables $prefix$ver 1
   fi
 fi
@@ -878,6 +885,34 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "popt"
     create_app popt $prefix$ver
     make install
     set_current_app_clean_strip_cd popt $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libbsd" ]; then
+  ver="0.12.2";
+  if should_make libbsd $ver; then
+    download_unpack_source https://libbsd.freedesktop.org/releases/libbsd-$ver.tar.xz libbsd libbsd-$ver 1
+    install_host_deps "automake autogen libtool"
+#    echo $ver > .dist-version
+    ./autogen
+    ./configure --prefix=/app/libbsd/$prefix$ver
+    make all -j$cpu_num
+    create_app libbsd $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libbsd $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libmd" ]; then
+  ver="1.3.0";
+  if should_make libmd $ver; then
+    download_unpack_source https://libbsd.freedesktop.org/releases/libmd-$ver.tar.xz libmd libmd-$ver 1
+#    install_host_deps "automake autogen libtool"
+#    echo $ver > .dist-version
+    ./autogen
+    ./configure --prefix=/app/libmd/$prefix$ver
+    make all -j$cpu_num
+    create_app libmd $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libmd $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsync" ]; then

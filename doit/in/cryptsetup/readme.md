@@ -17,6 +17,8 @@ nftables current
 pcre2 current
 gcclib current
 glibc current
+libbsd current
+libmd current
 
 **Description**
 Managing encrypted devices.
