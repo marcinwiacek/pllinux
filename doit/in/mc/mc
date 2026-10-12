@@ -1,25 +1,29 @@
 #!/app/busybox/current/bin/sh
 DIR=$(dirname $0)
+APP=""
 if [ -d "/etc." ]; then
   # root
-  APP=" --bind /app app --bind $DIR/etc/mc etc/mc "
+  APP="$APP --bind /app app " #--bind $DIR/etc/mc etc/mc "
 else
   # non root
-  APP=" --ro-bind /app app --ro-bind $DIR/etc/mc etc/mc --ro-bind /etc/localtime etc/localtime "
+  APP="$APP --ro-bind /app app --ro-bind /etc/localtime etc/localtime "
+  #--ro-bind $DIR/etc/mc etc/mc 
 fi
-if [ -d "/iso" ]; then
-  # iso image
-  APP3=""
-else
-  # normal system
-  APP3=" --chdir $(pwd) ";
+if [ ! -d "/iso" ]; then
+  # normal system, not iso
+  APP="$APP --chdir $(pwd) ";
 fi
 mkdir /other/app/mc 2> /dev/null
+for DEV in $(ls /dev); do
+  case $DEV in
+  nvme*|fb0|log|mapper)
+#    echo adding $DEV >> /tmp/x
+    APP="$APP --dev-bind-try /dev/$DEV /dev/$DEV"
+  esac
+done
 /app/bwrap/current/bin/bwrap \
     --setenv HOME /other/app/mc \
-    $APP \
     --dev dev \
-    --dev-bind-try /dev/log /dev/log \
     --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
     --proc proc \
     --bind /tmp tmp \
@@ -34,10 +38,13 @@ mkdir /other/app/mc 2> /dev/null
     --ro-bind $DIR/bin bin \
     --ro-bind /lib64 lib64 \
     --setenv PS1 "[\t] $USER # " \
-    $APP3 \
+    $APP \
     $DIR/bin/mc
 
-    # devices are mapped, but... problem with shell prompt
+#    --dev-bind-try /dev/fb0 /dev/fb0 \
+#    --dev-bind-try /dev/log /dev/log \
+
+    # devices are mapped, but... problem with shell prompt (we map too much and some device is making mess)
     #--dev-bind /dev /dev \
 
     # no clean before running command in options
