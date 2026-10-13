@@ -67,9 +67,9 @@ EOF
 }
 
 set_general_config() {
-  if [ "$DIR" != "/" ]; then
-    return
-  fi
+#  if [ "$DIR" != "/" ]; then
+#    return
+#  fi
   if [ -e "$DIR$CFGFILE" ]; then
     ETH_START=0
     while read -r line; do
@@ -290,8 +290,8 @@ set_time_zone() {
   list=""
   listnr=1
   for NAME in $(ls /app/tzdb/current/usr/share/zoneinfo); do
-    if [ -d "/app/tzdb/current/usr/share/zoneinfo/$NAME" ]; then
-      for NAME2 in $(ls /app/tzdb/current/usr/share/zoneinfo/$NAME); do
+    if [ -d "${DIR}app/tzdb/current/usr/share/zoneinfo/$NAME" ]; then
+      for NAME2 in $(ls ${DIR}app/tzdb/current/usr/share/zoneinfo/$NAME); do
         list="$list $listnr $NAME/$NAME2"
         if [ "$TIMEZONE" == "$NAME/$NAME2" ]; then
           DEFAULT_NUM=$listnr
@@ -311,8 +311,8 @@ set_time_zone() {
            --menu "Selected timezone $TIMEZONE. Please select new value" 0 0 10 $list)
   if [ $? = 0 ]; then
     listnr=1
-    for NAME in $(ls /app/tzdb/current/usr/share/zoneinfo); do
-      if [ -d "/app/tzdb/current/usr/share/zoneinfo/$NAME" ]; then
+    for NAME in $(ls ${DIR}app/tzdb/current/usr/share/zoneinfo); do
+      if [ -d "${DIR}app/tzdb/current/usr/share/zoneinfo/$NAME" ]; then
         for NAME2 in $(ls /app/tzdb/current/usr/share/zoneinfo/$NAME); do
           if [ $listnr = $cmd ]; then
             TIMEZONE=$NAME/$NAME2

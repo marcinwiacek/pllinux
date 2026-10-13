@@ -29,6 +29,13 @@ shell file in /bin although SHELL variable points to other location). This is me
 
 # Graphic drivers and SDL/framebuffer support
 
-1. debugging with strace
+Preparing SDL support very fast end with installing many big projects (mesa, llvm, some X11 components.). Work is not completed, but for now
+(13 Oct) there are few notes:
+
+1. debugging with strace helps in finding, what file is missed
+2. 16GB RAM machine seems to be not enough for compiling LLVM, 32GB works definitive better
+3. creating new packages very fast ended with using more than 1GB in the /app
+4. creating libLLVM.so needs extra config options (by default it's not done)
+5. compiling just basic llvm project end with undefined symbol: _ZTIN4llvm19RTDyldMemoryManagerE
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)

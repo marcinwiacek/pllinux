@@ -16,6 +16,14 @@ lm-sensors current
 libxcb current
 libxshmfence current
 elfutils current
+libx11 current
+libedit current
+libxml2 current
+libxau current
+libxdmcp current
+libpciaccess current
+ncurses current
+libffi current
 
 **Description**
 

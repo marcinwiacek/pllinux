@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libpciaccess"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1575,10 +1575,14 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
     libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
     download_unpack_source https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz sdl SDL3-$ver 1
     cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
-       -DSDL_WAYLAND=OFF -DSDL_X11=OFF -DSDL_UNIX_CONSOLE_BUILD=ON \
+-DSDL_UNIX_CONSOLE_BUILD=ON \
        -DSDL_KMSDRM=ON \
        -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON \
-    -DSDL_LIBUDEV=OFF
+    -DSDL_LIBUDEV=OFF \
+      -DSDL_STATIC=OFF            \
+      -DSDL_RPATH=OFF
+#       -DSDL_WAYLAND=OFF -DSDL_X11=OFF 
+#-DSDL_TEST_LIBRARY=OFF      \
      # -DSDL_RENDER_VULKAN=OFF \
 #-DSDL_GBM=ON -DSDL_EGL=ON \
     cmake --build build
@@ -1846,39 +1850,61 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxs
     set_current_app_clean_strip_cd libxshmfence $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libffi" ]; then
+  ver="3.8.0";
+  if should_make libffi $ver; then
+    download_unpack_source https://github.com/libffi/libffi/archive/refs/tags/v3.8.0.tar.gz libffi libffi-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libffi/current
+    make all -j$cpu_num
+    create_app libffi $prefix$ver
+    set_current_app libffi $prefix$ver 1
+    make install
+#    echo "" >> /app/libexpat/current/readme.md
+#    echo "**Last**" >> /app/libexpat/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
+    set_current_app_clean_strip_cd libffi $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llvm" ]; then
 #work in progress
 #  ver="23.1.3";
   ver="19.1.7";
   if should_make llvm $ver; then
     download_unpack_source https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-$ver.tar.gz llvm llvm-project-llvmorg-$ver 1
-    cmake -S llvm -B builddir -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=X86 \
-       -DCMAKE_INSTALL_PREFIX=/app/llvm/current -DLLVM_BUILD_LLVM_DYLIB=true
+    cmake -S llvm -B builddir -G Ninja \
+       -DCMAKE_SKIP_INSTALL_RPATH=ON \
+       -DLLVM_ENABLE_RTTI=ON \
+       -DCLANG_DEFAULT_PIE_ON_LINUX=ON \
+       -DLLVM_ENABLE_FFI=ON \
+       -DCMAKE_BUILD_TYPE=MinSizeRel -DLLVM_TARGETS_TO_BUILD="X86;AMDGPU" \
+       -DCMAKE_INSTALL_PREFIX=/app/llvm/current \
+       -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON \
+       -DLLVM_ENABLE_PROJECTS=clang -DLLVM_ENABLE_RUNTIMES=compiler-rt
     create_app llvm $prefix$ver
     set_current_app llvm $prefix$ver 1
     ninja -C builddir install
-    set_current_app_clean_strip_cd llvm $prefix$ver 1
+    set_current_app_clean_strip_cd llvm $prefix$ver 0
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "mesa" ]; then
 #work in progress
 #  ver="26.2.4";
 #  ver="26.1.8";
-  ver="26.0.8";
+  ver="26.1.8";
   if should_make mesa $ver; then
-
-#    install_host_deps "glslang-tools rustc bindgen python3-mako"   #26.2.4
-#libllvmspirvlib-19-dev libunwind-22-dev"   #26.1.8
-#    install_host_deps "libclc-22-dev"
-
 # sudo apt-get build-dep mesa
     download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
-    meson setup -Dprefix=/app/mesa/current _build #-Dgallium-rusticl=false
+    meson setup -Dprefix=/app/mesa/current _build \
+      -Dgallium-drivers=auto -Dvulkan-drivers=auto -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
+      -Degl-native-platform=drm -Dgles1=enabled -Dgles2=enabled -Dglx=dri -Dglvnd=enabled -Dtools="glsl" -Dplatforms="x11,wayland"
+#-Degl=enabled 
+#-Dgallium-rusticl=false 
     meson compile -C _build
     create_app mesa $prefix$ver
     set_current_app mesa $prefix$ver 1
-#    meson install -C _build
-#    set_current_app_clean_strip_cd libgbm $prefix$ver 1
+    meson install -C _build
+#    set_current_app_clean_strip_cd mesa $prefix$ver 0
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libudev-zero" ]; then
