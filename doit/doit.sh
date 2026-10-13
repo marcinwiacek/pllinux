@@ -1148,7 +1148,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
     meson install -C _build
     rsync -a $output/app/libxml2/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libxml2/$prefix$ver/lib
     rm -r $output/app/libxml2/$prefix$ver/lib/x86_64-linux-gnu/
-fixme do link .so.2 do .so
+#fixme do link .so.2 do .so
     set_current_app_clean_strip_cd libxml2 $prefix$ver 1
   fi
 fi
@@ -1806,6 +1806,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpc
     create_app libpciaccess $prefix$ver
     set_current_app libpciaccess $prefix$ver 1
     meson install -C _build
+    rsync -a $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/json-c/$prefix$ver/lib
+    rm -r $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/
 #    echo "" >> /app/libexpat/current/readme.md
 #    echo "**Last**" >> /app/libexpat/current/readme.md
 #    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
