@@ -36,6 +36,10 @@ Preparing SDL support very fast end with installing many big projects (mesa, llv
 2. 16GB RAM machine seems to be not enough for compiling LLVM, 32GB works definitive better
 3. creating new packages very fast ended with using more than 1GB in the /app
 4. creating libLLVM.so needs extra config options (by default it's not done)
-5. compiling just basic llvm project end with undefined symbol: _ZTIN4llvm19RTDyldMemoryManagerE
+5. compiling just basic llvm project can end with undefined symbol: _ZTIN4llvm19RTDyldMemoryManagerE
+6. mesa docs give some example with info "This will install libGLESv1_CM, libGLESv2, libEGL, and one or more EGL drivers for your hardware.",
+but it seems, that libGLESv2 is probably created only in Android version
+
+Generally a lot of "fun"
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
