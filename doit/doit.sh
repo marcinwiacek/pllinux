@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="kernel"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1574,12 +1574,12 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
     libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
     download_unpack_source https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz sdl SDL3-$ver 1
     cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
--DSDL_UNIX_CONSOLE_BUILD=ON \
        -DSDL_KMSDRM=ON \
        -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON \
     -DSDL_LIBUDEV=OFF \
       -DSDL_STATIC=OFF            \
-      -DSDL_RPATH=OFF
+      -DSDL_RPATH=OFF \
+-DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF
 #       -DSDL_WAYLAND=OFF -DSDL_X11=OFF 
 #-DSDL_TEST_LIBRARY=OFF      \
      # -DSDL_RENDER_VULKAN=OFF \
