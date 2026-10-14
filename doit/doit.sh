@@ -331,7 +331,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kerne
     for fileentry in .config arch/x86/boot/bzImage; do
       cp $fileentry $output/app/kernel/$prefix$ver
     done
-    make headers_install INSTALL_HRD_PATH=$output/app/kernel/$prefix$ver
+    make headers_install INSTALL_HDR_PATH=$output/app/kernel/$prefix$ver
     make modules_install INSTALL_MOD_PATH=/tmp/x
     cd /tmp/x/lib/modules
     cd $(ls)
