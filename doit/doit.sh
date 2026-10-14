@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="glib"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="gcc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1067,17 +1067,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gcc" 
 #  ver="14.4.0";
   ver="16.2.0";
   if should_make gcc $ver; then
-    # we unpack and download prerequisities to the normal disk (to allow compilation offline)
+    # we don't unpack and download prerequisities to the normal disk anymore (to allow compilation offline)
     # compilation can be done in tmpfs (ca. 4,3 GB)
-    download_unpack_source https://ftp.gnu.org/gnu/gcc/gcc-$ver/gcc-$ver.tar.xz gcc gcc-$ver 0
+    download_unpack_source https://ftp.gnu.org/gnu/gcc/gcc-$ver/gcc-$ver.tar.xz gcc gcc-$ver 1
     contrib/download_prerequisites
-    cd $out
-    mkdir gcc-$ver-build
-    cd gcc-$ver-build
-    $curdir/out/gcc/gcc-$ver/configure --enable-shared --disable-multilib --prefix= --disable-bootstrap --enable-languages=c,c++
+    mkdir ../gcc-$ver-build
+    cd ../gcc-$ver-build
+    ../gcc-$ver/configure --enable-shared --disable-multilib --prefix= --disable-bootstrap --enable-languages=c,c++
     make all -j$cpu_num
     create_app gcc $prefix$ver
-    make DESTDIR=$output/app/gcc/$prefix$ver install-strip
+    set_current_app gcc $prefix$ver 1
+    make DESTDIR=/app/gcc/current install-strip
     rsync -a $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
     rm -r $output/app/gcc/$prefix$ver/lib64
     rsync -a $curdir/in/gcc/ $output/app/gcc/$prefix$ver
