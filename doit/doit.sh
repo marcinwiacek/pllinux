@@ -324,22 +324,21 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kerne
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
     # compilation in ram enabled after migrating to 32GB RAM
     download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver 1
-    cp $curdir/in/kernel/.config $out/kernel/linux-$ver
+    cp $curdir/in/kernel/.config .
     make -j$cpu_num
-    cp $out/kernel/.config $curdir/in/kernel # .config will be updated with new header and maybe options
+    cp .config $curdir/in/kernel # .config will be updated with new header and maybe options
     create_app kernel $prefix$ver
-    for fileentry in $out/kernel/.config $out/kernel/linux-$ver/arch/x86/boot/bzImage; do
+    for fileentry in .config arch/x86/boot/bzImage; do
       cp $fileentry $output/app/kernel/$prefix$ver
     done
     make headers_install INSTALL_HRD_PATH=$output/app/kernel/$prefix$ver
     make modules_install INSTALL_MOD_PATH=/tmp/x
     cd /tmp/x/lib/modules
     cd $(ls)
-    pwd
     rm build
     rsync -a . $output/app/kernel/$prefix$ver/modules
-#    rm -r /tmp/x
-#    set_current_app_clean_strip_cd kernel $prefix$ver 1
+    rm -r /tmp/x
+    set_current_app_clean_strip_cd kernel $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busybox" ]; then
