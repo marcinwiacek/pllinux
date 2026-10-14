@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libglvnd"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="kernel"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -322,24 +322,24 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kerne
   ver="7.2.6";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
-    # no compilation in ram
-    download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver 0
-    cp $curdir/in/kernel/.config $curdir/out/kernel/linux-$ver
+    # compilation in ram enabled after migrating to 32GB RAM
+    download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver 1
+    cp $curdir/in/kernel/.config $out/kernel/linux-$ver
     make -j$cpu_num
-    cp .config $curdir/in/kernel # .config will be updated with new header and maybe options
+    cp $out/kernel/.config $curdir/in/kernel # .config will be updated with new header and maybe options
     create_app kernel $prefix$ver
-    cp $curdir/in/kernel/.config $output/app/kernel/$prefix$ver
-    cp $curdir/out/kernel/linux-$ver/arch/x86/boot/bzImage $output/app/kernel/$prefix$ver
+    for fileentry in $out/kernel/.config $out/kernel/linux-$ver/arch/x86/boot/bzImage; do
+      cp $fileentry $output/app/kernel/$prefix$ver
+    done
     make headers_install INSTALL_HRD_PATH=$output/app/kernel/$prefix$ver
     make modules_install INSTALL_MOD_PATH=/tmp/x
     cd /tmp/x/lib/modules
-    DIRX=$(ls)
-    cd $DIRX
+    cd $(ls)
+    pwd
     rm build
     rsync -a . $output/app/kernel/$prefix$ver/modules
-    cd /
-    rm -r /tmp/x
-    set_current_app_clean_strip_cd kernel $prefix$ver 1
+#    rm -r /tmp/x
+#    set_current_app_clean_strip_cd kernel $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busybox" ]; then
@@ -1910,7 +1910,7 @@ if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "mes
 # sudo apt-get build-dep mesa
     download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
     meson setup -Dprefix=/app/mesa/current _build \
-      -Dgallium-drivers=auto -Dvulkan-drivers=auto -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
+      -Dgallium-drivers="softpipe" -Dvulkan-drivers=auto -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
       -Degl-native-platform=drm -Dgles1=enabled -Dgles2=enabled -Dglx=dri -Dglvnd=enabled -Dtools="glsl" -Dplatforms="x11,wayland"
     meson compile -C _build
     create_app mesa $prefix$ver

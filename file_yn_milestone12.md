@@ -42,4 +42,6 @@ but it seems, that libGLESv2 is probably created only in Android version
 
 Generally a lot of "fun"
 
+https://fedoraproject.org/wiki/Changes/ReplaceFbdevDrivers
+
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
