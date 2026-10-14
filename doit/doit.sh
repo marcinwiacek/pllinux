@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="git"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1907,15 +1907,16 @@ if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "mes
   ver="26.1.8";
   if should_make mesa $ver; then
 # sudo apt-get build-dep mesa
+#python3-pycparser
     download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
     meson setup -Dprefix=/app/mesa/current _build \
-      -Dgallium-drivers="softpipe" -Dvulkan-drivers=auto -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
+      -Dgallium-drivers="all" -Dvulkan-drivers=auto -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
       -Degl-native-platform=drm -Dgles1=enabled -Dgles2=enabled -Dglx=dri -Dglvnd=enabled -Dtools="glsl" -Dplatforms="x11,wayland"
     meson compile -C _build
     create_app mesa $prefix$ver
     set_current_app mesa $prefix$ver 1
     meson install -C _build
-    set_current_app_clean_strip_cd mesa $prefix$ver 0
+    set_current_app_clean_strip_cd mesa $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libudev-zero" ]; then
