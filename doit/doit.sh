@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="kernel"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="sdl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -71,6 +71,10 @@ download_unpack_source() {
         *.rpm* )
           install_host_deps "rpm"
           rpm2cpio $curdir/download/$localfile | cpio -idmv
+          ;;
+        *.zip* )
+pwd
+          unzip $curdir/download/$localfile -d .
           ;;
         * )
           tar -xvf $curdir/download/$localfile
@@ -339,6 +343,24 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kerne
     rsync -a . $output/app/kernel/$prefix$ver/modules
     rm -r /tmp/x
     set_current_app_clean_strip_cd kernel $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "linuxfb" ]; then
+  ver="1";
+  if should_make linuxfb $ver; then
+    download_unpack_source https://github.com/roddehugo/linuxfb/archive/refs/heads/master.zip linuxfb linuxfb-master 1
+#    cp $curdir/in/busybox/.config $out/busybox/busybox-$ver
+    make -j$cpu_num
+    create_app linuxfb $prefix$ver
+    for fileentry in fbinfo fbmmap vconsole; do
+      cp $fileentry $output/app/linuxfb/$prefix$ver
+    done
+
+#    cp .config $curdir/in/busybox # .config will be updated with new header and maybe options
+#    make CONFIG_PREFIX=$output/app/busybox/$prefix$ver install
+#    cp $curdir/in/busybox/* $output/app/busybox/$prefix$ver
+#    rm $output/app/busybox/$prefix$ver/linuxrc
+#    set_current_app_clean_strip_cd busybox $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busybox" ]; then
@@ -1579,8 +1601,8 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
     -DSDL_LIBUDEV=OFF \
       -DSDL_STATIC=OFF            \
       -DSDL_RPATH=OFF \
--DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF
-#       -DSDL_WAYLAND=OFF -DSDL_X11=OFF 
+-DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF \
+       -DSDL_WAYLAND=OFF -DSDL_X11=OFF -DSDL_UNIX_CONSOLE_BUILD=ON
 #-DSDL_TEST_LIBRARY=OFF      \
      # -DSDL_RENDER_VULKAN=OFF \
 #-DSDL_GBM=ON -DSDL_EGL=ON \

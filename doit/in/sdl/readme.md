@@ -24,6 +24,7 @@ libxdmcp current
 libpciaccess current
 ncurses current
 libffi current
+libglvnd current
 
 **Description**
 
