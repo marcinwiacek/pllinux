@@ -51,4 +51,23 @@ There are still things to do like moving these json files to system /etc, enabli
 
 ![Alt text](2026/oct_opengl.png)
 
+# Creating packages - let's optimalize it
+
+For long time I have done some development in the VDI with ca. 10-11GB RAM (I say it from memory). Some experiences with bigger projects (compiler crashes)
+showed, that I need more RAM - I removed hard memory assignment from graphic card and could assign ca. 20 GB to VDI.
+
+And now the magic question - is it possible to further decrease SSD usage?
+
+Currently "main" compilation is done in /tmp (tmpfs), later software is saved to the /app (on the disk) and later it's optimalized (stripped, etc.).
+And yes, we could change sequence to the following:
+
+1. make compilation in /tmp
+2. make link to the /app/(package)/current pointing to the /tmp
+3. make "installation" in the /app/(package)/current
+4. remove link from point 2
+5. make optimalizations
+6. make rsync between /tmp and /app
+
+I don't know, what saves could be visible, but step by step...
+
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
