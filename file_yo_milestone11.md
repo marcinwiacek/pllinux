@@ -17,7 +17,7 @@ Earlier with mdev I had problem, that CD event change was not returned to mdev. 
 
 Nothing worked. This time I tried **mdev -d -f -S -v** and immediately found, that events actually come, but only on startup.
 
-![Alt text](2026/sep_mdev)
+![Alt text](2026/sep_mdev.png)
 
 Short investigation and 
 

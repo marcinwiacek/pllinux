@@ -29,8 +29,7 @@ shell file in /bin although SHELL variable points to other location). This is me
 
 # Graphic drivers and SDL/framebuffer support
 
-Preparing SDL support very fast end with installing many big projects (mesa, llvm, some X11 components.). Work is not completed, but for now
-(13 Oct) there are few notes:
+Preparing SDL support very fast end with installing many big projects (mesa, llvm, some X11 components.). Work is not completed, but for now (13 Oct) there are few notes:
 
 1. debugging with strace helps in finding, what file is missed
 2. 16GB RAM machine seems to be not enough for compiling LLVM, 32GB works definitive better
@@ -39,9 +38,17 @@ Preparing SDL support very fast end with installing many big projects (mesa, llv
 5. compiling just basic llvm project can end with undefined symbol: _ZTIN4llvm19RTDyldMemoryManagerE
 6. mesa docs give some example with info "This will install libGLESv1_CM, libGLESv2, libEGL, and one or more EGL drivers for your hardware.",
 but it seems, that libGLESv2 is probably created only in Android version
+7. there are old and new FB devices: [https://fedoraproject.org/wiki/Changes/ReplaceFbdevDrivers](https://fedoraproject.org/wiki/Changes/ReplaceFbdevDrivers)
 
-Generally a lot of "fun"
+Generally a lot of "fun", happily after some investigation it was found path to make things working (there are excluded some minor elements):
 
-https://fedoraproject.org/wiki/Changes/ReplaceFbdevDrivers
+1. SDL has got dependiences to libraries from libglvnd (like libEGL.so, libGLESv2.so, etc.)
+2. libraries from libglvnd are searching for json files describing name of libraries with EGL implementation (in my config libEGL_mesa.so.0) - see
+[https://github.com/NVIDIA/libglvnd/blob/master/src/EGL/icd_enumeration.md](https://github.com/NVIDIA/libglvnd/blob/master/src/EGL/icd_enumeration.md)
+3. libEGL_mesa.so.0 from mesa package is searching either for Wayland or X11 or DRM (in my case DRM, which is supported by internal driver egl_dri2 from mesa)
+
+There are still things to do like moving these json files to system /etc, enabling full hardware acceleration, Vulkan, investigating latest mesa (it looks, it cannot work with FB anymore), etc. But for now (15 Oct):
+
+![Alt text](2026/oct_opengl.png)
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
