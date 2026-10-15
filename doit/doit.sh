@@ -1591,17 +1591,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub"
     set_current_app_clean_strip_cd grub $prefix$ver 1 #ignore lib in stripping
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "grub-dejavu-fonts" ]; then
-  ver="2.37";
-  if should_make grub-dejavu-fonts $ver; then
-    download_unpack_source https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.tar.bz2 dejavu-fonts dejavu-fonts-ttf-$ver 1
-    create_app grub-dejavu-fonts $prefix$ver
-    cd ttf
-    grub-mkfont -s 16 -o $output/app/grub-dejavu-fonts/$prefix$ver/DejaVuSansMono.pf2 DejaVuSansMono.ttf
-    grub-mkfont -s 16 -o $output/app/grub-dejavu-fonts/$prefix$ver/DejaVuSans.pf2 DejaVuSans.ttf
-    set_current_app_clean_strip_cd grub-dejavu-fonts $prefix$ver 0
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
   ver="5.44.0";
   if should_make perl $ver; then
@@ -1953,7 +1942,7 @@ if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llv
     set_current_app_clean_strip_cd llvm $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "mesa" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa" ]; then
   # ver="26.2.4";  # not possible because of -Degl-native-platform=drm
   ver="26.1.8";
   if should_make mesa $ver; then
@@ -2035,6 +2024,7 @@ if [ "$package" == "fs2" ] || [ "$package" == "php" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "v" ]; then
+#work in progress
   ver="0.5.2";
   if should_make v $ver; then
      [ -d /tmp/doit/v ] || mkdir /tmp/doit/v
@@ -2207,5 +2197,16 @@ fi
 #      cp $fileentry $output/app/linuxfb/$prefix$ver
 #    done
 #    set_current_app_clean_strip_cd linuxfb $prefix$ver 1
+#  fi
+#fi
+#if [ "$package" == "fs" ] || [ "$package" == "grub-dejavu-fonts" ]; then
+#  ver="2.37";
+#  if should_make grub-dejavu-fonts $ver; then
+#    download_unpack_source https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.tar.bz2 dejavu-fonts dejavu-fonts-ttf-$ver 1
+#    create_app grub-dejavu-fonts $prefix$ver
+#    cd ttf
+#    grub-mkfont -s 16 -o $output/app/grub-dejavu-fonts/$prefix$ver/DejaVuSansMono.pf2 DejaVuSansMono.ttf
+#    grub-mkfont -s 16 -o $output/app/grub-dejavu-fonts/$prefix$ver/DejaVuSans.pf2 DejaVuSans.ttf
+#    set_current_app_clean_strip_cd grub-dejavu-fonts $prefix$ver 0
 #  fi
 #fi
