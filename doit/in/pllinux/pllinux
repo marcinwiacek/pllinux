@@ -3428,12 +3428,14 @@ main_disk_usage() {
        APP_SYS=""
        APP_NON_SYS=""
        for APP_NAME in $APPLIST; do
-         case ":$SYSTEM_APPS:" in
-         *:$APP_NAME:*)
-          APP_SYS="$APP_SYS $APP_NAME - $(du -c -h ${DIR}app/$APP_NAME/current/* | grep total)" ;;
-         *)
-          APP_NON_SYS="$APP_NON_SYS $APP_NAME - $(du -c -h ${DIR}app/$APP_NAME/current/* | grep total)" ;;
-         esac
+         if [ -d "${DIR}app/$APP_NAME/current" ]; then
+           case ":$SYSTEM_APPS:" in
+           *:$APP_NAME:*)
+             APP_SYS="$APP_SYS $APP_NAME - $(du -c -h ${DIR}app/$APP_NAME/current/* | grep total)" ;;
+           *)
+             APP_NON_SYS="$APP_NON_SYS $APP_NAME - $(du -c -h ${DIR}app/$APP_NAME/current/* | grep total)" ;;
+           esac
+         fi
        done
 
        HOMEINFO="Apps total - $(du -c -h ${DIR}app | grep total) (includes $(du -c -h $LIST | grep total) in system apps)\n\n"
