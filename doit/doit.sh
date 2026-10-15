@@ -380,18 +380,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kerne
     set_current_app_clean_strip_cd kernel $prefix$ver 1
   fi
 fi
-#if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "linuxfb" ]; then
-#  ver="1";
-#  if should_make linuxfb $ver; then
-#    download_unpack_source https://github.com/roddehugo/linuxfb/archive/refs/heads/master.zip linuxfb linuxfb-master 1
-#    make -j$cpu_num
-#    create_app linuxfb $prefix$ver
-#    for fileentry in fbinfo fbmmap vconsole; do
-#      cp $fileentry $output/app/linuxfb/$prefix$ver
-#    done
-#    set_current_app_clean_strip_cd linuxfb $prefix$ver 1
-#  fi
-#fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busybox" ]; then
   ver="1.38.0";
   if should_make busybox $ver; then
@@ -444,11 +432,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftab
     create_app nftables $prefix$ver
     set_current_app nftables $prefix$ver 1
     make install
-#    find_binary_lib $output/app/nftables/$prefix$ver sbin/nft
-#    rm -r $output/app/nftables/$prefix$ver/lib/libtedit* || true
-#    rm -r $output/app/nftables/$prefix$ver/lib/libtinfo* || true
-#    rm -r $output/app/nftables/$prefix$ver/lib/libbsd* || true
-#    rm -r $output/app/nftables/$prefix$ver/lib/libmd* || true
     set_current_app_clean_strip_cd nftables $prefix$ver 1
   fi
 fi
@@ -979,7 +962,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libed
   ver="20260512-3.1";
   if should_make libedit $ver; then
     download_unpack_source https://www.thrysoee.dk/editline/libedit-$ver.tar.gz libedit libedit-$ver 1
-#    ./autogen
     ./configure --prefix=/app/libedit/$prefix$ver
     make all -j$cpu_num
     create_app libedit $prefix$ver
@@ -993,7 +975,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gmp" 
   ver="6.3.0";
   if should_make gmp $ver; then
     download_unpack_source https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz gmp gmp-$ver 1
-#    ./autogen
     ./configure --prefix=/app/gmp/$prefix$ver
     make all -j$cpu_num
     create_app gmp $prefix$ver
@@ -1117,7 +1098,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gcc" 
 #  ver="14.4.0";
   ver="16.2.0";
   if should_make gcc $ver; then
-    # we don't unpack and download prerequisities to the normal disk anymore (to allow compilation offline)
     # compilation can be done in tmpfs (ca. 4,3 GB)
     download_unpack_source https://ftp.gnu.org/gnu/gcc/gcc-$ver/gcc-$ver.tar.xz gcc gcc-$ver 1
     contrib/download_prerequisites
@@ -1157,7 +1137,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glib"
   #glib (GTK, gnome), not GNU C library
   ver="2.89.1";
   if should_make glib $ver; then
-    #after using 32GB RAM no more downloading to disk because of dependencies
     download_unpack_source https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver 1
     if [ -d "subprojects/packagefiles" ]; then
       cd subprojects
@@ -1188,7 +1167,6 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxml2" ]; then
   ver="2.15.4";
   if should_make libxml2 $ver; then
-    #downloading to disk because of dependencies
     download_unpack_source https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.15.4/libxml2-v2.15.4.tar.bz2 libxml2 libxml2-v$ver 1
     meson setup -Dprefix=/app/libxml2/current --buildtype minsize _build
     meson compile -C _build
@@ -1452,7 +1430,7 @@ if [ "$package" == "fs" ] || [ "$package" == "dmidecode" ]; then
     download_unpack_source https://download.savannah.gnu.org/releases/dmidecode/dmidecode-$ver.tar.xz dmidecode dmidecode-$ver 1
     make all -j$cpu_num
     create_app dmidecode $prefix$ver
-#    make install - this could work with changing DESTDIR maybe
+#    we need make install - this could work with changing DESTDIR maybe
     for folderentry in bin man completion; do
       mkdir $output/app/dmidecode/$prefix$ver/$folderentry
     done
@@ -1817,19 +1795,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "usbut
     set_current_app_clean_strip_cd usbutils $prefix$ver 1
   fi
 fi
-#if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libgbm" ]; then
-#this is extraction. should we use mesa implementation?
- # ver="1.0.9";
-#  if should_make libgbm $ver; then
-#    download_unpack_source https://github.com/glfs-book/libgbm/archive/refs/tags/1.0.9.tar.gz libgbm libgbm-$ver 1
-#    meson setup -Dprefix=/app/libgbm/current _build -Dlibdir=lib
-#    meson compile -C _build
-#    create_app libgbm $prefix$ver
-#    set_current_app libgbm $prefix$ver 1
-#    meson install -C _build
-#    set_current_app_clean_strip_cd libgbm $prefix$ver 1
-#  fi
-#fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libexpat" ]; then
   ver="2.9.0";
   if should_make libexpat $ver; then
@@ -2217,5 +2182,30 @@ fi
 #    create_app eudev $prefix$ver
 #    make install
 #    set_current_app_clean_strip_cd eudev $prefix$ver 1
+#  fi
+#fi
+#if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libgbm" ]; then
+#this is extraction. should we use mesa implementation?
+ # ver="1.0.9";
+#  if should_make libgbm $ver; then
+#    download_unpack_source https://github.com/glfs-book/libgbm/archive/refs/tags/1.0.9.tar.gz libgbm libgbm-$ver 1
+#    meson setup -Dprefix=/app/libgbm/current _build -Dlibdir=lib
+#    meson compile -C _build
+#    create_app libgbm $prefix$ver
+#    set_current_app libgbm $prefix$ver 1
+#    meson install -C _build
+#    set_current_app_clean_strip_cd libgbm $prefix$ver 1
+#  fi
+#fi
+#if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "linuxfb" ]; then
+#  ver="1";
+#  if should_make linuxfb $ver; then
+#    download_unpack_source https://github.com/roddehugo/linuxfb/archive/refs/heads/master.zip linuxfb linuxfb-master 1
+#    make -j$cpu_num
+#    create_app linuxfb $prefix$ver
+#    for fileentry in fbinfo fbmmap vconsole; do
+#      cp $fileentry $output/app/linuxfb/$prefix$ver
+#    done
+#    set_current_app_clean_strip_cd linuxfb $prefix$ver 1
 #  fi
 #fi
