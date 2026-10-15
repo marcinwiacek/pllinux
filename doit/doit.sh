@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="sdl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libmnl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -105,6 +105,8 @@ download_unpack_source() {
   IFS=$IFSORIG
 }
 
+
+#obsolete
 #creating directory with the app
 create_app() {
   packagename=$1
@@ -122,6 +124,7 @@ create_app() {
   echo "$LATEST_FILE_UPDATE" >> $output/app/$packagename/$version/readme.md
 }
 
+#obsolete
 set_current_app() {
   packagename=$1
   version=$2
@@ -137,32 +140,67 @@ set_current_app() {
   cd $curdir2
 }
 
+#creating directory with the app in /tmp and link to /app/(package)/current
+create_app_in_tmp_and_link_it() {
+  packagename=$1
+  version=$2
+
+  mkdir /tmp/installit
+  ln -s $output/app/$packagename/current /tmp/installit
+}
+
 set_current_app_clean_strip_cd() {
   packagename=$1
   version=$2
   stripapp=$3
 
-  #set "current" directory to the new installed app
-  cd $output/app/$1
-  rm current || true
-  ln -s $version current
+  case $(realpath $output/app/$packagename/current); in
+  /tmp/installit)
+    pathtoapp="/tmp/installit" ;;
+  *)
+    pathtoapp="$output/app/$packagename/$version"
+  esac
 
-  if [ -d "$output/app/$packagename/$version/lib" ]; then
-    chmod a-x $output/app/$packagename/$version/lib/*.so*
-    chmod a-x $output/app/$packagename/$version/lib/*.la*
+  if [ -d "$pathtoapp/lib" ]; then
+    chmod a-x $pathtoapp/lib/*.so*
+    chmod a-x $pathtoapp/lib/*.la*
   fi
 
   if [ "$stripapp" = "1" ]; then
     #strip all binaries and libraries (remove debug symbols)
     case $packagename in
-    *grub*) find $output/app/$packagename/$version* -name lib -prune -o -name "*" -type d -exec bash -c 'cd "{}" && strip * 2> /dev/null ' \; ;;
-    *)      find $output/app/$packagename/$version* -type d -exec bash -c 'cd "{}" && strip * 2> /dev/null ' \; 
+    *grub*) find $pathtoapp* -name lib -prune -o -name "*" -type d -exec bash -c 'cd "{}" && strip * 2> /dev/null ' \; ;;
+    *)      find $pathtoapp* -type d -exec bash -c 'cd "{}" && strip * 2> /dev/null ' \; 
     esac
   fi
 
+  if [ -f "$curdir/in/$packagename/readme.md" ]; then 
+    cp $curdir/in/$packagename/readme.md $output/app/$packagename/$version;
+    echo "" >> $output/app/$packagename/$version/readme.md
+  else
+    rm $output/app/$packagename/$version/readme.md
+  fi
+  echo "**Last**" >> $output/app/$packagename/$version/readme.md
+  echo "$LATEST_FILE_UPDATE" >> $output/app/$packagename/$version/readme.md
+
+  case $pathtoapp; in
+  /tmp/installit)
+    mkdir $output/app/$packagename || true
+    if [ -d $output/app/$packagename/$version ]; then rm -r -f $output/app/$packagename/$version; fi
+    mkdir $output/app/$packagename/$version || true
+    rm $output/app/$packagename/current
+    ln -s $output/app/$packagename/$version $output/app/$packagename/current
+    rsync -a /tmp/installit/ $output/etc $output/app/$packagename/$version ;;
+  *)
+    #set "current" directory to the new installed app
+    cd $output/app/$1
+    rm current || true
+    ln -s $version current
+  esac
+
   if [ "$use_tmpfs" = "1" ]; then
     rm -r -f $out
-    mkdir $out 2> /dev/null
+#    mkdir $out 2> /dev/null
   fi
 
   cd $curdir
@@ -375,8 +413,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libmn
     download_unpack_source https://netfilter.org/projects/libmnl/files/libmnl-1.0.5.tar.bz2 libmnl libmnl-$ver 1
     ./configure --prefix=/app/libmnl/current
     make -j$cpu_num
-    create_app libmnl $prefix$ver
-    set_current_app libmnl $prefix$ver 1
+    create_app_in_tmp_and_link_it libmnl $prefix$ver
     make install
     set_current_app_clean_strip_cd libmnl $prefix$ver 1
   fi
