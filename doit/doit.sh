@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version fro[6~m 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="hyprland"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="aquamarine"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1575,6 +1575,36 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
     create_app_in_tmp_and_link_it hyprland $prefix$ver
 #    make install PREFIX=/app/bzip2/$prefix$ver
 #    set_current_app_clean_strip_cd hyprland $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "aquamarine" ]; then
+#work in progress
+  ver="0.15.1";
+  if should_make aquamarine $ver; then
+    download_unpack_source https://github.com/hyprwm/aquamarine/archive/refs/tags/v0.15.1.tar.gz aquamarine aquamarine-$ver 1
+
+cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/tmp/installit -S . -B ./build
+    create_app_in_tmp_and_link_it aquamarine $prefix$ver
+cmake --build ./build --config Release --target all -j$cpu_num
+
+
+#    set_current_app_clean_strip_cd hyprland $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprwayland-scanner" ]; then
+#work in progress
+  ver="0.4.6";
+  if should_make hyprwayland-scanner $ver; then
+#libpugixml-dev
+    download_unpack_source https://github.com/hyprwm/hyprwayland-scanner/archive/refs/tags/v0.4.6.tar.gz hyprwayland hyprwayland-scanner-$ver 1
+
+cmake -DCMAKE_INSTALL_PREFIX=/app/hyprwayland-scanner/current -B build
+cmake --build build -j $cpu_num
+    create_app_in_tmp_and_link_it hyprwayland-scanner $prefix$ver
+
+cmake --install build
+
+    set_current_app_clean_strip_cd hyprwayland-scanner $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub" ]; then
