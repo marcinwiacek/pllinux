@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libmnl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="lm-sensors"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -46,13 +46,10 @@ download_unpack_source() {
   canbetmp=$4
 
   case $localfile in
-    *$packagename* )
-      ;;
-    * )
-      localfile=${packagename}-${localfile}
+    *$packagename* ) ;;
+    * ) localfile=${packagename}-${localfile}
   esac
 
-#echo checking for file download/$localfile
   if [ ! -f "download/$localfile" ]; then
     echo $url
     wget -O /tmp/$localfile.tmp $url;
@@ -68,16 +65,11 @@ download_unpack_source() {
       mkdir $out/$packagename || true
       cd $out/$packagename
       case $localfile in
-        *.rpm* )
-          install_host_deps "rpm"
-          rpm2cpio $curdir/download/$localfile | cpio -idmv
-          ;;
-        *.zip* )
-          unzip $curdir/download/$localfile -d .
-          ;;
-        * )
-          tar -xvf $curdir/download/$localfile
-          cd $unpackeddir
+        *.rpm* ) install_host_deps "rpm"
+                 rpm2cpio $curdir/download/$localfile | cpio -idmv ;;
+        *.zip* ) unzip $curdir/download/$localfile -d . ;;
+        * )      tar -xvf $curdir/download/$localfile
+                 cd $unpackeddir
       esac
     else
       cd $out/$packagename/$unpackeddir
@@ -101,7 +93,7 @@ download_unpack_source() {
         break
       fi
     fi
-  done <<< "$(ls -c)"
+  done <<< "$(ls -t)"
   IFS=$IFSORIG
 }
 
@@ -177,22 +169,27 @@ set_current_app_clean_strip_cd() {
   fi
 
   if [ -f "$curdir/in/$packagename/readme.md" ]; then 
-    cp $curdir/in/$packagename/readme.md $output/app/$packagename/$version;
-    echo "" >> $output/app/$packagename/$version/readme.md
+    cp $curdir/in/$packagename/readme.md $pathtoapp
+    echo "" >> $pathtoapp/readme.md
   else
-    rm $output/app/$packagename/$version/readme.md
+    rm $pathtoapp/readme.md 2> /dev/null
   fi
-  echo "**Last**" >> $output/app/$packagename/$version/readme.md
-  echo "$LATEST_FILE_UPDATE" >> $output/app/$packagename/$version/readme.md
+  echo "**Last**" >> $pathtoapp/readme.md
+  echo "$LATEST_FILE_UPDATE" >> $pathtoapp/readme.md
 
   case $pathtoapp in
   /tmp/installit)
-    mkdir $output/app/$packagename || true 2> /dev/null
+    [ -d $output/app/$packagename ] || mkdir $output/app/$packagename
     if [ -d $output/app/$packagename/$version ]; then rm -r -f $output/app/$packagename/$version 2> /dev/null; fi
     mkdir $output/app/$packagename/$version || true
     rm $output/app/$packagename/current 2> /dev/null
-    ln -s $output/app/$packagename/$version $output/app/$packagename/current
-    rsync -a /tmp/installit/ $output/app/$packagename/$version ;;
+    olddir=$(pwd)
+    cd $output/app/$packagename
+    #set "current" directory to the new installed app
+    ln -s $version current
+    cd $olddir
+    rsync -a /tmp/installit/ $output/app/$packagename/$version
+    rm -r -f /tmp/installit ;;
   *)
     #set "current" directory to the new installed app
     cd $output/app/$1
@@ -202,7 +199,6 @@ set_current_app_clean_strip_cd() {
 
   if [ "$use_tmpfs" = "1" ]; then
     rm -r -f $out
-#    mkdir $out 2> /dev/null
   fi
 
   cd $curdir
@@ -314,8 +310,8 @@ fi
 
 install_host_deps "rsync"
 #install_host_deps "mc retext git gitk gedit"
-mkdir out || true
-mkdir download || true
+#[ -d out ] || mkdir out
+[ -d download ] || mkdir download
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
 
   #don't forget about sync with pllinux and initramfs
@@ -399,20 +395,20 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busyb
   ver="1.38.0";
   if should_make busybox $ver; then
     download_unpack_source https://busybox.net/downloads/busybox-$ver.tar.bz2 busybox busybox-$ver 1
-    cp $curdir/in/busybox/.config $out/busybox/busybox-$ver
+    cp $curdir/in/busybox/.config .
     make -j$cpu_num
-    create_app busybox $prefix$ver
+    create_app_in_tmp_and_link_it busybox $prefix$ver
     cp .config $curdir/in/busybox # .config will be updated with new header and maybe options
-    make CONFIG_PREFIX=$output/app/busybox/$prefix$ver install
-    cp $curdir/in/busybox/* $output/app/busybox/$prefix$ver
-    rm $output/app/busybox/$prefix$ver/linuxrc
+    make CONFIG_PREFIX=/app/busybox/current install
+    cp $curdir/in/busybox/* /tmp/installit
+    rm /tmp/installit/linuxrc
     set_current_app_clean_strip_cd busybox $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libmnl" ]; then
   ver="1.0.5";
   if should_make libmnl $ver; then
-    download_unpack_source https://netfilter.org/projects/libmnl/files/libmnl-1.0.5.tar.bz2 libmnl libmnl-$ver 1
+    download_unpack_source https://netfilter.org/projects/libmnl/files/libmnl-$ver.tar.bz2 libmnl libmnl-$ver 1
     ./configure --prefix=/app/libmnl/current
     make -j$cpu_num
     create_app_in_tmp_and_link_it libmnl $prefix$ver
