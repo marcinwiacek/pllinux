@@ -74,11 +74,11 @@ obsolete or not.
 
 # Wayland or X11
 
-I don't want to join war and definitely be on of sides - I have used X.Org for years (and I know about XLibre of course) and in some situations had
+I don't want to join war and definitely be on one of sides - I have used X.Org for years (and I know about XLibre of course) and in some situations had
 hard time with it (problems with Midnight Commander), from the other I had hard time with Wayland too (lack of gamma correction).
 
 In 2026 I decided to look first on Hyprland, when will not work, move to XLibre.
 
-Let's see.
+On top of it there will be some lighter graphic environment - something with Start button, file manager, desktop wallpaper and some basic apps.
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
