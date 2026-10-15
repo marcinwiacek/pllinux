@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="sdl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1597,17 +1597,17 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
     download_unpack_source https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.32.10.tar.gz sdl SDL-release-$ver 1
     ./configure --enable-rpath --enable-video-directfb --enable-directfb-shared --enable-video-kmsdrm --enable-kmsdrm-shared \
           --enable-video-opengl --enable-video-opengles --enable-video-opengles1 --enable-video-opengles2 \
---disable-video-x11 --disable-video-wayland \
-           --disable-libudev --disable-dbus --prefix=/app/sdl/current
+          --disable-video-x11 --disable-video-wayland \
+          --disable-libudev --disable-dbus --prefix=/app/sdl/current
     make -j$cpu_num
     create_app sdl $prefix$ver
     set_current_app sdl $prefix$ver 1
     make install
     cd test
-    ./configure --prefix=/app/sdl/current/test --with-sdl-prefix=/app/sdl/current
+    ./configure --prefix=/app/sdl/current --with-sdl-prefix=/app/sdl/current
     make -j$cpu_num
     make install
-#    set_current_app_clean_strip_cd sdl $prefix$ver 1
+    set_current_app_clean_strip_cd sdl $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
@@ -1622,14 +1622,9 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
     cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
        -DSDL_KMSDRM=ON \
        -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON \
-    -DSDL_LIBUDEV=OFF \
-      -DSDL_STATIC=OFF            \
-      -DSDL_RPATH=OFF \
--DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF \
+       -DSDL_LIBUDEV=OFF -DSDL_STATIC=OFF -DSDL_RPATH=OFF \
+       -DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF \
        -DSDL_WAYLAND=OFF -DSDL_X11=OFF -DSDL_UNIX_CONSOLE_BUILD=ON
-#-DSDL_TEST_LIBRARY=OFF      \
-     # -DSDL_RENDER_VULKAN=OFF \
-#-DSDL_GBM=ON -DSDL_EGL=ON \
     cmake --build build
     create_app sdl $prefix$ver
     cmake --install build --prefix $output/app/sdl/$prefix$ver
@@ -1880,7 +1875,6 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libX11" ]; then
   ver="1.8.13";
   if should_make libx11 $ver; then
-#    install_host_deps "python3-xcbgen xcb-proto"
     download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libX11-$ver.tar.xz libX11 libX11-$ver 1
     ./configure --prefix=/app/libx11/current
     make all -j$cpu_num
@@ -1896,7 +1890,6 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxshmfence" ]; then
   ver="1.3.3";
   if should_make libxshmfence $ver; then
-#    install_host_deps "python3-xcbgen xcb-proto"
     download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libxshmfence-$ver.tar.xz libxshmfence libxshmfence-$ver 1
     ./configure --prefix=/app/libxshmfence/current
     make all -j$cpu_num
@@ -1926,9 +1919,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libff
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llvm" ]; then
-#work in progress
-#  ver="23.1.3";
-  ver="19.1.7";
+  #  ver="23.1.3";
+  ver="19.1.7";   #we use this version because of dep from mesa. Maybe should be more investigated, if 23.* could be used
   if should_make llvm $ver; then
     download_unpack_source https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-$ver.tar.gz llvm llvm-project-llvmorg-$ver 1
     cmake -S llvm -B builddir -G Ninja \
@@ -1947,36 +1939,30 @@ if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llv
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "mesa" ]; then
-#work in progress
-#  ver="26.2.4";
+  # ver="26.2.4";  # not possible because of -Degl-native-platform=drm
   ver="26.1.8";
-#  ver="26.1.8";
-#  ver="26.0.8";
   if should_make mesa $ver; then
-# sudo apt-get build-dep mesa
-#python3-pycparser
+    # sudo apt-get build-dep mesa
+    # python3-pycparser
     download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
     meson setup -Dprefix=/app/mesa/current _build \
--Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
+       -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
        -Dgles1=enabled -Dgles2=enabled -Dglvnd=enabled \
--Dplatforms=x11 \
-      -Dgallium-drivers=all -Dvulkan-drivers=all \
--Dglx=dri \
-      -Degl-native-platform=drm
-#-Dtools="glsl" 
-#-Dglx=dri 
+       -Dplatforms=x11 \
+       -Dgallium-drivers=all -Dvulkan-drivers=all \
+       -Dglx=dri -Degl-native-platform=drm
     meson compile -C _build
     create_app mesa $prefix$ver
     set_current_app mesa $prefix$ver 1
     meson install -C _build
-#    set_current_app_clean_strip_cd mesa $prefix$ver 1
+    set_current_app_clean_strip_cd mesa $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libudev-zero" ]; then
   ver="1.0.5";
   if should_make libudev-zero $ver; then
     download_unpack_source https://github.com/illiliti/libudev-zero/archive/refs/tags/1.0.5.tar.gz libudev-zero libudev-zero-$ver 1
-#    install_host_deps "libusb-dev libudev-dev"
+    #    install_host_deps "libusb-dev libudev-dev"
     meson setup -Dprefix=/app/libudev-zero/$prefix$ver _build
     meson compile -C _build
     create_app libudev-zero $prefix$ver
