@@ -68,6 +68,8 @@ And yes, we could change sequence to the following:
 5. make optimalizations
 6. make rsync between /tmp and /app
 
-I don't know, what saves could be visible, but step by step...
+I don't know, what saves could be visible, but step by step... Additionally it's good to mention, that readme.md from packages will have
+the date of last source modification (I search for last file in the root of source code packages), which allows for finding, if package is really
+obsolete or not.
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
