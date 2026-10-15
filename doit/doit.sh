@@ -73,7 +73,6 @@ download_unpack_source() {
           rpm2cpio $curdir/download/$localfile | cpio -idmv
           ;;
         *.zip* )
-pwd
           unzip $curdir/download/$localfile -d .
           ;;
         * )
@@ -183,19 +182,18 @@ install_host_deps() {
 
 #find libraries in the specified binary
 #we should maybe use ... tool for this
-find_binary_lib() {
-  appdir=$1
-  binary=$2
-  mkdir -p $appdir/lib
-  list="$(ldd $appdir/$binary | egrep -o '/lib.*\.[0-9]')"
-  for lib in $list; do 
-#    echo found lib ${lib%.so*} 
-    rsync -a ${lib%.so*}.so* "$appdir/lib";
-  done
-  rm -r $appdir/lib/ld-linux-x86-64.so.2 || true
-  rm -r $appdir/lib64 || true
-  rm -r $appdir/lib/libc.so* || true
-}
+#find_binary_lib() {
+#  appdir=$1
+#  binary=$2
+#  mkdir -p $appdir/lib
+#  list="$(ldd $appdir/$binary | egrep -o '/lib.*\.[0-9]')"
+#  for lib in $list; do 
+#    rsync -a ${lib%.so*}.so* "$appdir/lib";
+#  done
+#  rm -r $appdir/lib/ld-linux-x86-64.so.2 || true
+#  rm -r $appdir/lib64 || true
+#  rm -r $appdir/lib/libc.so* || true
+#}
 
 #blind code now
 create_readme() {
