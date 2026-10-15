@@ -145,8 +145,10 @@ create_app_in_tmp_and_link_it() {
   packagename=$1
   version=$2
 
+  rm -r -f /tmp/installit 2> /dev/null
   mkdir /tmp/installit
-  ln -s $output/app/$packagename/current /tmp/installit
+  rm $output/app/$packagename/current 2> /dev/null
+  ln -s /tmp/installit $output/app/$packagename/current
 }
 
 set_current_app_clean_strip_cd() {
@@ -154,7 +156,7 @@ set_current_app_clean_strip_cd() {
   version=$2
   stripapp=$3
 
-  case $(realpath $output/app/$packagename/current); in
+  case $(realpath $output/app/$packagename/current) in
   /tmp/installit)
     pathtoapp="/tmp/installit" ;;
   *)
@@ -183,14 +185,14 @@ set_current_app_clean_strip_cd() {
   echo "**Last**" >> $output/app/$packagename/$version/readme.md
   echo "$LATEST_FILE_UPDATE" >> $output/app/$packagename/$version/readme.md
 
-  case $pathtoapp; in
+  case $pathtoapp in
   /tmp/installit)
-    mkdir $output/app/$packagename || true
-    if [ -d $output/app/$packagename/$version ]; then rm -r -f $output/app/$packagename/$version; fi
+    mkdir $output/app/$packagename || true 2> /dev/null
+    if [ -d $output/app/$packagename/$version ]; then rm -r -f $output/app/$packagename/$version 2> /dev/null; fi
     mkdir $output/app/$packagename/$version || true
-    rm $output/app/$packagename/current
+    rm $output/app/$packagename/current 2> /dev/null
     ln -s $output/app/$packagename/$version $output/app/$packagename/current
-    rsync -a /tmp/installit/ $output/etc $output/app/$packagename/$version ;;
+    rsync -a /tmp/installit/ $output/app/$packagename/$version ;;
   *)
     #set "current" directory to the new installed app
     cd $output/app/$1
