@@ -345,24 +345,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kerne
     set_current_app_clean_strip_cd kernel $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "linuxfb" ]; then
-  ver="1";
-  if should_make linuxfb $ver; then
-    download_unpack_source https://github.com/roddehugo/linuxfb/archive/refs/heads/master.zip linuxfb linuxfb-master 1
-#    cp $curdir/in/busybox/.config $out/busybox/busybox-$ver
-    make -j$cpu_num
-    create_app linuxfb $prefix$ver
-    for fileentry in fbinfo fbmmap vconsole; do
-      cp $fileentry $output/app/linuxfb/$prefix$ver
-    done
-
-#    cp .config $curdir/in/busybox # .config will be updated with new header and maybe options
-#    make CONFIG_PREFIX=$output/app/busybox/$prefix$ver install
-#    cp $curdir/in/busybox/* $output/app/busybox/$prefix$ver
-#    rm $output/app/busybox/$prefix$ver/linuxrc
-#    set_current_app_clean_strip_cd busybox $prefix$ver 1
-  fi
-fi
+#if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "linuxfb" ]; then
+#  ver="1";
+#  if should_make linuxfb $ver; then
+#    download_unpack_source https://github.com/roddehugo/linuxfb/archive/refs/heads/master.zip linuxfb linuxfb-master 1
+#    make -j$cpu_num
+#    create_app linuxfb $prefix$ver
+#    for fileentry in fbinfo fbmmap vconsole; do
+#      cp $fileentry $output/app/linuxfb/$prefix$ver
+#    done
+#    set_current_app_clean_strip_cd linuxfb $prefix$ver 1
+#  fi
+#fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busybox" ]; then
   ver="1.38.0";
   if should_make busybox $ver; then
