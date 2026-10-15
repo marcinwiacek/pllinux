@@ -97,7 +97,6 @@ download_unpack_source() {
   IFS=$IFSORIG
 }
 
-
 #obsolete
 #creating directory with the app
 create_app() {
@@ -315,7 +314,7 @@ install_host_deps "rsync"
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
 
   #don't forget about sync with pllinux and initramfs
-  
+
   for folderentry in app bin dev etc home mnt proc run sys tmp lib64 log log/tmp usr usr/share; do mkdir $output/$folderentry; done
 
   rsync -a in/pllinux.etc/ $output/etc
