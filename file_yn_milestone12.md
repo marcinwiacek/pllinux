@@ -69,7 +69,16 @@ And yes, we could change sequence to the following:
 6. make rsync between /tmp and /app
 
 I don't know, what saves could be visible, but step by step... Additionally it's good to mention, that readme.md from packages will have
-the date of last source modification (I search for last file in the root of source code packages), which allows for finding, if package is really
+the date of last source modification (I search for last file in the root of source code packages), which allows for fast finding, if package is really
 obsolete or not.
+
+# Wayland or X11
+
+I don't want to join war and definitely be on of sides - I have used X.Org for years (and I know about XLibre of course) and in some situations had
+hard time with it (problems with Midnight Commander), from the other I had hard time with Wayland too (lack of gamma correction).
+
+In 2026 I decided to look first on Hyprland, when will not work, move to XLibre.
+
+Let's see.
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
