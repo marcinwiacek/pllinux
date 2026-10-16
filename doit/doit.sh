@@ -1642,75 +1642,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub"
     set_current_app_clean_strip_cd grub $prefix$ver 1 #ignors lib in stripping
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
-  ver="5.44.0";
-  if should_make perl $ver; then
-    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 1
-    ./Configure -d -Dprefix=/app/perl/current -e
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it perl $prefix$ver
-    ./perl -Ilib -I. installperl --destdir=/
-    remove_duplicates_cd /tmp/installit/bin
-    set_current_app_clean_strip_cd perl $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
-  ver="2.32.10";
-  if should_make sdl $ver; then
-    install_host_deps "cmake ninja-build libasound2-dev libpulse-dev \
-    libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
-    libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
-    libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
-    libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
-    download_unpack_source https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.32.10.tar.gz sdl SDL-release-$ver 1
-    ./configure --enable-rpath --enable-video-directfb --enable-directfb-shared --enable-video-kmsdrm --enable-kmsdrm-shared \
-          --enable-video-opengl --enable-video-opengles --enable-video-opengles1 --enable-video-opengles2 \
-          --disable-video-x11 --disable-video-wayland \
-          --disable-libudev --disable-dbus --prefix=/app/sdl/current
-    make -j$cpu_num
-    create_app sdl $prefix$ver
-    set_current_app sdl $prefix$ver 1
-    make install
-    cd test
-    ./configure --prefix=/app/sdl/current --with-sdl-prefix=/app/sdl/current
-    make -j$cpu_num
-    make install
-    set_current_app_clean_strip_cd sdl $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
-  ver="3.4.16";
-  if should_make sdl $ver; then
-    install_host_deps "cmake ninja-build libasound2-dev libpulse-dev \
-    libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
-    libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
-    libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
-    libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
-    download_unpack_source https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz sdl SDL3-$ver 1
-    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
-       -DSDL_KMSDRM=ON \
-       -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON \
-       -DSDL_LIBUDEV=OFF -DSDL_STATIC=OFF -DSDL_RPATH=OFF \
-       -DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF \
-       -DSDL_WAYLAND=OFF -DSDL_X11=OFF -DSDL_UNIX_CONSOLE_BUILD=ON
-    cmake --build build
-    create_app sdl $prefix$ver
-    cmake --install build --prefix $output/app/sdl/$prefix$ver
-    set_current_app_clean_strip_cd sdl $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libdrm" ]; then
-  ver="2.4.134";
-  if should_make libdrm $ver; then
-    download_unpack_source https://dri.freedesktop.org/libdrm/libdrm-$ver.tar.xz libdrm libdrm-$ver 1
-    meson setup builddir/ --prefix=/app/libdrm/$prefix$ver
-    create_app libdrm $prefix$ver
-    ninja -C builddir/ install
-    rsync -a $output/app/libdrm/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libdrm/$prefix$ver/lib
-    rm -r $output/app/libdrm/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd libdrm $prefix$ver 1
-  fi
-fi
 
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efivar" ]; then
   ver="39";
@@ -1848,6 +1779,63 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libex
     echo "**Last**" >> /app/libexpat/current/readme.md
     echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
     set_current_app_clean_strip_cd libexpat $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
+  ver="2.32.10";
+  if should_make sdl $ver; then
+    install_host_deps "cmake ninja-build libasound2-dev libpulse-dev \
+    libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
+    libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
+    libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+    libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
+    download_unpack_source https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.32.10.tar.gz sdl SDL-release-$ver 1
+    ./configure --enable-rpath --enable-video-directfb --enable-directfb-shared --enable-video-kmsdrm --enable-kmsdrm-shared \
+          --enable-video-opengl --enable-video-opengles --enable-video-opengles1 --enable-video-opengles2 \
+          --disable-video-x11 --disable-video-wayland \
+          --disable-libudev --disable-dbus --prefix=/app/sdl/current
+    make -j$cpu_num
+    create_app sdl $prefix$ver
+    set_current_app sdl $prefix$ver 1
+    make install
+    cd test
+    ./configure --prefix=/app/sdl/current --with-sdl-prefix=/app/sdl/current
+    make -j$cpu_num
+    make install
+    set_current_app_clean_strip_cd sdl $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
+  ver="3.4.16";
+  if should_make sdl $ver; then
+    install_host_deps "cmake ninja-build libasound2-dev libpulse-dev \
+    libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
+    libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
+    libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+    libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
+    download_unpack_source https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz sdl SDL3-$ver 1
+    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+       -DSDL_KMSDRM=ON \
+       -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON \
+       -DSDL_LIBUDEV=OFF -DSDL_STATIC=OFF -DSDL_RPATH=OFF \
+       -DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF \
+       -DSDL_WAYLAND=OFF -DSDL_X11=OFF -DSDL_UNIX_CONSOLE_BUILD=ON
+    cmake --build build
+    create_app sdl $prefix$ver
+    cmake --install build --prefix $output/app/sdl/$prefix$ver
+    set_current_app_clean_strip_cd sdl $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libdrm" ]; then
+  ver="2.4.134";
+  if should_make libdrm $ver; then
+    download_unpack_source https://dri.freedesktop.org/libdrm/libdrm-$ver.tar.xz libdrm libdrm-$ver 1
+    meson setup builddir/ --prefix=/app/libdrm/$prefix$ver
+    create_app libdrm $prefix$ver
+    ninja -C builddir/ install
+    rsync -a $output/app/libdrm/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libdrm/$prefix$ver/lib
+    rm -r $output/app/libdrm/$prefix$ver/lib/x86_64-linux-gnu/
+    set_current_app_clean_strip_cd libdrm $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcb" ]; then
@@ -2036,6 +2024,18 @@ if [ "$package" == "fs" ] || [ "$package" == "cpython" ]; then
     create_app_in_tmp_and_link_it cpython $prefix$ver
     make install
     set_current_app_clean_strip_cd cpython $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
+  ver="5.44.0";
+  if should_make perl $ver; then
+    download_unpack_source https://www.cpan.org/src/5.0/perl-$ver.tar.gz perl perl-$ver 1
+    ./Configure -d -Dprefix=/app/perl/current -e
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it perl $prefix$ver
+    ./perl -Ilib -I. installperl --destdir=/
+    remove_duplicates_cd /tmp/installit/bin
+    set_current_app_clean_strip_cd perl $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "node" ]; then
