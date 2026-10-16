@@ -1579,14 +1579,18 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "aquamarine" ]; then
 #work in progress
+#libseat-dev libinput-dev libdisplay-info-dev hwdata libpixman-1-dev
   ver="0.15.1";
   if should_make aquamarine $ver; then
     download_unpack_source https://github.com/hyprwm/aquamarine/archive/refs/tags/v0.15.1.tar.gz aquamarine aquamarine-$ver 1
 
-cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/tmp/installit -S . -B ./build
+cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/tmp/installit \
+    -Dhyprwayland-scanner_DIR=/app/hyprwayland-scanner/current/lib/cmake/hyprwayland-scanner \
+ -S . -B ./build
     create_app_in_tmp_and_link_it aquamarine $prefix$ver
 cmake --build ./build --config Release --target all -j$cpu_num
 
+#-Ddeps_hyprland_LIBDIR=/app/hyprland/current/lib \
 
 #    set_current_app_clean_strip_cd hyprland $prefix$ver 1
   fi
@@ -1605,6 +1609,23 @@ cmake --build build -j $cpu_num
 cmake --install build
 
     set_current_app_clean_strip_cd hyprwayland-scanner $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprutils" ]; then
+#work in progress
+  ver="0.14.2";
+  if should_make hyprutils $ver; then
+    download_unpack_source https://github.com/hyprwm/hyprutils/archive/refs/tags/v0.14.2.tar.gz hyprutils hyprutils-$ver 1
+
+cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprutils/current -S . -B ./build
+cmake --build ./build --config Release --target all -j $cpu_num
+
+    create_app_in_tmp_and_link_it hyprutils $prefix$ver
+
+cmake --install build
+
+
+    set_current_app_clean_strip_cd hyprutils $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub" ]; then
