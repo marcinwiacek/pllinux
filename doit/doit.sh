@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version fro[6~m 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="binutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="file"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1118,6 +1118,16 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gcc" 
     set_current_app_clean_strip_cd gcc $prefix$ver 1
     set_current_app_clean_strip_cd gcclib $prefix$ver 1
   fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "file" ]; then
+  ver="5_48";
+  download_unpack_source https://github.com/file/file/archive/refs/tags/FILE$ver.tar.gz FILE file-FILE$ver 1
+  autoreconf -f -i
+  ./configure --prefix=/app/file/current
+  make all -j$cpu_num
+  create_app_in_tmp_and_link_it file $prefix$ver
+  make install
+  set_current_app_clean_strip_cd file $prefix$ver 1
 fi
 if [ "$package" == "fs" ] || [ "$package" == "binutils" ]; then
   ver="2.47";
