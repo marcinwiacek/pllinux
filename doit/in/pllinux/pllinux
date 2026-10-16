@@ -3308,12 +3308,14 @@ EOF
                   if [ -f "${ROOTBOOT}/EFI/${UEFI_VALUE2}/grub.cfg" ]; then
                     RES=$(grep -o ${PARAM2:6:-1} ${ROOTBOOT}/EFI/${UEFI_VALUE2}/grub.cfg)
                     if [ "$RES" != "" ]; then
-                      OSFOUND=" - other OS on ${PARAM2:6:-1}"
+                      DEVNAME=$(blkid | grep ${PARAM2:6:-1})
+                      OSFOUND=" - other OS on ${DEVNAME%%:*}"
                     fi
                   elif [ -f "${ROOTBOOT}/EFI/${UEFI_VALUE2}/grubx64.efi" ]; then
                     RES=$(grep -o ${PARAM2:6:-1} ${ROOTBOOT}/EFI/${UEFI_VALUE2}/grubx64.efi)
                     if [ "$RES" != "" ]; then
-                      OSFOUND=" - PLLinux on ${PARAM2:6:-1}"
+                      DEVNAME=$(blkid | grep ${PARAM2:6:-1})
+                      OSFOUND=" - PLLinux on ${DEVNAME%%:*}"
                     fi
                   fi
                   esac
