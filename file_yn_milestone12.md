@@ -72,7 +72,7 @@ I don't know, what saves could be visible, but step by step... Additionally it's
 the date of last source modification (I search for last file in the root of source code packages), which allows for fast finding, if package is really
 obsolete or not.
 
-# Wayland or X11
+# Wayland or X11 + polishing
 
 I don't want to join war and definitely be on one of sides - I have used X.Org for years (and I know about XLibre of course) and in some situations had
 hard time with it (problems with Midnight Commander), from the other I had hard time with Wayland too (lack of gamma correction).
@@ -80,5 +80,11 @@ hard time with it (problems with Midnight Commander), from the other I had hard 
 In 2026 I decided to look first on Hyprland, when will not work, move to XLibre.
 
 On top of it there will be some lighter graphic environment - something with Start button, file manager, desktop wallpaper and some basic apps.
+
+Excluding this there is ongoing work on missed things - network config, pllinux script update, adding missed command line tools, making compilers useable.
+During this there is visible a lot of new things, for example first compiling "hello world" app with gcc produced this:
+
+    /app/binutils/261017_2.47/bin/ld: error in /app/glibc/current/lib/crt1.o(.eh_frame); no .eh_frame_hdr table will be created
+    /app/binutils/261017_2.47/bin/ld: warning: cannot find entry symbol _start; defaulting to 0000000000401040
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
