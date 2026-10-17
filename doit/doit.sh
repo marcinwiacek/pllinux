@@ -516,14 +516,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glibc
     download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
     mkdir $out/glibc/glibc-$ver-build
     cd $out/glibc/glibc-$ver-build
-    ../glibc-$ver/configure --prefix=/app/glibc/$prefix$ver
+    ../glibc-$ver/configure --prefix=/app/glibc/current
     cp $curdir/in/glibc/2_44_rtld.c ../glibc-$ver/elf/rtld.c
     make all -j$cpu_num
-    create_app glibc $prefix$ver
+    create_app_in_tmp_and_link_it glibc $prefix$ver
     make install
-    chmod a-x $output/app/glibc/$prefix$ver/lib/audit/*so*
-    chmod a-x $output/app/glibc/$prefix$ver/lib/gconv/*so*
-    cp $curdir/in/glibc/2_43_patch_ver6.txt $output/app/glibc/$prefix$ver
+    chmod a-x /app/glibc/current/lib/audit/*so*
+    chmod a-x /app/glibc/current/lib/gconv/*so*
+    cd /app/glibc/current/share
+    ln -s /app/tzdb/current/usr/share/zoneinfo zoneinfo
+    cd /app/glibc # to silence some error in set_current_app...
+    cp $curdir/in/glibc/2_43_patch_ver6.txt /app/glibc/current
     set_current_app_clean_strip_cd glibc $prefix$ver 1
     chmod a+x $output/app/glibc/$prefix$ver/lib/ld-linux-x86-64.so.2
   fi

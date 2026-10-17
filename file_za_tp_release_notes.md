@@ -10,13 +10,13 @@
 
 PLLinux contains solution for this and many other things. The biggest key points:
 
-  1. one script for configuring everything named **pllinux** and one script for building the whole distro named **doit** -
-no more magic commands for geeks, if you don't want
-  2. no many stupid obsolete solutions known from many other distro - it's time to go further than in 1980 year
-  3. minimal resources usage - no duplicated files, big logs, binary indexes or telemetry
+  1. the less is more - one script for configuring everything named **pllinux** and one script for building the whole distro named **doit**
+(no more magic commands for geeks, if you don't want)
+  2. no many stupid obsolete solutions known from many other distro - it's time to move beyond 1980 year
+  3. minimal resources usage - no duplicated files, big logs, binary indexes, telemetry, etc.
   4. easy adding existing (Linux) apps - can be actual without weeks or months of waiting
-  5. good separating apps from each other - much better even than in NixOS + you can easy check version, size, files, etc. and
-control permissions and dependencies
+  5. good separating apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
+control permissions and dependencies)
   6. good separating users and their files - extra security layers
   7. doing what is setup and nothing other - reliable, repeatable and expected results and
 no hidden actions or changing settings without user knowledge
@@ -275,7 +275,7 @@ It doesn't have at least just other wallpaper or branding.
 
 **Does it have sense to make new OS by people in AI age?**
 
-New products and ideas are always moving people forward. And making things by human (not AI) is extending their skills.
+New products and ideas are always moving people forward. And making things by human (not AI) is extending their skills+it's known, what we have inside.
 
 **It's shipped with slow, obsolete and abandomed GNU apps. Why not musl or other?**
 
@@ -299,7 +299,7 @@ admin password)
 
 Yes. But we don't have distributions in mainstream doing this. And PLLinux is trying to make it with small amount of resources.
 
-**It will be never compatible with all dev tools**
+**It will be never compatible with all dev tools or serious apps like Steam, VirtualBox, Firefox, etc.**
 
 Never say never.
 
@@ -311,7 +311,7 @@ in some day full independence.
 **It's much bigger than Puppy Linux, Tiny Core Linux and other small distributions**
 
 Goal for PLLinux is building desktop class system with all features. Technical Preview is bigger, but next versions have in goals
-removing unnecessary things - with app splitting you immediately see, which one is nice and clean and which one is full of politics or garbage.
+removing unnecessary things - with app splitting you see, which one is nice and clean and which one is full of politics or garbage.
 
 # Schedule and future
 
