@@ -1,7 +1,7 @@
-# Part of PLLINUX. Version fro[6~m 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
+# Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="glibc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="mediainfo"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1631,36 +1631,42 @@ cmake --build ./build --config Release --target all -j$cpu_num
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "hyprwayland-scanner" ]; then
-#work in progress
   ver="0.4.6";
   if should_make hyprwayland-scanner $ver; then
-#libpugixml-dev
-    download_unpack_source https://github.com/hyprwm/hyprwayland-scanner/archive/refs/tags/v0.4.6.tar.gz hyprwayland hyprwayland-scanner-$ver 1
-
-cmake -DCMAKE_INSTALL_PREFIX=/app/hyprwayland-scanner/current -B build
-cmake --build build -j $cpu_num
+    #libpugixml-dev
+    download_unpack_source https://github.com/hyprwm/hyprwayland-scanner/archive/refs/tags/v$ver.tar.gz hyprwayland hyprwayland-scanner-$ver 1
+    cmake -DCMAKE_INSTALL_PREFIX=/app/hyprwayland-scanner/current -B build
+    cmake --build build -j $cpu_num
     create_app_in_tmp_and_link_it hyprwayland-scanner $prefix$ver
-
-cmake --install build
-
+    cmake --install build
     set_current_app_clean_strip_cd hyprwayland-scanner $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "hyprutils" ]; then
-#work in progress
   ver="0.14.2";
   if should_make hyprutils $ver; then
-    download_unpack_source https://github.com/hyprwm/hyprutils/archive/refs/tags/v0.14.2.tar.gz hyprutils hyprutils-$ver 1
-
-cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprutils/current -S . -B ./build
-cmake --build ./build --config Release --target all -j $cpu_num
-
+    download_unpack_source https://github.com/hyprwm/hyprutils/archive/refs/tags/v$ver.tar.gz hyprutils hyprutils-$ver 1
+    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprutils/current -S . -B ./build
+    cmake --build ./build --config Release --target all -j $cpu_num
     create_app_in_tmp_and_link_it hyprutils $prefix$ver
-
-cmake --install build
-
-
+    cmake --install build
     set_current_app_clean_strip_cd hyprutils $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "mediainfo" ]; then
+#in progress
+  ver="26.10";
+  if should_make mediainfo $ver; then
+#apt-get install git automake autoconf libtool pkg-config make g++ zlib1g-dev
+#libzen-dev
+    download_unpack_source https://github.com/MediaArea/MediaInfo/archive/refs/tags/v$ver.tar.gz mediainfo MediaInfo-$ver 1
+    cd Project/GNU/CLI
+    ./autogen.sh
+    ./configure --prefix=/app/mediainfo/current --enable-shared
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it mediainfo $prefix$ver
+    make install
+#    set_current_app_clean_strip_cd hyprutils $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub" ]; then
