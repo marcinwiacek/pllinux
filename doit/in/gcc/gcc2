@@ -42,7 +42,8 @@ IFS=$IFSORIG
 
 export LD_LIBRARY_PATH="/app/glibc/current/lib"
 export LIBRARY_PATH="/app/glibc/current/lib"
-COMPILER_PATH="/app/gcc/current" && gcc $PARAMS2 $PARAMS1 $@
+#COMPILER_PATH="/app/gcc/current" && 
+gcc $PARAMS2 $PARAMS1 -fPIE -pie $@
 
 #--library-directory=dir
 
