@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version fro[6~m 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="vulkan-loader"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="gcc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1095,8 +1095,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurs
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gcc" ]; then
-#  ver="14.4.0";
-  ver="16.2.0";
+  ver="14.2.0";
+#  ver="16.2.0";
   if should_make gcc $ver; then
     # compilation can be done in tmpfs (ca. 4,3 GB)
     download_unpack_source https://ftp.gnu.org/gnu/gcc/gcc-$ver/gcc-$ver.tar.xz gcc gcc-$ver 1
@@ -1107,14 +1107,14 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gcc" 
     make all -j$cpu_num
     create_app_in_tmp_and_link_it gcc $prefix$ver
     make DESTDIR=/app/gcc/current install-strip
-    rsync -a $output/app/gcc/$prefix$ver/lib64/* $output/app/gcc/$prefix$ver/lib
-    rm -r $output/app/gcc/$prefix$ver/lib64
-    rsync -a $curdir/in/gcc/ $output/app/gcc/$prefix$ver
-    remove_duplicates_cd $output/app/gcc/$prefix$ver/bin
-    remove_duplicates_cd $output/app/gcc/$prefix$ver/share/man/man1
+    rsync -a /app/gcc/current/lib64/* /app/gcc/current/lib
+    rm -r /app/gcc/current/lib64
+    rsync -a $curdir/in/gcc/ /app/gcc/current
+    remove_duplicates_cd /app/gcc/current/bin
+    remove_duplicates_cd /app/gcc/current/share/man/man1
     create_app gcclib $prefix$ver
-    mkdir $output/app/gcclib/$prefix$ver/lib
-    mv $output/app/gcc/$prefix$ver/lib/lib* $output/app/gcclib/$prefix$ver/lib
+    mkdir /app/gcclib/$prefix$ver/lib
+    mv /app/gcc/current/lib/lib* /app/gcclib/$prefix$ver/lib
     set_current_app_clean_strip_cd gcc $prefix$ver 1
     set_current_app_clean_strip_cd gcclib $prefix$ver 1
   fi
