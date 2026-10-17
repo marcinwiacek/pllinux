@@ -9,3 +9,6 @@ Core part of PLLINUX. GNU C library with dynamic loader ld-linux-x86-64.so.2 mod
 
 **PATH**
 bin:sbin
+
+**Include**
+include
