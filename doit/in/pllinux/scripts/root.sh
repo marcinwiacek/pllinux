@@ -48,6 +48,8 @@ done
 
 #export
 
+export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/lvp_icd.x86_64.json
+export DISPLAY=:0
 export TZ=Europe/Warsaw
 export LANG=$(/app/pllinux/current/pllinux LANG)
 export LANGUAGE=$(/app/pllinux/current/pllinux LANG)
