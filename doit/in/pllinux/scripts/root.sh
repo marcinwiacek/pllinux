@@ -48,6 +48,10 @@ done
 
 #export
 
+export LIBGL_ALWAYS_SOFTWARE=1
+export __GLX_VENDOR_LIBRARY_NAME=mesa
+export VK_LOADER_DEBUG=all
+#export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/radeon_icd.json
 export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/lvp_icd.x86_64.json
 export DISPLAY=:0
 export TZ=Europe/Warsaw

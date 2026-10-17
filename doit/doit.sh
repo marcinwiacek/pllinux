@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libdisplay-info"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1962,15 +1962,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libgl
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulkan-loader" ]; then
-  ver="1.4.364";
+  ver="1.4.309";
+ # ver="1.4.364";
+# need to remove vulkan-headers from host system? inteferfering with compilation?
   if should_make vulkan-loader $ver; then
     download_unpack_source https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/tags/v$ver.tar.gz vulkan-loader Vulkan-Loader-$ver 1
     mkdir build
     cd build
     cmake -D CMAKE_BUILD_TYPE=Release \
-       -DCMAKE_SKIP_INSTALL_RPATH=ON \
       -D VULKAN_HEADERS_INSTALL_DIR=/app/vulkan-loader/current \
       -D CMAKE_INSTALL_PREFIX=/app/vulkan-loader/current \
+      -D CMAKE_SKIP_INSTALL_RPATH=ON \
+      -D BUILD_WSI_WAYLAND_SUPPORT=OFF \
       -D UPDATE_DEPS=ON ..
     make -j$cpu_num
     create_app_in_tmp_and_link_it vulkan-loader $prefix$ver
@@ -2061,7 +2064,8 @@ if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llv
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa" ]; then
   # ver="26.2.4";  # not possible because of -Degl-native-platform=drm
-  ver="26.1.8";
+#  ver="26.1.8"; #OK with GL
+ver="25.3.6";
   if should_make mesa $ver; then
     # sudo apt-get build-dep mesa
     # python3-pycparser
