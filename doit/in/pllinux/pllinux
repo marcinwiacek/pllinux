@@ -3312,7 +3312,7 @@ EOF
                       OSFOUND=" - other OS on ${DEVNAME%%:*}"
                     fi
                   elif [ -f "${ROOTBOOT}/EFI/${UEFI_VALUE2}/grubx64.efi" ]; then
-                    RES=$(grep -o ${PARAM2:6:-1} ${ROOTBOOT}/EFI/${UEFI_VALUE2}/grubx64.efi)
+                    RES=$(grep -c ${PARAM2:6:-1} ${ROOTBOOT}/EFI/${UEFI_VALUE2}/grubx64.efi)
                     if [ "$RES" != "" ]; then
                       DEVNAME=$(blkid | grep ${PARAM2:6:-1})
                       OSFOUND=" - PLLinux on ${DEVNAME%%:*}"

@@ -16,7 +16,7 @@ fi
 mkdir /other/app/mc 2> /dev/null
 for DEV in $(ls /dev); do
   case $DEV in
-  nvme*|fb0|log|mapper)
+  nvme*|fb0|log|mapper|dri)
 #    echo adding $DEV >> /tmp/x
     APP="$APP --dev-bind-try /dev/$DEV /dev/$DEV"
   esac
