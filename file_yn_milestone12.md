@@ -51,6 +51,9 @@ There are still things to do like moving these json files to system /etc, enabli
 
 ![Alt text](2026/oct_opengl.png)
 
+Similar path should be visible with Vulkan (we have vulkan-loader library, it's searching for json files describing Vulkan drivers/libraries and
+it's loading them), unfortunately here there is an error "Couldn't create window: Installed Vulkan doesn't implement the VK_KHR_surface extension" visible.
+
 # Creating packages - let's optimalize it
 
 For long time I have done some development in the VDI with ca. 10-11GB RAM (I say it from memory). Some experiences with bigger projects (compiler crashes)
@@ -86,5 +89,8 @@ During this there is visible a lot of new things, for example first compiling "h
 
     /app/binutils/261017_2.47/bin/ld: error in /app/glibc/current/lib/crt1.o(.eh_frame); no .eh_frame_hdr table will be created
     /app/binutils/261017_2.47/bin/ld: warning: cannot find entry symbol _start; defaulting to 0000000000401040
+
+It looks, that *.o files cannot have stripped symbols. But even after fixing it ELF file looks differently, when generated inside PLLinux and Debian.
+Investigation ongoing.
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
