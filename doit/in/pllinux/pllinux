@@ -3450,7 +3450,7 @@ main_disk_usage() {
 
        HOMEINFO=${HOMEINFO//"total"}
 
-       dialog --cr-wrap --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(df -h && echo && echo $HOMEINFO)" 100 150
+       dialog --cr-wrap --backtitle "PLLinux\device manager\disk usage \(du, df\)" --msgbox "$(echo $HOMEINFO && echo && df -h && echo && iostat)" 100 150
 }
 
 groups_list() {
