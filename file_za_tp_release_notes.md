@@ -10,10 +10,11 @@
 
 PLLinux contains solution for this and many other things. The biggest key points:
 
-  1. one script for configuring all named simply **pllinux** - no more magic commands for geeks, if you don't want
+  1. one script for configuring everything named **pllinux** and one script for building the whole distro named **doit** -
+no more magic commands for geeks, if you don't want
   2. minimal resources usage - no duplicated files, big logs, binary indexes or telemetry
   3. easy adding existing (Linux) apps - can be actual without weeks or months of waiting
-  4. good separating apps and users from each other - much better even than in NixOS + you can easy check version, size, etc. and better
+  4. good separating apps and users from each other - much better even than in NixOS + you can easy check version, size, files, etc. and
 control permissions and dependencies
   5. doing what is setup and nothing other - reliable, repeatable and expected results and
 no hidden actions or changing settings without user knowledge
