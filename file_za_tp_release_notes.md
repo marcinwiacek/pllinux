@@ -13,10 +13,11 @@ PLLinux contains solution for this and many other things. The biggest key points
   1. one script for configuring all named simply **pllinux** - no more magic commands for geeks, if you don't want
   2. minimal resources usage - no duplicated files, big logs, binary indexes or telemetry
   3. easy adding existing (Linux) apps - can be actual without weeks or months of waiting
-  4. good separating apps and users from each other - much better even than in NixOS
+  4. good separating apps and users from each other - much better even than in NixOS + you can easy check version, size, etc. and better
+control permissions and dependencies
   5. doing what is setup and nothing other - reliable, repeatable and expected results and
 no hidden actions or changing settings without user knowledge
-  6. continuous implementing best technical options
+  6. continuous implementing best technical options - we deliver, don't only speak (+ work on things without doing sloop)
 
 In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should always do
 whatever user want and expect.
