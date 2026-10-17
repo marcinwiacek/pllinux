@@ -9,3 +9,4 @@ zstd current
 xzutils current
 bzip2 current
 zlib current
+glibc current

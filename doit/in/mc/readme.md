@@ -15,6 +15,9 @@ glibc current
 ncurses current
 pcre2 current
 slang current
+file current
+binutils current
+grep current
 
 **PATH**
 .:bin
