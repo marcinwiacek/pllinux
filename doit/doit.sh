@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="pciutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1485,11 +1485,11 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pciutils" ]; then
   ver="3.15.0";
   if should_make pciutils $ver; then
-    download_unpack_source https://github.com/pciutils/pciutils/releases/download/v3.15.0/pciutils-$ver.tar.gz pciutils pciutils-$ver 1
+    download_unpack_source https://github.com/pciutils/pciutils/releases/download/v$ver/pciutils-$ver.tar.gz pciutils pciutils-$ver 1
     sed -i 's/HWDB=/HWDB=no/g' Makefile
-    make PREFIX=/app/pciutils/$prefix$ver -j$cpu_num
-    create_app pciutils $prefix$ver
-    make PREFIX=$output/app/pciutils/$prefix$ver install
+    make PREFIX=/app/pciutils/current -j$cpu_num
+    create_app_in_tmp_and_link_it pciutils $prefix$ver
+    make PREFIX=/app/pciutils/current  install
     set_current_app_clean_strip_cd pciutils $prefix$ver 1
   fi
 fi
@@ -2190,26 +2190,16 @@ if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
-  #work in progress
   ver="3.0.2";
   if should_make read-edid $ver; then
     install_host_deps "cmake libx86-dev"
-    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-3.0.2.tar.gz read-edid read-edid-$ver 1
-#needs cmake version in cmakelists.txt
-#and compilation error
-    cmake .
-    make 
-    make install
-#    create_app read-edid $prefix$ver
-#    mkdir $output/app/read-edid/$prefix$ver/bin
-#    for binentry in example lspci pcilmr setpci update-pciids update-pciids.sh; do
-#      cp $binentry $output/app/pciutils/$prefix$ver/bin
-#    done
-#    mkdir $output/app/pciutils/$prefix$ver/man
-#    cp *.5 $output/app/pciutils/$prefix$ver/man
-#    cp *.7 $output/app/pciutils/$prefix$ver/man
-#    cp *.8 $output/app/pciutils/$prefix$ver/man
-#    set_current_app_clean_strip_cd pciutils $prefix$ver 1
+    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-$ver.tar.gz read-edid read-edid-$ver 1
+    cmake . -DCMAKE_C_FLAGS="-fcommon"
+    make
+    echo > COPYING
+    create_app_in_tmp_and_link_it read-edid $prefix$ver
+    cmake --install . --prefix /app/read-edid/current
+    set_current_app_clean_strip_cd read-edid $prefix$ver 1
   fi
 fi
 #
@@ -2273,17 +2263,6 @@ fi
 #    cd ../../..
 #    set_current_app_clean_strip_cd slang $prefix$ver
 #  fi
-#fi
-#if [ "$package" == "all" ] || [ "$package" == "binutils" ]; then
-#  ver="2.46.1";
-#  download_unpack_source https://sourceware.org/pub/binutils/releases/binutils-2.46.1.tar.xz binutils binutils-$ver 0
-#  create_app binutils $prefix$ver
-#  cd out/binutils/binutils-$ver
-#  ./configure
-#  make all -j$cpu_num
-#  ./configure --prefix=$(pwd)/../../../app/binutils/$prefix$ver
-#  make install
-#  cd ../../..
 #fi
 #if [ "$package" == "fs2" ] || [ "$package" == "eudev" ]; then
 #  ver="3.2.15";
