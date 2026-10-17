@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version fro[6~m 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="file"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="memtest86plus"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -103,13 +103,13 @@ create_app() {
   packagename=$1
   version=$2
 
-  mkdir $output/app/$packagename || true
-  mkdir $output/app/$packagename/$version || true
+  [ -d $output/app/$packagename ] || mkdir $output/app/$packagename
+  [ -d $output/app/$packagename/$version ] || mkdir $output/app/$packagename/$version
   if [ -f "$curdir/in/$packagename/readme.md" ]; then 
     cp $curdir/in/$packagename/readme.md $output/app/$packagename/$version;
     echo "" >> $output/app/$packagename/$version/readme.md
   else
-    rm $output/app/$packagename/$version/readme.md
+    [ -f $output/app/$packagename/$version/readme.md ] || rm $output/app/$packagename/$version/readme.md
   fi
   echo "**Last**" >> $output/app/$packagename/$version/readme.md
   echo "$LATEST_FILE_UPDATE" >> $output/app/$packagename/$version/readme.md
@@ -2033,15 +2033,26 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libud
     set_current_app_clean_strip_cd libudev-zero $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "cpython" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "memtest86plus" ]; then
+  ver="9.00";
+  if should_make memtest86plus $ver; then
+    download_unpack_source https://github.com/memtest86plus/memtest86plus/archive/refs/tags/v9.00.tar.gz memtest86plus memtest86plus-$ver 1
+    cd build/x86_64
+    make
+    create_app memtest86plus $prefix$ver
+    cp mt86plus $output/app/memtest86plus/$prefix$ver/mt86plus.efi
+    set_current_app_clean_strip_cd memtest86plus $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "python" ]; then
   ver="3.15.0";
-  if should_make cpython $ver; then
+  if should_make python $ver; then
     download_unpack_source https://github.com/python/cpython/archive/refs/tags/v$ver.tar.gz cpython cpython-$ver 1
-    ./configure --prefix=/app/cpython/current
+    ./configure --prefix=/app/python/current
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it cpython $prefix$ver
+    create_app_in_tmp_and_link_it python $prefix$ver
     make install
-    set_current_app_clean_strip_cd cpython $prefix$ver 1
+    set_current_app_clean_strip_cd python $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "perl" ]; then
