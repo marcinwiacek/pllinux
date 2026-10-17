@@ -10,30 +10,32 @@
 
 PLLinux contains solution for this and many other things. The biggest key points:
 
-  1. the less is more - one script for configuring everything named **pllinux** and one script for building the whole distro named **doit**
+  1. the less is more - one script for configuring everything named **pllinux** and one script for building all named **doit**
 (no more magic commands for geeks, if you don't want)
-  2. no many stupid obsolete solutions known from many other distro - it's time to move beyond 1980 year
-  3. minimal resources usage - no duplicated files, big logs, binary indexes, telemetry, etc.
-  4. easy adding existing (Linux) apps - can be actual without weeks or months of waiting
+  2. minimal resources usage - saving power, CPU usage, expensive RAM and SSD (no duplicated files, big logs, binary indexes, telemetry, etc.)
+  3. no many stupid obsolete solutions known from many other distro - it's time to grow up and go beyond 1980 year
+  4. very easy adding existing (Linux) apps - can be always actual without weeks or months of waiting
   5. good separating apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
 control permissions and dependencies)
   6. good separating users and their files - extra security layers
-  7. doing what is setup and nothing other - reliable, repeatable and expected results and
-no hidden actions or changing settings without user knowledge
+  7. doing what is setup and nothing more - reliable, repeatable and expected results and
+no hidden actions/changing settings without user knowledge
   8. continuous implementing best technical options - we deliver, not only speak (+ work on things without doing sloop)
 
-In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should always do
+In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should do
 whatever user want and expect.
 
 This Technology Preview already shows, how could look and work basic elements of the modern OS. Current version contains many componentes already and
-can give feeling, where existing systems are obsolete (if you like analogies, you could compare this to the 
+can show, where existing systems are obsolete (if you like analogies, you could compare this to the 
 [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution
-was already started and somehow visible, but definitely not completed).
+was already started and somehow visible, but definitely was not complete and fully ready).
 
-Some solutions are similar to used in Android, Apple products or NixOS, but not the same - they can change before beta or first final release (like it was in Windows 95, see [The Early Windows 95 Builds Microsoft DIDN'T Want Us To See](https://www.youtube.com/watch?v=cgq7LcvRFA4))
+Some solutions are similar to used in Android, Apple products or NixOS, but not the same - they will change to better before beta or first final release 
+(like it was in Windows 95, see [The Early Windows 95 Builds Microsoft DIDN'T Want Us To See](https://www.youtube.com/watch?v=cgq7LcvRFA4))
 
-Note: project was started after finding various problems with existing Linux distributions and lack of dev reaction (more and more often they also remove existing for years functionalities or promote code, which was not tested).
+Note: project was started after finding various problems with existing Linux distributions and lack of dev reaction
+(more and more often they also remove existing for years functionalities or promote code, which was not tested).
 
 # Architecture
 
