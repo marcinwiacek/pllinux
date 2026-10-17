@@ -25,6 +25,7 @@ libpciaccess current
 ncurses current
 libffi current
 libglvnd current
+vulkan-loader current
 
 **Description**
 
