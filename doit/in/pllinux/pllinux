@@ -728,6 +728,9 @@ format_install2() {
       ln -s /app/tzdb/current/usr/share/zoneinfo zoneinfo
       cd ..
       cd ..
+      cd etc
+      cd vulkan
+      ln -s /app/mesa/current/share/vulkan/icd.d implicit_layer.d
 
       #don't forget about sync with doit and initramfs
 
