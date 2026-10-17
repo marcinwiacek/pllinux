@@ -1483,10 +1483,10 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsyslog" ]; then
   ver="8.2608.0";
   if should_make rsyslog $ver; then
-    install_host_deps "libestr-dev libfastjson-dev libgcrypt-dev libcurl4-gnutls-dev libprotobuf-c-dev protobuf-c-compiler libsnappy-dev"
+    install_host_deps "libestr-dev libfastjson-dev libgcrypt20-dev libcurl4-gnutls-dev libprotobuf-c-dev protobuf-c-compiler libsnappy-dev"
     download_unpack_source https://github.com/rsyslog/rsyslog/releases/download/v$ver/rsyslog-$ver.tar.gz rsyslog rsyslog-$ver 1
 #    --enable-static doesn't work?
-    ./configure --prefix=/app/rsyslog/current --disable-libyaml --enable-kmsg --enable-usertools
+    ./configure --prefix=/app/rsyslog/current --disable-libyaml --enable-kmsg --enable-usertools --disable-libsystemd
     make -j$cpu_num
     create_app_in_tmp_and_link_it rsyslog $prefix$ver
     make install
