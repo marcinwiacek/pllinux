@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="gcc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="swiftshader"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -67,7 +67,8 @@ download_unpack_source() {
       case $localfile in
         *.rpm* ) install_host_deps "rpm"
                  rpm2cpio $curdir/download/$localfile | cpio -idmv ;;
-        *.zip* ) unzip $curdir/download/$localfile -d . ;;
+        *.zip* ) unzip $curdir/download/$localfile -d .
+                 cd $unpackeddir ;;
         * )      tar -xvf $curdir/download/$localfile
                  cd $unpackeddir
       esac
@@ -2019,15 +2020,21 @@ ver="25.3.6";
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "swiftshader" ]; then
-#work in progress
   ver="1";
   if should_make swiftshader $ver; then
-    download_unpack_source https://github.com/google/swiftshader/archive/refs/heads/master.zip swiftshared swiftshader-master 1
-#git submodule update --init
-cd build
-cmake ..
-cmake --build .
-
+    download_unpack_source https://github.com/google/swiftshader/archive/refs/heads/master.zip swiftshader swiftshader-master 1
+    cd third_party
+    git clone https://github.com/google/googletest.git
+    git clone https://github.com/KhronosGroup/glslang.git
+    cd ..
+    cmake -S . -DCMAKE_INSTALL_PREFIX=/app/swiftshader/current -B build
+    cmake --build build
+    create_app_in_tmp_and_link_it swiftshader $prefix$ver
+    mkdir /app/swiftshader/current/lib
+    cp build/Linux/libvk_swiftshader.so /app/swiftshader/current/lib
+    cp build/Linux/vk_swiftshader_icd.json /app/swiftshader/current/lib
+#    cmake --install build #installs everything excluding important files
+    set_current_app_clean_strip_cd swiftshader $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libudev-zero" ]; then
