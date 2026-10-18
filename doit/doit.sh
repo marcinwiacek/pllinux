@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="swiftshader"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1958,8 +1958,8 @@ if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llv
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa" ]; then
   # ver="26.2.4";  # not possible because of -Degl-native-platform=drm
-#  ver="26.1.8"; #OK with GL
-ver="25.3.6";
+  ver="26.1.8"; #OK with GL
+#ver="25.3.6";
   if should_make mesa $ver; then
     # sudo apt-get build-dep mesa
     # python3-pycparser
@@ -1968,12 +1968,13 @@ ver="25.3.6";
        -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
        -Dgles1=enabled -Dgles2=enabled -Dglvnd=enabled \
        -Dplatforms=x11 \
-       -Dgallium-drivers=all -Dvulkan-drivers=all \
+       -Dgallium-drivers="llvmpipe,softpipe" -Dgallium-d3d12-graphics=disabled -Dgallium-d3d12-video=disabled \
+       -Dvulkan-drivers="swrast" -Dvulkan-layers="device-select,intel-nullhw,overlay" \
        -Dglx=dri -Degl-native-platform=drm
-    meson compile -C _build
-    create_app_in_tmp_and_link_it mesa $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd mesa $prefix$ver 1
+#    meson compile -C _build
+#    create_app_in_tmp_and_link_it mesa $prefix$ver
+#    meson install -C _build
+#    set_current_app_clean_strip_cd mesa $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "swiftshader" ]; then
@@ -1984,8 +1985,9 @@ if [ "$package" == "fs" ] || [ "$package" == "swiftshader" ]; then
     git clone https://github.com/google/googletest.git
     git clone https://github.com/KhronosGroup/glslang.git
     cd ..
+#          -DSWIFTSHADER_BUILD_WSI_DIRECTFB=true \
     cmake -S . -DCMAKE_INSTALL_PREFIX=/app/swiftshader/current -DSWIFTSHADER_BUILD_WSI_WAYLAND=false \
-          -DSWIFTSHADER_BUILD_WSI_DIRECTFB=true -DSWIFTSHADER_BUILD_WSI_D2D=true  -B build
+     -DSWIFTSHADER_BUILD_WSI_D2D=true  -B build
     cmake --build build
     create_app_in_tmp_and_link_it swiftshader $prefix$ver
 #    cmake --install build #installs everything excluding important files
