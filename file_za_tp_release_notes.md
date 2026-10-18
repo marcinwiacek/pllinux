@@ -39,7 +39,7 @@ Note: project was started after finding various problems with existing Linux dis
 
 # Architecture
 
-System is based on long-supported code and tools with known reputation:
+System is based on long-supported code and tools with known reputation, for example:
 
 1. [Linux kernel](https://kernel.org) (there were other considered too, but for now let's hope, that this code won't be damaged by AI and other things)
 2. [busybox](https://busybox.net/), when possible (when it's good enough) or other tools (like [util-linux](https://github.com/util-linux/util-linux)), when
@@ -47,14 +47,14 @@ busybox has got known issues or limits
 3. [bwrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation layers in various situations
 4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
 
-We avoid changing existing software and there are only two exceptions:
+We avoid changing existing software code and there are only two exceptions:
 
 1. [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md)
 2. some permission details in "bwrap"
 
 Excluding permissions and other directories names system in many cases can run without any problems unmodified Linux binaries. 
 This simply works... just after giving list of dependencies in readme.md manifest files described below (this is totally different
-approach from NixOS, where binaries normally need to be patched).
+from NixOS, where binaries normally need to be patched).
 
 There are just few services started:
 
@@ -207,6 +207,15 @@ Solution unknown. Will be investigated.
 
 Solution unknown. Will be investigated.
 
+**Long waiting for opening partition with GRUB**
+
+Known GRUB issue. The only one solution is decreasing security, in the future GRUB maybe will be replaced with something else.
+
+**Password need to be given two times with encrypted partition**
+
+Known GRUB/Linux architecture issue. Some distributions are mitigating it with putting decryption key on the disk and we don't want
+probably to do it.
+
 # Links
 
 * [https://sourceforge.net/projects/pllinux/](https://sourceforge.net/projects/pllinux/)
@@ -277,7 +286,7 @@ It doesn't have at least just other wallpaper or branding.
 
 **Does it have sense to make new OS by people in AI age?**
 
-New products and ideas are always moving people forward. And making things by human (not AI) is extending their skills+it's known, what we have inside.
+New products and ideas are always moving people forward. And making things by human (not AI) is extending their skills + it's known, what we have inside.
 
 **It's shipped with slow, obsolete and abandomed GNU apps. Why not musl or other?**
 
@@ -313,7 +322,7 @@ in some day full independence.
 **It's much bigger than Puppy Linux, Tiny Core Linux and other small distributions**
 
 Goal for PLLinux is building desktop class system with all features. Technical Preview is bigger, but next versions have in goals
-removing unnecessary things - with app splitting you see, which one is nice and clean and which one is full of politics or garbage.
+removing unnecessary things and debug code.
 
 # Schedule and future
 
