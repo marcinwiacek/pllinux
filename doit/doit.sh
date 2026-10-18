@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="vulkan-tools"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1875,6 +1875,25 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulka
     set_current_app_clean_strip_cd vulkan-loader $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulkan-tools" ]; then
+  ver="1.4.309";
+ # ver="1.4.364";
+  if should_make vulkan-tools $ver; then
+    download_unpack_source https://github.com/KhronosGroup/Vulkan-Tools/archive/refs/tags/v$ver.tar.gz vulkan-tools Vulkan-Tools-$ver 1
+    mkdir build
+    cd build
+#      -D VULKAN_HEADERS_INSTALL_DIR=/app/vulkan-loader/current \
+#      -D BUILD_WSI_WAYLAND_SUPPORT=OFF \
+#      -D UPDATE_DEPS=ON ..
+    cmake -D CMAKE_BUILD_TYPE=Release \
+      -D CMAKE_INSTALL_PREFIX=/app/vulkan-tools/current \
+      -D CMAKE_SKIP_INSTALL_RPATH=ON ..
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it vulkan-tools $prefix$ver
+    make install
+#    set_current_app_clean_strip_cd vulkan-tools $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdisplay-info" ]; then
 #  ver="0.4.0";
   ver="0.2.0";
@@ -1968,13 +1987,15 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa"
        -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
        -Dgles1=enabled -Dgles2=enabled -Dglvnd=enabled \
        -Dplatforms=x11 \
-       -Dgallium-drivers="llvmpipe,softpipe" -Dgallium-d3d12-graphics=disabled -Dgallium-d3d12-video=disabled \
-       -Dvulkan-drivers="swrast" -Dvulkan-layers="device-select,intel-nullhw,overlay" \
+       -Dgallium-drivers="asahi,crocus,ethosu,etnaviv,freedreno,i915,iris,lima,llvmpipe,nouveau,panfrost,r300,r600,radeonsi,rocket,softpipe,svga,tegra,v3d,vc4,virgl,zink" \
+       -Dgallium-d3d12-graphics=disabled -Dgallium-d3d12-video=disabled \
+       -Dvulkan-drivers="amd,broadcom,freedreno,intel,intel_hasvk,panfrost,swrast,virtio,imagination,nouveau,asahi,gfxstream,kosmickrisp" \
+       -Dvulkan-layers="device-select,intel-nullhw,overlay" \
        -Dglx=dri -Degl-native-platform=drm
-#    meson compile -C _build
-#    create_app_in_tmp_and_link_it mesa $prefix$ver
-#    meson install -C _build
-#    set_current_app_clean_strip_cd mesa $prefix$ver 1
+    meson compile -C _build
+    create_app_in_tmp_and_link_it mesa $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd mesa $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "swiftshader" ]; then
