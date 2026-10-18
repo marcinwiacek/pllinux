@@ -2033,6 +2033,8 @@ if [ "$package" == "fs" ] || [ "$package" == "swiftshader" ]; then
     mkdir /app/swiftshader/current/lib
     cp build/Linux/libvk_swiftshader.so /app/swiftshader/current/lib
     cp build/Linux/vk_swiftshader_icd.json /app/swiftshader/current/lib
+    cd /app/swiftshader/current/lib
+    ln -s libvk_swiftshader.so libvulkan.so.1
 #    cmake --install build #installs everything excluding important files
     set_current_app_clean_strip_cd swiftshader $prefix$ver 1
   fi
