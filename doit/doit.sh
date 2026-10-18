@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="swiftshader"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="mc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -194,7 +194,7 @@ set_current_app_clean_strip_cd() {
     cd $output/app/$packagename
     #set "current" directory to the new installed app
     ln -s $version current
-    cd $olddir
+#    [ -d "$olddir ] || cd $olddir
     rsync -a /tmp/installit/ $output/app/$packagename/$version
     rm -r -f /tmp/installit ;;
   *)
@@ -314,6 +314,13 @@ if [ ! -d "$output" ]; then
   echo "output folder $output does not exist."
   exit
 fi
+
+    if [ ! -d "/app" ]; then
+      echo "You need link from /app to the PLLINUX /app"
+      cd /
+      sudo ln -s $output/app app
+      cd $curdir
+    fi
 
 install_host_deps "rsync"
 #install_host_deps "mc retext git gitk gedit"
@@ -560,65 +567,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mc" ]; then
   ver="4.8.33";
   if should_make mc $ver; then
-    if [ ! -d "/app" ]; then
-      echo "MC is exception. You need link from /app to the PLLINUX /app. This will be removed in the future"
-      cd /
-      sudo ln -s $output/app app
-      cd $curdir
-    fi
     install_host_deps "libglib2.0-dev libslang2-dev libgpm-dev"
     download_unpack_source https://ftp.osuosl.org/pub/midnightcommander/mc-$ver.tar.xz mc mc-$ver 1
-    # prefix value is later put into installed and binary files, which makes installation sometimes problematic
-    # there were different options tried (even changing string in all files, but... it was not possible in binaries)
-#    pwdd=$(pwd)
-#    pwdd=${pwdd//\//\\/}
-#    newcmd="s/$pwdd\/..\/..\/..\/app\/mc\/$prefix$ver/\/app\/mc\/$prefix$ver/g"
-#    find ../../../app/$packagename/$prefix$ver -name "*.sh" -exec bash -c "echo \"executing on {}\" && sed -i \"$newcmd\" {}" \;
-#    find ../../../app/$packagename/$prefix$ver -name "*.csh" -exec bash -c "echo \"executing on {}\" && sed -i \"$newcmd\" {}" \;
-#--exec-prefix=$(pwd)/../../../app/mc/$prefix$ver
-#--prefix=$(pwd)/../../../app/mc/$prefix$ver --exec-prefix=/usr/mc
-#--prefix=/usr/mc 
-#--exec-prefix=/usr/mc
-#--prefix=/app/mc/$prefix$ver
-# sandbox would be clean solution, but for now I have gcc crash
-#    mkdir $(pwd)/../../../app/mc/$prefix$ver/bin
-#    mkdir $(pwd)/../../../app/mc/$prefix$ver/sbin
-#    mkdir $(pwd)/../../../app/mc/$prefix$ver/etc
-#    mkdir $(pwd)/../../../app/mc/$prefix$ver/usr
-#    bwrap --ro-bind /bin bin \
-#          --ro-bind /sbin sbin \
-#          --dev /dev \
-#          --bind $(pwd)/../../../app/mc/$prefix$ver/etc etc \
-#          --bind $(pwd)/../../../app/mc/$prefix$ver/usr usr/mc \
-#          --ro-bind /usr/lib usr/lib \
-#          --ro-bind /usr/bin usr/bin \
-#          --ro-bind /usr/sbin usr/sbin \
-#          --ro-bind /lib lib \
-#          --ro-bind /lib64 lib64 \
-#          --bind . src \
-#          --chdir /src \
-#          --tmpfs /tmp \
-#          /usr/bin/make install
-#    ./configure --disable-vfs -without-gpm-mouse --prefix=/app/mc/current
     ./configure --disable-vfs -without-gpm-mouse --prefix=/app/mc/current --exec-prefix=/app/mc/current
     make all -j$cpu_num
-    # need to install to /app/mc/current
-    create_app mc $prefix$ver
-    cd /app/mc
-    rm current
-    ln -s $prefix$ver current
-    cd $out/mc/mc-$ver
+    create_app_in_tmp_and_link_it mc $prefix$ver
     make install
-    cd $output/app/mc/$prefix$ver/bin
-#    ln -s /app/bash/current/bin/bash bash
+    cd /app/mc/current/bin
     ln -s /app/busybox/current/bin/sh sh
-#    cd $output/app/mc/$prefix$ver
-#    mkdir usr
-#    cd usr
-#    mkdir share
-#    cd share
-#    ln -s /app/ncurses/current/share/terminfo terminfo
-    cp $curdir/in/mc/mc $output/app/mc/$prefix$ver
+    cp $curdir/in/mc/mc /app/mc/current
     set_current_app_clean_strip_cd mc $prefix$ver 1
   fi
 fi
@@ -700,7 +657,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "initr
 #LIBS="-L/app/lvm2/current/usr/lib "
 #DEVMAPPER_CFLAGS="-I/app/lvm2/current/usr/include" \
 #         LDFLAGS=-L/app/lvm2/current/usr/lib \
-#      --disable-udev --disable-selinux --disable-veritysetup --disable-integritysetup          
+#      --disable-udev --disable-selinux --disable-veritysetup --disable-integritysetup
 #    make -j$cpu_num
 
     mkdir $out/initramfs/app/cryptsetup
