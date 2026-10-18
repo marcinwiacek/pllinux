@@ -91,10 +91,11 @@ During this there is visible a lot of new things, for example first compiling "h
     /app/binutils/261017_2.47/bin/ld: warning: cannot find entry symbol _start; defaulting to 0000000000401040
 
 The rootcause is, that ELF file doesn't have *tm_clones inside (see [What Functions Does GCC Add to Linux ELF Executables?](https://linuxvox.com/blog/what-functions-does-gcc-add-to-the-linux-elf/)).
-It looks, that *.o files cannot have stripped symbols - for "hello world" app we require this rule in gcc and glibc package. Small fix and (18 Oct)
-we have working gcc (at least for very simple code) - file is a little bit than in Debian, but this could be because of lack of optimalization options.
+It looks, that *.o files cannot have stripped symbols - for "hello world" app we require this in **gcc** and **glibc** package. Small fix and (18 Oct)
+we have working **gcc** at least for very simple code - file is a little bit bigger than in Debian, but this could be because of lack of optimalization options.
 
-And some offtopic here: where is all help taken from? My past experience (I started personally somewhere around 1997, if I remember correctly, and was writing some software there around 1999-2000 already), searching with DuckDuckGo, analizing ready Debian/Ubuntu/Arch and other packages and pages like
+And some offtopic here: where is all help taken from? My past experience (I was writing some Linux code in 1999-2000 already and,
+if I remember correctly, I started personally experimenting with Linux somewhere around 1997), searching with DuckDuckGo, analizing ready Debian/Ubuntu/Arch and other packages and pages like
 [Linux From Scratch!](https://www.linuxfromscratch.org/), [ArchWiki](https://wiki.archlinux.org/title/Main_page) or even [DeepWiki](https://deepwiki.com/) (the last one is normally sloop, but... in some rare cases give some hints or keywords too)
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
