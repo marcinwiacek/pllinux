@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="mc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="swiftshader"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1984,15 +1984,16 @@ if [ "$package" == "fs" ] || [ "$package" == "swiftshader" ]; then
     git clone https://github.com/google/googletest.git
     git clone https://github.com/KhronosGroup/glslang.git
     cd ..
-    cmake -S . -DCMAKE_INSTALL_PREFIX=/app/swiftshader/current -B build
+    cmake -S . -DCMAKE_INSTALL_PREFIX=/app/swiftshader/current -DSWIFTSHADER_BUILD_WSI_WAYLAND=false \
+          -DSWIFTSHADER_BUILD_WSI_DIRECTFB=true -DSWIFTSHADER_BUILD_WSI_D2D=true  -B build
     cmake --build build
     create_app_in_tmp_and_link_it swiftshader $prefix$ver
+#    cmake --install build #installs everything excluding important files
     mkdir /app/swiftshader/current/lib
     cp build/Linux/libvk_swiftshader.so /app/swiftshader/current/lib
     cp build/Linux/vk_swiftshader_icd.json /app/swiftshader/current/lib
     cd /app/swiftshader/current/lib
     ln -s libvk_swiftshader.so libvulkan.so.1
-#    cmake --install build #installs everything excluding important files
     set_current_app_clean_strip_cd swiftshader $prefix$ver 1
   fi
 fi
