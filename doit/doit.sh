@@ -1876,6 +1876,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulka
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulkan-tools" ]; then
+#work in progress
   ver="1.4.309";
  # ver="1.4.364";
   if should_make vulkan-tools $ver; then
