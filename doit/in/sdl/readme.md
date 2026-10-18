@@ -25,7 +25,8 @@ libpciaccess current
 ncurses current
 libffi current
 libglvnd current
-vulkan-loader current
+swiftshader current
+libdisplay-info current
 
 **Description**
 
