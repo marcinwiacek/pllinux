@@ -95,6 +95,6 @@ It looks, that *.o files cannot have stripped symbols - for "hello world" app we
 we have working gcc (at least for very simple code) - file is a little bit than in Debian, but this could be because of lack of optimalization options.
 
 And some offtopic here: where is all help taken from? My past experience (I started personally somewhere around 1997, if I remember correctly, and was writing some software there around 1999-2000 already), searching with DuckDuckGo, analizing ready Debian/Ubuntu/Arch and other packages and pages like
-[Linux From Scratch!](https://www.linuxfromscratch.org/) or even [DeepWiki](https://deepwiki.com/) (the last one is normally sloop, but... in some rare cases give some hints or keywords too)
+[Linux From Scratch!](https://www.linuxfromscratch.org/), [ArchWiki](https://wiki.archlinux.org/title/Main_page) or even [DeepWiki](https://deepwiki.com/) (the last one is normally sloop, but... in some rare cases give some hints or keywords too)
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)

@@ -74,6 +74,7 @@ encryption for main filesystem.
   8. 23 Sep 2026 - first working boot chain with GRUB (partition without encryption)
   9. 5 Oct 2026 - first complete booting with LUKS2 encryption
   10. 15 Oct 2026 - OpenGL (+many examples from SDL2 and SDL3) works at least with software rendering
+  11. 18 Oct 2026 - first "Hello world" with gcc
 
 **Building and starting system from the partition (in the host system)**
 
