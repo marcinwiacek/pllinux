@@ -72,5 +72,6 @@ echo 1G > /sys/block/zram0/disksize
 
 # just permissions
 /app/busybox/current/bin/chmod a+rw /dev/null
+/app/busybox/current/bin/chmod a+rw /dev/fb0
 
 /app/pllinux/current/pllinux BOOT

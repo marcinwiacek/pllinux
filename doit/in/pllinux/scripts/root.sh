@@ -51,8 +51,10 @@ done
 export LIBGL_ALWAYS_SOFTWARE=1
 export __GLX_VENDOR_LIBRARY_NAME=mesa
 export VK_LOADER_DEBUG=all
-#export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/radeon_icd.json
-export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/lvp_icd.x86_64.json
+#export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/icd.d/radeon_icd.json
+#export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/icd.d/lvp_icd.x86_64.json
+#export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/icd.d/virtio_icd.x86_64.json
+export VK_DRIVER_FILES=/app/swiftshader/current/lib/vk_swiftshader_icd.json
 export DISPLAY=:0
 export TZ=Europe/Warsaw
 export LANG=$(/app/pllinux/current/pllinux LANG)
