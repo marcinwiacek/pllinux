@@ -30,27 +30,13 @@ for APP_NAME in $APP_LIST; do
     done < ${DIR}app/${APP_NAME}/current/readme.md
   fi
   if [ -d "${DIR}app/${APP_NAME}/current/lib" ]; then
-            PARAMS2="-L /app/${APP_NAME}/current/lib $PARAMS2"
+    PARAMS2="-L /app/${APP_NAME}/current/lib $PARAMS2"
   fi
 done
 
-#echo "include $PARAMS1"
-#echo "library $PARAMS2"
-
-#echo "-B/app/gcc/current $PARAMS1 $@"
 IFS=$IFSORIG
 
 export LD_LIBRARY_PATH="/app/glibc/current/lib"
 export LIBRARY_PATH="/app/glibc/current/lib"
 #COMPILER_PATH="/app/gcc/current" && 
-gcc $PARAMS2 $PARAMS1 -fPIE -pie $@
-
-#--library-directory=dir
-
-#/app/bwrap/current/bin/bwrap \
-#    --unshare-all \
-#    --share-net \
-#    --tmpfs tmp \
-#    --bind /app app \
-#    --dev dev \
-#    /app/busybox/current/bin/sh /app/pllinux/current/scripts/app.sh $@
+bin/gcc $PARAMS2 $PARAMS1 $@

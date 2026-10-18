@@ -90,7 +90,8 @@ During this there is visible a lot of new things, for example first compiling "h
     /app/binutils/261017_2.47/bin/ld: error in /app/glibc/current/lib/crt1.o(.eh_frame); no .eh_frame_hdr table will be created
     /app/binutils/261017_2.47/bin/ld: warning: cannot find entry symbol _start; defaulting to 0000000000401040
 
-It looks, that *.o files cannot have stripped symbols. But even after fixing it ELF file looks differently, when generated inside PLLinux and Debian.
-Investigation ongoing.
+The rootcause is, that ELF file doesn't have *tm_clones inside (see [https://linuxvox.com/blog/what-functions-does-gcc-add-to-the-linux-elf/](What Functions Does GCC Add to Linux ELF Executables?)).
+It looks, that *.o files cannot have stripped symbols - for "hello world" app we require this rule in gcc and glibc package. Small fix and (18 Oct)
+we have working gcc (at least for very simple code) - file is a little bit than in Debian, but this could be because of lack of optimalization options.
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)

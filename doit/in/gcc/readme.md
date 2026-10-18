@@ -2,7 +2,7 @@
 GPL3+ with GCC Runtime Library Exception
 
 **PATH**
-bin
+.:bin
 
 **Deps**
 glibc current
