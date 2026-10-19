@@ -189,19 +189,17 @@ set_current_app_clean_strip_cd() {
     [ -d $output/app/$packagename ] || mkdir $output/app/$packagename
     if [ -d $output/app/$packagename/$version ]; then rm -r -f $output/app/$packagename/$version 2> /dev/null; fi
     mkdir $output/app/$packagename/$version || true
-    rm $output/app/$packagename/current 2> /dev/null
-#    olddir=$(pwd)
-    cd $output/app/$packagename
-    #set "current" directory to the new installed app
-    ln -s $version current
-#    [ -d "$olddir ] || cd $olddir
+  esac
+
+  #set "current" directory to the new installed app
+  cd $output/app/$packagename
+  [ -d current ] || rm current
+  ln -s $version current
+
+  case $pathtoapp in
+  /tmp/installit)
     rsync -a /tmp/installit/ $output/app/$packagename/$version
-    rm -r -f /tmp/installit ;;
-  *)
-    #set "current" directory to the new installed app
-    cd $output/app/$1
-    rm current || true
-    ln -s $version current
+    rm -r -f /tmp/installit
   esac
 
   if [ "$use_tmpfs" = "1" ]; then
@@ -379,7 +377,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kerne
   ver="7.2.6";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
-    # compilation in ram enabled after migrating to 32GB RAM
     download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver 1
     cp $curdir/in/kernel/.config .
     make -j$cpu_num
@@ -388,8 +385,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kerne
     for fileentry in .config arch/x86/boot/bzImage; do
       cp $fileentry $output/app/kernel/$prefix$ver
     done
-    make headers_install INSTALL_HDR_PATH=$output/app/kernel/$prefix$ver
-    make modules_install INSTALL_MOD_PATH=/tmp/x
+#    make modules -j$cpu_num
+#    make headers_install INSTALL_HDR_PATH=$output/app/kernel/$prefix$ver -j$cpu_num
+#    make vdso_install INSTALL_MOD_PATH=/tmp/x -j$cpu_num
+    make modules_install INSTALL_MOD_PATH=/tmp/x -j$cpu_num
     cd /tmp/x/lib/modules
     cd $(ls)
     rm build

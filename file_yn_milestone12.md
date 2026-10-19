@@ -54,6 +54,12 @@ There are still things to do like moving these json files to system /etc, enabli
 Similar path should be visible with Vulkan (we have vulkan-loader library, it's searching for json files describing Vulkan drivers/libraries and
 it's loading them), unfortunately here there is an error "Couldn't create window: Installed Vulkan doesn't implement the VK_KHR_surface extension" visible.
 
+After further investigation it was found, that Vulkan has got three directories with config files pointing not only to the driver files, but also to
+loader (in PLLinux this will be probably everything in the /etc/vulkan). Next step done... and drivers (including software llvmpipe) are complaining
+only about lack of graphic card.
+
+Wait, what? VirtualBox has got hardware acceleration with kvm
+
 # Creating packages - let's optimalize it
 
 For long time I have done some development in the VDI with ca. 10-11GB RAM (I say it from memory). Some experiences with bigger projects (compiler crashes)
