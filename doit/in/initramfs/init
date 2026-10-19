@@ -25,7 +25,7 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
   mount -t iso9660 /dev/sr0 /mnt/iso
 
   cd /app
-  for app in glibc openssl rsync zlib zstd; do ln -s /mnt/iso/app/$app $app; done
+  for app in glibc openssl rsync zlib zstd popt; do ln -s /mnt/iso/app/$app $app; done
 
   cd /mnt
 

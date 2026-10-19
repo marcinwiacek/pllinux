@@ -190,7 +190,7 @@ set_current_app_clean_strip_cd() {
     if [ -d $output/app/$packagename/$version ]; then rm -r -f $output/app/$packagename/$version 2> /dev/null; fi
     mkdir $output/app/$packagename/$version || true
     rm $output/app/$packagename/current 2> /dev/null
-    olddir=$(pwd)
+#    olddir=$(pwd)
     cd $output/app/$packagename
     #set "current" directory to the new installed app
     ln -s $version current
@@ -394,8 +394,9 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kerne
     cd $(ls)
     rm build
     rsync -a . $output/app/kernel/$prefix$ver/modules
+    cd /tmp
     rm -r /tmp/x
-    set_current_app_clean_strip_cd kernel $prefix$ver 1
+    set_current_app_clean_strip_cd kernel $prefix$ver 0 # not stripping of kernel modules!
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busybox" ]; then
