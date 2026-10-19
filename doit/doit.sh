@@ -374,7 +374,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
   cd $curdir
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
-  ver="7.2.6";
+  ver="7.2.11";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
     download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver 1
