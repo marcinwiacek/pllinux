@@ -193,7 +193,7 @@ set_current_app_clean_strip_cd() {
 
   #set "current" directory to the new installed app
   cd $output/app/$packagename
-  [ -d current ] || rm current
+  rm current
   ln -s $version current
 
   case $pathtoapp in
