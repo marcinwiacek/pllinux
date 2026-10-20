@@ -47,7 +47,8 @@ Generally a lot of "fun", happily after some investigation it was found path to 
 [https://github.com/NVIDIA/libglvnd/blob/master/src/EGL/icd_enumeration.md](https://github.com/NVIDIA/libglvnd/blob/master/src/EGL/icd_enumeration.md)
 3. libEGL_mesa.so.0 from mesa package is searching either for Wayland or X11 or DRM (in my case DRM, which is supported by internal driver egl_dri2 from mesa)
 
-There are still things to do like moving these json files to system /etc, enabling full hardware acceleration, Vulkan, investigating latest mesa (it looks, it cannot work with FB anymore), etc. But for now (15 Oct):
+There are still things to do like moving these json files to system /etc, enabling full hardware acceleration, Vulkan, investigating latest mesa (it looks, it cannot work with FB anymore), etc. 
+But for now (15 Oct):
 
 ![Alt text](2026/oct_opengl.png)
 
@@ -58,7 +59,11 @@ After further investigation it was found, that Vulkan has got three directories 
 loader (in PLLinux this will be probably everything in the /etc/vulkan). Next step done... and drivers (including software llvmpipe) are complaining
 only about lack of graphic card.
 
-Wait, what? VirtualBox has got hardware acceleration with kvm
+Can be it fixed? VirtualBox can have hardware acceleration with vmwgfx module, but it was not possible to load it ("Unknown symbols" errors). After many tries
+the only one working configuration is with 6.18 kernel (thing to investigate in the future, if kernel 7.x is incompatible or whether came from other reasons) -
+module can be loaded and there is visible in the end /sys/class/drm/renderD128 device (but it doesn't help).
+
+But why module shows "running on unknown hypervisor" ?
 
 # Creating packages - let's optimalize it
 
@@ -100,8 +105,7 @@ The rootcause is, that ELF file doesn't have *tm_clones inside (see [What Functi
 It looks, that *.o files cannot have stripped symbols - for "hello world" app we require this in **gcc** and **glibc** package. Small fix and (18 Oct)
 we have working **gcc** at least for very simple code - file is a little bit bigger than in Debian, but this could be because of lack of optimalization options.
 
-And some offtopic here: where is all help taken from? My past experience (I was writing some Linux code in 1999-2000 already and,
-if I remember correctly, I started personally experimenting with Linux somewhere around 1997), searching with DuckDuckGo, analizing ready Debian/Ubuntu/Arch and other packages and pages like
-[Linux From Scratch!](https://www.linuxfromscratch.org/), [ArchWiki](https://wiki.archlinux.org/title/Main_page) or even [DeepWiki](https://deepwiki.com/) (the last one is normally sloop, but... in some rare cases give some hints or keywords too)
+And some offtopic here: where is all help taken from in current situation, when internet became one big sloop and valuable info is more and more hidden or cost? 
+My past experience (I was writing some Linux code in 1999-2000 already and, if I remember correctly, I started personally experimenting with Linux somewhere around 1997), searching with DuckDuckGo, analizing ready Debian/Ubuntu/Arc and other packages and pages like [Linux From Scratch!](https://www.linuxfromscratch.org/), [ArchWiki](https://wiki.archlinux.org/title/Main_page) or even [DeepWiki](https://deepwiki.com/) (the last one is normally sloop, but... in some rare cases give some hints or keywords too)
 
 [Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
