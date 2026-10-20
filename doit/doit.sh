@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="kernel"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="initramfs"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -149,12 +149,11 @@ set_current_app_clean_strip_cd() {
   version=$2
   stripapp=$3
 
-  case $(realpath $output/app/$packagename/current) in
-  /tmp/installit)
-    pathtoapp="/tmp/installit" ;;
-  *)
+  if [ -d "/tmp/installit" ]; then
+    pathtoapp="/tmp/installit"
+  else
     pathtoapp="$output/app/$packagename/$version"
-  esac
+  fi
 
   if [ -d "$pathtoapp/lib" ]; then
     chmod a-x $pathtoapp/lib/*.so* 2> /dev/null
@@ -184,23 +183,21 @@ set_current_app_clean_strip_cd() {
   echo "**Last**" >> $pathtoapp/readme.md
   echo "$LATEST_FILE_UPDATE" >> $pathtoapp/readme.md
 
-  case $pathtoapp in
-  /tmp/installit)
+  if [ -d "/tmp/installit" ]; then
     [ -d $output/app/$packagename ] || mkdir $output/app/$packagename
     if [ -d $output/app/$packagename/$version ]; then rm -r -f $output/app/$packagename/$version 2> /dev/null; fi
     mkdir $output/app/$packagename/$version || true
-  esac
+  fi
 
   #set "current" directory to the new installed app
   cd $output/app/$packagename
   rm current
   ln -s $version current
 
-  case $pathtoapp in
-  /tmp/installit)
+  if [ -d "/tmp/installit" ]; then
     rsync -a /tmp/installit/ $output/app/$packagename/$version
     rm -r -f /tmp/installit
-  esac
+  fi
 
   if [ "$use_tmpfs" = "1" ]; then
     rm -r -f $out
@@ -374,10 +371,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
   cd $curdir
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
-  ver="7.2.11";
+  ver="6.18.57";
+#  ver="7.2.11";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
-    download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$ver.tar.xz kernel linux-$ver 1
+    download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$ver.tar.xz kernel linux-$ver 1
     cp $curdir/in/kernel/.config .
     make -j$cpu_num
     cp .config $curdir/in/kernel # .config will be updated with new header and maybe options
