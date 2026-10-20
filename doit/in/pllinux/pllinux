@@ -760,7 +760,7 @@ format_install2() {
       echo '#!/bin/sh' > /tmp/42_custom
       echo 'exec tail -n +3 $0' >> /tmp/42_custom
       echo menuentry 'PLLINUX2' --class ubuntu --class gnu-linux --class gnu --class os \$menuentry_id_option 'PL22' { >> /tmp/42_custom
-      echo set root='hd1,gpt1' >> /tmp/42_custom
+      echo   search.fs_uuid $ROOT_DEVICE_ID root >> /tmp/42_custom
       echo   echo 'Loading PLLINUX ...' >> tmp/42_custom
       echo   linux /app/kernel/current/bzImage root=UUID=$ROOT_DEVICE_ID rw >> /tmp/42_custom
       echo   initrd /app/initramfs/current/initramfs.gz >> /tmp/42_custom
