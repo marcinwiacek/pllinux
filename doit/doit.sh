@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="hyprcursor"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="console-fonts-zap"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -110,7 +110,9 @@ create_app() {
     cp $curdir/in/$packagename/readme.md $output/app/$packagename/$version;
     echo "" >> $output/app/$packagename/$version/readme.md
   else
-    [ -f $output/app/$packagename/$version/readme.md ] || rm $output/app/$packagename/$version/readme.md
+    if [ -f $output/app/$packagename/$version/readme.md ]; then
+      rm $output/app/$packagename/$version/readme.md
+    fi
   fi
   echo "**Last**" >> $output/app/$packagename/$version/readme.md
   echo "$LATEST_FILE_UPDATE" >> $output/app/$packagename/$version/readme.md
@@ -1287,6 +1289,15 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lvm2"
     cd $output/app/lvm2/$prefix$ver/lib
     ln -s libdevmapper.so.1.02 libdevmapper.so.1.02.1 # cross fingers this version works
     set_current_app_clean_strip_cd lvm2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "console-fonts-zap" ]; then
+  ver="2.4";
+  if should_make console-fonts-zap $ver; then
+    download_unpack_source https://ftp.zap.org.au/pub/fonts/console-fonts-zap/console-fonts-zap-2.4.tar.xz console-fonts console-fonts-zap-$ver 1
+    create_app console-fonts-zap $prefix$ver
+    cp *.psf /app/console-fonts-zap/$prefix$ver
+    set_current_app_clean_strip_cd console-fonts-zap $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "parted" ]; then
