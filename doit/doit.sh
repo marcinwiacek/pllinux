@@ -373,12 +373,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
   cd $curdir
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
-  ver="6.18.57";
-#  ver="7.2.11";
+#  ver="6.18.57";
+  ver="7.2.11";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
     download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$ver.tar.xz kernel linux-$ver 1
-    cp $curdir/in/kernel/.config_$ver .
+    cp $curdir/in/kernel/.config_$ver ./.config
     make -j$cpu_num
     cp .config $curdir/in/kernel/.config_$ver # .config will be updated with new header and maybe options
     create_app kernel $prefix$ver
