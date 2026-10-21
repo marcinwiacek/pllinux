@@ -1518,7 +1518,7 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprlang" ]; then
 #    PATH=$PATH:/app/hyprwayland-scanner/current/bin && 
 #      -D CMAKE_PREFIX_PATH="/app/hyprutils/current;/app/hyprwayland-scanner/current" \
        cmake  \
-      -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/tmp/installit \
+      -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprlang/current \
       -D CMAKE_PREFIX_PATH="/app/hyprutils/current" \
       -S . -B ./build
     create_app_in_tmp_and_link_it hyprlang $prefix$ver
@@ -1529,10 +1529,12 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprlang" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "hyprcursor" ]; then
+#libcairo-dev libzip-dev libtomlplusplus-dev librsvg2-dev
   ver="0.1.13";
   if should_make hyprcursor $ver; then
     download_unpack_source https://github.com/hyprwm/hyprcursor/archive/refs/tags/v0.1.13.tar.gz hyprcursor hyprcursor-$ver 1
-    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/tmp/installit \
+#--rpath "/app/hyprutils/current/lib" \
+    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprcursor/current \
       -D CMAKE_PREFIX_PATH="/app/hyprlang/current" \
 -S . -B ./build
 
