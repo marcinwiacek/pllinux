@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="aquamarine"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="hyprland"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1503,13 +1503,32 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
 
 #glslang-dev
 
-    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build
+    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
+      -D CMAKE_PREFIX_PATH="/app/aquamarine/current;/app/hyprlang/current"
     cmake --build build  --config Release --target all -j$cpu_num
     create_app_in_tmp_and_link_it hyprland $prefix$ver
 #    make install PREFIX=/app/bzip2/$prefix$ver
 #    set_current_app_clean_strip_cd hyprland $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprlang" ]; then
+  ver="0.6.8";
+  if should_make hyprlang $ver; then
+    download_unpack_source https://github.com/hyprwm/hyprlang/archive/refs/tags/v0.6.8.tar.gz hyprlang hyprlang-$ver 1
+#    PATH=$PATH:/app/hyprwayland-scanner/current/bin && 
+#      -D CMAKE_PREFIX_PATH="/app/hyprutils/current;/app/hyprwayland-scanner/current" \
+       cmake  \
+      -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/tmp/installit \
+      -D CMAKE_PREFIX_PATH="/app/hyprutils/current" \
+      -S . -B ./build
+    create_app_in_tmp_and_link_it hyprlang $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it hyprlang $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd hyprlang $prefix$ver 1
+  fi
+fi
+
 if [ "$package" == "fs" ] || [ "$package" == "aquamarine" ]; then
   #libseat-dev libinput-dev libdisplay-info-dev hwdata libpixman-1-dev
   ver="0.15.1";
