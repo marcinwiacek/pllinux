@@ -1509,17 +1509,6 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
 #libxcb-icccm4-dev
     download_unpack_source https://github.com/hyprwm/Hyprland/archive/refs/tags/v$ver.tar.gz hyprland Hyprland-$ver 1
 
-
-#    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
-#       -DSDL_KMSDRM=ON \
-#       -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON \
-#       -DSDL_LIBUDEV=OFF -DSDL_STATIC=OFF -DSDL_RPATH=OFF \
-#       -DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF \
-#       -DSDL_WAYLAND=OFF -DSDL_X11=OFF -DSDL_UNIX_CONSOLE_BUILD=ON
-#    cmake --build build
-#    create_app sdl $prefix$ver
-#    cmake --install build --prefix $output/app/sdl/$prefix$ver
-
     cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
       -D CMAKE_PREFIX_PATH="/app/libxcb/current;/app/hyprwayland-scanner/current;/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current;/app/libinput/current"
     cmake --build build  --config Release --target all -j$cpu_num
@@ -1573,7 +1562,6 @@ if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
   ver="1.26.0";
   if should_make wayland $ver; then
     download_unpack_source https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.26.0/downloads/wayland-1.26.0.tar.xz wayland wayland-$ver 1
-#    PATH=$PATH:/app/wayland/current/bin && 
     meson setup -Dprefix=/app/wayland/current --buildtype release _build -Ddocumentation=false -Dlibdir=lib
     meson compile -C _build
     create_app_in_tmp_and_link_it wayland $prefix$ver
