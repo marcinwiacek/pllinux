@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="hyprland"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="wayland-protocols"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1521,6 +1521,33 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
     create_app_in_tmp_and_link_it hyprland $prefix$ver
 #    make install PREFIX=/app/bzip2/$prefix$ver
 #    set_current_app_clean_strip_cd hyprland $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
+  ver="1.49";
+  if should_make wayland-protocols $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.49/downloads/wayland-protocols-1.49.tar.xz wayland-protocols wayland-protocols-$ver 1
+    PATH=/app/wayland/current/bin:$PATH &&   wayland-scanner -v
+
+
+#  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
+#      -D CMAKE_PREFIX_PATH="/app/wayland/current"
+#    meson compile -C _build
+#    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
+#    meson install -C _build
+#    set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
+  ver="1.26.0";
+  if should_make wayland $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.26.0/downloads/wayland-1.26.0.tar.xz wayland wayland-$ver 1
+#    PATH=$PATH:/app/wayland/current/bin && 
+    meson setup -Dprefix=/app/wayland/current --buildtype release _build -Ddocumentation=false -Dlibdir=lib
+    meson compile -C _build
+    create_app_in_tmp_and_link_it wayland $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd wayland $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xkbcommon" ]; then
