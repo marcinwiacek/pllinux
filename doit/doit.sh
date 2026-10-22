@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="kernel"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="hyprland"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -374,10 +374,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
 #  ver="6.18.57";
-  ver="7.2.11";
+#  ver="7.2.11";
+  ver="7.2.6";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
-    download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$ver.tar.xz kernel linux-$ver 1
+    download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v${ver:0:1}.x/linux-$ver.tar.xz kernel linux-$ver 1
     cp $curdir/in/kernel/.config_$ver ./.config
     make -j$cpu_num
     cp .config $curdir/in/kernel/.config_$ver # .config will be updated with new header and maybe options
@@ -1499,6 +1500,7 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
   ver="0.56.2";
   if should_make hyprland $ver; then
 #udis86*
+#glslang-dev
     download_unpack_source https://github.com/hyprwm/Hyprland/archive/refs/tags/v$ver.tar.gz hyprland Hyprland-$ver 1
 
 
@@ -1512,24 +1514,46 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
 #    create_app sdl $prefix$ver
 #    cmake --install build --prefix $output/app/sdl/$prefix$ver
 
-#glslang-dev
 
     cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
-      -D CMAKE_PREFIX_PATH="/app/aquamarine/current;/app/hyprlang/current"
+      -D CMAKE_PREFIX_PATH="/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current"
     cmake --build build  --config Release --target all -j$cpu_num
     create_app_in_tmp_and_link_it hyprland $prefix$ver
 #    make install PREFIX=/app/bzip2/$prefix$ver
 #    set_current_app_clean_strip_cd hyprland $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "xkbcommon" ]; then
+  ver="1.13.2";
+  if should_make xkbcommon $ver; then
+    download_unpack_source https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.2.tar.gz xkbcommon libxkbcommon-xkbcommon-$ver 1
+    meson setup -Dprefix=/app/xkbcommon/current --buildtype release _build -Denable-x11=false -Denable-bash-completion=false
+    meson compile -C _build
+    create_app_in_tmp_and_link_it xkbcommon $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd xkbcommon $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprgraphics" ]; then
+  ver="0.5.1";
+#libmagic-dev
+  if should_make hyprgraphics $ver; then
+    download_unpack_source https://github.com/hyprwm/hyprgraphics/archive/refs/tags/v0.5.1.tar.gz hyprgraphics hyprgraphics-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprgraphics/current \
+      -S . -B ./build \
+      -D CMAKE_PREFIX_PATH="/app/hyprutils/current"
+    create_app_in_tmp_and_link_it hyprgraphics $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it hyprgraphics $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd hyprgraphics $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "hyprlang" ]; then
   ver="0.6.8";
   if should_make hyprlang $ver; then
     download_unpack_source https://github.com/hyprwm/hyprlang/archive/refs/tags/v0.6.8.tar.gz hyprlang hyprlang-$ver 1
-#    PATH=$PATH:/app/hyprwayland-scanner/current/bin && 
-#      -D CMAKE_PREFIX_PATH="/app/hyprutils/current;/app/hyprwayland-scanner/current" \
-       cmake  \
-      -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprlang/current \
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprlang/current \
       -D CMAKE_PREFIX_PATH="/app/hyprutils/current" \
       -S . -B ./build
     create_app_in_tmp_and_link_it hyprlang $prefix$ver
@@ -1544,32 +1568,17 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprcursor" ]; then
   ver="0.1.13";
   if should_make hyprcursor $ver; then
     download_unpack_source https://github.com/hyprwm/hyprcursor/archive/refs/tags/v0.1.13.tar.gz hyprcursor hyprcursor-$ver 1
-#--rpath "/app/hyprutils/current/lib" \
     cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprcursor/current \
-      -D CMAKE_PREFIX_PATH="/app/hyprlang/current" \
--S . -B ./build
-
+      -DBUILD_TESTS=OFF \
+      -D CMAKE_PREFIX_PATH="/app/hyprlang/current;/app/hyprutils/current" \
+      -S . -B ./build -G Ninja
+    cd build
+    ln -s /app/hyprutils/current/lib/libhyprutils.so.13 .
+    cd ..
     cmake --build ./build --config Release --target all -j$cpu_num
-#    create_app_in_tmp_and_link_it hyprcursor $prefix$ver
-#    cmake --install build
-#    set_current_app_clean_strip_cd hyprlang $prefix$ver 1
-  fi
-fi
-
-if [ "$package" == "fs" ] || [ "$package" == "aquamarine" ]; then
-  #libseat-dev libinput-dev libdisplay-info-dev hwdata libpixman-1-dev
-  ver="0.15.1";
-  if should_make aquamarine $ver; then
-    download_unpack_source https://github.com/hyprwm/aquamarine/archive/refs/tags/v0.15.1.tar.gz aquamarine aquamarine-$ver 1
-    PATH=$PATH:/app/hyprwayland-scanner/current/bin && cmake --no-warn-unused-cli \
-      -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/tmp/installit \
-      -D CMAKE_PREFIX_PATH="/app/hyprutils/current;/app/hyprwayland-scanner/current" \
-      -S . -B ./build
-    create_app_in_tmp_and_link_it aquamarine $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it aquamarine $prefix$ver
+    create_app_in_tmp_and_link_it hyprcursor $prefix$ver
     cmake --install build
-    set_current_app_clean_strip_cd aquamarine $prefix$ver 1
+    set_current_app_clean_strip_cd hyprcursor $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "hyprwayland-scanner" ]; then
@@ -1593,6 +1602,22 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprutils" ]; then
     create_app_in_tmp_and_link_it hyprutils $prefix$ver
     cmake --install build
     set_current_app_clean_strip_cd hyprutils $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "aquamarine" ]; then
+  #libseat-dev libinput-dev libdisplay-info-dev hwdata libpixman-1-dev
+  ver="0.15.1";
+  if should_make aquamarine $ver; then
+    download_unpack_source https://github.com/hyprwm/aquamarine/archive/refs/tags/v0.15.1.tar.gz aquamarine aquamarine-$ver 1
+    PATH=$PATH:/app/hyprwayland-scanner/current/bin && cmake --no-warn-unused-cli \
+      -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/tmp/installit \
+      -D CMAKE_PREFIX_PATH="/app/hyprutils/current;/app/hyprwayland-scanner/current" \
+      -S . -B ./build
+    create_app_in_tmp_and_link_it aquamarine $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it aquamarine $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd aquamarine $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "mediainfo" ]; then

@@ -20,18 +20,19 @@ control permissions and dependencies)
   6. good separating users and their files - extra security layers
   7. doing what is setup and nothing more - reliable, repeatable and expected results and
 no hidden actions/changing settings without user knowledge
-  8. continuous implementing best technical options - we deliver, not only speak (+ work on things without doing sloop)
+  8. continuous implementing best technical options - we deliver, not speak (work on things without doing sloop)
+  9. showing reality "as is" - no hiding problems (for example obsolete code)
 
 In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should do
 whatever user want and expect.
 
 This Technology Preview already shows, how could look and work basic elements of the modern OS. Current version contains many componentes already and
-can show, where existing systems are obsolete (if you like analogies, you could compare this to the 
+is presenting, what's wrong with existing systems (you could compare it to the
 [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution
-was already started and somehow visible, but definitely was not complete and fully ready).
+was already started and somehow visible, but wasn't completed and fully ready).
 
-Some solutions are similar to used in Android, Apple products or NixOS, but not the same - they will change to better before beta or first final release 
+Some solutions are similar to used in Android, Apple products or NixOS, but not the same - they will change to better before beta or first final release
 (like it was in Windows 95, see [The Early Windows 95 Builds Microsoft DIDN'T Want Us To See](https://www.youtube.com/watch?v=cgq7LcvRFA4))
 
 Note: project was started after finding various problems with existing Linux distributions and lack of dev reaction
