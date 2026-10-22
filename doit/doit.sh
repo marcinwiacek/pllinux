@@ -1527,15 +1527,11 @@ if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
   ver="1.49";
   if should_make wayland-protocols $ver; then
     download_unpack_source https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.49/downloads/wayland-protocols-1.49.tar.xz wayland-protocols wayland-protocols-$ver 1
-    PATH=/app/wayland/current/bin:$PATH &&   wayland-scanner -v
-
-
-#  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
-#      -D CMAKE_PREFIX_PATH="/app/wayland/current"
-#    meson compile -C _build
-#    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
-#    meson install -C _build
-#    set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
+    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
