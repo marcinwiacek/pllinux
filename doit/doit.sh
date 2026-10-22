@@ -1519,6 +1519,7 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "hyprwire" ]; then
 #  ver="0.3.1";
+#cannot be compiled ?https://github.com/hyprwm/hyprwire/issues/20
   ver="0.3.0";
   if should_make hyprwire $ver; then
     download_unpack_source https://github.com/hyprwm/hyprwire/archive/refs/tags/v$ver.tar.gz hyprwire hyprwire-$ver 1
