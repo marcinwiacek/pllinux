@@ -1501,6 +1501,12 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
   if should_make hyprland $ver; then
 #udis86*
 #glslang-dev
+#libeis*
+#mupraser*
+#libre2*
+#lcms2*
+#libxcb-errors*
+#libxcb-icccm4-dev
     download_unpack_source https://github.com/hyprwm/Hyprland/archive/refs/tags/v$ver.tar.gz hyprland Hyprland-$ver 1
 
 
@@ -1514,13 +1520,24 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
 #    create_app sdl $prefix$ver
 #    cmake --install build --prefix $output/app/sdl/$prefix$ver
 
-
     cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
-      -D CMAKE_PREFIX_PATH="/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current"
+      -D CMAKE_PREFIX_PATH="/app/libxcb/current;/app/hyprwayland-scanner/current;/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current;/app/libinput/current"
     cmake --build build  --config Release --target all -j$cpu_num
     create_app_in_tmp_and_link_it hyprland $prefix$ver
 #    make install PREFIX=/app/bzip2/$prefix$ver
 #    set_current_app_clean_strip_cd hyprland $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
+  ver="1.32.0";
+#sudo apt-get build-dep libinput
+  if should_make libinput $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.32.0/libinput-1.32.0.tar.gz libinput libinput-$ver 1
+    meson setup -Dprefix=/app/libinput/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it libinput $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd libinput $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
@@ -1885,6 +1902,31 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxc
     set_current_app_clean_strip_cd libxcb $prefix$ver 1
   fi
 fi
+#if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcb-errors" ]; then
+#  ver="1.0.1";
+#  if should_make libxcb-errors $ver; then
+#    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxcb-errors/-/archive/xcb-util-errors-1.0.1/libxcb-errors-xcb-util-errors-1.0.1.tar.gz?ref_type=tags libxcb-errors libxcb-errors-xcb-util-errors-$ver 1
+#    ./autogen.sh
+#    ./configure --prefix=/app/libxcb-errors/current
+#    make all -j$cpu_num
+#    create_app libxcb-errors $prefix$ver
+#    set_current_app libxcb-errors $prefix$ver 1
+#    make install
+#    set_current_app_clean_strip_cd libxcb-error $prefix$ver 1
+#  fi
+#fi
+#if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util" ]; then
+#  ver="0.4.1";
+#  if should_make xcb-util $ver; then
+#    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/xcb-util-$ver.tar.xz xcb-util xcb-util-$ver 1
+#    ./configure --prefix=/app/xcb-util/current
+#    make all -j$cpu_num
+#    create_app xcb-util $prefix$ver
+#    set_current_app xcb-util $prefix$ver 1
+#    make install
+#    set_current_app_clean_strip_cd xcb-util $prefix$ver 1
+#  fi
+#fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxau" ]; then
   ver="1.0.12";
   if should_make libxau $ver; then
