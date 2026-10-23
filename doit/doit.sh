@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="lua"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="crispy-doom"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1508,7 +1508,7 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
 #libxcb-errors*
 #libxcb-icccm4-dev
     download_unpack_source https://github.com/hyprwm/Hyprland/archive/refs/tags/v$ver.tar.gz hyprland Hyprland-$ver 1
-    PATH=$PATH:/app/lua/current/bin cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
+    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
       -D CMAKE_PREFIX_PATH="/app/lua/current;/app/libxcb/current;/app/hyprwayland-scanner/current;/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current;/app/libinput/current;/app/hyprwire/current"
     cmake --build build  --config Release --target all -j$cpu_num
     create_app_in_tmp_and_link_it hyprland $prefix$ver
@@ -1752,6 +1752,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "shim"
     cd usr/lib/efi/shim/$ver/EFI
     rsync -a . "$output/app/shim/$prefix$ver"
     set_current_app_clean_strip_cd shim $prefix$ver 0
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "crispy-doom" ]; then
+  ver="7.2";
+  if should_make crispy-doom $ver; then
+    download_unpack_source https://github.com/fabiangreffrath/crispy-doom/archive/refs/tags/crispy-doom-7.2.tar.gz crispy-doom crispy-doom-crispy-doom-$ver 1
+PKG_CONFIG_PATH=/app/sdl/261015_2.32.10/lib/pkgconfig ./autogen.sh
+#    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
+#    meson compile -C _build
+#    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
+#    meson install -C _build
+#    set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "chezscheme" ]; then
