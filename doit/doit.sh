@@ -1567,15 +1567,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
   ver="5.5.0";
   if should_make lua $ver; then
-    download_unpack_source https://sourceforge.net/projects/luabinaries/files/5.5.0/Docs%20and%20Sources/lua-5.5.0_Sources.tar.gz/download lua lua55 1
-make
-   cd src
-#https://www.lua.org/ftp/lua-5.5.1.tar.gz lua lua-$ver 1
-    make -f Makefile.tecmake
+    download_unpack_source https://www.lua.org/ftp/lua-5.5.0.tar.gz lua lua-$ver 1
+    make linux
     create_app lua $prefix$ver
-cd ..
     make install INSTALL_TOP=/app/lua/$prefix$ver
-#    set_current_app_clean_strip_cd lua $prefix$ver 1
+    download_unpack_source https://sourceforge.net/projects/luabinaries/files/5.5.0/Docs%20and%20Sources/lua-5.5.0_Sources.tar.gz/download lua lua55 1
+    cd src
+    make -f Makefile.tecmake
+    cp ../lib/Linux612_64/*.so /app/lua/$prefix$ver/lib
+    set_current_app_clean_strip_cd lua $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
