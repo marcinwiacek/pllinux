@@ -1554,14 +1554,28 @@ if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
     set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "tecmake" ]; then
+  ver="4.20";
+  if should_make tecmake $ver; then
+    download_unpack_source https://www.tecgraf.puc-rio.br/tecmake/download/tecmake.tar.gz tecmake . 1
+    create_app tecmake $prefix$ver
+    cp * /app/tecmake/$prefix$ver
+    set_current_app_clean_strip_cd tecmake $prefix$ver 1
+  fi
+fi
+
 if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
-  ver="5.5.1";
+  ver="5.5.0";
   if should_make lua $ver; then
-    download_unpack_source https://www.lua.org/ftp/lua-5.5.1.tar.gz lua lua-$ver 1
-    make linux
+    download_unpack_source https://sourceforge.net/projects/luabinaries/files/5.5.0/Docs%20and%20Sources/lua-5.5.0_Sources.tar.gz/download lua lua55 1
+make
+   cd src
+#https://www.lua.org/ftp/lua-5.5.1.tar.gz lua lua-$ver 1
+    make -f Makefile.tecmake
     create_app lua $prefix$ver
+cd ..
     make install INSTALL_TOP=/app/lua/$prefix$ver
-    set_current_app_clean_strip_cd lua $prefix$ver 1
+#    set_current_app_clean_strip_cd lua $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
