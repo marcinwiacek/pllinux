@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="hyprland"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="lua"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1508,8 +1508,8 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
 #libxcb-errors*
 #libxcb-icccm4-dev
     download_unpack_source https://github.com/hyprwm/Hyprland/archive/refs/tags/v$ver.tar.gz hyprland Hyprland-$ver 1
-    PATH=$PATH:/app/lua/current/bin &&   cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
-      -D CMAKE_PREFIX_PATH="/app/lua/current/lib;/app/libxcb/current;/app/hyprwayland-scanner/current;/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current;/app/libinput/current;/app/hyprwire/current"
+    PATH=$PATH:/app/lua/current/bin cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
+      -D CMAKE_PREFIX_PATH="/app/lua/current;/app/libxcb/current;/app/hyprwayland-scanner/current;/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current;/app/libinput/current;/app/hyprwire/current"
     cmake --build build  --config Release --target all -j$cpu_num
     create_app_in_tmp_and_link_it hyprland $prefix$ver
 #    make install PREFIX=/app/bzip2/$prefix$ver
@@ -1558,9 +1558,9 @@ if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
   ver="5.5.1";
   if should_make lua $ver; then
     download_unpack_source https://www.lua.org/ftp/lua-5.5.1.tar.gz lua lua-$ver 1
-   make linux
-  create_app lua $prefix$ver
-   make install INSTALL_TOP=/app/lua/$prefix$ver
+    make linux
+    create_app lua $prefix$ver
+    make install INSTALL_TOP=/app/lua/$prefix$ver
     set_current_app_clean_strip_cd lua $prefix$ver 1
   fi
 fi
