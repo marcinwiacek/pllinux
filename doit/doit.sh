@@ -1508,9 +1508,8 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
 #libxcb-errors*
 #libxcb-icccm4-dev
     download_unpack_source https://github.com/hyprwm/Hyprland/archive/refs/tags/v$ver.tar.gz hyprland Hyprland-$ver 1
-
-    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
-      -D CMAKE_PREFIX_PATH="/app/libxcb/current;/app/hyprwayland-scanner/current;/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current;/app/libinput/current"
+    PATH=$PATH:/app/lua/current/bin &&   cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
+      -D CMAKE_PREFIX_PATH="/app/lua/current/lib;/app/libxcb/current;/app/hyprwayland-scanner/current;/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current;/app/libinput/current;/app/hyprwire/current"
     cmake --build build  --config Release --target all -j$cpu_num
     create_app_in_tmp_and_link_it hyprland $prefix$ver
 #    make install PREFIX=/app/bzip2/$prefix$ver
@@ -1553,6 +1552,16 @@ if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
     create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
     meson install -C _build
     set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
+  ver="5.5.1";
+  if should_make lua $ver; then
+    download_unpack_source https://www.lua.org/ftp/lua-5.5.1.tar.gz lua lua-$ver 1
+   make linux
+  create_app lua $prefix$ver
+   make install INSTALL_TOP=/app/lua/$prefix$ver
+    set_current_app_clean_strip_cd lua $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
