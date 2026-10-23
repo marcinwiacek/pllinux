@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="hyprwire"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="hyprland"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1521,6 +1521,7 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprwire" ]; then
 #  ver="0.3.1";
 #cannot be compiled ?https://github.com/hyprwm/hyprwire/issues/20
 #append_range with insert like in Debian?
+# todo: add files from in : https://en.cppreference.com/cpp/container/vector/append_range
   ver="0.3.0";
   if should_make hyprwire $ver; then
     download_unpack_source https://github.com/hyprwm/hyprwire/archive/refs/tags/v$ver.tar.gz hyprwire hyprwire-$ver 1
@@ -1528,13 +1529,7 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprwire" ]; then
     cmake --build build  -j$cpu_num
     create_app_in_tmp_and_link_it hyprwire $prefix$ver
     cmake --install build
-#    set_current_app_clean_strip_cd hyprgraphics $prefix$ver 1
-
-#    meson setup -Dprefix=/app/libinput/current -Dlibdir=lib builddir
-#    ninja -C builddir
-#    create_app_in_tmp_and_link_it libinput $prefix$ver
-#    ninja -C builddir install
-#    set_current_app_clean_strip_cd libinput $prefix$ver 1
+    set_current_app_clean_strip_cd hyprwire $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
