@@ -1,4 +1,4 @@
-[Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
+[Prev page](file_yo_milestone11.md) [Next page](file_ym_milestone14.md)
 
 # Milestone 12
 
@@ -26,6 +26,18 @@ and although I would like to try it, need to move it into the future).
 And now - when compiler needs thousands of MB, there is something wrong. And... also I have found, that various software is compiled
 with hardcoded paths (for example they expect /usr/share/zoneinfo directory, although have file /etc/localtime, or they expect
 shell file in /bin although SHELL variable points to other location). This is mess, big, big mess.
+
+Returning to gcc - first compiling "hello world" app with gcc produced this:
+
+    /app/binutils/261017_2.47/bin/ld: error in /app/glibc/current/lib/crt1.o(.eh_frame); no .eh_frame_hdr table will be created
+    /app/binutils/261017_2.47/bin/ld: warning: cannot find entry symbol _start; defaulting to 0000000000401040
+
+The rootcause is, that ELF file doesn't have *tm_clones inside (see [What Functions Does GCC Add to Linux ELF Executables?](https://linuxvox.com/blog/what-functions-does-gcc-add-to-the-linux-elf/)).
+It looks, that *.o files cannot have stripped symbols - for "hello world" app we require this in **gcc** and **glibc** package. Small fix and (18 Oct)
+we have working **gcc** at least for very simple code - file is a little bit bigger than in Debian, but this could be because of lack of optimalization options.
+
+And some offtopic here: where is all help taken from in current situation, when internet became one big sloop and valuable info is more and more hidden or cost? 
+My past experience (I was writing some Linux code in 1999-2000 already and, if I remember correctly, I started personally experimenting with Linux somewhere around 1997), searching with DuckDuckGo, analizing ready Debian/Ubuntu/Arc and other packages and pages like [Linux From Scratch!](https://www.linuxfromscratch.org/), [ArchWiki](https://wiki.archlinux.org/title/Main_page) or even [DeepWiki](https://deepwiki.com/) (the last one is normally sloop, but... in some rare cases give some hints or keywords too)
 
 # Graphic drivers and SDL/framebuffer support
 
@@ -63,7 +75,7 @@ Can be it fixed? VirtualBox can have hardware acceleration with vmwgfx module, b
 the only one working configuration is with 6.18 kernel (thing to investigate in the future, if kernel 7.x is incompatible or whether came from other reasons) -
 module can be loaded and there is visible in the end /sys/class/drm/renderD128 device (but it doesn't help).
 
-But why module shows "running on unknown hypervisor" ?
+But why module shows "running on unknown hypervisor" ? And is it possible to run Vulkan with Xwayland/X11 ?
 
 # Creating packages - let's optimalize it
 
@@ -86,26 +98,6 @@ I don't know, what saves could be visible, but step by step... Additionally it's
 the date of last source modification (I search for last file in the root of source code packages), which allows for fast finding, if package is really
 obsolete or not.
 
-# Wayland or X11 + polishing
-
-I don't want to join war and definitely be on one of sides - I have used X.Org for years (and I know about XLibre of course) and in some situations had
-hard time with it (problems with Midnight Commander), from the other I had hard time with Wayland too (lack of gamma correction).
-
-In 2026 I decided to look first on Hyprland, when will not work, move to XLibre.
-
-On top of it there will be some lighter graphic environment - something with Start button, file manager, desktop wallpaper and some basic apps.
-
 Excluding this there is ongoing work on missed things - network config, pllinux script update, adding missed command line tools, making compilers useable.
-During this there is visible a lot of new things, for example first compiling "hello world" app with gcc produced this:
 
-    /app/binutils/261017_2.47/bin/ld: error in /app/glibc/current/lib/crt1.o(.eh_frame); no .eh_frame_hdr table will be created
-    /app/binutils/261017_2.47/bin/ld: warning: cannot find entry symbol _start; defaulting to 0000000000401040
-
-The rootcause is, that ELF file doesn't have *tm_clones inside (see [What Functions Does GCC Add to Linux ELF Executables?](https://linuxvox.com/blog/what-functions-does-gcc-add-to-the-linux-elf/)).
-It looks, that *.o files cannot have stripped symbols - for "hello world" app we require this in **gcc** and **glibc** package. Small fix and (18 Oct)
-we have working **gcc** at least for very simple code - file is a little bit bigger than in Debian, but this could be because of lack of optimalization options.
-
-And some offtopic here: where is all help taken from in current situation, when internet became one big sloop and valuable info is more and more hidden or cost? 
-My past experience (I was writing some Linux code in 1999-2000 already and, if I remember correctly, I started personally experimenting with Linux somewhere around 1997), searching with DuckDuckGo, analizing ready Debian/Ubuntu/Arc and other packages and pages like [Linux From Scratch!](https://www.linuxfromscratch.org/), [ArchWiki](https://wiki.archlinux.org/title/Main_page) or even [DeepWiki](https://deepwiki.com/) (the last one is normally sloop, but... in some rare cases give some hints or keywords too)
-
-[Prev page](file_yo_milestone11.md) [Next page](file_zz_milestone.md)
+[Prev page](file_yo_milestone11.md) [Next page](file_ym_milestone14.md)

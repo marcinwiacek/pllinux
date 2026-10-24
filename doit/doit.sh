@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="crispy-doom"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xlibre-xserver"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1497,7 +1497,8 @@ if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
 #work in progress
-  ver="0.56.2";
+#  ver="0.56.2";
+  ver="0.55.0";
   if should_make hyprland $ver; then
 #udis86*
 #glslang-dev
@@ -1552,6 +1553,25 @@ if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
     set_current_app_clean_strip_cd libinput $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
+#apt-get install x11proto-dev xtrans-dev libpixman-1-dev libxkbcommon-x11-dev \
+#libxfont-dev libxcvt-dev libdrm-dev libepoxy-dev \
+#x11proto-present-dev x11proto-dev libxkbfile-dev libudev-dev libxshmfence-dev \
+#libbsd-dev x11proto-xf86dri-dev libgl1-mesa-dev libglu1-mesa-dev \
+#libglu1-mesa-dev libgl-dev libdrm-dev xutils-dev mesa-common-dev libgbm-dev \
+#libxcb-shape0-dev libxcb-util-dev libxcb-icccm4-dev
+
+#libxkbfile-dev xfont2* libxcvt-dev
+  ver="25.1.9";
+  if should_make xlibre-xserver $ver; then
+    download_unpack_source https://github.com/X11Libre/xserver/archive/refs/tags/xlibre-xserver-25.1.9.tar.gz xlibre-xserver xserver-xlibre-xserver-$ver 1
+    meson setup -Dprefix=/app/xlibre-xserver/current builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it xlibre-xserver $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd xlibre-xserver $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
   ver="1.49";
   if should_make wayland-protocols $ver; then
@@ -1572,7 +1592,6 @@ if [ "$package" == "fs" ] || [ "$package" == "tecmake" ]; then
     set_current_app_clean_strip_cd tecmake $prefix$ver 1
   fi
 fi
-
 if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
   ver="5.5.0";
   if should_make lua $ver; then
