@@ -1,5 +1,12 @@
+**Last**
+20260723
+
 **Deps**
+bzip2 current
+freetype current
 pixman current
+seatd current
+zlib current
 libpciaccess current
 libmd current
 libxau current
@@ -10,7 +17,5 @@ libbsd current
 libudev-zero current
 libdrm current
 libxcvt current
-seatd current
-zlib current
 libfontenc current
-freetype current
+libpng current
