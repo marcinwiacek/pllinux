@@ -1,6 +1,3 @@
-**Last**
-20260723
-
 **Deps**
 bzip2 current
 freetype current
@@ -19,3 +16,7 @@ libdrm current
 libxcvt current
 libfontenc current
 libpng current
+harfbuzz current
+brotli current
+glib current
+pcre2 current
