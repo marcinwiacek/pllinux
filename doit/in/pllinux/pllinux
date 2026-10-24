@@ -83,11 +83,6 @@ EOF
         fi
         KEYB="$PARAM_VALUE" ;;
       FONT* )
-        if [ "$1" = "1" ]; then
-          for DEVDEV in 1 2 3 4; do
-            /app/kbd/current/bin/setfont -C /dev/tty$DEVDEV $PARAM_VALUE 2> /dev/null
-          done
-        fi
         FONT="$PARAM_VALUE" ;;
       TIMEZONE* )
         CURRENT=$(/app/busybox/current/bin/realpath /etc/localtime)
@@ -167,6 +162,10 @@ EOF
         esac
       done
       IFS=$IFSORIG
+
+          for DEVDEV in 1 2 3 4; do
+            /app/kbd/current/bin/setfont -C /dev/tty$DEVDEV $FONT 2> /dev/null
+          done
 
       network_change_config_file "$ETH_IP4" "$ETH_IP4_NETMASK" "$ETH_IP4_GATEWAY"
       if [ "$ETH_START" = 1 ]; then
