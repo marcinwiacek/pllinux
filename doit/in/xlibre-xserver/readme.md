@@ -20,3 +20,7 @@ harfbuzz current
 brotli current
 glib current
 pcre2 current
+gcclib current
+libglvnd current
+libx11 current
+libxcb current
