@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libfontenc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xlibre-xserver"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1565,7 +1565,7 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
   ver="25.1.9";
   if should_make xlibre-xserver $ver; then
     download_unpack_source https://github.com/X11Libre/xserver/archive/refs/tags/xlibre-xserver-25.1.9.tar.gz xlibre-xserver xserver-xlibre-xserver-$ver 1
-    meson setup -Dprefix=/app/xlibre-xserver/current builddir
+    meson setup -Dprefix=/app/xlibre-xserver/current -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib builddir
     ninja -C builddir
     create_app_in_tmp_and_link_it xlibre-xserver $prefix$ver
     ninja -C builddir install
@@ -1627,6 +1627,17 @@ if [ "$package" == "fs" ] || [ "$package" == "libfontenc" ]; then
     create_app_in_tmp_and_link_it libfontenc $prefix$ver
     make install
     set_current_app_clean_strip_cd libfontenc $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "freetype" ]; then
+  ver="2.15.0";
+  if should_make freetype $ver; then
+    download_unpack_source https://download.savannah.gnu.org/releases/freetype/freetype-2.15.0.tar.gz freetype  freetype-$ver 1
+    ./configure --prefix=/app/freetype/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it freetype $prefix$ver
+    make install
+    set_current_app_clean_strip_cd freetype $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
