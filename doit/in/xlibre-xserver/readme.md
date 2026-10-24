@@ -24,3 +24,14 @@ gcclib current
 libglvnd current
 libx11 current
 libxcb current
+libepoxy current
+mesa current
+libexpat current
+llvm current
+zstd current
+lm-sensors current
+elfutils current
+libffi current
+libedit current
+libxml2 current
+ncurses current
