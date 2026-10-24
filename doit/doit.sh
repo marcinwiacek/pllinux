@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="hyprland"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="crispy-doom"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1768,7 +1768,9 @@ if [ "$package" == "fs" ] || [ "$package" == "crispy-doom" ]; then
   ver="7.2";
   if should_make crispy-doom $ver; then
     download_unpack_source https://github.com/fabiangreffrath/crispy-doom/archive/refs/tags/crispy-doom-7.2.tar.gz crispy-doom crispy-doom-crispy-doom-$ver 1
-PKG_CONFIG_PATH=/app/sdl/261015_2.32.10/lib/pkgconfig ./autogen.sh
+PKG_CONFIG_PATH=/app/sdl/261015_2.32.10/lib/pkgconfig ./autogen.sh --disable-sdl2mixer  --disable-sdl2net
+    ./configure --installprefix=/app/cripsy-doom/current --disable-sdl2mixer  --disable-sdl2net
+    make -j$cpu_num
 #    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
 #    meson compile -C _build
 #    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
