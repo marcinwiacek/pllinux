@@ -17,6 +17,14 @@ Status for now (24 Oct):
 somebody said, that they don't care). There were some code changes required, currently I'm stuck with "Cannot load proto" error. Non intuitive, non-user friendly.
 2. xlibre-xserver compiled just like that, currently I'm just adding required deps. No problems.
 
-Do you see difference? (and please don't start explaining, that Wayland and all related things are new and fresh)
+Do you see difference? (and please don't start explaining, that Wayland and all related things are new and fresh - [things started around 2008?](https://en.wikipedia.org/wiki/Wayland_(protocol)))
+
+Anyway, practically during second day I have first rendering with XLibre:
+
+![Alt text](2026/oct_startx.png)
+
+Not too much (no keyboard input, etc.), but it reminds me time, when I was young and preparing my first XWindows (it was XFree86). I hope to find way to separate and configure components and make it working at least in minimal way.
+
+And then let's try again with Hyprland or other Wayland implementation.
 
 [Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
