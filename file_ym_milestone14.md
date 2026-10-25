@@ -15,8 +15,8 @@ Status for now (24 Oct):
 
 1. all packages (excluding Hyprland) are compiled. Problem is in this, that they use latest GCC and C++ and Debian Trixie is using older one (in some forum
 somebody said, that they don't care). There were some code changes required, currently I'm stuck with "Cannot load proto" error. Non intuitive, non-user friendly.
-2. xlibre-xserver compiled just like that, currently I'm adding required deps. No problems.
+2. xlibre-xserver compiled just like that, currently I'm just adding required deps. No problems.
 
-Do you see difference?
+Do you see difference? (and please don't start explaining, that Wayland and all related things are new and fresh)
 
 [Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
