@@ -5,6 +5,15 @@ if [ "$1" = "" ]; then
   exit
 fi
 
+#Midnight Commander
+if [ "$1" = "-P" ]  && [ "$2" = "cat" ] && [ "$3" != "" ]; then
+    OUT=$(groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
+        -F /app/groff/current/share/groff/current/font \
+        "$3" )
+    echo "$OUT" 2> /dev/null | less -R -M -s
+    exit
+fi
+
 FOUND_PATH=""
 APP_LIST=$(/app/busybox/current/bin/ls /app)
 for APP_NAME in $APP_LIST; do
@@ -39,7 +48,7 @@ EOF
                       OUT=$(groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
                         -F /app/groff/current/share/groff/current/font \
                         "/app/${APP_NAME}/current/$folder/../$FILENAME")
-                      echo $OUT 2> /dev/null | less -R -M -s
+                      echo "$OUT" 2> /dev/null | less -R -M -s
                       exit
                     fi
                   esac
@@ -47,13 +56,13 @@ EOF
                 OUT=$(groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
                    -F /app/groff/current/share/groff/current/font \
                    "/app/${APP_NAME}/current/$folder/$1.$nr")
-                echo $OUT 2> /dev/null | less -R -M -s
+                echo "$OUT" 2> /dev/null | less -R -M -s
                 exit
               elif [ -e "/app/${APP_NAME}/current/$folder/$1.$nr.gz" ]; then
                 OUT=$(gunzip -c "/app/${APP_NAME}/current/$folder/$1.$nr.gz" | \
                 groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
                    -F /app/groff/current/share/groff/current/font)
-                echo $OUT 2> /dev/null | less -R -M -s
+                echo "$OUT" 2> /dev/null | less -R -M -s
                 exit
               fi
             done
