@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="xf86-input-evdev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libevdev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -378,9 +378,9 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
   cd $curdir
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
-#  ver="6.18.57";
+  ver="6.18.57";
 #  ver="7.2.11";
-  ver="7.2.6";
+#  ver="7.2.6";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
     download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v${ver:0:1}.x/linux-$ver.tar.xz kernel linux-$ver 1
@@ -906,6 +906,28 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libmd
     create_app libmd $prefix$ver
     make install
     set_current_app_clean_strip_cd libmd $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "mtdev" ]; then
+  ver="1.1.7";
+  if should_make mtdev $ver; then
+    download_unpack_source https://bitmath.org/code/mtdev/mtdev-1.1.7.tar.bz2 mtdev mtdev-$ver 1
+    ./configure --prefix=/app/mtdev/current
+    make all -j$cpu_num
+    create_app rsync $prefix$ver
+    make install
+    set_current_app_clean_strip_cd rsync $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libevdev" ]; then
+  ver="1.14.0";
+  if should_make libevdev $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/libevdev/libevdev/-/archive/libevdev-1.14.0/libevdev-libevdev-1.14.0.tar.bz2?ref_type=tags libevdev libevdev-libevdev-$ver 1
+    meson setup -Dprefix=/app/libevdev/current -Dlibdir=lib -Ddocumentation=disabled builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it libevdev $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd libevdev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsync" ]; then
@@ -1587,6 +1609,17 @@ if [ "$package" == "fs" ] || [ "$package" == "xf86-input-evdev" ]; then
     create_app_in_tmp_and_link_it xf86-input-evdev $prefix$ver
     make install
     set_current_app_clean_strip_cd xf86-input-evdev $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "mtdev" ]; then
+  ver="1.1.7";
+  if should_make mtdev $ver; then
+    download_unpack_source https://bitmath.org/code/mtdev/mtdev-1.1.7.tar.bz2 mtdev mtdev-$ver 1
+    ./configure --prefix=/app/mtdev/current --disable-static
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it mtdev $prefix$ver
+    make install
+    set_current_app_clean_strip_cd mtdev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fontconfig" ]; then

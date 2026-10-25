@@ -35,6 +35,8 @@ libffi current
 libedit current
 libxml2 current
 ncurses current
+mtdev current
+libevdev current
 
 **PATH**
 .

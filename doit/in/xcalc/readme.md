@@ -11,3 +11,6 @@ libxcb current
 util-linux current
 libxau current
 libxdmcp current
+
+**PATH**
+bin
