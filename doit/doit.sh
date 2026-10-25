@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libxpm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libice"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1663,6 +1663,30 @@ if [ "$package" == "fs" ] || [ "$package" == "libxpm" ]; then
     set_current_app_clean_strip_cd libxpm $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "libsm" ]; then
+  ver="1.2.6";
+  if should_make libsm $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libSM-1.2.6.tar.xz  libSM libSM-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libsm/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libsm $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libsm $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libice" ]; then
+  ver="1.1.2";
+  if should_make libice $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libICE-$ver.tar.xz  libICE libICE-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libice/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libice $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libice $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "kitty" ]; then
 #golang-go
   ver="0.49.2";
@@ -1706,6 +1730,17 @@ if [ "$package" == "fs" ] || [ "$package" == "pixman" ]; then
     create_app_in_tmp_and_link_it pixman $prefix$ver
     meson install -C _build
     set_current_app_clean_strip_cd pixman $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libnice" ]; then
+  ver="0.1.24";
+  if should_make libnice $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/libnice/libnice/-/archive/0.1.24/libnice-0.1.24.tar.bz2?ref_type=tags libnice libnice-$ver 1
+    meson setup -Dprefix=/app/libnice/current --buildtype release -Dlibdir=lib _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libnice $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libnice $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxfont2" ]; then
