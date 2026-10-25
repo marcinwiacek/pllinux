@@ -1,3 +1,3 @@
-exec /app/xlibre-xserver/current/bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb -logfile "/log/tmp/Xorg.log"
-sleep 2
-exec /app/xcalc/current/bin/xcalc
+/app/xlibre-xserver/current/bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb -logfile "/log/tmp/Xorg.log" &
+#sleep 2
+/app/xcalc/current/bin/xcalc

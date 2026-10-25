@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libxinerama"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libxrender"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1599,6 +1599,17 @@ if [ "$package" == "fs" ] || [ "$package" == "libxinerama" ]; then
     create_app_in_tmp_and_link_it libxinerama $prefix$ver
     meson install -C _build
     set_current_app_clean_strip_cd libxinerama $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxrender" ]; then
+  ver="0.9.13";
+  if should_make libxrender $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.13/libxrender-libXrender-0.9.13.tar.bz2?ref_type=tags libXrender libxrender-libXrender-$ver 1
+    meson setup -Dprefix=/app/libxrender/current --buildtype release -Dlibdir=lib _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libxrender $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libxrender $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
