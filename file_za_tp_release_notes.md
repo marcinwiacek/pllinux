@@ -325,6 +325,11 @@ in some day full independence.
 Goal for PLLinux is building desktop class system with all features. Technical Preview is bigger, but next versions have in goals
 removing unnecessary things and debug code.
 
+**The whole idea doesn't have sence - searching for libraries is slow now**
+
+My first implementation is "as is", in the future of course there will be many updates. In real life few ms is nothing, when you look
+on profits from separating all apps like it's done in PLLinux.
+
 # Schedule and future
 
 This project was started in April 2026 and already went into quite useable shape and form.
