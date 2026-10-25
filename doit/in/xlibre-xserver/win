@@ -1,1 +1,1 @@
-bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb
+/app/xlibre-xserver/current/bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb -logfile "/log/tmp/Xorg.log"
