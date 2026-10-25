@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libxrender"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xf86-input-evdev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1576,6 +1576,17 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
     ninja -C builddir install
     rsync -a $curdir/in/xlibre-xserver/ /app/xlibre-xserver/current
     set_current_app_clean_strip_cd xlibre-xserver $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xf86-input-evdev" ]; then
+  ver="2.11.0";
+  if should_make xf86-input-evdev $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-evdev-2.11.0.tar.xz xf86-input-evdev xf86-input-evdev-$ver 1
+    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-evdev/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xf86-input-evdev $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xf86-input-evdev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fontconfig" ]; then
