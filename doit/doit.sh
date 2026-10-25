@@ -327,7 +327,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
 
   #don't forget about sync with pllinux and initramfs
 
-  for folderentry in app bin dev etc home mnt proc run sys tmp lib64 log log/tmp usr usr/share; do mkdir $output/$folderentry; done
+  for folderentry in app bin dev etc home mnt proc run sys tmp lib64 log log/tmp usr usr/share usr/bin; do mkdir $output/$folderentry; done
 
   rsync -a in/pllinux.etc/ $output/etc
 
@@ -367,6 +367,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
   cd etc
   cd vulkan
   ln -s /app/mesa/current/share/vulkan/icd.d implicit_layer.d
+  cd ..
+  cd ..
+  cd usr
+  cd bin
+  ln -s /app/xkbcomp/current/bin/xkbcomp xkbcomp
 
   #don't forget about sync with pllinux and initramfs
 
