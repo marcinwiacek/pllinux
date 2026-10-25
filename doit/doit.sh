@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="python"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xcalc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1587,6 +1587,20 @@ if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
     create_app_in_tmp_and_link_it libxkbcommon $prefix$ver
     meson install -C _build
     set_current_app_clean_strip_cd libxkbcommon $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xcalc" ]; then
+#libxaw7-dev
+  ver="1.1.3";
+  if should_make xcalc $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xcalc-1.1.3.tar.xz xcalc xcalc-$ver 1
+    ./configure --prefix=/app/xcalc/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xcalc $prefix$ver
+    make install
+    mkdir /app/xcalc/current/bin
+    cp xcalc /app/xcalc/current/bin
+    set_current_app_clean_strip_cd xcalc $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "kitty" ]; then
