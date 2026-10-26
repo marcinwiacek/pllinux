@@ -982,7 +982,7 @@ if [ "$package" == "fs" ] || [ "$package" == "labwc" ]; then
     ninja -C build
     create_app_in_tmp_and_link_it labwc $prefix$ver
     ninja -C build install
-#    set_current_app_clean_strip_cd labwc $prefix$ver 1
+    set_current_app_clean_strip_cd labwc $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "wayfire" ]; then
