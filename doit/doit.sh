@@ -932,20 +932,27 @@ if [ "$package" == "fs" ] || [ "$package" == "libevdev" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "wayfire" ]; then
 #libglm-dev
+#libyyjson-dev
+#doctest
   ver="0.11.0";
   if should_make wayfire $ver; then
     download_unpack_source https://github.com/WayfireWM/wayfire/archive/refs/tags/v0.11.0.tar.gz wayfire wayfire-$ver 1
   cd subprojects
+
+    for DIRNAME in wf-config wf-json wf-touch wf-utils wlroots wlroots-vkfx; do
+        if [ ! -f "$DIRNAME/meson.build" ]; then      rm -r $DIRNAME; fi
+  done
 git clone https://github.com/WayfireWM/wf-config.git
 git clone https://github.com/WayfireWM/wf-json.git
 git clone https://github.com/WayfireWM/wf-touch.git
 git clone https://github.com/WayfireWM/wf-utils.git
 git clone https://gitlab.freedesktop.org/wlroots/wlroots.git
-git clone https://github.com/spoloxs/wlroots-vkfx.git
+git clone https://gitlab.freedesktop.org/ammen99/wlroots
+
  cd ..
-#rm -r subprojects
-#   meson build
-    meson setup -Dprefix=/app/wayfire/current -Dlibdir=lib  build
+    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig:/app/wayland-protocols/current/share/pkgconfig \
+        meson setup -Dprefix=/app/wayfire/current --buildtype release -Dtests=disabled -Dxwayland=disabled \
+       -Dlibdir=lib -Duse_system_wfconfig=disabled -Duse_system_wlroots=disabled build
     ninja -C build
 #    create_app_in_tmp_and_link_it wayfire $prefix$ver
 #    ninja -C build install
