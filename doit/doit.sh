@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 6 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libevdev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="wayfire"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -928,6 +928,28 @@ if [ "$package" == "fs" ] || [ "$package" == "libevdev" ]; then
     create_app_in_tmp_and_link_it libevdev $prefix$ver
     ninja -C builddir install
     set_current_app_clean_strip_cd libevdev $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "wayfire" ]; then
+#libglm-dev
+  ver="0.11.0";
+  if should_make wayfire $ver; then
+    download_unpack_source https://github.com/WayfireWM/wayfire/archive/refs/tags/v0.11.0.tar.gz wayfire wayfire-$ver 1
+  cd subprojects
+git clone https://github.com/WayfireWM/wf-config.git
+git clone https://github.com/WayfireWM/wf-json.git
+git clone https://github.com/WayfireWM/wf-touch.git
+git clone https://github.com/WayfireWM/wf-utils.git
+git clone https://gitlab.freedesktop.org/wlroots/wlroots.git
+git clone https://github.com/spoloxs/wlroots-vkfx.git
+ cd ..
+#rm -r subprojects
+#   meson build
+    meson setup -Dprefix=/app/wayfire/current -Dlibdir=lib  build
+    ninja -C build
+#    create_app_in_tmp_and_link_it wayfire $prefix$ver
+#    ninja -C build install
+#    set_current_app_clean_strip_cd libevdev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsync" ]; then
