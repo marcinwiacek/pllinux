@@ -23,8 +23,22 @@ Anyway, practically during second day I have first rendering with XLibre:
 
 ![Alt text](2026/oct_startx.png)
 
-Not too much (no keyboard input, etc.), but it reminds me time, when I was young and preparing my first XWindows (it was XFree86). I hope to find way to separate and configure components and make it working at least in minimal way.
+Not too much (no keyboard input, etc.), but it reminds me time, when I was young and preparing my first XWindows (it was XFree86). 
+I hope to find way to separate and configure components and make it working at least in minimal way. Let's do it a little bit parallel with
+some sensibel Wayland implementation.
 
-And then let's try again with Hyprland or other Wayland implementation.
+Let's take for example Wayfire - seems to be very cool (and has got support for [wlr gamma control](https://wayland.app/protocols/wlr-gamma-control-unstable-v1))... but
+
+   wlroots_base_version = '0.20'
+   if get_option('vulkan_effects')
+      wlroots_dep_name = 'wlroots-vkfx-' + wlroots_base_version
+      wlroots_subproject_name = 'wlroots-vkfx'
+   else
+      wlroots_dep_name = 'wlroots-' + wlroots_base_version
+      wlroots_subproject_name = 'wlroots'
+   endif
+
+They seems to take wlroots from 2022, when are using vulkan_effects option... nice, isn't it? And they need at least 0.20, which seems to return
+compilation errors with WP_COLOR_MANAGER_V1.... Why is that? Maybe Sway in that case? Or woodland? Or labwc?
 
 [Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
