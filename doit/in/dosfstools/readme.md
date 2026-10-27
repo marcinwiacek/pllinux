@@ -1,5 +1,5 @@
 **License**
-GPL3
+GPL3+
 
 **PATH**
 sbin
@@ -7,8 +7,10 @@ sbin
 **Deps**
 
 **Description**
+Maintenance for FAT partitions.
 
 **Project**
+https://github.com/dosfstools/dosfstools
 
 **Man**
 share/man/man8
