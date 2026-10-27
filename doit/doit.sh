@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libliftoff"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libxcb-renderutil"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2511,10 +2511,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxc
     create_app libxcb $prefix$ver
     set_current_app libxcb $prefix$ver 1
     make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
     set_current_app_clean_strip_cd libxcb $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcb-renderutil" ]; then
+  ver="0.3.10";
+  if should_make libxcb-renderutil $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/xcb-util-renderutil-$ver.tar.xz xcb-util-renderutil xcb-util-renderutil-$ver 1
+    ./configure --prefix=/app/libxcb-renderutil/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libxcb-renderutil $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxcb-renderutil $prefix$ver 1
   fi
 fi
 #if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcb-errors" ]; then
