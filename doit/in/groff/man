@@ -7,10 +7,9 @@ fi
 
 #Midnight Commander
 if [ "$1" = "-P" ]  && [ "$2" = "cat" ] && [ "$3" != "" ]; then
-    OUT=$(groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
+    echo "$(groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
         -F /app/groff/current/share/groff/current/font \
-        "$3" )
-    echo "$OUT" 2> /dev/null | less -R -M -s
+        "$3" )"
     exit
 fi
 
