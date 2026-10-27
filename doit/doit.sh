@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libgudev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="volk"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2658,18 +2658,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulka
     set_current_app_clean_strip_cd vulkan-loader $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "volk-dev" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "volk" ]; then
   ver="1.4.350";
-  if should_make volk-dev $ver; then
-    download_unpack_source https://github.com/zeux/volk/archive/refs/tags/1.4.350.tar.gz volk volk-$ver 1
+  if should_make volk $ver; then
+    download_unpack_source https://github.com/zeux/volk/archive/refs/tags/$ver.tar.gz volk volk-$ver 1
     cmake -D CMAKE_BUILD_TYPE=Release -DVOLK_INSTALL=ON \
-      -D CMAKE_INSTALL_PREFIX=/app/volk-dev/current \
+      -D CMAKE_INSTALL_PREFIX=/app/volk/current \
       -D CMAKE_SKIP_INSTALL_RPATH=ON .
     make -j$cpu_num
-    create_app volk-dev $prefix$ver
-    set_current_app volk-dev $prefix$ver
+    create_app_in_tmp_and_link_it volk $prefix$ver
     make install
-    set_current_app_clean_strip_cd volk-dev $prefix$ver 1
+    set_current_app_clean_strip_cd volk $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulkan-tools" ]; then
