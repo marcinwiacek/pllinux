@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libwacom"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libgudev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -944,6 +944,17 @@ if [ "$package" == "fs" ] || [ "$package" == "libwacom" ]; then
     create_app_in_tmp_and_link_it libwacom $prefix$ver
     ninja -C builddir install
     set_current_app_clean_strip_cd libwacom $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libgudev" ]; then
+  ver="238";
+  if should_make libgudev $ver; then
+    download_unpack_source https://github.com/GNOME/libgudev/archive/refs/tags/238.tar.gz libgudev libgudev-$ver 1
+    meson setup -Dprefix=/app/libgudev/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it libgudev $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd libgudev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
