@@ -30,16 +30,25 @@ some sensible Wayland implementation:
 With Hyprland there are porting/proto issues, let's take for example Wayfire int that case -
 seems to be very cool (and has got support for [wlr gamma control](https://wayland.app/protocols/wlr-gamma-control-unstable-v1))... but
 
-   wlroots_base_version = '0.20'
-   if get_option('vulkan_effects')
-      wlroots_dep_name = 'wlroots-vkfx-' + wlroots_base_version
-      wlroots_subproject_name = 'wlroots-vkfx'
-   else
+
+
+    wlroots_base_version = '0.20'
+    if get_option('vulkan_effects')
+       wlroots_dep_name = 'wlroots-vkfx-' + wlroots_base_version
+       wlroots_subproject_name = 'wlroots-vkfx'
+    else
       wlroots_dep_name = 'wlroots-' + wlroots_base_version
       wlroots_subproject_name = 'wlroots'
-   endif
+    endif
 
 They seems to take wlroots from 2022, when are using vulkan_effects option... nice, isn't it? And they need at least 0.20, which seems to return
-compilation errors with WP_COLOR_MANAGER_V1.... Why is that? Maybe I should try Sway in that case? Or woodland? Or labwc? The "Wayland" race has just started.
+compilation errors with WP_COLOR_MANAGER_V1...:
+
+    ../types/wlr_color_management_v1.c:1128:17: error: ‘WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_COMPOUND_POWER_2_4’ undeclared (first use in this function); did you mean ‘WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ’?
+     1128 |                 WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_COMPOUND_POWER_2_4,
+         |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         |                 WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ
+
+ Why is that? Maybe I should try Sway in that case? Or woodland? Or labwc? The "Wayland" race has just started - the winner takes it all :D
 
 [Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
