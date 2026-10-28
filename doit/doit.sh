@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="glycin"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="graphviz"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1815,7 +1815,6 @@ if [ "$package" == "fs" ] || [ "$package" == "glycin" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "gobject-introspection" ]; then
 #rnc2rng*
-
   ver="1.86.0";
   if should_make gobject-introspection $ver; then
     download_unpack_source https://gitlab.gnome.org/GNOME/gobject-introspection/-/archive/1.86.0/gobject-introspection-1.86.0.tar.bz2 gobject-introspection gobject-introspection-$ver 1
@@ -1824,6 +1823,30 @@ if [ "$package" == "fs" ] || [ "$package" == "gobject-introspection" ]; then
     create_app_in_tmp_and_link_it gobject-introspection $prefix$ver
     ninja -C builddir install
     set_current_app_clean_strip_cd gobject-introspection $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "graphviz" ]; then
+  ver="16.1.0";
+  if should_make graphviz $ver; then
+    download_unpack_source https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/16.1.0/graphviz-16.1.0.tar.xz graphviz graphviz-$ver 1
+        ./configure --prefix=/app/graphviz/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it graphviz $prefix$ver
+    make install
+    set_current_app_clean_strip_cd graphviz $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "vala" ]; then
+#vala
+  ver="0.56.19";
+  if should_make vala $ver; then
+    download_unpack_source https://gitlab.gnome.org/GNOME/vala/-/archive/0.56.19/vala-0.56.19.tar.bz2 vala vala-$ver 1
+./autogen.sh
+PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig        ./configure --prefix=/app/vala/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it vala $prefix$ver
+    make install
+#    set_current_app_clean_strip_cd vala $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
