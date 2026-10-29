@@ -1,1 +1,1 @@
-strace /app/wget2/current/bin/wget2  $@
+/app/wget2/current/bin/wget2  $@

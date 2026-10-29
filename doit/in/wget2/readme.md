@@ -27,6 +27,3 @@ https://www.gnu.org/software/wget/ or https://gitlab.com/gnuwget/wget2
 
 **Description**
 Core part of PLLINUX. File downloader.
-
-**Last**
-20251230

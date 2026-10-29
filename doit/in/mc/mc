@@ -21,6 +21,11 @@ for DEV in $(ls /dev); do
   esac
 done
 mkdir $MCHOME 2> /dev/null
+
+PS111="[\t] $USER # "
+#doesnt work because it's started always in /
+#PS111="$USER : reparse $(pwd) $(/app/git/current/git branch --show-current) po $(if [ -f "/app/git/current/bin/git" ] && /app/git/current/git rev-parse --git-dir > /dev/null 2>&1; then echo -n \" \e[33m\";/app/git/current/git branch --show-current; fi) # "
+
 /app/bwrap/current/bin/bwrap \
     --setenv HOME $MCHOME \
     --dev dev \
@@ -36,7 +41,7 @@ mkdir $MCHOME 2> /dev/null
     --ro-bind $DIR/bin bin \
     --ro-bind /lib64 lib64 \
     --setenv TERM linux \
-    --setenv PS1 "[\t] $USER # " \
+    --setenv PS1 "$PS111" \
     $APP \
     $DIR/bin/mc
 
