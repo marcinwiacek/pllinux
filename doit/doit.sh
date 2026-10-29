@@ -1317,6 +1317,7 @@ if [ "$package" == "fs" ] || [ "$package" == "file" ]; then
   make all -j$cpu_num
   create_app_in_tmp_and_link_it file $prefix$ver
   make install
+  cp COPYING /app/file/current
   set_current_app_clean_strip_cd file $prefix$ver 1
 fi
 if [ "$package" == "fs" ] || [ "$package" == "binutils" ]; then

@@ -21,7 +21,7 @@ libbsd current
 libmd current
 
 **Description**
-Managing encrypted devices.
+Managing LUKS/LUKS2 encrypted devices.
 
 **Project**
 https://gitlab.com/cryptsetup/cryptsetup

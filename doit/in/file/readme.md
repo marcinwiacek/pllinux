@@ -10,3 +10,12 @@ xzutils current
 bzip2 current
 zlib current
 glibc current
+
+**Project**
+https://astron.com/pub/file/
+
+**Description**
+Tool for recognizing file format.
+
+**License**
+Custom (see COPYING)

@@ -12,7 +12,7 @@ share/man/man1
 https://www.gnu.org/software/binutils/
 
 **Description**
-Collection of programming tools for maintaining executable code (assembly, linking, etc.) from GNU Project
+Programming tools for maintaining executable code (assembly, linking, etc.). From GNU Project.
 
 **License**
 GPL3 or later

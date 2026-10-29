@@ -8,7 +8,7 @@ bin:sbin
 glibc current
 
 **Description**
-Core part of PLLINUX. Tools for maintaining ext2-ext4 filesystems.
+Core part of PLLINUX. Maintenance for ext2-ext4 filesystems.
 
 **Project**
 https://e2fsprogs.sourceforge.net/

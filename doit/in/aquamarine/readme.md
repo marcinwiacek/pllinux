@@ -2,7 +2,7 @@
 https://github.com/hyprwm/aquamarine
 
 **Description**
-Rendering backend library
+Rendering backend library on Wayland or DRM session. C++ only, no bindings to other languages.
 
 **License**
 BSD-3-Clause
