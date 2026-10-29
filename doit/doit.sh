@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="p11-kit"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="gnutls"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -629,7 +629,7 @@ if [ "$package" == "fs" ] || [ "$package" == "gnutls" ]; then
   ver="3.7.11";
   if should_make gnutls $ver; then
     download_unpack_source https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.11.tar.xz gnutls gnutls-$ver 1
-    ./configure --prefix=/app/gnutls/current --enable-libdane  --without-p11-kit  --without-tpm2   \
+    ./configure --prefix=/app/gnutls/current --enable-libdane   --without-tpm2   \
           --without-tpm  --with-included-libtasn1 --disable-guile --disable-rpath  --disable-valgrind-tests   --disable-full-test-suite \
        --with-default-trust-store-dir=/app/ccadb/current
     make all -j$cpu_num
@@ -668,7 +668,7 @@ if [ "$package" == "fs" ] || [ "$package" == "p11-kit" ]; then
   ver="0.26.5";
   if should_make p11-kit $ver; then
     download_unpack_source https://github.com/p11-glue/p11-kit/archive/refs/tags/$ver.tar.gz p11-kit p11-kit-$ver 1
-    ./autogen.sh --with-trust-paths=/app/ccadb/all/ca-certificates.crt --disable-rpath --without-systemd --enable-debug=no \
+    ./autogen.sh --with-trust-paths=/app/ccadb/current/all/ca-certificates.crt --disable-rpath --without-systemd --enable-debug=no \
           --exec-prefix=/app/p11-kit/current --prefix=/app/p11-kit/current
     cd subprojects
     for DIRNAME in pkcs11-json; do
@@ -3168,6 +3168,8 @@ if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
     done < "ccadb"
     c_rehash .
     cp *.0 $output/app/ccadb/$prefix$ver
+    mkdir $output/app/ccadb/$prefix$ver/all
+    cp ccadb $output/app/ccadb/$prefix$ver/all/ca-certificates.crt
     set_current_app_clean_strip_cd ccadb $prefix$ver 0
   fi
 fi
