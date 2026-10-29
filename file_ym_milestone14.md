@@ -75,4 +75,8 @@ As you can see, Unix rule "everything is file" applies here :)
 Now Midnight Commander and mcviewer, which doesn't show color codes - this is probably in development (see [mcviewer: add syntax highlighting via external command - #5065](https://github.com/MidnightCommander/mc/pull/5065)),
 which looks for me strange, because is working in my Ubuntu 22.04.
 
+What about home directory problem? Normally HOME variable is pointing (for normal user) for /home/(user). PLLinux will setup it to the
+/home/(user)/app and will try to make separate dirs (like /home/(user)/app/mc, /home/(user)/app/bash, etc.). User will get clean home directory
+with just one folder for all apps mess. We don't need /other folder anymore.
+
 [Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
