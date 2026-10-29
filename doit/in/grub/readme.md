@@ -1,4 +1,5 @@
 **License**
+GPL3
 
 **PATH**
 bin:sbin
@@ -11,7 +12,7 @@ pcre2 current
 gcclib current
 
 **Description**
+System bootloader.
 
 **Project**
-
-**Man**
+https://www.gnu.org/software/grub/
