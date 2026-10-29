@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="curl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="ccadb"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -65,6 +65,7 @@ download_unpack_source() {
       mkdir $out/$packagename || true
       cd $out/$packagename
       case $localfile in
+        ccadb* ) cp $curdir/download/$localfile $out/$packagename/ccadb ;;
         *.rpm* ) install_host_deps "rpm"
                  rpm2cpio $curdir/download/$localfile | cpio -idmv ;;
         *.zip* ) unzip $curdir/download/$localfile -d .
@@ -3064,17 +3065,18 @@ if [ "$package" == "fs2" ] || [ "$package" == "fpc" ]; then
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
-#https://wiki.mozilla.org/CA/Included_Certificates
-#work in progress
-  ver="261006";
+  ver="261029";
   if should_make ccadb $ver; then
-    download_unpack_source http://downloads.freepascal.org/fpc/dist/3.2.2/source/fpc-3.2.2.source.tar.gz fpc fpc-$ver 1
-#    autoconf
-#    ./configure --prefix=$output/app/v/$prefix$ver
-#    make all -j$cpu_num
-#    create_app v $prefix$ver
-#    make install
-#    set_current_app_clean_strip_cd php $prefix$ver 1
+    download_unpack_source https://ccadb.my.salesforce-sites.com/mozilla/IncludedRootsPEMTxt?TrustBitsInclude=Websites ccadb_$ver . 1
+    create_app ccadb $prefix$ver
+    listnr=1
+    while read -r line; do
+      case $line in 
+      *BEGIN*) listnr=$(($listnr+1)) ;;
+      esac
+      echo $line >> $output/app/ccadb/$prefix$ver/$listnr
+    done < "ccadb"
+    set_current_app_clean_strip_cd ccadb $prefix$ver 0
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
