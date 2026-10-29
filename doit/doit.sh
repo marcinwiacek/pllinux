@@ -631,7 +631,6 @@ if [ "$package" == "fs" ] || [ "$package" == "gnutls" ]; then
     set_current_app_clean_strip_cd gnutls $prefix$ver 1
   fi
 fi
-
 if [ "$package" == "fs" ] || [ "$package" == "curl" ]; then
   ver="8.23.0";
   ver2="8_23_0";
