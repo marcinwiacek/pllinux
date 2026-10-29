@@ -60,6 +60,7 @@ download_unpack_source() {
     fi
   fi
 
+echo directory1 is $(pwd)
   if [ "$canbetmp" = "1" ]; then
     if [ ! -d "$out/$packagename/$unpackeddir" ]; then
       mkdir $out/$packagename || true
@@ -86,6 +87,7 @@ download_unpack_source() {
       cd out/$packagename/$unpackeddir
     fi
   fi
+echo directory2 is $(pwd)
   TODAY_DATE="$(date +%Y%m%d)"
   IFS=" "
   while read -r LATEST_FILE; do
@@ -838,19 +840,17 @@ if [ "$package" == "fs" ] || [ "$package" == "gnupg" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "openssl" ]; then
-  for ver in 3.6.3 4.0.1; do 
+#3.5.9 LTS
+  for ver in 3.5.9 4.1.0; do 
     if should_make openssl $ver; then
       download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver 1
-      ./Configure
+      ./Configure --prefix=/app/openssl/$prefix$ver #--openssldir=/app/ccadb/current
       make all -j$cpu_num
       create_app openssl $prefix$ver
-      for folderentry in bin lib; do
-        mkdir $output/app/openssl/$prefix$ver/$folderentry
-      done
-      cp apps/openssl $output/app/openssl/$prefix$ver/bin
-      rsync -a *.so* $output/app/openssl/$prefix$ver/lib
-      rsync -a $curdir/in/openssl/ $output/app/openssl/$prefix$ver
+      make install
+      mv /app/openssl/$prefix$ver/lib64 /app/openssl/$prefix$ver/lib
       set_current_app_clean_strip_cd openssl $prefix$ver 1
+      mkdir "/tmp/doit"
     fi
   done
 fi
@@ -863,6 +863,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "wget2
     make all -j$cpu_num
     create_app_in_tmp_and_link_it wget2 $prefix$ver
     make install
+    rm bin/wget2_noinstall
+    cp $curdir/in/$package/wget /app/$packagename/current
     set_current_app_clean_strip_cd wget2 $prefix$ver 1
   fi
 fi
