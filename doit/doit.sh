@@ -868,12 +868,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "wget2
     cp src/wget2_noinstall $output/app/wget2/$prefix$ver/bin/wget
     rsync -a libwget/.libs/*.so* $output/app/wget2/$prefix$ver/lib
     rsync -a $curdir/in/wget2/ $output/app/wget2/$prefix$ver
-
-    #fixme
-    cd /etc/ssl/certs
-    rsync -a -L . $output/app/wget2/$prefix$ver/ssl
-
-    set_current_app_clean_strip_cd wget2 $prefix$ver 1
+#    set_current_app_clean_strip_cd wget2 $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "popt" ]; then
@@ -3065,17 +3060,20 @@ if [ "$package" == "fs2" ] || [ "$package" == "fpc" ]; then
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
-  ver="261029";
+  ver="${prefix:0:6}";
   if should_make ccadb $ver; then
     download_unpack_source https://ccadb.my.salesforce-sites.com/mozilla/IncludedRootsPEMTxt?TrustBitsInclude=Websites ccadb_$ver . 1
     create_app ccadb $prefix$ver
+    rm *.pem
     listnr=1
     while read -r line; do
       case $line in 
       *BEGIN*) listnr=$(($listnr+1)) ;;
       esac
-      echo $line >> $output/app/ccadb/$prefix$ver/$listnr
+      echo $line >> ${listnr}.pem
     done < "ccadb"
+    c_rehash .
+    cp *.0 $output/app/ccadb/$prefix$ver
     set_current_app_clean_strip_cd ccadb $prefix$ver 0
   fi
 fi
