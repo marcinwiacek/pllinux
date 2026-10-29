@@ -645,6 +645,7 @@ if [ "$package" == "fs" ] || [ "$package" == "curl" ]; then
       cmake --build build  --config Release --target all -j$cpu_num
     create_app_in_tmp_and_link_it curl $prefix$ver
     cmake --install build
+    cp COPYING /app/curl/current
 #    set_current_app_clean_strip_cd curl $prefix$ver 1
 
   fi
