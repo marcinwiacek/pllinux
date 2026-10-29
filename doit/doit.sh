@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="wayfire"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="wlroots"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -971,29 +971,33 @@ if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "wlroots" ]; then
   if should_make wlroots $ver; then
-#  ver="0.20.2";
-  ver="0.19.3";
+
+#        --force-fallback-for=wayland-server \
+#       --force-fallback-for=wayland-protocols \
+#    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
+  ver="0.20.2";
+#  ver="0.19.3";
     download_unpack_source https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$ver/downloads/wlroots-$ver.tar.gz wlroots wlroots-$ver 1
-    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
+    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
         meson setup -Dprefix=/app/wlroots/current --buildtype release  \
-        --force-fallback-for=wayland-server \
        --force-fallback-for=wayland-protocols \
+-Dxwayland=disabled -Dbackends=drm,libinput \
         --wrap-mode=default \
        -Dlibdir=lib build
     ninja -C build
     create_app_in_tmp_and_link_it wlroots $prefix$ver
     ninja -C build install
     set_current_app_clean_strip_cd wlroots $prefix$ver 1
-  ver="0.18.2";
-    download_unpack_source https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$ver/downloads/wlroots-$ver.tar.gz wlroots wlroots-$ver 1
-    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
-        meson setup -Dprefix=/app/wlroots/current --buildtype release  \
-        --wrap-mode=default \
-       -Dlibdir=lib build
-    ninja -C build
-    create_app_in_tmp_and_link_it wlroots $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd wlroots $prefix$ver 1
+#  ver="0.18.2";
+#    download_unpack_source https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$ver/downloads/wlroots-$ver.tar.gz wlroots wlroots-$ver 1
+#    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
+#        meson setup -Dprefix=/app/wlroots/current --buildtype release  \
+#        --wrap-mode=default \
+#       -Dlibdir=lib build
+#    ninja -C build
+#    create_app_in_tmp_and_link_it wlroots $prefix$ver
+#    ninja -C build install
+#    set_current_app_clean_strip_cd wlroots $prefix$ver 1
   fi
 fi
 #wayland
@@ -1049,7 +1053,7 @@ if [ "$package" == "fs" ] || [ "$package" == "wayfire" ]; then
     ninja -C build
     create_app_in_tmp_and_link_it wayfire $prefix$ver
     ninja -C build install
-    set_current_app_clean_strip_cd wayfire $prefix$ver 1
+#    set_current_app_clean_strip_cd wayfire $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
