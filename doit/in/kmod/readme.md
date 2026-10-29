@@ -10,7 +10,8 @@ Core part of PLLINUX. Linux kernel modules managing.
 zstd current
 xzutils current
 zlib current
-openssl 260725_3.6.3
+openssl 4.0.0-
+
 **PATH_First**
 sbin
 

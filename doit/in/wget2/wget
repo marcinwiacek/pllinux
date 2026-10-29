@@ -1,0 +1,1 @@
+bin/wget2 --ca-directory=/app/ccadb/current $@
