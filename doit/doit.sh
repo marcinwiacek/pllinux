@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libidn2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libpsl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -70,6 +70,8 @@ echo directory1 is $(pwd)
         *.rpm* ) install_host_deps "rpm"
                  rpm2cpio $curdir/download/$localfile | cpio -idmv ;;
         *.zip* ) unzip $curdir/download/$localfile -d .
+                 cd $unpackeddir ;;
+        *.lz )   tar --lzip -xvf $curdir/download/$localfile
                  cd $unpackeddir ;;
         * )      tar -xvf $curdir/download/$localfile
                  cd $unpackeddir
@@ -859,11 +861,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "wget2
   if should_make wget2 $ver; then
     install_host_deps "lzip"
     download_unpack_source https://ftp.gnu.org/gnu/wget/wget2-$ver.tar.lz wget2 wget2-$ver 1
-    ./configure --prefix=/app/wget2/current
+    ./configure --prefix=/app/wget2/current --enable-static  #fixme with static?
     make all -j$cpu_num
     create_app_in_tmp_and_link_it wget2 $prefix$ver
     make install
-    rm bin/wget2_noinstall
+    rm /app/$packagename/current/bin/wget2_noinstall
     cp $curdir/in/$package/wget /app/$packagename/current
     set_current_app_clean_strip_cd wget2 $prefix$ver 1
   fi
@@ -881,6 +883,28 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libid
     create_app_in_tmp_and_link_it libidn2 $prefix$ver
     make install
     set_current_app_clean_strip_cd libidn2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nghttp2" ]; then
+  ver="1.70.0";
+  if should_make nghttp2 $ver; then
+    download_unpack_source https://github.com/nghttp2/nghttp2/releases/download/v1.70.0/nghttp2-1.70.0.tar.xz nghttp2 nghttp2-$ver 1
+    ./configure --prefix=/app/nghttp2/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it nghttp2 $prefix$ver
+    make install
+    set_current_app_clean_strip_cd nghttp2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpsl" ]; then
+  ver="0.23.3";
+  if should_make libpsl $ver; then
+    download_unpack_source https://github.com/rockdaboot/libpsl/releases/download/0.23.3/libpsl-0.23.3.tar.lz libpsl libpsl-$ver 1
+    ./configure --prefix=/app/libpsl/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libpsl $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libpsl $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "popt" ]; then
