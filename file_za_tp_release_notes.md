@@ -100,13 +100,15 @@ Simplicity at all!
 
 * /app - place for all apps (they're saved in separate folders, you can assign different apps or app versions from the /app to other users)
 * /etc - some configuration files (much less and more readable than in typical Linux distributions, normally you can manage them with **pllinux** text mode manager
-* /home - user files, with root account you see all users, with non-root users see only own home directory
-* /other
+* /home - user files, with root account you see all users, with non-root users see only own home directory.
+* /home/app or /home/root/app - we try to put all apps config and stuff there (we setup HOME to one of subdirectories there). The reason is, that user
+should see clean home)
 * /dev, /proc, /run, /sys - pseudo-filesystems exposed by kernel
-* /bin, /usr, /lib64 - links to the files from the /app to satisfy first lines in scripts/shebangs (in the future all of them will be probably removed and functionality will be handled other way)
+* /lib64 - link to the dynamic loader
 * /log - visible only for root, contains temporary or permament log files written for example by **syslogd**
 * /tmp - tmpfs for temporary files
 * /mnt - CD-ROM, USB memories, memory cards, etc.
+* /bin or /usr - in some cases links to existing files from /app. The goal is to eliminate them totally. We're using activly kernel options for this
 
 And this is everything. Every package inside /app has got own directory. Inside you have:
 
@@ -114,6 +116,19 @@ And this is everything. Every package inside /app has got own directory. Inside 
 2. dynamic directory (scripts can put here whatever required)
 3. readme.md with package description
 4. other files and directories (structure is not defined, but normally you see such directories like in "normal" Linux)
+
+Some of directories inside /app/(app_name) are just symlinks. And we have:
+
+1. current - always the latest or gratest version selected by default
+2. (version number)- - link to highest version lower than specified (for example for 4.0.0- we normally select latest 3.x.x)
+3. (version number)+ - link to highest version higher than specified
+
+Links are normally changed by package manager during installing or updating dependencies.
+
+Now imagine, that you want to assign to user for example concrete bash or latest bash + some other tools. This is possible. The same you can make
+upgrades in background and in the last step just change "current" links. No need for having separate installation partition. And of course very
+similar situation is, when you want to build your source code with concrete set of tools. No need of building separate docker or something - just
+point what you want and use it.
 
 Readme.md is semi-text file with some elements, for example:
 
@@ -216,6 +231,9 @@ Known GRUB issue. The only one solution is decreasing security, in the future GR
 
 Known GRUB/Linux architecture issue. Some distributions are mitigating it with putting decryption key on the disk and we don't want
 probably to do it.
+
+**Midnight Commander shows strange .[1m or similar things with man files in viewer**
+[mcviewer: add syntax highlighting via external command - #5065](https://github.com/MidnightCommander/mc/pull/5065)
 
 # Links
 

@@ -79,4 +79,6 @@ What about home directory problem? Normally HOME variable is pointing (for norma
 /home/(user)/app and will try to make separate dirs (like /home/(user)/app/mc, /home/(user)/app/bash, etc.). User will get clean home directory
 with just one folder for all apps mess. We don't need /other folder anymore.
 
+During cleanup there was removed .etc directory too.
+
 [Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
