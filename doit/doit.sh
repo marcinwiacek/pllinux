@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="graphviz"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="glycin"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1803,14 +1803,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "glycin" ]; then
 #libheif-dev
 #libjxl-dev
-  ver="2.2.5";
+#  ver="2.2.5";
+  ver="2.2.0";
   if should_make glycin $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/glycin/-/archive/2.2.5/glycin-2.2.5.tar.bz2 glycin glycin-$ver 1
+    download_unpack_source https://gitlab.gnome.org/GNOME/glycin/-/archive/$ver/glycin-$ver.tar.bz2 glycin glycin-$ver 1
     PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig      meson setup -Dprefix=/app/glycin/current -Dlibdir=lib builddir
-#    ninja -C builddir
-#    create_app_in_tmp_and_link_it libinput $prefix$ver
-#    ninja -C builddir install
-#    set_current_app_clean_strip_cd libinput $prefix$ver 1
+    ninja -C builddir
+    create_app_in_tmp_and_link_it glycin $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd glycin $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "gobject-introspection" ]; then
@@ -1841,12 +1842,13 @@ if [ "$package" == "fs" ] || [ "$package" == "vala" ]; then
   ver="0.56.19";
   if should_make vala $ver; then
     download_unpack_source https://gitlab.gnome.org/GNOME/vala/-/archive/0.56.19/vala-0.56.19.tar.bz2 vala vala-$ver 1
-./autogen.sh
-PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig        ./configure --prefix=/app/vala/current
+    ./autogen.sh
+    PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig:/app/graphviz/current/lib/pkgconfig \
+        ./configure --prefix=/app/vala/current PACKAGE_VERSION=$ver
     make -j$cpu_num
     create_app_in_tmp_and_link_it vala $prefix$ver
     make install
-#    set_current_app_clean_strip_cd vala $prefix$ver 1
+    set_current_app_clean_strip_cd vala $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
