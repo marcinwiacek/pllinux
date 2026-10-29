@@ -629,7 +629,9 @@ if [ "$package" == "fs" ] || [ "$package" == "gnutls" ]; then
   ver="3.7.11";
   if should_make gnutls $ver; then
     download_unpack_source https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.11.tar.xz gnutls gnutls-$ver 1
-    ./configure --prefix=/app/gnutls/current --enable-libdane  --without-p11-kit  --without-tpm2     --without-tpm 
+    ./configure --prefix=/app/gnutls/current --enable-libdane  --without-p11-kit  --without-tpm2   \
+          --without-tpm  --with-included-libtasn1 --disable-guile --disable-rpath  --disable-valgrind-tests   --disable-full-test-suite \
+       --with-default-trust-store-dir=/app/ccadb/current
     make all -j$cpu_num
     create_app_in_tmp_and_link_it gnutls $prefix$ver
     make install
@@ -646,6 +648,18 @@ if [ "$package" == "fs" ] || [ "$package" == "unbound" ]; then
     create_app_in_tmp_and_link_it unbound $prefix$ver
     make install
     set_current_app_clean_strip_cd unbound $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "nettle" ]; then
+#  ver="4.0";
+  ver="3.10.2";
+  if should_make nettle $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/nettle/nettle-$ver.tar.gz nettle nettle-$ver 1
+    ./configure --prefix=/app/nettle/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it nettle $prefix$ver
+    make install
+    set_current_app_clean_strip_cd nettle $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "p11-kit" ]; then
