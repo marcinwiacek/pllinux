@@ -62,7 +62,8 @@ there were created even much better rules:
 4. we have /app/(app_name)/(version)- link pointing to highest and latest version lower than specified
 5. we have /app/(app_name)/(version)+ link pointing to highest and latest version higher than specified
 
-Package manager needs to take care about versions and library loader can just take strings from readme.md and don't think about logic, for example:
+Package manager needs to take care about versions (and all "+" and "-" links)
+and library loader can just take strings from readme.md and don't think about logic, for example:
 
 1. openssl current - we don't care, which one will be taken
 2. openssl 261010_3.0.1 - very concrete package
