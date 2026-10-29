@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="wlroots"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="wayfire"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1046,14 +1046,14 @@ if [ "$package" == "fs" ] || [ "$package" == "wayfire" ]; then
 #    git clone https://gitlab.freedesktop.org/wlroots/wlroots.git
 #    git clone https://gitlab.freedesktop.org/ammen99/wlroots
     cd ..
-    PKG_CONFIG_PATH=/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig:/app/wayland-protocols/current/share/pkgconfig \
+    PKG_CONFIG_PATH=/app/libxml2/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig:/app/wayland-protocols/current/share/pkgconfig \
         meson setup -Dprefix=/app/wayfire/current --buildtype release -Dtests=disabled -Dxwayland=disabled -Dvulkan_effects=false \
        -Dlibdir=lib -Duse_system_wfconfig=disabled build
 #-Duse_system_wlroots=enabled build
     ninja -C build
     create_app_in_tmp_and_link_it wayfire $prefix$ver
     ninja -C build install
-#    set_current_app_clean_strip_cd wayfire $prefix$ver 1
+    set_current_app_clean_strip_cd wayfire $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
