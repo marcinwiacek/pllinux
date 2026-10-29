@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="gnutls"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="unbound"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -635,6 +635,28 @@ if [ "$package" == "fs" ] || [ "$package" == "gnutls" ]; then
     make install
     cp LICENSE /app/gnutls/current
     set_current_app_clean_strip_cd gnutls $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "unbound" ]; then
+  ver="1.26.2";
+  if should_make unbound $ver; then
+    download_unpack_source https://github.com/NLnetLabs/unbound/archive/refs/tags/release-1.26.2.tar.gz unbound unbound-release-$ver 1
+    ./configure --prefix=/app/unbound/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it unbound $prefix$ver
+    make install
+    set_current_app_clean_strip_cd unbound $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libunistring" ]; then
+  ver="1.5";
+  if should_make libunistring $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/libunistring/libunistring-1.5.tar.gz libunistring libunistring-$ver 1
+    ./configure --prefix=/app/libunistring/current --enable-libdane
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libunistring $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libunistring $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "curl" ]; then
