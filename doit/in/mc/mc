@@ -1,28 +1,28 @@
 #!/app/busybox/current/bin/sh
 DIR=$(dirname $0)
 APP=""
-if [ -d "/etc." ]; then
+if [ -d "/home/root" ]; then
   # root
-  APP="$APP --bind /app app " #--bind $DIR/etc/mc etc/mc "
+  APP="$APP --bind /app app --bind /etc etc "
+  MCHOME=/home/root/app/mc
 else
   # non root
   APP="$APP --ro-bind /app app --ro-bind /etc/localtime etc/localtime "
-  #--ro-bind $DIR/etc/mc etc/mc 
+  MCHOME=/home/app/mc
 fi
 if [ ! -d "/iso" ]; then
   # normal system, not iso
   APP="$APP --chdir $(pwd) ";
 fi
-mkdir /other/app/mc 2> /dev/null
 for DEV in $(ls /dev); do
   case $DEV in
   nvme*|fb0|log|mapper|dri)
-#    echo adding $DEV >> /tmp/x
     APP="$APP --dev-bind-try /dev/$DEV /dev/$DEV"
   esac
 done
+mkdir $MCHOME 2> /dev/null
 /app/bwrap/current/bin/bwrap \
-    --setenv HOME /other/app/mc \
+    --setenv HOME $MCHOME \
     --dev dev \
     --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
     --proc proc \
@@ -33,16 +33,12 @@ done
     --bind-try /sys sys \
     --bind-try /log log \
     --bind-try /usr usr \
-    --bind-try /other other \
-    --bind-try /etc. etc \
     --ro-bind $DIR/bin bin \
     --ro-bind /lib64 lib64 \
+    --setenv TERM linux \
     --setenv PS1 "[\t] $USER # " \
     $APP \
     $DIR/bin/mc
-
-#    --dev-bind-try /dev/fb0 /dev/fb0 \
-#    --dev-bind-try /dev/log /dev/log \
 
     # devices are mapped, but... problem with shell prompt (we map too much and some device is making mess)
     #--dev-bind /dev /dev \

@@ -53,12 +53,13 @@ done
 #export MESA_VK_DEVICE_SELECT=0
 #export MESA_VK_DEVICE_SELECT=list
 #export MESA_VK_DEVICE_SELECT=10005:0
-export VK_LOADER_DEBUG=all
+#export VK_LOADER_DEBUG=all
 #export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/icd.d/radeon_icd.json
 #export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/icd.d/lvp_icd.x86_64.json
 #export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/icd.d/virtio_icd.x86_64.json
 #export VK_DRIVER_FILES=/app/swiftshader/current/lib/vk_swiftshader_icd.json
-export DISPLAY=:0
+export DISPLAY=":0"
+export TERM="linux"
 export TZ=Europe/Warsaw
 export LANG=$(/app/pllinux/current/pllinux LANG)
 export LANGUAGE=$(/app/pllinux/current/pllinux LANG)
@@ -67,7 +68,7 @@ export PATH=$path
 #export SHELL=/app/busybox/current/bin/sh
 #export HOME=/other/app/sh
 export SHELL=/app/bash/current/bin/bash
-export HOME=/other/app/bash
+export HOME=/home/root/app/bash
 export TERMINFO=/app/ncurses/current/share/terminfo
 mkdir $HOME 2> /dev/null
 

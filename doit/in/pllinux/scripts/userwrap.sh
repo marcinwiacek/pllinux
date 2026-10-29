@@ -31,16 +31,11 @@ if [ "$processesall" = 1 ]; then
 else
   PARAMS="$PARAMS --unshare-all "
 fi
-#PARAMS="$PARAMS --perms 0777 "
 PARAMS="$PARAMS --dev dev "
-#PARAMS="$PARAMS --dev-bind-try /dev/null /dev/null "
-#PARAMS="$PARAMS --chmod 0777 /dev "
 PARAMS="$PARAMS --tmpfs tmp "
-PARAMS="$PARAMS --bind home/$USER/files home "
-PARAMS="$PARAMS --bind home/$USER other "
+PARAMS="$PARAMS --bind home/$USER home "
 PARAMS="$PARAMS --ro-bind /etc/localtime /etc/localtime "
 PARAMS="$PARAMS --ro-bind /usr usr "
-#PARAMS="$PARAMS --ro-bind /bin bin "
 PARAMS="$PARAMS --ro-bind /lib64 lib64 "
 allapp=0
 deps=""
@@ -164,6 +159,7 @@ PARAMS="$PARAMS --setenv TZ Europe/Warsaw "
 PARAMS="$PARAMS --setenv PATH $path "
 PARAMS="$PARAMS --setenv SHELL $shell "
 PARAMS="$PARAMS --setenv TERMINFO /app/ncurses/current/share/terminfo "
+PARAMS="$PARAMS --setenv TERM linux "
 PARAMS="$PARAMS --setenv LANG $(/app/pllinux/current/pllinux LANG) "
 IFS="/"
 LAST=""
@@ -171,7 +167,8 @@ for PART in $shell
 do
   LAST=$PART;
 done
-PARAMS="$PARAMS --setenv HOME /other/app/$LAST "
+PARAMS="$PARAMS --setenv HOME /home/app/$LAST "
+if [ ! -d /home/$USER/app/$LAST ]; then /app/busybox/current/bin/mkdir /home/$USER/app/$LAST; fi
 PARAMS="$PARAMS -- $LAST"
 #echo "$PARAMS"
 cd /
