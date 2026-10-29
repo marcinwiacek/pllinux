@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="unbound"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="gnutls"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -629,7 +629,7 @@ if [ "$package" == "fs" ] || [ "$package" == "gnutls" ]; then
   ver="3.7.11";
   if should_make gnutls $ver; then
     download_unpack_source https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.11.tar.xz gnutls gnutls-$ver 1
-    ./configure --prefix=/app/gnutls/current --enable-libdane
+    ./configure --prefix=/app/gnutls/current --enable-libdane  --without-p11-kit  --without-tpm2     --without-tpm 
     make all -j$cpu_num
     create_app_in_tmp_and_link_it gnutls $prefix$ver
     make install
@@ -646,6 +646,25 @@ if [ "$package" == "fs" ] || [ "$package" == "unbound" ]; then
     create_app_in_tmp_and_link_it unbound $prefix$ver
     make install
     set_current_app_clean_strip_cd unbound $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "p11-kit" ]; then
+#work in progress
+  ver="0.26.5";
+  if should_make p11-kit $ver; then
+    download_unpack_source https://github.com/p11-glue/p11-kit/archive/refs/tags/0.26.5.tar.gz p11-kit p11-kit-$ver 1
+    ./autogen.sh
+    cd subprojects
+    for DIRNAME in pkcs11-json; do
+        if [ ! -f "$DIRNAME/meson.build" ]; then      rm -r $DIRNAME; fi
+    done
+    git clone https://github.com/p11-glue/pkcs11-json.git
+    cd ..
+    meson setup -Dprefix=/app/p11-kit/current --buildtype release _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it p11-kit $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd p11-kit $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libunistring" ]; then
