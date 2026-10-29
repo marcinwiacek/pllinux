@@ -51,4 +51,27 @@ compilation errors with WP_COLOR_MANAGER_V1...:
 
  Why is that? Maybe I should try Sway in that case? Or woodland? Or labwc? The "Wayland" race has just started - the winner takes it all :D
 
+# Improving old ideas
+
+Do you remember how complicated was versioning thing? It was discussed in [Milestone 4](file_yv_milestone4.md) and after using PLLinux for some time
+there were created even much better rules:
+
+1. every app has got own directory in /app
+2. every packaged version has got folder /app/(app_name)/(packaging_date)_(version)
+3. we have /app/(app_name)/current link pointing to the latest or greatest version
+4. we have /app/(app_name)/(version)- link pointing to highest and latest version lower than specified
+5. we have /app/(app_name)/(version)+ link pointing to highest and latest version higher than specified
+
+Package manager needs to take care about versions and library loader can just take strings from readme.md and don't think about logic, for example:
+
+1. openssl current - we don't care, which one will be taken
+2. openssl 261010_3.0.1 - very concrete package
+3. openssl 4.0.0- - in this case latest 3.x.x release
+4. openssl 4.0.0+ - in this cases everything starting from 4.0.0
+
+As you can see, Unix rule "everything is file" applies here :)
+
+Now Midnight Commander and mcviewer, which doesn't show color codes - this is probably in development (see [mcviewer: add syntax highlighting via external command - #5065](https://github.com/MidnightCommander/mc/pull/5065)),
+which looks for me strange, because is working in my Ubuntu 22.04.
+
 [Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
