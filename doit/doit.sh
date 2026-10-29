@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="gnutls"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="p11-kit"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -663,18 +663,20 @@ if [ "$package" == "fs" ] || [ "$package" == "nettle" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "p11-kit" ]; then
-#work in progress
+#castxml
+#sudo ln -s /usr/bin/python3 /usr/bin/python
   ver="0.26.5";
   if should_make p11-kit $ver; then
-    download_unpack_source https://github.com/p11-glue/p11-kit/archive/refs/tags/0.26.5.tar.gz p11-kit p11-kit-$ver 1
-    ./autogen.sh
+    download_unpack_source https://github.com/p11-glue/p11-kit/archive/refs/tags/$ver.tar.gz p11-kit p11-kit-$ver 1
+    ./autogen.sh --with-trust-paths=/app/ccadb/all/ca-certificates.crt --disable-rpath --without-systemd --enable-debug=no \
+          --exec-prefix=/app/p11-kit/current --prefix=/app/p11-kit/current
     cd subprojects
     for DIRNAME in pkcs11-json; do
         if [ ! -f "$DIRNAME/meson.build" ]; then      rm -r $DIRNAME; fi
     done
     git clone https://github.com/p11-glue/pkcs11-json.git
     cd ..
-    meson setup -Dprefix=/app/p11-kit/current --buildtype release _build
+    meson setup -Dprefix=/app/p11-kit/current -Dsystemd=disabled  --buildtype release _build -Dbashcompdir=/app/p11-kit/current/completion -Dlibdir=lib
     meson compile -C _build
     create_app_in_tmp_and_link_it p11-kit $prefix$ver
     meson install -C _build
