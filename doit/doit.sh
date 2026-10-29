@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="pango"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="fwm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1135,6 +1135,27 @@ if [ "$package" == "fs" ] || [ "$package" == "woodland" ]; then
     set_current_app_clean_strip_cd woodland $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fwm" ]; then
+  ver="0.6.0";
+  if should_make fwm $ver; then
+    download_unpack_source https://github.com/iluaii/fwm/archive/refs/tags/v0.6.0.tar.gz  fwm fwm-$ver 1
+
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/fwm/current \
+  -D CMAKE_PREFIX_PATH="/app/wlroots/current"      -S . -B ./build 
+#    create_app_in_tmp_and_link_it yyjson $prefix$ver
+#    cmake --build ./build --config Release --target all -j$cpu_num
+#    create_app_in_tmp_and_link_it yyjson $prefix$ver
+#    cmake --install build
+#    set_current_app_clean_strip_cd yyjson $prefix$ver 1
+
+#    chmod +x ./configure
+#    PREFIX=/app/woodland/current ./configure
+#    make -j$cpu_num
+#    create_app_in_tmp_and_link_it woodland $prefix$ver
+#    make install PREFIX=/app/woodland/current
+#    set_current_app_clean_strip_cd woodland $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "labwc" ]; then
   ver="0.20.2";
   if should_make labwc $ver; then
@@ -1921,7 +1942,7 @@ if [ "$package" == "fs" ] || [ "$package" == "gdk-pixbuf" ]; then
   ver="2.44.8";
   if should_make gdk-pixbuf $ver; then
     download_unpack_source https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/archive/2.44.8/gdk-pixbuf-2.44.8.tar.bz2 gdk-pixbuf gdk-pixbuf-$ver 1
-    meson setup -Dprefix=/app/gdk-pixbuf/current -Dlibdir=lib builddir
+    PKG_CONFIG_PATH=/app/glycin/current/lib/pkgconfig    meson setup -Dprefix=/app/gdk-pixbuf/current -Dlibdir=lib builddir
 #    ninja -C builddir
 #    create_app_in_tmp_and_link_it libinput $prefix$ver
 #    ninja -C builddir install
