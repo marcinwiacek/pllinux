@@ -1903,6 +1903,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fontconfig" ]; then
     meson compile -C _build
     create_app_in_tmp_and_link_it fontconfig $prefix$ver
     meson install -C _build
+    cp COPYING /app/fontconfig/current
     set_current_app_clean_strip_cd fontconfig $prefix$ver 1
   fi
 fi
