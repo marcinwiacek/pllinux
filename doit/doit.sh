@@ -637,17 +637,16 @@ if [ "$package" == "fs" ] || [ "$package" == "curl" ]; then
   ver2="8_23_0";
   if should_make curl $ver; then
     download_unpack_source https://github.com/curl/curl/archive/refs/tags/curl-8_23_0.tar.gz curl curl-curl-$ver2 1
-
+#CURL_CA_PATH
     cmake -DCMAKE_BUILD_TYPE:STRING=Release  -B build \
       -D CMAKE_PREFIX_PATH="/app/gnutls/current" \
-    -DCMAKE_INSTALL_PREFIX:PATH=/app/curl/current 
-
-      cmake --build build  --config Release --target all -j$cpu_num
+      -DCURL_USE_GNUTLS=on -DCURL_USE_OPENSSL=on -DCURL_LIBCURL_VERSIONED_SYMBOLS=on -DBUILD_SHARED_LIBS=on \
+      -DCMAKE_INSTALL_PREFIX:PATH=/app/curl/current 
+    cmake --build build  --config Release --target all -j$cpu_num
     create_app_in_tmp_and_link_it curl $prefix$ver
     cmake --install build
     cp COPYING /app/curl/current
-#    set_current_app_clean_strip_cd curl $prefix$ver 1
-
+    set_current_app_clean_strip_cd curl $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod" ]; then
