@@ -31,6 +31,7 @@ PS111="[\t] $USER # "
     --dev dev \
     --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
     --proc proc \
+    --symlink /app/busybox/current/bin/sh /bin/sh \
     --bind /tmp tmp \
     --bind /home home \
     --bind-try /run run \
@@ -38,12 +39,12 @@ PS111="[\t] $USER # "
     --bind-try /sys sys \
     --bind-try /log log \
     --bind-try /usr usr \
-    --ro-bind $DIR/bin bin \
     --ro-bind /lib64 lib64 \
     --setenv TERM linux \
     --setenv PS1 "$PS111" \
     $APP \
     $DIR/bin/mc
+
 
     # devices are mapped, but... problem with shell prompt (we map too much and some device is making mess)
     #--dev-bind /dev /dev \
