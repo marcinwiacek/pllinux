@@ -703,6 +703,7 @@ if [ "$package" == "fs" ] || [ "$package" == "curl" ]; then
     cmake -DCMAKE_BUILD_TYPE:STRING=Release  -B build \
       -D CMAKE_PREFIX_PATH="/app/gnutls/current" \
       -DCURL_USE_GNUTLS=on -DCURL_USE_OPENSSL=on -DCURL_LIBCURL_VERSIONED_SYMBOLS=on -DBUILD_SHARED_LIBS=on \
+       -DCURL_DISABLE_LDAP=on \
       -DCMAKE_INSTALL_PREFIX:PATH=/app/curl/current 
     cmake --build build  --config Release --target all -j$cpu_num
     create_app_in_tmp_and_link_it curl $prefix$ver
