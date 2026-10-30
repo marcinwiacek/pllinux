@@ -712,6 +712,21 @@ if [ "$package" == "fs" ] || [ "$package" == "curl" ]; then
     set_current_app_clean_strip_cd curl $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "libssh2" ]; then
+  ver="1.11.1";
+  if should_make libssh2 $ver; then
+    download_unpack_source https://github.com/libssh2/libssh2/archive/refs/tags/libssh2-1.11.1.tar.gz libssh2 libssh2-libssh2-$ver 1
+#      -D CMAKE_PREFIX_PATH="/app/libssh2/current" \
+#      -DCURL_USE_GNUTLS=on -DCURL_USE_OPENSSL=on -DCURL_LIBCURL_VERSIONED_SYMBOLS=on -DBUILD_SHARED_LIBS=on \
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release  -B build \
+      -DCMAKE_INSTALL_PREFIX:PATH=/app/libssh2/current
+    cmake --build build  --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it libssh2 $prefix$ver
+    cmake --install build
+    cp COPYING /app/libssh2/current
+    set_current_app_clean_strip_cd libssh2 $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod" ]; then
   ver="34";
   if should_make kmod $ver; then
@@ -1543,10 +1558,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glib"
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxml2" ]; then
+#no version available problem
   ver="2.15.4";
   if should_make libxml2 $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.15.4/libxml2-v2.15.4.tar.bz2 libxml2 libxml2-v$ver 1
-    meson setup -Dprefix=/app/libxml2/current --buildtype release _build -Dlibdir=lib -Dstrip=true -Dlegacy=enabled -Dicu=enabled
+    download_unpack_source https://gitlab.gnome.org/GNOME/libxml2/-/archive/v$ver/libxml2-v$ver.tar.bz2 libxml2 libxml2-v$ver 1
+    meson setup -Dprefix=/app/libxml2/current --buildtype release _build -Dlibdir=lib -Dstrip=true -Dlegacy=enabled
     meson compile -C _build
     create_app libxml2 $prefix$ver
     set_current_app libxml2 $prefix$ver 1
