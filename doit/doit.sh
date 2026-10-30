@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="mc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="curl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -708,6 +708,7 @@ if [ "$package" == "fs" ] || [ "$package" == "curl" ]; then
     create_app_in_tmp_and_link_it curl $prefix$ver
     cmake --install build
     cp COPYING /app/curl/current
+#link to libcurl-gnutls.so.4
     set_current_app_clean_strip_cd curl $prefix$ver 1
   fi
 fi
@@ -1545,13 +1546,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
   ver="2.15.4";
   if should_make libxml2 $ver; then
     download_unpack_source https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.15.4/libxml2-v2.15.4.tar.bz2 libxml2 libxml2-v$ver 1
-    meson setup -Dprefix=/app/libxml2/current --buildtype minsize _build
+    meson setup -Dprefix=/app/libxml2/current --buildtype release _build -Dlibdir=lib -Dstrip=true -Dlegacy=enabled -Dicu=enabled
     meson compile -C _build
     create_app libxml2 $prefix$ver
     set_current_app libxml2 $prefix$ver 1
     meson install -C _build
-    rsync -a $output/app/libxml2/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libxml2/$prefix$ver/lib
-    rm -r $output/app/libxml2/$prefix$ver/lib/x86_64-linux-gnu/
 #fixme do link .so.2 do .so
     set_current_app_clean_strip_cd libxml2 $prefix$ver 0 # no stripping
   fi

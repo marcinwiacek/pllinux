@@ -7,6 +7,8 @@ bin
 **Deps**
 glibc current
 zlib current
+curl current
+openssl 4.0.0-
 
 **Description**
 Tools for devs for handling (mainly) code repositories.
