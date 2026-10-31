@@ -347,7 +347,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
       user2) GRP=1001 ;;
     esac
 
-    for direntry in $output/home/$userentry $output/home/$userentry/app $output/home/$userentry/files; do
+    for direntry in $output/home/$userentry $output/home/$userentry/app; do
       sudo mkdir $direntry
       sudo chown $GRP $direntry
       sudo chgrp $GRP $direntry
@@ -359,8 +359,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
   done
 
   cd $output
-  if [ ! -d "etc." ]; then ln -s etc etc.; fi
-  if [ ! -d "other" ]; then ln -s home/root other; fi
+#  if [ ! -d "etc." ]; then ln -s etc etc.; fi
+#  if [ ! -d "other" ]; then ln -s home/root other; fi
 #  cd bin
 #  ln -s /app/busybox/current/bin/sh sh
 #  ln -s /app/bash/current/bin/bash bash

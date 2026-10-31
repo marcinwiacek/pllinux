@@ -66,7 +66,7 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
       user2) GRP=1001 ;;
     esac
 
-    for direntry in home/$userentry home/$userentry/app home/$userentry/files; do
+    for direntry in home/$userentry home/$userentry/app; do
       mkdir $direntry
       chown $GRP $direntry
       chgrp $GRP $direntry
@@ -77,13 +77,13 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
     chmod o-rwx $output/home/$userentry
   done
 
-  if [ ! -d "etc." ]; then ln -s etc etc.; fi
-  if [ ! -d "other" ]; then ln -s home/root other; fi
+#  if [ ! -d "etc." ]; then ln -s etc etc.; fi
+#  if [ ! -d "other" ]; then ln -s home/root other; fi
 
-  cd bin
-  ln -s /sh sh
-  ln -s /app/bash/current/bin/bash bash
-  cd ..
+#  cd bin
+#  ln -s /sh sh
+#  ln -s /app/bash/current/bin/bash bash
+#  cd ..
 
   cd lib64
   ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
