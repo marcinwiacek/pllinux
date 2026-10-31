@@ -8,7 +8,7 @@ sbin
 popt current
 util-linux current
 lvm2 current
-openssl 260725_3.6.3
+openssl 4.0.0-
 libssh current
 json-c current
 libselinux current

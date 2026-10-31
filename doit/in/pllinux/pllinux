@@ -124,13 +124,13 @@ EOF
           /app/busybox/current/sbin/sysctl vm.swappiness=$PARAM_VALUE > /dev/null
         fi ;;
       ETH_START*)
-        ETH_START=$PARAM_VALUE;;
-      ETH_IP4*)
-        ETH_IP4=$PARAM_VALUE ;;
-      ETH_IP4_GATEWAY*)
-        ETH_IP4_GATEWAY=$PARAM_VALUE ;;
-      ETH_IP4_NETMASK*)
-        ETH_IP4_NETMASK=$PARAM_VALUE ;;
+        ETH_START="$PARAM_VALUE";;
+      ETH_IP4)
+        ETH_IP4="$PARAM_VALUE" ;;
+      ETH_IP4_GATEWAY)
+        ETH_IP4_GATEWAY="$PARAM_VALUE" ;;
+      ETH_IP4_NETMASK)
+        ETH_IP4_NETMASK="$PARAM_VALUE" ;;
       SERVICES_STOP*)
         SERVICES_STOP=$PARAM_VALUE ;;
       KERNEL_MODULES_START*)
