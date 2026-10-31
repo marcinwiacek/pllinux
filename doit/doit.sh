@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="terminus-font"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="curl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -640,7 +640,7 @@ if [ "$package" == "fs" ] || [ "$package" == "gnutls" ]; then
     download_unpack_source https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.11.tar.xz gnutls gnutls-$ver 1
     ./configure --prefix=/app/gnutls/current --enable-libdane   --without-tpm2   \
           --without-tpm  --with-included-libtasn1 --disable-guile --disable-rpath  --disable-valgrind-tests   --disable-full-test-suite \
-       --with-default-trust-store-dir=/app/ccadb/current
+       --with-default-trust-store-dir=/app/ccadb/current/files
     make all -j$cpu_num
     create_app_in_tmp_and_link_it gnutls $prefix$ver
     make install
@@ -720,7 +720,7 @@ if [ "$package" == "fs" ] || [ "$package" == "curl" ]; then
 #link to libcurl-gnutls.so.4
     download_unpack_source https://curl.se/download/curl-8.23.0.tar.xz curl curl-$ver 1
     ./configure --with-openssl --with-gnutls --prefix=/app/curl/current --enable-versioned-symbols \
-        --with-ca-path=/app/ccadb/current --with-gnutls --without-openssl --with-libssh2 --disable-ldap
+        --with-ca-path=/app/ccadb/current/files --with-gnutls --without-openssl --with-libssh2 --disable-ldap
     sed -i "s/CURL_GNUTLS_4/CURL_GNUTLS_3/" lib/libcurl.vers  # in 8.23.0 in Debian libcurl_gnutls.so.4 has got CURL_GNUTLS_3
     make all -j$cpu_num
     create_app_in_tmp_and_link_it curl $prefix$ver
@@ -1784,7 +1784,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "termi
     make -j$cpu_num
     create_app terminus-font $prefix$ver
     make install
-    set_current_app_clean_strip_cd terminus-fonts $prefix$ver 1
+    set_current_app_clean_strip_cd terminus-font $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "parted" ]; then
@@ -3247,9 +3247,10 @@ if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
       echo $line >> ${listnr}.pem
     done < "ccadb"
     c_rehash .
-    cp *.0 $output/app/ccadb/$prefix$ver
-    mkdir $output/app/ccadb/$prefix$ver/all
-    cp ccadb $output/app/ccadb/$prefix$ver/all/ca-certificates.crt
+    mkdir $output/app/ccadb/$prefix$ver/files
+    cp *.0 $output/app/ccadb/$prefix$ver/files
+#    mkdir $output/app/ccadb/$prefix$ver/all
+#    cp ccadb $output/app/ccadb/$prefix$ver/all/ca-certificates.crt
     set_current_app_clean_strip_cd ccadb $prefix$ver 0
   fi
 fi
