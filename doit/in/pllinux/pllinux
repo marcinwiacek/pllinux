@@ -187,7 +187,7 @@ set_keyboard_font_general_or_user() {
     /app/kbd/current/bin/setfont -C /dev/tty1 $NEW_FONT
     /app/kbd/current/bin/loadkeys /app/kbd/current/share/keymaps/i386/$NEW_KEYB
     cmd=$(dialog --stdout --backtitle "$PROMPT\keyboard and font" --cancel-label "Back" \
-           --menu "Set display and typing$PROMPT2" 0 0 5 \
+           --menu "Set display and typing$PROMPT2\n\nNeed to confirm changes with last option" 0 0 5 \
            1 "Check" \
            2 "Set default" \
            3 "Font (setfont)      - $NEW_FONT" \
@@ -729,8 +729,23 @@ format_install2() {
       /app/rsync/current/bin/rsync -a --info=progress2 /etc/ etc
 
       if [ "$ALLAPPS" = "1" ]; then
-        echo "Copying /app. This will need some time (even 20-30 seconds or more)"
+        echo "Copying all apps from /app ($(du -c -h ${DIR}app | grep total)). This will need some time (even min)"
         /app/rsync/current/bin/rsync -a --info=progress2 /app/ app
+      else
+         LIST=""
+         IFS=":"
+         for APP_NAME in $SYSTEM_APPS; do
+           LIST="$LIST ${DIR}app/$APP_NAME/*"
+         done
+         IFS=$IFSORIG
+
+         echo "Copying system apps from /app ($(du -c -h $LIST | grep total)). This will need some time (even min)"
+         IFS=":"
+         for APP_NAME in $SYSTEM_APPS; do
+           echo "$APP_NAME"
+           /app/rsync/current/bin/rsync -a --info=progress2 /app/$APP_NAME/ app/$APP_NAME
+         done
+         IFS=$IFSORIG
       fi
 
       for userentry in root user user2; do 
@@ -740,7 +755,7 @@ format_install2() {
           user2) GRP=1001 ;;
         esac
 
-        for direntry in home/$userentry home/$userentry/app home/$userentry/files; do
+        for direntry in home/$userentry home/$userentry/app; do
           mkdir $direntry
           chown $GRP $direntry
           chgrp $GRP $direntry
@@ -750,9 +765,6 @@ format_install2() {
         chmod g-rwx home/$userentry
         chmod o-rwx home/$userentry
       done
-
-      if [ ! -d "etc." ]; then ln -s etc etc.; fi
-      if [ ! -d "other" ]; then ln -s home/root other; fi
 
 #      cd bin
 #      ln -s /sh sh
@@ -1087,7 +1099,7 @@ EOF
     if [ $1 = "1" ]; then
       cmd=$(dialog --stdout --backtitle "PLLinux\install to other disk" --cancel-label "Back" \
            --default-item $defnum \
-           --menu "Install PLLinux to other partition or disk. System needs UEFI FAT32 partition with boot flag for boot files (can be used existing one, about 6MB free space required) and partition for main filesystem (it will be formatted to EXT4)" 0 0 6 $list )
+           --menu "Install PLLinux to other partition or disk.\n\nSystem needs:\n1.UEFI FAT32 partition with boot flag for boot files (can be used existing one, about 6MB free space required)\n2.partition for main filesystem (it will be formatted to EXT4)\n\nSelect disk" 0 0 6 $list )
     else
       cmd=$(dialog --stdout --backtitle "PLLinux\device manager\disk info" --cancel-label "Back" \
            --default-item $defnum \
@@ -2917,7 +2929,7 @@ EOF
   umount $ROOTBOOT
   rm -r $ROOTBOOT
 
-  dialog --yesno "Are you sure to setup EFI partition $EFIPART, EFI boot menu ($NEW_NAME) and default Grub config on the $cmd partition ${ROOT_DEVICE_ID} ? THIS IS LAST WARNING" 20 40
+  dialog --yesno "Are you sure to setup:\n\n1.EFI partition $EFIPART\n2.EFI boot menu ($NEW_NAME)\n3.default Grub config on the $cmd partition ${ROOT_DEVICE_ID}?\n\nTHIS IS LAST WARNING" 20 40
   if [ $? != 0 ]; then
     return
   fi
@@ -3303,6 +3315,12 @@ uefi_list() {
       mount -t vfat $EFIPART $ROOTBOOT
     fi
   fi
+  
+    MOUNTS=$(mount | grep "on / ") # can contain name of current partition
+  case $MOUNTS in
+    tmpfs*) MOUNTS=$(mount | grep "on /lib64 ") # contains name of current partition in sandbox
+  esac
+
 
   BOOTORDER=""
   while read -r line; do
@@ -3369,9 +3387,12 @@ EOF
                     fi
                   elif [ -f "${ROOTBOOT}/EFI/${UEFI_VALUE2}/grubx64.efi" ]; then
                     RES=$(grep -c ${PARAM2:6:-1} ${ROOTBOOT}/EFI/${UEFI_VALUE2}/grubx64.efi)
-                    if [ "$RES" != "" ]; then
+                    if [ "$RES" = "1" ]; then
                       DEVNAME=$(blkid | grep ${PARAM2:6:-1})
                       OSFOUND=" - PLLinux on ${DEVNAME%%:*}"
+                      case $MOUNTS in
+                      ${DEVNAME%%:*}*) OSFOUND="$OSFOUND (current)"
+                      esac
                     fi
                   fi
                   esac

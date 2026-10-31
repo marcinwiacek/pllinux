@@ -1,6 +1,6 @@
 **Deps**
 glibc current
-openssl 260725_3.6.3
+openssl 4.0.0-
 zlib current
 zstd current
 popt current
