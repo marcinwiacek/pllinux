@@ -586,7 +586,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mc" ]
     download_unpack_source https://ftp.osuosl.org/pub/midnightcommander/mc-$ver.tar.xz mc mc-$ver 1
     #--with-screen=ncurses  <- this seems to make MC hanging after pressing key
     ./configure --disable-vfs -without-gpm-mouse --prefix=/app/mc/current --exec-prefix=/app/mc/current
-    sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/" lib/shell.c  # even after years MC doesn't respect SHELL variable. This is rudicolous
+# without /bin/sh Pipe failed error, when try to view or edit something
+#    sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/" lib/shell.c  # even after years MC doesn't respect SHELL variable. This is rudicolous
+#    sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/" src/usermenu.c  # even after years MC doesn't respect SHELL variable. This is rudicolous
+#    sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/" misc/mc.menu  # even after years MC doesn't respect SHELL variable. This is rudicolous
+#    sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/" misc/mc.menu.in  # even after years MC doesn't respect SHELL variable. This is rudicolous
     make all -j$cpu_num
     create_app_in_tmp_and_link_it mc $prefix$ver
     make install
