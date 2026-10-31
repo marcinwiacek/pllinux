@@ -965,8 +965,13 @@ process_one_disk() {
   $1*) CURRINFO="$CURRINFO\n\nWARNING: $3 is CURRENT EFI32 boot partition" ;;
   esac
 
+  MOUNTS=$(mount | grep "on / ") # can contain name of current partition
+  case $MOUNTS in
+    tmpfs*) MOUNTS=$(mount | grep "on /lib64 ") # contains name of current partition in sandbox
+  esac
+
   IFS=" " read -r DEV_NAME OTHER << EOF
-$(mount | grep "on / ") # contains name of current partition
+$MOUNTS
 EOF
   case $DEV_NAME in
   $1*) CURRINFO="\n\nWARNING: $DEV_NAME is CURRENT system partition" ;;
