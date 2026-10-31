@@ -2095,7 +2095,12 @@ EOF
         break
       done < "/etc/dinit.d/$SERVICE_NAME"
       echo " $listnr "
-      echo \"$(/app/busybox/current/bin/realpath /etc/dinit.d/$SERVICE_NAME) - $(dinitctl is-started $SERVICE_NAME) \"
+      case $(dinitctl is-started $SERVICE_NAME) in
+      STOPPED)
+        echo \"$(/app/busybox/current/bin/realpath /etc/dinit.d/$SERVICE_NAME)\" ;;
+      *)
+        echo \"$(/app/busybox/current/bin/realpath /etc/dinit.d/$SERVICE_NAME) - $(dinitctl is-started $SERVICE_NAME) \"
+      esac
       echo \"$DESC\"
       listnr=$(($listnr+1))
     fi
