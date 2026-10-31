@@ -25,7 +25,7 @@ SYSTEM_SERVICES="syslogd:crond:tty2:tty3"
 # some default values
 TIMEZONE="UTC"
 KEYB="qwerty/pl4.map.gz"
-FONT="sun12x22.psfu.gz"
+FONT="/app/kbd/current/share/consolefonts/sun12x22.psfu.gz"
 LANG="en_US.UTF-8"
 ETH_IP4=""
 ETH_IP4_GATEWAY=""
@@ -202,43 +202,53 @@ set_keyboard_font_general_or_user() {
              1 "PL" 2 "Other")
            if [ $? == 0 ]; then
              NEW_KEYB="qwerty/pl4.map.gz"
-             NEW_FONT="sun12x22.psfu.gz"
+             NEW_FONT="/app/kbd/current/share/consolefonts/sun12x22.psfu.gz"
              case $cmd in
                1) NEW_KEYB="qwerty/pl1.map.gz"
-                  NEW_FONT="LatGrkCyr-8x16.psfu.gz" ;;
+                  NEW_FONT="/app/kbd/current/share/consolefonts/LatGrkCyr-8x16.psfu.gz" ;;
              esac
            fi
            ;;
       3) list=""
          listnr=1
-         for NAME in $(ls /app/kbd/current/share/consolefonts); do
-           case $NAME in
-             README*)
-                ;;
-             *) list="$list $listnr $NAME"
-                if [ "$NEW_FONT" == "$NAME" ]; then
-                  DEFAULT_NUM=$listnr
-                fi
-                listnr=$(($listnr+1))
-                ;;
-           esac
-         done
-         cmd=$(dialog --stdout --backtitle "$PROMPT\keyboard and font\set font" --cancel-label "Back" \
+         cmdcmd=""
+         DEFAULT_NUM=1
+         for APP_NAME in $(ls ${DIR}app); do
+           for APP_VERSION in $(ls ${DIR}app/${APP_NAME}); do
+             if [ "$APP_VERSION" == "current" ]; then
+               find_value_from_readme "${DIR}app/${APP_NAME}/${APP_VERSION}" "Fonts"
+               if [ "$valueFromReadme" != "" ]; then
+                 for NAME in $(ls ${DIR}app/${APP_NAME}/${APP_VERSION}/$valueFromReadme); do
+                   case $NAME in
+                   README*)
+                     ;;
+                   *) list="$list $listnr "
+                      list="$list ${DIR}app/${APP_NAME}/${APP_VERSION}/$valueFromReadme/$NAME "
+                      cmdcmd="$cmdcmd${DIR}app/${APP_NAME}/${APP_VERSION}/$valueFromReadme/$NAME\n"
+                      if [ "$NEW_FONT" == "${DIR}app/${APP_NAME}/${APP_VERSION}/$valueFromReadme/$NAME" ]; then
+                        DEFAULT_NUM=$listnr
+                      fi
+                      listnr=$(($listnr+1))
+                    ;;
+                  esac
+                done
+              fi
+            fi
+          done
+       done
+       cmdcmd=$(echo -e $cmdcmd)
+       cmd=$(dialog --stdout --backtitle "$PROMPT\keyboard and font\set font" --cancel-label "Back" \
            --default-item $DEFAULT_NUM \
            --menu "Select font" 0 0 10 $list)
          if [ $? == 0 ]; then
            listnr=1
-           for NAME in $(ls /app/kbd/current/share/consolefonts); do
-             case $NAME in
-               README*)
-                  ;;
-               *) if [ $listnr = $cmd ]; then
-                    NEW_FONT="$NAME"
-                  fi
-                  listnr=$(($listnr+1))
-                  ;;
-             esac
-           done
+           while read -r line; do
+            if [ "$listnr" = "$cmd" ]; then
+              NEW_FONT="$line"
+              break
+            fi
+            listnr=$(($listnr+1))
+           done <<< "$cmdcmd"
          fi
          ;;
       4) list=""
@@ -363,6 +373,31 @@ find_app_description() {
      done < $1/readme.md
   fi
     echo \"$descriptionPackage $lastPackage\"
+}
+
+find_value_from_readme() {
+  valueFromReadme="";
+  sectionFromReadme="";
+  fl=1;
+  if [ -e "$1/readme.md" ]; then
+     sectionFromReadme=0
+     while read -r line; do
+       if [ "$line" = "**$2**" ]; then
+         sectionFromReadme=1
+       elif [ "$line" = "" ]; then
+         sectionFromReadme=0;
+       elif [ "$sectionFromReadme" = 1 ]; then
+           if [ "$fl" = "1" ]; then
+             case $line in
+             *\"*) ;;
+             *) valueFromReadme="$line";
+               fl=0;
+               ;;
+             esac
+           fi
+       fi
+     done < $1/readme.md
+  fi
 }
 
 all_apps() {
@@ -2763,7 +2798,10 @@ new_pllinux_entry() {
 #    return
   fi
 
-  MOUNTS=$(mount | grep "on / ") # contains name of current partition
+  MOUNTS=$(mount | grep "on / ") # can contain name of current partition
+  case $MOUNTS in
+    tmpfs*) MOUNTS=$(mount | grep "on /lib64 ") # contains name of current partition in sandbox
+  esac
 
   blkid_disks=$(blkid)
 

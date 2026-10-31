@@ -173,6 +173,9 @@ Readme.md is semi-text file with some elements, for example:
     **Links**
     bin/sh /bin/sh
 
+    **Fonts**
+    share/consolefonts
+
     **Last**
     20260505
 
