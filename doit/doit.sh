@@ -388,7 +388,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
   ver="7.3.1";
-#  ver="6.18.57";
+  ver="6.18.60";
 #  ver="7.2.11";
 #  ver="7.2.6";
   if should_make kernel $ver; then
