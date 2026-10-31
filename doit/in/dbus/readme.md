@@ -12,3 +12,10 @@ bin
 
 **Man**
 share/man/man1
+
+**Deps**
+libexpat current
+libx11 current
+libxcb current
+libxau current
+libxdmcp current

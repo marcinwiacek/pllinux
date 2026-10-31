@@ -6,3 +6,6 @@ Implementation of the IDNA2008 + TR46 specifications (RFC 5890, RFC 5891, RFC 58
 
 **License**
 LGPL3+ or GPL2+
+
+**Deps**
+libunistring current
