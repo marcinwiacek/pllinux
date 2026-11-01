@@ -386,7 +386,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
 
   cd $curdir
 fi
-# --------------------------------- basic packages -------------------------------------
+#--------------------------------- basic - booting -----------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
   ver="7.3.1";
   ver="6.18.60";
@@ -427,47 +427,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busyb
     cp $curdir/in/busybox/* /tmp/installit
     rm /tmp/installit/linuxrc
     set_current_app_clean_strip_cd busybox $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libmnl" ]; then
-  ver="1.0.5";
-  if should_make libmnl $ver; then
-    download_unpack_source https://netfilter.org/projects/libmnl/files/libmnl-$ver.tar.bz2 libmnl libmnl-$ver 1
-    ./configure --prefix=/app/libmnl/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libmnl $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libmnl $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libnftnl" ]; then
-  ver="1.3.2";
-  if should_make libnftnl $ver; then
-    download_unpack_source https://netfilter.org/projects/libnftnl/files/libnftnl-1.3.2.tar.xz libnftnl libnftnl-$ver 1
-    ./configure --prefix=/app/libnftnl/current
-    make -j$cpu_num
-    create_app libnftnl $prefix$ver
-    set_current_app libnftnl $prefix$ver 1
-    make install
-    set_current_app_clean_strip_cd libnftnl $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftables" ]; then
-  ver="1.1.6";
-  if should_make nftables $ver; then
-    install_host_deps "libgmp3-dev libmnl-dev libedit-dev"
-    #Trixy has got older version of libnftnl-dev
-    if [ ! -f "download/libnftnl11_1.3.1-1_amd64.deb" ]; then
-      wget -O download/libnftnl11_1.3.1-1_amd64.deb http://mirrors.kernel.org/ubuntu/pool/main/libn/libnftnl/libnftnl11_1.3.1-1_amd64.deb
-      sudo apt-get install download/libnftnl11_1.3.1-1_amd64.deb
-    fi
-    download_unpack_source https://netfilter.org/projects/nftables/files/nftables-$ver.tar.xz nftables nftables-$ver 1
-    ./configure --prefix=/app/nftables/current
-    make -j$cpu_num
-    create_app nftables $prefix$ver
-    set_current_app nftables $prefix$ver 1
-    make install
-    set_current_app_clean_strip_cd nftables $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bwrap" ]; then
@@ -519,6 +478,69 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dinit
     set_current_app_clean_strip_cd dinit $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "memtest86plus" ]; then
+  ver="9.00";
+  if should_make memtest86plus $ver; then
+    download_unpack_source https://github.com/memtest86plus/memtest86plus/archive/refs/tags/v9.00.tar.gz memtest86plus memtest86plus-$ver 1
+    cd build/x86_64
+    make
+    create_app memtest86plus $prefix$ver
+    cp mt86plus $output/app/memtest86plus/$prefix$ver/mt86plus.efi
+    set_current_app_clean_strip_cd memtest86plus $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub" ]; then
+  ver="2.16";
+  if should_make grub $ver; then
+    install_host_deps "autoconf-archive"
+    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
+    ./bootstrap
+    ./autogen.sh
+    ./configure --prefix=/app/grub/$prefix$ver --target=x86_64 --with-platform=efi
+    make all -j$cpu_num
+    create_app grub $prefix$ver
+    make install
+    set_current_app_clean_strip_cd grub $prefix$ver 1 #ignors lib in stripping
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efivar" ]; then
+  ver="39";
+  if should_make efivar $ver; then
+    install_host_deps "mandoc"
+    download_unpack_source https://github.com/rhboot/efivar/archive/refs/tags/$ver.tar.gz efivar efivar-$ver 1
+    make -j$cpu_num
+    create_app efivar $prefix$ver
+    make install PREFIX=/app/efivar/$prefix$ver
+    mv /app/efivar/$prefix$ver/lib64 /app/efivar/$prefix$ver/lib
+    set_current_app_clean_strip_cd efivar $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efibootmgr" ]; then
+  ver="18";
+  if should_make efibootmgr $ver; then
+    install_host_deps "libefivar-dev efivar pkg-config libefiboot-dev"
+    download_unpack_source https://github.com/rhboot/efibootmgr/releases/download/$ver/efibootmgr-$ver.tar.bz2 efibootmgr efibootmgr-$ver 1
+    make -j$cpu_num EFIDIR=/app/efibootmgr/$prefix$ver/dynamic
+    create_app efibootmgr $prefix$ver
+    mkdir /app/efibootmgr/$prefix$ver/dynamic
+    make install EFIDIR=/app/efibootmgr/$prefix$ver/dynamic DESTDIR=/app/efibootmgr/$prefix$ver
+    set_current_app_clean_strip_cd efibootmgr $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "shim" ]; then
+  # Source https://github.com/rhboot/shim
+  # Currently we take signed package from the https://koji.fedoraproject.org/koji/packageinfo?packageID=14502
+  # This must be resolved in the future
+  ver="16.1-9";
+  if should_make shim $ver; then
+    download_unpack_source https://kojipkgs.fedoraproject.org//packages/shim/16.1/9/x86_64/shim-x64-$ver.x86_64.rpm shim shim-$ver 1
+    create_app shim $prefix$ver
+    cd usr/lib/efi/shim/$ver/EFI
+    rsync -a . "$output/app/shim/$prefix$ver"
+    set_current_app_clean_strip_cd shim $prefix$ver 0
+  fi
+fi
+# --------------------------------- basic - console env -------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kbd" ]; then
   ver="2.10.0";
   if should_make kbd $ver; then
@@ -634,66 +656,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "e2fsp
     set_current_app_clean_strip_cd e2fsprogs $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "gnutls" ]; then
-#libunistring-dev
-#libunbound-dev
-  ver="3.7.11";
-  if should_make gnutls $ver; then
-    download_unpack_source https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.11.tar.xz gnutls gnutls-$ver 1
-    ./configure --prefix=/app/gnutls/current --enable-libdane   --without-tpm2   \
-          --without-tpm  --with-included-libtasn1 --disable-guile --disable-rpath  --disable-valgrind-tests   --disable-full-test-suite \
-       --with-default-trust-store-dir=/app/ccadb/current/files
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it gnutls $prefix$ver
-    make install
-    cp LICENSE /app/gnutls/current
-    set_current_app_clean_strip_cd gnutls $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "unbound" ]; then
-  ver="1.26.2";
-  if should_make unbound $ver; then
-    download_unpack_source https://github.com/NLnetLabs/unbound/archive/refs/tags/release-1.26.2.tar.gz unbound unbound-release-$ver 1
-    ./configure --prefix=/app/unbound/current
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it unbound $prefix$ver
-    make install
-    set_current_app_clean_strip_cd unbound $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "nettle" ]; then
-#  ver="4.0";
-  ver="3.10.2";
-  if should_make nettle $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/nettle/nettle-$ver.tar.gz nettle nettle-$ver 1
-    ./configure --prefix=/app/nettle/current
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it nettle $prefix$ver
-    make install
-    set_current_app_clean_strip_cd nettle $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "p11-kit" ]; then
-#castxml
-#sudo ln -s /usr/bin/python3 /usr/bin/python
-  ver="0.26.5";
-  if should_make p11-kit $ver; then
-    download_unpack_source https://github.com/p11-glue/p11-kit/archive/refs/tags/$ver.tar.gz p11-kit p11-kit-$ver 1
-    ./autogen.sh --with-trust-paths=/app/ccadb/current/all/ca-certificates.crt --disable-rpath --without-systemd --enable-debug=no \
-          --exec-prefix=/app/p11-kit/current --prefix=/app/p11-kit/current
-    cd subprojects
-    for DIRNAME in pkcs11-json; do
-        if [ ! -f "$DIRNAME/meson.build" ]; then      rm -r $DIRNAME; fi
-    done
-    git clone https://github.com/p11-glue/pkcs11-json.git
-    cd ..
-    meson setup -Dprefix=/app/p11-kit/current -Dsystemd=disabled  --buildtype release _build -Dbashcompdir=/app/p11-kit/current/completion -Dlibdir=lib
-    meson compile -C _build
-    create_app_in_tmp_and_link_it p11-kit $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd p11-kit $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "libunistring" ]; then
   ver="1.5";
   if should_make libunistring $ver; then
@@ -703,49 +665,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libunistring" ]; then
     create_app_in_tmp_and_link_it libunistring $prefix$ver
     make install
     set_current_app_clean_strip_cd libunistring $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "curl" ]; then
-  ver="8.23.0";
-  if should_make curl $ver; then
-#    ver2="8_23_0";
-#    download_unpack_source https://github.com/curl/curl/archive/refs/tags/curl-8_23_0.tar.gz curl curl-curl-$ver2 1
-#    cmake -DCMAKE_BUILD_TYPE:STRING=Release  -B build \
-#      -D CMAKE_PREFIX_PATH="/app/gnutls/current" \
-#      -DCURL_USE_GNUTLS=on -DCURL_USE_OPENSSL=on -DCURL_LIBCURL_VERSIONED_SYMBOLS=on -DBUILD_SHARED_LIBS=on \
-#       -DCURL_DISABLE_LDAP=on \
-#      -DCMAKE_INSTALL_PREFIX:PATH=/app/curl/current 
-#    cmake --build build  --config Release --target all -j$cpu_num
-#    create_app_in_tmp_and_link_it curl $prefix$ver
-#    cmake --install build
-#    cp COPYING /app/curl/current
-#link to libcurl-gnutls.so.4
-    download_unpack_source https://curl.se/download/curl-8.23.0.tar.xz curl curl-$ver 1
-    ./configure --with-openssl --with-gnutls --prefix=/app/curl/current --enable-versioned-symbols \
-        --with-ca-path=/app/ccadb/current/files --with-gnutls --without-openssl --with-libssh2 --disable-ldap
-    sed -i "s/CURL_GNUTLS_4/CURL_GNUTLS_3/" lib/libcurl.vers  # in 8.23.0 in Debian libcurl_gnutls.so.4 has got CURL_GNUTLS_3
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it curl $prefix$ver
-    make install
-    cd /app/curl/current/lib
-    ln -s libcurl.so libcurl-gnutls.so.4
-    cd /
-    set_current_app_clean_strip_cd curl $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libssh2" ]; then
-  ver="1.11.1";
-  if should_make libssh2 $ver; then
-    download_unpack_source https://github.com/libssh2/libssh2/archive/refs/tags/libssh2-1.11.1.tar.gz libssh2 libssh2-libssh2-$ver 1
-#      -D CMAKE_PREFIX_PATH="/app/libssh2/current" \
-#      -DCURL_USE_GNUTLS=on -DCURL_USE_OPENSSL=on -DCURL_LIBCURL_VERSIONED_SYMBOLS=on -DBUILD_SHARED_LIBS=on \
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release  -B build \
-      -DCMAKE_INSTALL_PREFIX:PATH=/app/libssh2/current
-    cmake --build build  --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it libssh2 $prefix$ver
-    cmake --install build
-    cp COPYING /app/libssh2/current
-    set_current_app_clean_strip_cd libssh2 $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod" ]; then
@@ -841,76 +760,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pllin
   mkdir $output/app/pllinux/$prefix$ver
   rsync -a $curdir/in/pllinux/ $output/app/pllinux/$prefix$ver
   set_current_app_clean_strip_cd pllinux $prefix$ver 0
-fi
-if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
-  ver="2.55.0";
-  if should_make git $ver; then
-    install_host_deps "gettext asciidoc docbook2x"
-    download_unpack_source https://www.kernel.org/pub/software/scm/git/git-$ver.tar.xz git git-$ver 1
-    ./configure
-    make -j$cpu_num all doc info NO_RUST=1
-    create_app git $prefix$ver
-    set_current_app git $prefix$ver 1
-    make prefix=/app/git/current install install-doc install-html install-info NO_RUST=1
-    set_current_app_clean_strip_cd git $prefix$ver 1
-    remove_duplicates_cd $output/app/git/$prefix$ver/bin
-    remove_duplicates_cd $output/app/git/$prefix$ver/libexec/git-core
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "openssl" ]; then
-#3.5.9 LTS
-  for ver in 3.5.9 4.1.0; do 
-    if should_make openssl $ver; then
-      download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver 1
-      ./Configure --prefix=/app/openssl/$prefix$ver #--openssldir=/app/ccadb/current
-      make all -j$cpu_num
-      create_app openssl $prefix$ver
-      make install
-      mv /app/openssl/$prefix$ver/lib64 /app/openssl/$prefix$ver/lib
-      set_current_app_clean_strip_cd openssl $prefix$ver 1
-      mkdir "/tmp/doit"
-    fi
-  done
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "wget2" ]; then
-  ver="2.2.1";
-  if should_make wget2 $ver; then
-    install_host_deps "lzip"
-    download_unpack_source https://ftp.gnu.org/gnu/wget/wget2-$ver.tar.lz wget2 wget2-$ver 1
-    ./configure --prefix=/app/wget2/current --enable-static  #fixme with static?
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it wget2 $prefix$ver
-    make install
-    rm /app/$packagename/current/bin/wget2_noinstall
-    cp $curdir/in/$package/wget /app/$packagename/current
-    set_current_app_clean_strip_cd wget2 $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libidn2" ]; then
-#gengetopt
-#gtk-doc*
-#  ver="2.3.8"; #compilation error?
-
-  ver="2.3.7";
-  if should_make libidn2 $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/libidn/libidn2-$ver.tar.gz libidn2 libidn2-$ver 1
-    ./configure --prefix=/app/libidn2/current
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it libidn2 $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libidn2 $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nghttp2" ]; then
-  ver="1.70.0";
-  if should_make nghttp2 $ver; then
-    download_unpack_source https://github.com/nghttp2/nghttp2/releases/download/v1.70.0/nghttp2-1.70.0.tar.xz nghttp2 nghttp2-$ver 1
-    ./configure --prefix=/app/nghttp2/current
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it nghttp2 $prefix$ver
-    make install
-    set_current_app_clean_strip_cd nghttp2 $prefix$ver 1
-  fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpsl" ]; then
   ver="0.23.3";
@@ -1832,17 +1681,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libepoxy" ]; then
     set_current_app_clean_strip_cd libepoxy $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "xkeyboard-config" ]; then
-  ver="2.44";
-  if should_make xkeyboard-config $ver; then
-    download_unpack_source http://www.x.org/releases/individual/data/xkeyboard-config/xkeyboard-config-2.44.tar.xz xkeyboard-config xkeyboard-config-$ver 1
-    meson setup -Dprefix=/app/xkeyboard-config/current --buildtype release -Dlibdir=lib _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it xkeyboard-config $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd xkeyboard-config $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "freetype" ]; then
   ver="2.15.0";
   if should_make freetype $ver; then
@@ -1852,17 +1690,6 @@ if [ "$package" == "fs" ] || [ "$package" == "freetype" ]; then
     create_app_in_tmp_and_link_it freetype $prefix$ver
     make install
     set_current_app_clean_strip_cd freetype $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
-  ver="1.49";
-  if should_make wayland-protocols $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.49/downloads/wayland-protocols-1.49.tar.xz wayland-protocols wayland-protocols-$ver 1
-    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "tecmake" ]; then
@@ -2130,70 +1957,205 @@ if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
     set_current_app_clean_strip_cd read-edid $prefix$ver 1
   fi
 fi
-#--------------------------------- basic - bootloader chain -----------------------------
-if [ "$package" == "fs" ] || [ "$package" == "memtest86plus" ]; then
-  ver="9.00";
-  if should_make memtest86plus $ver; then
-    download_unpack_source https://github.com/memtest86plus/memtest86plus/archive/refs/tags/v9.00.tar.gz memtest86plus memtest86plus-$ver 1
-    cd build/x86_64
-    make
-    create_app memtest86plus $prefix$ver
-    cp mt86plus $output/app/memtest86plus/$prefix$ver/mt86plus.efi
-    set_current_app_clean_strip_cd memtest86plus $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub" ]; then
-  ver="2.16";
-  if should_make grub $ver; then
-    install_host_deps "autoconf-archive"
-    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
-    ./bootstrap
-    ./autogen.sh
-    ./configure --prefix=/app/grub/$prefix$ver --target=x86_64 --with-platform=efi
-    make all -j$cpu_num
-    create_app grub $prefix$ver
-    make install
-    set_current_app_clean_strip_cd grub $prefix$ver 1 #ignors lib in stripping
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efivar" ]; then
-  ver="39";
-  if should_make efivar $ver; then
-    install_host_deps "mandoc"
-    download_unpack_source https://github.com/rhboot/efivar/archive/refs/tags/$ver.tar.gz efivar efivar-$ver 1
-    make -j$cpu_num
-    create_app efivar $prefix$ver
-    make install PREFIX=/app/efivar/$prefix$ver
-    mv /app/efivar/$prefix$ver/lib64 /app/efivar/$prefix$ver/lib
-    set_current_app_clean_strip_cd efivar $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efibootmgr" ]; then
-  ver="18";
-  if should_make efibootmgr $ver; then
-    install_host_deps "libefivar-dev efivar pkg-config libefiboot-dev"
-    download_unpack_source https://github.com/rhboot/efibootmgr/releases/download/$ver/efibootmgr-$ver.tar.bz2 efibootmgr efibootmgr-$ver 1
-    make -j$cpu_num EFIDIR=/app/efibootmgr/$prefix$ver/dynamic
-    create_app efibootmgr $prefix$ver
-    mkdir /app/efibootmgr/$prefix$ver/dynamic
-    make install EFIDIR=/app/efibootmgr/$prefix$ver/dynamic DESTDIR=/app/efibootmgr/$prefix$ver
-    set_current_app_clean_strip_cd efibootmgr $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "shim" ]; then
-  # Source https://github.com/rhboot/shim
-  # Currently we take signed package from the https://koji.fedoraproject.org/koji/packageinfo?packageID=14502
-  # This must be resolved in the future
-  ver="16.1-9";
-  if should_make shim $ver; then
-    download_unpack_source https://kojipkgs.fedoraproject.org//packages/shim/16.1/9/x86_64/shim-x64-$ver.x86_64.rpm shim shim-$ver 1
-    create_app shim $prefix$ver
-    cd usr/lib/efi/shim/$ver/EFI
-    rsync -a . "$output/app/shim/$prefix$ver"
-    set_current_app_clean_strip_cd shim $prefix$ver 0
-  fi
-fi
 #---------------------------------- basic - network -------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "curl" ]; then
+  ver="8.23.0";
+  if should_make curl $ver; then
+#    ver2="8_23_0";
+#    download_unpack_source https://github.com/curl/curl/archive/refs/tags/curl-8_23_0.tar.gz curl curl-curl-$ver2 1
+#    cmake -DCMAKE_BUILD_TYPE:STRING=Release  -B build \
+#      -D CMAKE_PREFIX_PATH="/app/gnutls/current" \
+#      -DCURL_USE_GNUTLS=on -DCURL_USE_OPENSSL=on -DCURL_LIBCURL_VERSIONED_SYMBOLS=on -DBUILD_SHARED_LIBS=on \
+#       -DCURL_DISABLE_LDAP=on \
+#      -DCMAKE_INSTALL_PREFIX:PATH=/app/curl/current 
+#    cmake --build build  --config Release --target all -j$cpu_num
+#    create_app_in_tmp_and_link_it curl $prefix$ver
+#    cmake --install build
+#    cp COPYING /app/curl/current
+#link to libcurl-gnutls.so.4
+    download_unpack_source https://curl.se/download/curl-8.23.0.tar.xz curl curl-$ver 1
+    ./configure --with-openssl --with-gnutls --prefix=/app/curl/current --enable-versioned-symbols \
+        --with-ca-path=/app/ccadb/current/files --with-gnutls --without-openssl --with-libssh2 --disable-ldap
+    sed -i "s/CURL_GNUTLS_4/CURL_GNUTLS_3/" lib/libcurl.vers  # in 8.23.0 in Debian libcurl_gnutls.so.4 has got CURL_GNUTLS_3
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it curl $prefix$ver
+    make install
+    cd /app/curl/current/lib
+    ln -s libcurl.so libcurl-gnutls.so.4
+    cd /
+    set_current_app_clean_strip_cd curl $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libssh2" ]; then
+  ver="1.11.1";
+  if should_make libssh2 $ver; then
+    download_unpack_source https://github.com/libssh2/libssh2/archive/refs/tags/libssh2-1.11.1.tar.gz libssh2 libssh2-libssh2-$ver 1
+#      -D CMAKE_PREFIX_PATH="/app/libssh2/current" \
+#      -DCURL_USE_GNUTLS=on -DCURL_USE_OPENSSL=on -DCURL_LIBCURL_VERSIONED_SYMBOLS=on -DBUILD_SHARED_LIBS=on \
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release  -B build \
+      -DCMAKE_INSTALL_PREFIX:PATH=/app/libssh2/current
+    cmake --build build  --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it libssh2 $prefix$ver
+    cmake --install build
+    cp COPYING /app/libssh2/current
+    set_current_app_clean_strip_cd libssh2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "gnutls" ]; then
+#libunistring-dev
+#libunbound-dev
+  ver="3.7.11";
+  if should_make gnutls $ver; then
+    download_unpack_source https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.11.tar.xz gnutls gnutls-$ver 1
+    ./configure --prefix=/app/gnutls/current --enable-libdane   --without-tpm2   \
+          --without-tpm  --with-included-libtasn1 --disable-guile --disable-rpath  --disable-valgrind-tests   --disable-full-test-suite \
+       --with-default-trust-store-dir=/app/ccadb/current/files
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it gnutls $prefix$ver
+    make install
+    cp LICENSE /app/gnutls/current
+    set_current_app_clean_strip_cd gnutls $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "unbound" ]; then
+  ver="1.26.2";
+  if should_make unbound $ver; then
+    download_unpack_source https://github.com/NLnetLabs/unbound/archive/refs/tags/release-1.26.2.tar.gz unbound unbound-release-$ver 1
+    ./configure --prefix=/app/unbound/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it unbound $prefix$ver
+    make install
+    set_current_app_clean_strip_cd unbound $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "nettle" ]; then
+#  ver="4.0";
+  ver="3.10.2";
+  if should_make nettle $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/nettle/nettle-$ver.tar.gz nettle nettle-$ver 1
+    ./configure --prefix=/app/nettle/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it nettle $prefix$ver
+    make install
+    set_current_app_clean_strip_cd nettle $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "p11-kit" ]; then
+#castxml
+#sudo ln -s /usr/bin/python3 /usr/bin/python
+  ver="0.26.5";
+  if should_make p11-kit $ver; then
+    download_unpack_source https://github.com/p11-glue/p11-kit/archive/refs/tags/$ver.tar.gz p11-kit p11-kit-$ver 1
+    ./autogen.sh --with-trust-paths=/app/ccadb/current/all/ca-certificates.crt --disable-rpath --without-systemd --enable-debug=no \
+          --exec-prefix=/app/p11-kit/current --prefix=/app/p11-kit/current
+    cd subprojects
+    for DIRNAME in pkcs11-json; do
+        if [ ! -f "$DIRNAME/meson.build" ]; then      rm -r $DIRNAME; fi
+    done
+    git clone https://github.com/p11-glue/pkcs11-json.git
+    cd ..
+    meson setup -Dprefix=/app/p11-kit/current -Dsystemd=disabled  --buildtype release _build -Dbashcompdir=/app/p11-kit/current/completion -Dlibdir=lib
+    meson compile -C _build
+    create_app_in_tmp_and_link_it p11-kit $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd p11-kit $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libmnl" ]; then
+  ver="1.0.5";
+  if should_make libmnl $ver; then
+    download_unpack_source https://netfilter.org/projects/libmnl/files/libmnl-$ver.tar.bz2 libmnl libmnl-$ver 1
+    ./configure --prefix=/app/libmnl/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libmnl $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libmnl $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libnftnl" ]; then
+  ver="1.3.2";
+  if should_make libnftnl $ver; then
+    download_unpack_source https://netfilter.org/projects/libnftnl/files/libnftnl-1.3.2.tar.xz libnftnl libnftnl-$ver 1
+    ./configure --prefix=/app/libnftnl/current
+    make -j$cpu_num
+    create_app libnftnl $prefix$ver
+    set_current_app libnftnl $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd libnftnl $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftables" ]; then
+  ver="1.1.6";
+  if should_make nftables $ver; then
+    install_host_deps "libgmp3-dev libmnl-dev libedit-dev"
+    #Trixy has got older version of libnftnl-dev
+    if [ ! -f "download/libnftnl11_1.3.1-1_amd64.deb" ]; then
+      wget -O download/libnftnl11_1.3.1-1_amd64.deb http://mirrors.kernel.org/ubuntu/pool/main/libn/libnftnl/libnftnl11_1.3.1-1_amd64.deb
+      sudo apt-get install download/libnftnl11_1.3.1-1_amd64.deb
+    fi
+    download_unpack_source https://netfilter.org/projects/nftables/files/nftables-$ver.tar.xz nftables nftables-$ver 1
+    ./configure --prefix=/app/nftables/current
+    make -j$cpu_num
+    create_app nftables $prefix$ver
+    set_current_app nftables $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd nftables $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "openssl" ]; then
+#3.5.9 LTS
+  for ver in 3.5.9 4.1.0; do 
+    if should_make openssl $ver; then
+      download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver 1
+      ./Configure --prefix=/app/openssl/$prefix$ver #--openssldir=/app/ccadb/current
+      make all -j$cpu_num
+      create_app openssl $prefix$ver
+      make install
+      mv /app/openssl/$prefix$ver/lib64 /app/openssl/$prefix$ver/lib
+      set_current_app_clean_strip_cd openssl $prefix$ver 1
+      mkdir "/tmp/doit"
+    fi
+  done
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "wget2" ]; then
+  ver="2.2.1";
+  if should_make wget2 $ver; then
+    install_host_deps "lzip"
+    download_unpack_source https://ftp.gnu.org/gnu/wget/wget2-$ver.tar.lz wget2 wget2-$ver 1
+    ./configure --prefix=/app/wget2/current --enable-static  #fixme with static?
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it wget2 $prefix$ver
+    make install
+    rm /app/$packagename/current/bin/wget2_noinstall
+    cp $curdir/in/$package/wget /app/$packagename/current
+    set_current_app_clean_strip_cd wget2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libidn2" ]; then
+#gengetopt
+#gtk-doc*
+#  ver="2.3.8"; #compilation error?
+  ver="2.3.7";
+  if should_make libidn2 $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/libidn/libidn2-$ver.tar.gz libidn2 libidn2-$ver 1
+    ./configure --prefix=/app/libidn2/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libidn2 $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libidn2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nghttp2" ]; then
+  ver="1.70.0";
+  if should_make nghttp2 $ver; then
+    download_unpack_source https://github.com/nghttp2/nghttp2/releases/download/v1.70.0/nghttp2-1.70.0.tar.xz nghttp2 nghttp2-$ver 1
+    ./configure --prefix=/app/nghttp2/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it nghttp2 $prefix$ver
+    make install
+    set_current_app_clean_strip_cd nghttp2 $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
   ver="${prefix:0:6}";
   if should_make ccadb $ver; then
@@ -2213,6 +2175,22 @@ if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
 #    mkdir $output/app/ccadb/$prefix$ver/all
 #    cp ccadb $output/app/ccadb/$prefix$ver/all/ca-certificates.crt
     set_current_app_clean_strip_cd ccadb $prefix$ver 0
+  fi
+fi
+#----------------------------------------------tools -----------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
+  ver="2.55.0";
+  if should_make git $ver; then
+    install_host_deps "gettext asciidoc docbook2x"
+    download_unpack_source https://www.kernel.org/pub/software/scm/git/git-$ver.tar.xz git git-$ver 1
+    ./configure
+    make -j$cpu_num all doc info NO_RUST=1
+    create_app git $prefix$ver
+    set_current_app git $prefix$ver 1
+    make prefix=/app/git/current install install-doc install-html install-info NO_RUST=1
+    set_current_app_clean_strip_cd git $prefix$ver 1
+    remove_duplicates_cd $output/app/git/$prefix$ver/bin
+    remove_duplicates_cd $output/app/git/$prefix$ver/libexec/git-core
   fi
 fi
 #---------------------------------- mesa ------------------------------------------------
@@ -2320,6 +2298,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulka
   fi
 fi
 #----------------------------------- x11 ------------------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "xkeyboard-config" ]; then
+  ver="2.44";
+  if should_make xkeyboard-config $ver; then
+    download_unpack_source http://www.x.org/releases/individual/data/xkeyboard-config/xkeyboard-config-2.44.tar.xz xkeyboard-config xkeyboard-config-$ver 1
+    meson setup -Dprefix=/app/xkeyboard-config/current --buildtype release -Dlibdir=lib _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it xkeyboard-config $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd xkeyboard-config $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libglvnd" ]; then
   ver="1.7.0";
   if should_make libglvnd $ver; then
@@ -3418,6 +3407,17 @@ if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
     create_app_in_tmp_and_link_it yyjson $prefix$ver
     cmake --install build
     set_current_app_clean_strip_cd yyjson $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
+  ver="1.49";
+  if should_make wayland-protocols $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.49/downloads/wayland-protocols-1.49.tar.xz wayland-protocols wayland-protocols-$ver 1
+    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
   fi
 fi
 # ------------------------------------------ PGP ---------------------------------
