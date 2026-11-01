@@ -386,6 +386,30 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
 
   cd $curdir
 fi
+if [ "$package" == "iso" ]; then
+  mkdir $output/boot
+  mkdir $output/boot/grub
+  cp $curdir/in/pllinux.iso/* $output/boot/grub
+  sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
+  rm -r $output/boot
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "groff" ]; then
+  # for displaying man pages
+  ver="1.24.1";
+  if should_make groff $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/groff/groff-$ver.tar.gz groff groff-$ver 1
+    ./configure --prefix=/app/groff/current
+    make all -j$cpu_num
+    create_app groff $prefix$ver
+    set_current_app groff $prefix$ver 1
+    make install
+    rsync -a $curdir/in/groff/ $output/app/groff/$prefix$ver
+    echo "" >> /app/groff/current/readme.md
+    echo "**Last**" >> /app/groff/current/readme.md
+    echo "$LATEST_FILE_UPDATE" >> /app/groff/current/readme.md
+    set_current_app_clean_strip_cd groff $prefix$ver 1
+  fi
+fi
 #--------------------------------- basic - basic -----------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
   ver="7.3.1";
@@ -556,6 +580,39 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pllin
   mkdir $output/app/pllinux/$prefix$ver
   rsync -a $curdir/in/pllinux/ $output/app/pllinux/$prefix$ver
   set_current_app_clean_strip_cd pllinux $prefix$ver 0
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glibc" ]; then
+  # GNU C Library, not glib (gtk, gnome)
+  ver="2.44";
+  if should_make glibc $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
+    mkdir $out/glibc/glibc-$ver-build
+    cd $out/glibc/glibc-$ver-build
+    ../glibc-$ver/configure --prefix=/app/glibc/current
+    cp $curdir/in/glibc/2_44_rtld.c ../glibc-$ver/elf/rtld.c
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it glibc $prefix$ver
+    make install
+    chmod a-x /app/glibc/current/lib/audit/*so*
+    chmod a-x /app/glibc/current/lib/gconv/*so*
+    cd /app/glibc/current/share
+    ln -s /app/tzdb/current/usr/share/zoneinfo zoneinfo
+    cd /app/glibc # to silence some error in set_current_app...
+    cp $curdir/in/glibc/2_43_patch_ver6.txt /app/glibc/current
+    set_current_app_clean_strip_cd glibc $prefix$ver 1
+    chmod a+x $output/app/glibc/$prefix$ver/lib/ld-linux-x86-64.so.2
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "tzdb" ]; then
+  ver="2026c";
+  if should_make tzdata $ver; then
+    download_unpack_source https://data.iana.org/time-zones/releases/tzdb-$ver.tar.lz tzdb tzdb-$ver 1
+    create_app tzdb $prefix$ver
+    set_current_app tzdb $prefix$ver 1
+    make TOPDIR="/app/tzdb/current" install
+    cp LICENSE $output/app/tzdb/$prefix$ver
+    set_current_app_clean_strip_cd tzdb $prefix$ver 1
+  fi
 fi
 # --------------------------------- basic - bootloader and extra booting stuff ------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "memtest86plus" ]; then
@@ -767,7 +824,89 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod"
     set_current_app_clean_strip_cd kmod $prefix$ver 1
   fi
 fi
-
+if [ "$package" == "fs" ] || [ "$package" == "file" ]; then
+  ver="5_48";
+  download_unpack_source https://github.com/file/file/archive/refs/tags/FILE$ver.tar.gz FILE file-FILE$ver 1
+  autoreconf -f -i
+  ./configure --prefix=/app/file/current
+  make all -j$cpu_num
+  create_app_in_tmp_and_link_it file $prefix$ver
+  make install
+  cp COPYING /app/file/current
+  set_current_app_clean_strip_cd file $prefix$ver 1
+fi
+if [ "$package" == "fs" ] || [ "$package" == "binutils" ]; then
+  ver="2.47";
+  download_unpack_source https://sourceware.org/pub/binutils/releases/binutils-$ver.tar.xz binutils binutils-$ver 1
+  ./configure --prefix=/app/binutils/current
+  make all -j$cpu_num
+  create_app_in_tmp_and_link_it binutils $prefix$ver
+  make install
+  set_current_app_clean_strip_cd binutils $prefix$ver 1
+fi
+if [ "$package" == "fs" ] || [ "$package" == "grep" ]; then
+  ver="3.12";
+  download_unpack_source https://ftp.gnu.org/gnu/grep/grep-3.12.tar.xz grep grep-$ver 1
+  ./configure --prefix=/app/grep/current
+  make all -j$cpu_num
+  create_app_in_tmp_and_link_it grep $prefix$ver
+  make install
+  set_current_app_clean_strip_cd grep $prefix$ver 1
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "less" ]; then
+  ver="704";
+  if should_make less $ver; then
+#    download_unpack_source https://github.com/gwsw/less/archive/refs/tags/v$ver.tar.gz less less-$ver 1
+    download_unpack_source https://greenwoodsoftware.com/less/less-$ver.tar.gz less less-$ver 1
+    create_app less $prefix$ver
+    cd $out/less/less-$ver
+    autoconf
+    ./configure --prefix=/app/less/current
+    make all -j$cpu_num
+    make install
+    set_current_app_clean_strip_cd less $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dialog" ]; then
+  ver="1.3-20260721";
+  if should_make dialog $ver; then
+    download_unpack_source https://invisible-island.net/archives/dialog/dialog-$ver.tgz dialog dialog-$ver 1
+    ./configure --prefix=/app/dialog/$prefix$ver --enable-widec --with-ncursesw
+    make all -j$cpu_num
+    create_app dialog $prefix$ver
+    make install
+    set_current_app_clean_strip_cd dialog $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "readline" ]; then
+  ver="8.3";
+  if should_make readline $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/readline/readline-$ver.tar.gz readline readline-$ver 1
+    mkdir $out/readline/readline-$ver-build
+    cd $out/readline/readline-$ver-build
+    ../readline-$ver/configure --prefix=/app/readline/current
+    make -j$cpu_num
+    create_app readline $prefix$ver
+    set_current_app readline $prefix$ver 1
+    make install
+    echo "" >> /app/readline/current/readme.md
+    echo "**Last**" >> /app/readline/current/readme.md
+    echo "$LATEST_FILE_UPDATE" >> /app/readline/current/readme.md
+    set_current_app_clean_strip_cd readline $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "nano" ]; then
+  ver="9.2";
+  if should_make nano $ver; then
+    download_unpack_source https://www.nano-editor.org/dist/v9/nano-$ver.tar.xz nano nano-$ver 1
+    ./configure --prefix=/app/nano/current
+    make -j$cpu_num
+    create_app nano $prefix$ver
+    set_current_app nano $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd nano $prefix$ver 1
+  fi
+fi
 # ----------------------------- basic - fs ----------------------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "e2fsprogs" ]; then
   ver="1.47.4";
@@ -785,30 +924,77 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "e2fsp
     set_current_app_clean_strip_cd e2fsprogs $prefix$ver 1
   fi
 fi
-
-# ----------------------------- basic - usefull libs ------------------------------------------
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glibc" ]; then
-  # GNU C Library, not glib (gtk, gnome)
-  ver="2.44";
-  if should_make glibc $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
-    mkdir $out/glibc/glibc-$ver-build
-    cd $out/glibc/glibc-$ver-build
-    ../glibc-$ver/configure --prefix=/app/glibc/current
-    cp $curdir/in/glibc/2_44_rtld.c ../glibc-$ver/elf/rtld.c
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dosfstools" ]; then
+  ver="4.2";
+  if should_make libssh $ver; then
+    download_unpack_source https://github.com/dosfstools/dosfstools/releases/download/v4.2/dosfstools-4.2.tar.gz dosfstools dosfstools-$ver 1
+    ./configure --prefix=$output/app/dosfstools/$prefix$ver
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it glibc $prefix$ver
+    create_app dosfstools $prefix$ver
     make install
-    chmod a-x /app/glibc/current/lib/audit/*so*
-    chmod a-x /app/glibc/current/lib/gconv/*so*
-    cd /app/glibc/current/share
-    ln -s /app/tzdb/current/usr/share/zoneinfo zoneinfo
-    cd /app/glibc # to silence some error in set_current_app...
-    cp $curdir/in/glibc/2_43_patch_ver6.txt /app/glibc/current
-    set_current_app_clean_strip_cd glibc $prefix$ver 1
-    chmod a+x $output/app/glibc/$prefix$ver/lib/ld-linux-x86-64.so.2
+    set_current_app_clean_strip_cd dosfstools $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gptfdisk" ]; then
+  ver="1.0.10";
+  if should_make gptfdisk $ver; then
+    download_unpack_source https://sourceforge.net/projects/gptfdisk/files/gptfdisk/$ver/gptfdisk-$ver.tar.gz/download gptfdisk-$ver gptfdisk-$ver 1
+    make -j$cpu_num 
+    create_app gptfdisk $prefix$ver
+    for folderentry in bin man; do
+      mkdir $output/app/gptfdisk/$prefix$ver/$folderentry
+    done
+    for binentry in cgdisk gdisk sgdisk fixparts; do
+      cp $binentry $output/app/gptfdisk/$prefix$ver/bin
+    done
+    cp *.8 $output/app/gptfdisk/$prefix$ver/man
+    set_current_app_clean_strip_cd gptfdisk $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "parted" ]; then
+  ver="3.7";
+  if should_make parted $ver; then
+    install_host_deps "libdevmapper-dev libreadline-dev"
+    download_unpack_source https://ftp.gnu.org/gnu/parted/parted-$ver.tar.xz parted parted-$ver 1
+    mkdir $out/parted/parted-$ver-build
+    cd $out/parted/parted-$ver-build
+    ../parted-$ver/configure --prefix=/app/parted/current
+    make -j$cpu_num
+    create_app parted $prefix$ver
+    set_current_app parted $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd parted $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "cryptsetup" ]; then
+  ver="2.8.8";
+  if should_make cryptsetup $ver; then
+    install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
+    download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver.tar.xz cryptsetup cryptsetup-$ver 1
+    ./configure --prefix=/app/cryptsetup/$prefix$ver
+    make -j$cpu_num
+    create_app cryptsetup $prefix$ver
+    make install
+    set_current_app_clean_strip_cd cryptsetup $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lvm2" ]; then
+  ver="2.03.42";
+  if should_make lvm2 $ver; then
+    install_host_deps "libaio-dev"
+    download_unpack_source https://sourceware.org/pub/lvm2/releases/LVM2.$ver.tgz lvm2 LVM2.$ver 1
+    ./configure --enable-static_link --without-udev
+#    ./configure --enable-static-link --disable-selinux --disable-shared --without-udev --without-systemd \
+#           --disable-udev_sync --disable-udev_rules --disable-udev-rule-exec-detection #--prefix=$output/app/lvm2/$prefix$ver --enable-pkgconfig
+    make -j$cpu_num
+    create_app lvm2 $prefix$ver
+    make DESTDIR=$output/app/lvm2/$prefix$ver install
+    cd $output/app/lvm2/$prefix$ver/lib
+    ln -s libdevmapper.so.1.02 libdevmapper.so.1.02.1 # cross fingers this version works
+    set_current_app_clean_strip_cd lvm2 $prefix$ver 1
+  fi
+fi
+# ----------------------------- basic - usefull libs ------------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "libunistring" ]; then
   ver="1.5";
   if should_make libunistring $ver; then
@@ -1029,35 +1215,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gcc" 
     set_current_app_clean_strip_cd gcclib $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "file" ]; then
-  ver="5_48";
-  download_unpack_source https://github.com/file/file/archive/refs/tags/FILE$ver.tar.gz FILE file-FILE$ver 1
-  autoreconf -f -i
-  ./configure --prefix=/app/file/current
-  make all -j$cpu_num
-  create_app_in_tmp_and_link_it file $prefix$ver
-  make install
-  cp COPYING /app/file/current
-  set_current_app_clean_strip_cd file $prefix$ver 1
-fi
-if [ "$package" == "fs" ] || [ "$package" == "binutils" ]; then
-  ver="2.47";
-  download_unpack_source https://sourceware.org/pub/binutils/releases/binutils-$ver.tar.xz binutils binutils-$ver 1
-  ./configure --prefix=/app/binutils/current
-  make all -j$cpu_num
-  create_app_in_tmp_and_link_it binutils $prefix$ver
-  make install
-  set_current_app_clean_strip_cd binutils $prefix$ver 1
-fi
-if [ "$package" == "fs" ] || [ "$package" == "grep" ]; then
-  ver="3.12";
-  download_unpack_source https://ftp.gnu.org/gnu/grep/grep-3.12.tar.xz grep grep-$ver 1
-  ./configure --prefix=/app/grep/current
-  make all -j$cpu_num
-  create_app_in_tmp_and_link_it grep $prefix$ver
-  make install
-  set_current_app_clean_strip_cd grep $prefix$ver 1
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glib" ]; then
   #glib (GTK, gnome), not GNU C library
   ver="2.89.1";
@@ -1111,82 +1268,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
     set_current_app_clean_strip_cd libxml2 $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "tzdb" ]; then
-  ver="2026c";
-  if should_make tzdata $ver; then
-    download_unpack_source https://data.iana.org/time-zones/releases/tzdb-$ver.tar.lz tzdb tzdb-$ver 1
-    create_app tzdb $prefix$ver
-    set_current_app tzdb $prefix$ver 1
-    make TOPDIR="/app/tzdb/current" install
-    cp LICENSE $output/app/tzdb/$prefix$ver
-    set_current_app_clean_strip_cd tzdb $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
-  # >1GB during installation
-  ver="25-ga";
-  rel="25-ga";
-  if should_make jdk $ver; then
-    install_host_deps "autopoint openjdk-25-jdk libasound2-dev libcups2-dev libfontconfig1-dev libx11-dev libxext-dev libxrender-dev libxrandr-dev libxtst-dev libxt-dev"
-    download_unpack_source https://github.com/openjdk/jdk/archive/refs/tags/jdk-$rel.tar.gz jdk jdk-jdk-$ver 1
-    chmod a+x configure
-    ./configure
-    make clean
-    make JOBS=$cpu_num images
-    create_app jdk $prefix$ver
-    rsync -a build/linux-x86_64-server-release/images/jdk/* $output/app/jdk/$prefix$ver
-    set_current_app_clean_strip_cd jdk $prefix$ver 0
-  fi
-fi
-if [ "$package" == "iso" ]; then
-  mkdir $output/boot
-  mkdir $output/boot/grub
-  cp $curdir/in/pllinux.iso/* $output/boot/grub
-  sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
-  rm -r $output/boot
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "groff" ]; then
-  # for displaying man pages
-  ver="1.24.1";
-  if should_make groff $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/groff/groff-$ver.tar.gz groff groff-$ver 1
-    ./configure --prefix=/app/groff/current
-    make all -j$cpu_num
-    create_app groff $prefix$ver
-    set_current_app groff $prefix$ver 1
-    make install
-    rsync -a $curdir/in/groff/ $output/app/groff/$prefix$ver
-    echo "" >> /app/groff/current/readme.md
-    echo "**Last**" >> /app/groff/current/readme.md
-    echo "$LATEST_FILE_UPDATE" >> /app/groff/current/readme.md
-    set_current_app_clean_strip_cd groff $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "less" ]; then
-  ver="704";
-  if should_make less $ver; then
-#    download_unpack_source https://github.com/gwsw/less/archive/refs/tags/v$ver.tar.gz less less-$ver 1
-    download_unpack_source https://greenwoodsoftware.com/less/less-$ver.tar.gz less less-$ver 1
-    create_app less $prefix$ver
-    cd $out/less/less-$ver
-    autoconf
-    ./configure --prefix=/app/less/current
-    make all -j$cpu_num
-    make install
-    set_current_app_clean_strip_cd less $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dialog" ]; then
-  ver="1.3-20260721";
-  if should_make dialog $ver; then
-    download_unpack_source https://invisible-island.net/archives/dialog/dialog-$ver.tgz dialog dialog-$ver 1
-    ./configure --prefix=/app/dialog/$prefix$ver --enable-widec --with-ncursesw
-    make all -j$cpu_num
-    create_app dialog $prefix$ver
-    make install
-    set_current_app_clean_strip_cd dialog $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "smartmontools" ]; then
   rel="7_5";
   ver="7.5";
@@ -1216,66 +1297,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libxcrypt" ]; then
     set_current_app_clean_strip_cd libxcrypt $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "readline" ]; then
-  ver="8.3";
-  if should_make readline $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/readline/readline-$ver.tar.gz readline readline-$ver 1
-    mkdir $out/readline/readline-$ver-build
-    cd $out/readline/readline-$ver-build
-    ../readline-$ver/configure --prefix=/app/readline/current
-    make -j$cpu_num
-    create_app readline $prefix$ver
-    set_current_app readline $prefix$ver 1
-    make install
-    echo "" >> /app/readline/current/readme.md
-    echo "**Last**" >> /app/readline/current/readme.md
-    echo "$LATEST_FILE_UPDATE" >> /app/readline/current/readme.md
-    set_current_app_clean_strip_cd readline $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lvm2" ]; then
-  ver="2.03.42";
-  if should_make lvm2 $ver; then
-    install_host_deps "libaio-dev"
-    download_unpack_source https://sourceware.org/pub/lvm2/releases/LVM2.$ver.tgz lvm2 LVM2.$ver 1
-    ./configure --enable-static_link --without-udev
-#    ./configure --enable-static-link --disable-selinux --disable-shared --without-udev --without-systemd \
-#           --disable-udev_sync --disable-udev_rules --disable-udev-rule-exec-detection #--prefix=$output/app/lvm2/$prefix$ver --enable-pkgconfig
-    make -j$cpu_num
-    create_app lvm2 $prefix$ver
-    make DESTDIR=$output/app/lvm2/$prefix$ver install
-    cd $output/app/lvm2/$prefix$ver/lib
-    ln -s libdevmapper.so.1.02 libdevmapper.so.1.02.1 # cross fingers this version works
-    set_current_app_clean_strip_cd lvm2 $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "parted" ]; then
-  ver="3.7";
-  if should_make parted $ver; then
-    install_host_deps "libdevmapper-dev libreadline-dev"
-    download_unpack_source https://ftp.gnu.org/gnu/parted/parted-$ver.tar.xz parted parted-$ver 1
-    mkdir $out/parted/parted-$ver-build
-    cd $out/parted/parted-$ver-build
-    ../parted-$ver/configure --prefix=/app/parted/current
-    make -j$cpu_num
-    create_app parted $prefix$ver
-    set_current_app parted $prefix$ver 1
-    make install
-    set_current_app_clean_strip_cd parted $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "cryptsetup" ]; then
-  ver="2.8.8";
-  if should_make cryptsetup $ver; then
-    install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
-    download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver.tar.xz cryptsetup cryptsetup-$ver 1
-    ./configure --prefix=/app/cryptsetup/$prefix$ver
-    make -j$cpu_num
-    create_app cryptsetup $prefix$ver
-    make install
-    set_current_app_clean_strip_cd cryptsetup $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libselinux" ]; then
   ver="3.11";
   if should_make libselinux $ver; then
@@ -1286,34 +1307,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libse
     cd $output/app/libselinux/$prefix$ver/lib
     ln -s libselinux.so.1 libselinux.so
     set_current_app_clean_strip_cd libselinux $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gptfdisk" ]; then
-  ver="1.0.10";
-  if should_make gptfdisk $ver; then
-    download_unpack_source https://sourceforge.net/projects/gptfdisk/files/gptfdisk/$ver/gptfdisk-$ver.tar.gz/download gptfdisk-$ver gptfdisk-$ver 1
-    make -j$cpu_num 
-    create_app gptfdisk $prefix$ver
-    for folderentry in bin man; do
-      mkdir $output/app/gptfdisk/$prefix$ver/$folderentry
-    done
-    for binentry in cgdisk gdisk sgdisk fixparts; do
-      cp $binentry $output/app/gptfdisk/$prefix$ver/bin
-    done
-    cp *.8 $output/app/gptfdisk/$prefix$ver/man
-    set_current_app_clean_strip_cd gptfdisk $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "nano" ]; then
-  ver="9.2";
-  if should_make nano $ver; then
-    download_unpack_source https://www.nano-editor.org/dist/v9/nano-$ver.tar.xz nano nano-$ver 1
-    ./configure --prefix=/app/nano/current
-    make -j$cpu_num
-    create_app nano $prefix$ver
-    set_current_app nano $prefix$ver 1
-    make install
-    set_current_app_clean_strip_cd nano $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "dmidecode" ]; then
@@ -1681,17 +1674,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libss
 #    echo "**Last**" >> /app/libssh/current/readme.md
 #    echo "$LATEST_FILE_UPDATE" >> /app/libssh/current/readme.md
     set_current_app_clean_strip_cd libssh $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dosfstools" ]; then
-  ver="4.2";
-  if should_make libssh $ver; then
-    download_unpack_source https://github.com/dosfstools/dosfstools/releases/download/v4.2/dosfstools-4.2.tar.gz dosfstools dosfstools-$ver 1
-    ./configure --prefix=$output/app/dosfstools/$prefix$ver
-    make all -j$cpu_num
-    create_app dosfstools $prefix$ver
-    make install
-    set_current_app_clean_strip_cd dosfstools $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "usbutils" ]; then
@@ -2565,6 +2547,22 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
   fi
 fi
 #--------------------------------- programming languages --------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "jdk" ]; then
+  # >1GB during installation
+  ver="25-ga";
+  rel="25-ga";
+  if should_make jdk $ver; then
+    install_host_deps "autopoint openjdk-25-jdk libasound2-dev libcups2-dev libfontconfig1-dev libx11-dev libxext-dev libxrender-dev libxrandr-dev libxtst-dev libxt-dev"
+    download_unpack_source https://github.com/openjdk/jdk/archive/refs/tags/jdk-$rel.tar.gz jdk jdk-jdk-$ver 1
+    chmod a+x configure
+    ./configure
+    make clean
+    make JOBS=$cpu_num images
+    create_app jdk $prefix$ver
+    rsync -a build/linux-x86_64-server-release/images/jdk/* $output/app/jdk/$prefix$ver
+    set_current_app_clean_strip_cd jdk $prefix$ver 0
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "chezscheme" ]; then
   ver="10.4.1";
   if should_make chezscheme $ver; then
