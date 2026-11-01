@@ -1,0 +1,9 @@
+#!/bin/sh
+/app/xlibre-xserver/current/bin/X :1 vt3 -logfile "/log/tmp/Xorg.log"
+_pid=$!
+sleep 10 && kill $_pid
+
+
+#/app/xlibre-xserver/current/bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb -logfile "/log/tmp/Xorg.log" &
+#sleep 2
+#/app/xcalc/current/bin/xcalc

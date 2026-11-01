@@ -1,3 +1,15 @@
-/app/xlibre-xserver/current/bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb -logfile "/log/tmp/Xorg.log" &
+#!/bin/sh
+/app/xinit/current/bin/startx -- -logfile /tmp/abc &
+_pid=$!
+sleep 20 && kill $_pid &
+
+#needs name X
+#/app/seatd/current/bin/seatd &
+#/app/xlibre-xserver/current/bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb -logfile "/log/Xorg.log"
+#/app/xlibre-xserver/current/bin/startx -logfile "/log/Xorg.log" &
+#/app/xlibre-xserver/current/bin/X -logfile "/log/Xorg.log" $@ &
+
+#/app/xlibre-xserver/current/bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb -logfile "/log/tmp/Xorg.log"
+#/app/xlibre-xserver/current/bin/X -logfile "/log/tmp/Xorg.log"
 #sleep 2
-/app/xcalc/current/bin/xcalc
+#exec /app/xcalc/current/bin/xcalc

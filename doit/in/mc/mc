@@ -16,7 +16,7 @@ if [ ! -d "/iso" ]; then
 fi
 for DEV in $(ls /dev); do
   case $DEV in
-  nvme*|fb0|log|mapper|dri|tty*)
+  nvme*|fb0|log|mapper|dri|tty*|input)
     APP="$APP --dev-bind-try /dev/$DEV /dev/$DEV"
   esac
 done
