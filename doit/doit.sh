@@ -2927,7 +2927,7 @@ fi
 #    set_current_app_clean_strip_cd grub-dejavu-fonts $prefix$ver 0
 #  fi
 #fi
-#----------------------------------------- Wayland stuff -------------------------
+#----------------------------------------- Wayland stuff - Hyprland -------------------------
 if [ "$package" == "fs" ] || [ "$package" == "hyprcursor" ]; then
 #libcairo-dev libzip-dev libtomlplusplus-dev librsvg2-dev
   ver="0.1.13";
@@ -2969,6 +2969,40 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprutils" ]; then
     set_current_app_clean_strip_cd hyprutils $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprwire" ]; then
+#  ver="0.3.1";
+#cannot be compiled ?https://github.com/hyprwm/hyprwire/issues/20
+#append_range with insert like in Debian?
+# todo: add files from in : https://en.cppreference.com/cpp/container/vector/append_range
+#some ideas from https://github.com/ironexperiment/Hyprland-on-debian-trixie/blob/main/patches/hyprwire-append_range-gcc14-compat.patch
+  ver="0.3.0";
+  if should_make hyprwire $ver; then
+    download_unpack_source https://github.com/hyprwm/hyprwire/archive/refs/tags/v$ver.tar.gz hyprwire hyprwire-$ver 1
+    cmake   -B build      -D CMAKE_PREFIX_PATH="/app/hyprutils/current" -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprwire/current -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+#fixme - change sed -r with sed -i
+    find * \
+        -name '*.cpp' \
+        -type f -exec bash -c 'echo "{}" && cat "{}" | sed -r "s/(.*).append_range\((.*)\)(.*)/{auto\&\& _r = \2; \1\.insert(\1\.end\(\), _r\.begin\(\), _r\.end\(\)); }/" > "{}.2" && rm {} && mv {}.2 {} ' \;
+    cmake --build build  -j$cpu_num
+    create_app_in_tmp_and_link_it hyprwire $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd hyprwire $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprlang" ]; then
+  ver="0.6.8";
+  if should_make hyprlang $ver; then
+    download_unpack_source https://github.com/hyprwm/hyprlang/archive/refs/tags/v0.6.8.tar.gz hyprlang hyprlang-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprlang/current \
+      -D CMAKE_PREFIX_PATH="/app/hyprutils/current" \
+      -S . -B ./build
+    create_app_in_tmp_and_link_it hyprlang $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it hyprlang $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd hyprlang $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "aquamarine" ]; then
   #libseat-dev libinput-dev libdisplay-info-dev hwdata libpixman-1-dev
   ver="0.15.1";
@@ -2984,6 +3018,22 @@ if [ "$package" == "fs" ] || [ "$package" == "aquamarine" ]; then
     set_current_app_clean_strip_cd aquamarine $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprgraphics" ]; then
+  ver="0.5.1";
+#libmagic-dev
+  if should_make hyprgraphics $ver; then
+    download_unpack_source https://github.com/hyprwm/hyprgraphics/archive/refs/tags/v0.5.1.tar.gz hyprgraphics hyprgraphics-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprgraphics/current \
+      -S . -B ./build \
+      -D CMAKE_PREFIX_PATH="/app/hyprutils/current"
+    create_app_in_tmp_and_link_it hyprgraphics $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it hyprgraphics $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd hyprgraphics $prefix$ver 1
+  fi
+fi
+# ----------------------------------- other Wayland libs ----------------------------
 if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
 #libtirpc-dev
   ver="24.1.14";
@@ -3025,128 +3075,6 @@ if [ "$package" == "fs" ] || [ "$package" == "wlroots" ]; then
 #    create_app_in_tmp_and_link_it wlroots $prefix$ver
 #    ninja -C build install
 #    set_current_app_clean_strip_cd wlroots $prefix$ver 1
-  fi
-fi
-#wayland composers
-#libgdk-pixbuf-2.0
-if [ "$package" == "fs" ] || [ "$package" == "woodland" ]; then
-#libstb-dev
-#libwlroots-0.18-dev
-  ver="2.1.1";
-  if should_make woodland $ver; then
-    download_unpack_source https://github.com/DiogenesN/woodland/archive/refs/tags/v2.1.1.tar.gz woodland woodland-$ver 1
-    chmod +x ./configure
-    PREFIX=/app/woodland/current ./configure
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it woodland $prefix$ver
-    make install PREFIX=/app/woodland/current
-    set_current_app_clean_strip_cd woodland $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fwm" ]; then
-  ver="0.6.0";
-  if should_make fwm $ver; then
-#libavcodec-dev libavformat-dev libavutil-dev libswresample-dev
-#libswscale-dev
-#libbox2d-dev
-    download_unpack_source https://github.com/iluaii/fwm/archive/refs/tags/v0.6.0.tar.gz  fwm fwm-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/fwm/current \
-        -D CMAKE_PREFIX_PATH="/app/xwayland/current:/app/wlroots/current"      -S . -B ./build 
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it fwm $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd fwm $prefix$ver 1
-  fi
-fi
-#libpangocairo
-if [ "$package" == "fs" ] || [ "$package" == "labwc" ]; then
-  ver="0.20.2";
-  if should_make labwc $ver; then
-    download_unpack_source https://github.com/labwc/labwc/archive/refs/tags/0.20.2.tar.gz labwc labwc-$ver 1
-    PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig \
-        meson setup -Dprefix=/app/labwc/current --buildtype release \
-            -Dlibdir=lib -Dsvg=disabled build
-    ninja -C build
-    create_app_in_tmp_and_link_it labwc $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd labwc $prefix$ver 1
-  fi
-fi
-#crash + libxml2 no version available
-if [ "$package" == "fs" ] || [ "$package" == "wayfire" ]; then
-#libglm-dev
-#libyyjson-dev
-#doctest
-  ver="0.11.0";
-  if should_make wayfire $ver; then
-    download_unpack_source https://github.com/WayfireWM/wayfire/archive/refs/tags/v0.11.0.tar.gz wayfire wayfire-$ver 1
-    cd subprojects
-    for DIRNAME in wf-config wf-json wf-touch wf-utils wlroots wlroots-vkfx; do
-        if [ ! -f "$DIRNAME/meson.build" ]; then      rm -r $DIRNAME; fi
-    done
-    git clone https://github.com/WayfireWM/wf-config.git
-    git clone https://github.com/WayfireWM/wf-json.git
-    git clone https://github.com/WayfireWM/wf-touch.git
-    git clone https://github.com/WayfireWM/wf-utils.git
-#    git clone https://gitlab.freedesktop.org/wlroots/wlroots.git
-#    git clone https://gitlab.freedesktop.org/ammen99/wlroots
-    cd ..
-    PKG_CONFIG_PATH=/app/libxml2/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig:/app/wayland-protocols/current/share/pkgconfig \
-        meson setup -Dprefix=/app/wayfire/current --buildtype release -Dtests=disabled -Dxwayland=disabled -Dvulkan_effects=false \
-       -Dlibdir=lib -Duse_system_wfconfig=disabled build
-#-Duse_system_wlroots=enabled build
-    ninja -C build
-    create_app_in_tmp_and_link_it wayfire $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd wayfire $prefix$ver 1
-  fi
-fi
-#compilation problem
-if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
-#work in progress
-#  ver="0.56.2";
-  ver="0.55.0";
-  if should_make hyprland $ver; then
-#udis86*
-#glslang-dev
-#libeis*
-#mupraser*
-#libre2*
-#lcms2*
-#libxcb-errors*
-#libxcb-icccm4-dev
-    download_unpack_source https://github.com/hyprwm/Hyprland/archive/refs/tags/v$ver.tar.gz hyprland Hyprland-$ver 1
-    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
-      -D CMAKE_PREFIX_PATH="/app/lua/current;/app/libxcb/current;/app/hyprwayland-scanner/current;/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current;/app/libinput/current;/app/hyprwire/current"
-
-sed -i "s/\+ filename/\+ std::string\(filename\)/" hyprctl/src/main.cpp
-
-
-    PATH=$PATH:/app/hyprwire/current/bin:/app/hyprwayland-scanner/current/bin  &&   cmake --build build  --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it hyprland $prefix$ver
-#    make install PREFIX=/app/bzip2/$prefix$ver
-#    set_current_app_clean_strip_cd hyprland $prefix$ver 1
-  fi
-fi
-#end of wayland
-if [ "$package" == "fs" ] || [ "$package" == "hyprwire" ]; then
-#  ver="0.3.1";
-#cannot be compiled ?https://github.com/hyprwm/hyprwire/issues/20
-#append_range with insert like in Debian?
-# todo: add files from in : https://en.cppreference.com/cpp/container/vector/append_range
-#some ideas from https://github.com/ironexperiment/Hyprland-on-debian-trixie/blob/main/patches/hyprwire-append_range-gcc14-compat.patch
-  ver="0.3.0";
-  if should_make hyprwire $ver; then
-    download_unpack_source https://github.com/hyprwm/hyprwire/archive/refs/tags/v$ver.tar.gz hyprwire hyprwire-$ver 1
-    cmake   -B build      -D CMAKE_PREFIX_PATH="/app/hyprutils/current" -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprwire/current -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
-#fixme - change sed -r with sed -i
-    find * \
-        -name '*.cpp' \
-        -type f -exec bash -c 'echo "{}" && cat "{}" | sed -r "s/(.*).append_range\((.*)\)(.*)/{auto\&\& _r = \2; \1\.insert(\1\.end\(\), _r\.begin\(\), _r\.end\(\)); }/" > "{}.2" && rm {} && mv {}.2 {} ' \;
-    cmake --build build  -j$cpu_num
-    create_app_in_tmp_and_link_it hyprwire $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd hyprwire $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "gdk-pixbuf" ]; then
@@ -3197,20 +3125,6 @@ if [ "$package" == "fs" ] || [ "$package" == "graphviz" ]; then
     create_app_in_tmp_and_link_it graphviz $prefix$ver
     make install
     set_current_app_clean_strip_cd graphviz $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "hyprlang" ]; then
-  ver="0.6.8";
-  if should_make hyprlang $ver; then
-    download_unpack_source https://github.com/hyprwm/hyprlang/archive/refs/tags/v0.6.8.tar.gz hyprlang hyprlang-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprlang/current \
-      -D CMAKE_PREFIX_PATH="/app/hyprutils/current" \
-      -S . -B ./build
-    create_app_in_tmp_and_link_it hyprlang $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it hyprlang $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd hyprlang $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "cairo" ]; then
@@ -3338,21 +3252,6 @@ if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
     set_current_app_clean_strip_cd wayland $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "hyprgraphics" ]; then
-  ver="0.5.1";
-#libmagic-dev
-  if should_make hyprgraphics $ver; then
-    download_unpack_source https://github.com/hyprwm/hyprgraphics/archive/refs/tags/v0.5.1.tar.gz hyprgraphics hyprgraphics-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprgraphics/current \
-      -S . -B ./build \
-      -D CMAKE_PREFIX_PATH="/app/hyprutils/current"
-    create_app_in_tmp_and_link_it hyprgraphics $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it hyprgraphics $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd hyprgraphics $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fribidi" ]; then
 #help2man
   ver="1.0.18";
@@ -3435,6 +3334,106 @@ if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
     create_app_in_tmp_and_link_it libliftoff $prefix$ver
     ninja -C builddir install
     set_current_app_clean_strip_cd libliftoff $prefix$ver 1
+  fi
+fi
+# ------------------------------------ Wayland composers - main apps -------------------------
+#libgdk-pixbuf-2.0
+if [ "$package" == "fs" ] || [ "$package" == "woodland" ]; then
+#libstb-dev
+#libwlroots-0.18-dev
+  ver="2.1.1";
+  if should_make woodland $ver; then
+    download_unpack_source https://github.com/DiogenesN/woodland/archive/refs/tags/v2.1.1.tar.gz woodland woodland-$ver 1
+    chmod +x ./configure
+    PREFIX=/app/woodland/current ./configure
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it woodland $prefix$ver
+    make install PREFIX=/app/woodland/current
+    set_current_app_clean_strip_cd woodland $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fwm" ]; then
+  ver="0.6.0";
+  if should_make fwm $ver; then
+#libavcodec-dev libavformat-dev libavutil-dev libswresample-dev
+#libswscale-dev
+#libbox2d-dev
+    download_unpack_source https://github.com/iluaii/fwm/archive/refs/tags/v0.6.0.tar.gz  fwm fwm-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/fwm/current \
+        -D CMAKE_PREFIX_PATH="/app/xwayland/current:/app/wlroots/current"      -S . -B ./build 
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it fwm $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd fwm $prefix$ver 1
+  fi
+fi
+#libpangocairo
+if [ "$package" == "fs" ] || [ "$package" == "labwc" ]; then
+  ver="0.20.2";
+  if should_make labwc $ver; then
+    download_unpack_source https://github.com/labwc/labwc/archive/refs/tags/0.20.2.tar.gz labwc labwc-$ver 1
+    PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig \
+        meson setup -Dprefix=/app/labwc/current --buildtype release \
+            -Dlibdir=lib -Dsvg=disabled build
+    ninja -C build
+    create_app_in_tmp_and_link_it labwc $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd labwc $prefix$ver 1
+  fi
+fi
+#crash + libxml2 no version available
+if [ "$package" == "fs" ] || [ "$package" == "wayfire" ]; then
+#libglm-dev
+#libyyjson-dev
+#doctest
+  ver="0.11.0";
+  if should_make wayfire $ver; then
+    download_unpack_source https://github.com/WayfireWM/wayfire/archive/refs/tags/v0.11.0.tar.gz wayfire wayfire-$ver 1
+    cd subprojects
+    for DIRNAME in wf-config wf-json wf-touch wf-utils wlroots wlroots-vkfx; do
+        if [ ! -f "$DIRNAME/meson.build" ]; then      rm -r $DIRNAME; fi
+    done
+    git clone https://github.com/WayfireWM/wf-config.git
+    git clone https://github.com/WayfireWM/wf-json.git
+    git clone https://github.com/WayfireWM/wf-touch.git
+    git clone https://github.com/WayfireWM/wf-utils.git
+#    git clone https://gitlab.freedesktop.org/wlroots/wlroots.git
+#    git clone https://gitlab.freedesktop.org/ammen99/wlroots
+    cd ..
+    PKG_CONFIG_PATH=/app/libxml2/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig:/app/wayland-protocols/current/share/pkgconfig \
+        meson setup -Dprefix=/app/wayfire/current --buildtype release -Dtests=disabled -Dxwayland=disabled -Dvulkan_effects=false \
+       -Dlibdir=lib -Duse_system_wfconfig=disabled build
+#-Duse_system_wlroots=enabled build
+    ninja -C build
+    create_app_in_tmp_and_link_it wayfire $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd wayfire $prefix$ver 1
+  fi
+fi
+#compilation problem
+if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
+#work in progress
+#  ver="0.56.2";
+  ver="0.55.0";
+  if should_make hyprland $ver; then
+#udis86*
+#glslang-dev
+#libeis*
+#mupraser*
+#libre2*
+#lcms2*
+#libxcb-errors*
+#libxcb-icccm4-dev
+    download_unpack_source https://github.com/hyprwm/Hyprland/archive/refs/tags/v$ver.tar.gz hyprland Hyprland-$ver 1
+    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
+      -D CMAKE_PREFIX_PATH="/app/lua/current;/app/libxcb/current;/app/hyprwayland-scanner/current;/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current;/app/libinput/current;/app/hyprwire/current"
+
+    sed -i "s/\+ filename/\+ std::string\(filename\)/" hyprctl/src/main.cpp
+
+    PATH=$PATH:/app/hyprwire/current/bin:/app/hyprwayland-scanner/current/bin  &&   cmake --build build  --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it hyprland $prefix$ver
+#    make install PREFIX=/app/bzip2/$prefix$ver
+#    set_current_app_clean_strip_cd hyprland $prefix$ver 1
   fi
 fi
 # ------------------------------------------ PGP ---------------------------------
