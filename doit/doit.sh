@@ -1125,171 +1125,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
     set_current_app_clean_strip_cd libliftoff $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
-#libtirpc-dev
-  ver="24.1.14";
-  if should_make xwayland $ver; then
-    download_unpack_source https://www.x.org/pub/individual/xserver/xwayland-24.1.14.tar.xz xwayland xwayland-$ver 1
-    meson setup -Dprefix=/app/xwayland/current -Dlibdir=lib builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it xwayland $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd xwayland $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "wlroots" ]; then
-  if should_make wlroots $ver; then
-
-#        --force-fallback-for=wayland-server \
-#       --force-fallback-for=wayland-protocols \
-#    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
-  ver="0.20.2";
-#  ver="0.19.3";
-#-Dxwayland=disabled -Dbackends=drm,libinput \
-    download_unpack_source https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$ver/downloads/wlroots-$ver.tar.gz wlroots wlroots-$ver 1
-    PKG_CONFIG_PATH=/app/xwayland/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
-        meson setup -Dprefix=/app/wlroots/current --buildtype release  \
-       --force-fallback-for=wayland-protocols \
-        --wrap-mode=default \
-       -Dlibdir=lib build
-    ninja -C build
-    create_app_in_tmp_and_link_it wlroots $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd wlroots $prefix$ver 1
-#  ver="0.18.2";
-#    download_unpack_source https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$ver/downloads/wlroots-$ver.tar.gz wlroots wlroots-$ver 1
-#    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
-#        meson setup -Dprefix=/app/wlroots/current --buildtype release  \
-#        --wrap-mode=default \
-#       -Dlibdir=lib build
-#    ninja -C build
-#    create_app_in_tmp_and_link_it wlroots $prefix$ver
-#    ninja -C build install
-#    set_current_app_clean_strip_cd wlroots $prefix$ver 1
-  fi
-fi
-#wayland composers
-#libgdk-pixbuf-2.0
-if [ "$package" == "fs" ] || [ "$package" == "woodland" ]; then
-#libstb-dev
-#libwlroots-0.18-dev
-  ver="2.1.1";
-  if should_make woodland $ver; then
-    download_unpack_source https://github.com/DiogenesN/woodland/archive/refs/tags/v2.1.1.tar.gz woodland woodland-$ver 1
-    chmod +x ./configure
-    PREFIX=/app/woodland/current ./configure
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it woodland $prefix$ver
-    make install PREFIX=/app/woodland/current
-    set_current_app_clean_strip_cd woodland $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fwm" ]; then
-  ver="0.6.0";
-  if should_make fwm $ver; then
-#libavcodec-dev libavformat-dev libavutil-dev libswresample-dev
-#libswscale-dev
-#libbox2d-dev
-    download_unpack_source https://github.com/iluaii/fwm/archive/refs/tags/v0.6.0.tar.gz  fwm fwm-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/fwm/current \
-        -D CMAKE_PREFIX_PATH="/app/xwayland/current:/app/wlroots/current"      -S . -B ./build 
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it fwm $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd fwm $prefix$ver 1
-  fi
-fi
-#libpangocairo
-if [ "$package" == "fs" ] || [ "$package" == "labwc" ]; then
-  ver="0.20.2";
-  if should_make labwc $ver; then
-    download_unpack_source https://github.com/labwc/labwc/archive/refs/tags/0.20.2.tar.gz labwc labwc-$ver 1
-    PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig \
-        meson setup -Dprefix=/app/labwc/current --buildtype release \
-            -Dlibdir=lib -Dsvg=disabled build
-    ninja -C build
-    create_app_in_tmp_and_link_it labwc $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd labwc $prefix$ver 1
-  fi
-fi
-#crash + libxml2 no version available
-if [ "$package" == "fs" ] || [ "$package" == "wayfire" ]; then
-#libglm-dev
-#libyyjson-dev
-#doctest
-  ver="0.11.0";
-  if should_make wayfire $ver; then
-    download_unpack_source https://github.com/WayfireWM/wayfire/archive/refs/tags/v0.11.0.tar.gz wayfire wayfire-$ver 1
-    cd subprojects
-    for DIRNAME in wf-config wf-json wf-touch wf-utils wlroots wlroots-vkfx; do
-        if [ ! -f "$DIRNAME/meson.build" ]; then      rm -r $DIRNAME; fi
-    done
-    git clone https://github.com/WayfireWM/wf-config.git
-    git clone https://github.com/WayfireWM/wf-json.git
-    git clone https://github.com/WayfireWM/wf-touch.git
-    git clone https://github.com/WayfireWM/wf-utils.git
-#    git clone https://gitlab.freedesktop.org/wlroots/wlroots.git
-#    git clone https://gitlab.freedesktop.org/ammen99/wlroots
-    cd ..
-    PKG_CONFIG_PATH=/app/libxml2/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig:/app/wayland-protocols/current/share/pkgconfig \
-        meson setup -Dprefix=/app/wayfire/current --buildtype release -Dtests=disabled -Dxwayland=disabled -Dvulkan_effects=false \
-       -Dlibdir=lib -Duse_system_wfconfig=disabled build
-#-Duse_system_wlroots=enabled build
-    ninja -C build
-    create_app_in_tmp_and_link_it wayfire $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd wayfire $prefix$ver 1
-  fi
-fi
-#compilation problem
-if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
-#work in progress
-#  ver="0.56.2";
-  ver="0.55.0";
-  if should_make hyprland $ver; then
-#udis86*
-#glslang-dev
-#libeis*
-#mupraser*
-#libre2*
-#lcms2*
-#libxcb-errors*
-#libxcb-icccm4-dev
-    download_unpack_source https://github.com/hyprwm/Hyprland/archive/refs/tags/v$ver.tar.gz hyprland Hyprland-$ver 1
-    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
-      -D CMAKE_PREFIX_PATH="/app/lua/current;/app/libxcb/current;/app/hyprwayland-scanner/current;/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current;/app/libinput/current;/app/hyprwire/current"
-
-sed -i "s/\+ filename/\+ std::string\(filename\)/" hyprctl/src/main.cpp
-
-
-    PATH=$PATH:/app/hyprwire/current/bin:/app/hyprwayland-scanner/current/bin  &&   cmake --build build  --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it hyprland $prefix$ver
-#    make install PREFIX=/app/bzip2/$prefix$ver
-#    set_current_app_clean_strip_cd hyprland $prefix$ver 1
-  fi
-fi
-#end of wayland
-if [ "$package" == "fs" ] || [ "$package" == "hyprwire" ]; then
-#  ver="0.3.1";
-#cannot be compiled ?https://github.com/hyprwm/hyprwire/issues/20
-#append_range with insert like in Debian?
-# todo: add files from in : https://en.cppreference.com/cpp/container/vector/append_range
-#some ideas from https://github.com/ironexperiment/Hyprland-on-debian-trixie/blob/main/patches/hyprwire-append_range-gcc14-compat.patch
-  ver="0.3.0";
-  if should_make hyprwire $ver; then
-    download_unpack_source https://github.com/hyprwm/hyprwire/archive/refs/tags/v$ver.tar.gz hyprwire hyprwire-$ver 1
-    cmake   -B build      -D CMAKE_PREFIX_PATH="/app/hyprutils/current" -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprwire/current -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
-#fixme - change sed -r with sed -i
-    find * \
-        -name '*.cpp' \
-        -type f -exec bash -c 'echo "{}" && cat "{}" | sed -r "s/(.*).append_range\((.*)\)(.*)/{auto\&\& _r = \2; \1\.insert(\1\.end\(\), _r\.begin\(\), _r\.end\(\)); }/" > "{}.2" && rm {} && mv {}.2 {} ' \;
-    cmake --build build  -j$cpu_num
-    create_app_in_tmp_and_link_it hyprwire $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd hyprwire $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "cairo" ]; then
   ver="1.18.6";
   if should_make cairo $ver; then
@@ -2039,56 +1874,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
     set_current_app_clean_strip_cd libinput $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "gdk-pixbuf" ]; then
-  ver="2.44.8";
-  if should_make gdk-pixbuf $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/archive/2.44.8/gdk-pixbuf-2.44.8.tar.bz2 gdk-pixbuf gdk-pixbuf-$ver 1
-    PKG_CONFIG_PATH=/app/glycin/current/lib/pkgconfig    meson setup -Dprefix=/app/gdk-pixbuf/current -Dlibdir=lib builddir
-#    ninja -C builddir
-#    create_app_in_tmp_and_link_it libinput $prefix$ver
-#    ninja -C builddir install
-#    set_current_app_clean_strip_cd libinput $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "glycin" ]; then
-#libheif-dev
-#libjxl-dev
-  ver="2.2.5";
-#  ver="2.2.0";
-  if should_make glycin $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/glycin/-/archive/$ver/glycin-$ver.tar.bz2 glycin glycin-$ver 1
-    PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig      meson setup -Dprefix=/app/glycin/current -Dlibdir=lib \
-       -Dbuildtype=release -Dlibglycin-gtk4=false -Dtests=false \
-       builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it glycin $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd glycin $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "gobject-introspection" ]; then
-#rnc2rng*
-  ver="1.86.0";
-  if should_make gobject-introspection $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/gobject-introspection/-/archive/1.86.0/gobject-introspection-1.86.0.tar.bz2 gobject-introspection gobject-introspection-$ver 1
-    meson setup -Dprefix=/app/gobject-introspection/current -Dlibdir=lib -Dtests=false builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it gobject-introspection $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd gobject-introspection $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "graphviz" ]; then
-  ver="16.1.0";
-  if should_make graphviz $ver; then
-    download_unpack_source https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/16.1.0/graphviz-16.1.0.tar.xz graphviz graphviz-$ver 1
-        ./configure --prefix=/app/graphviz/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it graphviz $prefix$ver
-    make install
-    set_current_app_clean_strip_cd graphviz $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "vala" ]; then
 #vala
   ver="0.56.19";
@@ -2584,62 +2369,6 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprlang" ]; then
     set_current_app_clean_strip_cd hyprlang $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "hyprcursor" ]; then
-#libcairo-dev libzip-dev libtomlplusplus-dev librsvg2-dev
-  ver="0.1.13";
-  if should_make hyprcursor $ver; then
-    download_unpack_source https://github.com/hyprwm/hyprcursor/archive/refs/tags/v0.1.13.tar.gz hyprcursor hyprcursor-$ver 1
-    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprcursor/current \
-      -DBUILD_TESTS=OFF \
-      -D CMAKE_PREFIX_PATH="/app/hyprlang/current;/app/hyprutils/current" \
-      -S . -B ./build -G Ninja
-    cd build
-    ln -s /app/hyprutils/current/lib/libhyprutils.so.13 .
-    cd ..
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it hyprcursor $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd hyprcursor $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "hyprwayland-scanner" ]; then
-  ver="0.4.6";
-  if should_make hyprwayland-scanner $ver; then
-    #libpugixml-dev
-    download_unpack_source https://github.com/hyprwm/hyprwayland-scanner/archive/refs/tags/v$ver.tar.gz hyprwayland hyprwayland-scanner-$ver 1
-    cmake -DCMAKE_INSTALL_PREFIX=/app/hyprwayland-scanner/current -B build
-    cmake --build build -j $cpu_num
-    create_app_in_tmp_and_link_it hyprwayland-scanner $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd hyprwayland-scanner $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "hyprutils" ]; then
-  ver="0.14.2";
-  if should_make hyprutils $ver; then
-    download_unpack_source https://github.com/hyprwm/hyprutils/archive/refs/tags/v$ver.tar.gz hyprutils hyprutils-$ver 1
-    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprutils/current -S . -B ./build
-    cmake --build ./build --config Release --target all -j $cpu_num
-    create_app_in_tmp_and_link_it hyprutils $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd hyprutils $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "aquamarine" ]; then
-  #libseat-dev libinput-dev libdisplay-info-dev hwdata libpixman-1-dev
-  ver="0.15.1";
-  if should_make aquamarine $ver; then
-    download_unpack_source https://github.com/hyprwm/aquamarine/archive/refs/tags/v0.15.1.tar.gz aquamarine aquamarine-$ver 1
-    PATH=$PATH:/app/hyprwayland-scanner/current/bin && cmake --no-warn-unused-cli \
-      -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/aquamarine/current \
-      -D CMAKE_PREFIX_PATH="/app/hyprutils/current;/app/hyprwayland-scanner/current" \
-      -S . -B ./build
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it aquamarine $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd aquamarine $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "mediainfo" ]; then
 #in progress
   ver="26.10";
@@ -2670,7 +2399,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub"
     set_current_app_clean_strip_cd grub $prefix$ver 1 #ignors lib in stripping
   fi
 fi
-
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efivar" ]; then
   ver="39";
   if should_make efivar $ver; then
@@ -3501,3 +3229,274 @@ fi
 #    set_current_app_clean_strip_cd grub-dejavu-fonts $prefix$ver 0
 #  fi
 #fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprcursor" ]; then
+#libcairo-dev libzip-dev libtomlplusplus-dev librsvg2-dev
+  ver="0.1.13";
+  if should_make hyprcursor $ver; then
+    download_unpack_source https://github.com/hyprwm/hyprcursor/archive/refs/tags/v0.1.13.tar.gz hyprcursor hyprcursor-$ver 1
+    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprcursor/current \
+      -DBUILD_TESTS=OFF \
+      -D CMAKE_PREFIX_PATH="/app/hyprlang/current;/app/hyprutils/current" \
+      -S . -B ./build -G Ninja
+    cd build
+    ln -s /app/hyprutils/current/lib/libhyprutils.so.13 .
+    cd ..
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it hyprcursor $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd hyprcursor $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprwayland-scanner" ]; then
+  ver="0.4.6";
+  if should_make hyprwayland-scanner $ver; then
+    #libpugixml-dev
+    download_unpack_source https://github.com/hyprwm/hyprwayland-scanner/archive/refs/tags/v$ver.tar.gz hyprwayland hyprwayland-scanner-$ver 1
+    cmake -DCMAKE_INSTALL_PREFIX=/app/hyprwayland-scanner/current -B build
+    cmake --build build -j $cpu_num
+    create_app_in_tmp_and_link_it hyprwayland-scanner $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd hyprwayland-scanner $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprutils" ]; then
+  ver="0.14.2";
+  if should_make hyprutils $ver; then
+    download_unpack_source https://github.com/hyprwm/hyprutils/archive/refs/tags/v$ver.tar.gz hyprutils hyprutils-$ver 1
+    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprutils/current -S . -B ./build
+    cmake --build ./build --config Release --target all -j $cpu_num
+    create_app_in_tmp_and_link_it hyprutils $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd hyprutils $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "aquamarine" ]; then
+  #libseat-dev libinput-dev libdisplay-info-dev hwdata libpixman-1-dev
+  ver="0.15.1";
+  if should_make aquamarine $ver; then
+    download_unpack_source https://github.com/hyprwm/aquamarine/archive/refs/tags/v0.15.1.tar.gz aquamarine aquamarine-$ver 1
+    PATH=$PATH:/app/hyprwayland-scanner/current/bin && cmake --no-warn-unused-cli \
+      -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/aquamarine/current \
+      -D CMAKE_PREFIX_PATH="/app/hyprutils/current;/app/hyprwayland-scanner/current" \
+      -S . -B ./build
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it aquamarine $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd aquamarine $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
+#libtirpc-dev
+  ver="24.1.14";
+  if should_make xwayland $ver; then
+    download_unpack_source https://www.x.org/pub/individual/xserver/xwayland-24.1.14.tar.xz xwayland xwayland-$ver 1
+    meson setup -Dprefix=/app/xwayland/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it xwayland $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd xwayland $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "wlroots" ]; then
+  if should_make wlroots $ver; then
+
+#        --force-fallback-for=wayland-server \
+#       --force-fallback-for=wayland-protocols \
+#    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
+  ver="0.20.2";
+#  ver="0.19.3";
+#-Dxwayland=disabled -Dbackends=drm,libinput \
+    download_unpack_source https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$ver/downloads/wlroots-$ver.tar.gz wlroots wlroots-$ver 1
+    PKG_CONFIG_PATH=/app/xwayland/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
+        meson setup -Dprefix=/app/wlroots/current --buildtype release  \
+       --force-fallback-for=wayland-protocols \
+        --wrap-mode=default \
+       -Dlibdir=lib build
+    ninja -C build
+    create_app_in_tmp_and_link_it wlroots $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd wlroots $prefix$ver 1
+#  ver="0.18.2";
+#    download_unpack_source https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$ver/downloads/wlroots-$ver.tar.gz wlroots wlroots-$ver 1
+#    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
+#        meson setup -Dprefix=/app/wlroots/current --buildtype release  \
+#        --wrap-mode=default \
+#       -Dlibdir=lib build
+#    ninja -C build
+#    create_app_in_tmp_and_link_it wlroots $prefix$ver
+#    ninja -C build install
+#    set_current_app_clean_strip_cd wlroots $prefix$ver 1
+  fi
+fi
+#wayland composers
+#libgdk-pixbuf-2.0
+if [ "$package" == "fs" ] || [ "$package" == "woodland" ]; then
+#libstb-dev
+#libwlroots-0.18-dev
+  ver="2.1.1";
+  if should_make woodland $ver; then
+    download_unpack_source https://github.com/DiogenesN/woodland/archive/refs/tags/v2.1.1.tar.gz woodland woodland-$ver 1
+    chmod +x ./configure
+    PREFIX=/app/woodland/current ./configure
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it woodland $prefix$ver
+    make install PREFIX=/app/woodland/current
+    set_current_app_clean_strip_cd woodland $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fwm" ]; then
+  ver="0.6.0";
+  if should_make fwm $ver; then
+#libavcodec-dev libavformat-dev libavutil-dev libswresample-dev
+#libswscale-dev
+#libbox2d-dev
+    download_unpack_source https://github.com/iluaii/fwm/archive/refs/tags/v0.6.0.tar.gz  fwm fwm-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/fwm/current \
+        -D CMAKE_PREFIX_PATH="/app/xwayland/current:/app/wlroots/current"      -S . -B ./build 
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it fwm $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd fwm $prefix$ver 1
+  fi
+fi
+#libpangocairo
+if [ "$package" == "fs" ] || [ "$package" == "labwc" ]; then
+  ver="0.20.2";
+  if should_make labwc $ver; then
+    download_unpack_source https://github.com/labwc/labwc/archive/refs/tags/0.20.2.tar.gz labwc labwc-$ver 1
+    PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig \
+        meson setup -Dprefix=/app/labwc/current --buildtype release \
+            -Dlibdir=lib -Dsvg=disabled build
+    ninja -C build
+    create_app_in_tmp_and_link_it labwc $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd labwc $prefix$ver 1
+  fi
+fi
+#crash + libxml2 no version available
+if [ "$package" == "fs" ] || [ "$package" == "wayfire" ]; then
+#libglm-dev
+#libyyjson-dev
+#doctest
+  ver="0.11.0";
+  if should_make wayfire $ver; then
+    download_unpack_source https://github.com/WayfireWM/wayfire/archive/refs/tags/v0.11.0.tar.gz wayfire wayfire-$ver 1
+    cd subprojects
+    for DIRNAME in wf-config wf-json wf-touch wf-utils wlroots wlroots-vkfx; do
+        if [ ! -f "$DIRNAME/meson.build" ]; then      rm -r $DIRNAME; fi
+    done
+    git clone https://github.com/WayfireWM/wf-config.git
+    git clone https://github.com/WayfireWM/wf-json.git
+    git clone https://github.com/WayfireWM/wf-touch.git
+    git clone https://github.com/WayfireWM/wf-utils.git
+#    git clone https://gitlab.freedesktop.org/wlroots/wlroots.git
+#    git clone https://gitlab.freedesktop.org/ammen99/wlroots
+    cd ..
+    PKG_CONFIG_PATH=/app/libxml2/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig:/app/wayland-protocols/current/share/pkgconfig \
+        meson setup -Dprefix=/app/wayfire/current --buildtype release -Dtests=disabled -Dxwayland=disabled -Dvulkan_effects=false \
+       -Dlibdir=lib -Duse_system_wfconfig=disabled build
+#-Duse_system_wlroots=enabled build
+    ninja -C build
+    create_app_in_tmp_and_link_it wayfire $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd wayfire $prefix$ver 1
+  fi
+fi
+#compilation problem
+if [ "$package" == "fs" ] || [ "$package" == "hyprland" ]; then
+#work in progress
+#  ver="0.56.2";
+  ver="0.55.0";
+  if should_make hyprland $ver; then
+#udis86*
+#glslang-dev
+#libeis*
+#mupraser*
+#libre2*
+#lcms2*
+#libxcb-errors*
+#libxcb-icccm4-dev
+    download_unpack_source https://github.com/hyprwm/Hyprland/archive/refs/tags/v$ver.tar.gz hyprland Hyprland-$ver 1
+    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DNO_SYSTEMD:STRING=true  -B build \
+      -D CMAKE_PREFIX_PATH="/app/lua/current;/app/libxcb/current;/app/hyprwayland-scanner/current;/app/aquamarine/current;/app/hyprlang/current;/app/hyprcursor/current;/app/hyprutils/current;/app/hyprgraphics/current;/app/xkbcommon/current;/app/wayland-protocols/current;/app/libinput/current;/app/hyprwire/current"
+
+sed -i "s/\+ filename/\+ std::string\(filename\)/" hyprctl/src/main.cpp
+
+
+    PATH=$PATH:/app/hyprwire/current/bin:/app/hyprwayland-scanner/current/bin  &&   cmake --build build  --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it hyprland $prefix$ver
+#    make install PREFIX=/app/bzip2/$prefix$ver
+#    set_current_app_clean_strip_cd hyprland $prefix$ver 1
+  fi
+fi
+#end of wayland
+if [ "$package" == "fs" ] || [ "$package" == "hyprwire" ]; then
+#  ver="0.3.1";
+#cannot be compiled ?https://github.com/hyprwm/hyprwire/issues/20
+#append_range with insert like in Debian?
+# todo: add files from in : https://en.cppreference.com/cpp/container/vector/append_range
+#some ideas from https://github.com/ironexperiment/Hyprland-on-debian-trixie/blob/main/patches/hyprwire-append_range-gcc14-compat.patch
+  ver="0.3.0";
+  if should_make hyprwire $ver; then
+    download_unpack_source https://github.com/hyprwm/hyprwire/archive/refs/tags/v$ver.tar.gz hyprwire hyprwire-$ver 1
+    cmake   -B build      -D CMAKE_PREFIX_PATH="/app/hyprutils/current" -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprwire/current -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+#fixme - change sed -r with sed -i
+    find * \
+        -name '*.cpp' \
+        -type f -exec bash -c 'echo "{}" && cat "{}" | sed -r "s/(.*).append_range\((.*)\)(.*)/{auto\&\& _r = \2; \1\.insert(\1\.end\(\), _r\.begin\(\), _r\.end\(\)); }/" > "{}.2" && rm {} && mv {}.2 {} ' \;
+    cmake --build build  -j$cpu_num
+    create_app_in_tmp_and_link_it hyprwire $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd hyprwire $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "gdk-pixbuf" ]; then
+  ver="2.44.8";
+  if should_make gdk-pixbuf $ver; then
+    download_unpack_source https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/archive/2.44.8/gdk-pixbuf-2.44.8.tar.bz2 gdk-pixbuf gdk-pixbuf-$ver 1
+    PKG_CONFIG_PATH=/app/glycin/current/lib/pkgconfig    meson setup -Dprefix=/app/gdk-pixbuf/current -Dlibdir=lib builddir
+#    ninja -C builddir
+#    create_app_in_tmp_and_link_it libinput $prefix$ver
+#    ninja -C builddir install
+#    set_current_app_clean_strip_cd libinput $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "glycin" ]; then
+#libheif-dev
+#libjxl-dev
+  ver="2.2.5";
+#  ver="2.2.0";
+  if should_make glycin $ver; then
+    download_unpack_source https://gitlab.gnome.org/GNOME/glycin/-/archive/$ver/glycin-$ver.tar.bz2 glycin glycin-$ver 1
+    PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig      meson setup -Dprefix=/app/glycin/current -Dlibdir=lib \
+       -Dbuildtype=release -Dlibglycin-gtk4=false -Dtests=false \
+       builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it glycin $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd glycin $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "gobject-introspection" ]; then
+#rnc2rng*
+  ver="1.86.0";
+  if should_make gobject-introspection $ver; then
+    download_unpack_source https://gitlab.gnome.org/GNOME/gobject-introspection/-/archive/1.86.0/gobject-introspection-1.86.0.tar.bz2 gobject-introspection gobject-introspection-$ver 1
+    meson setup -Dprefix=/app/gobject-introspection/current -Dlibdir=lib -Dtests=false builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it gobject-introspection $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd gobject-introspection $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "graphviz" ]; then
+  ver="16.1.0";
+  if should_make graphviz $ver; then
+    download_unpack_source https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/16.1.0/graphviz-16.1.0.tar.xz graphviz graphviz-$ver 1
+        ./configure --prefix=/app/graphviz/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it graphviz $prefix$ver
+    make install
+    set_current_app_clean_strip_cd graphviz $prefix$ver 1
+  fi
+fi
