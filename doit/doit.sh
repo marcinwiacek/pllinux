@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="pango"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libthai"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1594,8 +1594,33 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
     ./configure --prefix=/app/libxml2/current --libdir=/app/libxml2/current/lib --with-icu --static-libs
     make all -j$cpu_num
     create_app_in_tmp_and_link_it libxml2 $prefix$ver
-#    make install
-#    set_current_app_clean_strip_cd libxml2 $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd libxml2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fribidi" ]; then
+#help2man
+  ver="1.0.18";
+  if should_make fribidi $ver; then
+    download_unpack_source https://github.com/fribidi/fribidi/archive/refs/tags/v1.0.18.tar.gz fribidi fribidi-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/fribidi/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it fribidi $prefix$ver
+    make install
+    set_current_app_clean_strip_cd fribidi $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libthai" ]; then
+  ver="0.1.30";
+  if should_make libthai $ver; then
+    download_unpack_source https://github.com/tlwg/libthai/archive/refs/tags/v0.1.30.tar.gz libthai libthai-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libthai/current --disable-dict
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libthai $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libthai $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "autoconf" ]; then
