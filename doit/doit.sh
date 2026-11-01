@@ -755,6 +755,22 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mc" ]
     set_current_app_clean_strip_cd mc $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "mediainfo" ]; then
+#in progress
+  ver="26.10";
+  if should_make mediainfo $ver; then
+#apt-get install git automake autoconf libtool pkg-config make g++ zlib1g-dev
+#libzen-dev
+    download_unpack_source https://github.com/MediaArea/MediaInfo/archive/refs/tags/v$ver.tar.gz mediainfo MediaInfo-$ver 1
+    cd Project/GNU/CLI
+    ./autogen.sh
+    ./configure --prefix=/app/mediainfo/current --enable-shared
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it mediainfo $prefix$ver
+    make install
+#    set_current_app_clean_strip_cd hyprutils $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurses" ]; then
   ver="6.6";
   if should_make ncurses $ver; then
@@ -905,6 +921,47 @@ if [ "$package" == "fs" ] || [ "$package" == "nano" ]; then
     set_current_app nano $prefix$ver 1
     make install
     set_current_app_clean_strip_cd nano $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsyslog" ]; then
+  ver="8.2608.0";
+  if should_make rsyslog $ver; then
+    install_host_deps "libestr-dev libfastjson-dev libgcrypt20-dev libcurl4-gnutls-dev libprotobuf-c-dev protobuf-c-compiler libsnappy-dev"
+    download_unpack_source https://github.com/rsyslog/rsyslog/releases/download/v$ver/rsyslog-$ver.tar.gz rsyslog rsyslog-$ver 1
+#    --enable-static doesn't work?
+    ./configure --prefix=/app/rsyslog/current --disable-libyaml --enable-kmsg --enable-usertools --disable-libsystemd
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it rsyslog $prefix$ver
+    make install
+    chmod a-x /app/rsyslog/current/lib/rsyslog/*.la
+    chmod a-x /app/rsyslog/current/lib/rsyslog/*.so
+    set_current_app_clean_strip_cd rsyslog $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "strace" ]; then
+  ver="7.2";
+  if should_make strace $ver; then
+    download_unpack_source https://github.com/strace/strace/releases/download/v$ver/strace-$ver.tar.xz strace strace-$ver 1
+    mkdir $out/strace/strace-$ver-build
+    cd $out/strace/strace-$ver-build
+    ../strace-$ver/configure --prefix=/app/strace/$prefix$ver --disable-mpers
+    make -j$cpu_num
+    create_app strace $prefix$ver
+    make install
+    set_current_app_clean_strip_cd strace $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "elfutils" ]; then
+  ver="0.196";
+  if should_make elfutils $ver; then
+    download_unpack_source https://sourceware.org/elfutils/ftp/$ver/elfutils-$ver.tar.bz2 elfutils elfutils-$ver 1
+    mkdir $out/elfutils/elfutils-$ver-build
+    cd $out/elfutils/elfutils-$ver-build
+    ../elfutils-$ver/configure --prefix=/app/elfutils/$prefix$ver
+    make -j$cpu_num
+    create_app elfutils $prefix$ver
+    make install
+    set_current_app_clean_strip_cd elfutils $prefix$ver 1
   fi
 fi
 # ----------------------------- basic - fs ----------------------------------------------------
@@ -1338,21 +1395,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pciut
     set_current_app_clean_strip_cd pciutils $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsyslog" ]; then
-  ver="8.2608.0";
-  if should_make rsyslog $ver; then
-    install_host_deps "libestr-dev libfastjson-dev libgcrypt20-dev libcurl4-gnutls-dev libprotobuf-c-dev protobuf-c-compiler libsnappy-dev"
-    download_unpack_source https://github.com/rsyslog/rsyslog/releases/download/v$ver/rsyslog-$ver.tar.gz rsyslog rsyslog-$ver 1
-#    --enable-static doesn't work?
-    ./configure --prefix=/app/rsyslog/current --disable-libyaml --enable-kmsg --enable-usertools --disable-libsystemd
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it rsyslog $prefix$ver
-    make install
-    chmod a-x /app/rsyslog/current/lib/rsyslog/*.la
-    chmod a-x /app/rsyslog/current/lib/rsyslog/*.so
-    set_current_app_clean_strip_cd rsyslog $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libestr" ]; then
   ver="0.1.11";
   if should_make libestr $ver; then
@@ -1380,32 +1422,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libfa
     make install
     cp ../libfastjson-$ver/COPYING $output/app/libfastjson/$prefix$ver
     set_current_app_clean_strip_cd libfastjson $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "strace" ]; then
-  ver="7.2";
-  if should_make strace $ver; then
-    download_unpack_source https://github.com/strace/strace/releases/download/v$ver/strace-$ver.tar.xz strace strace-$ver 1
-    mkdir $out/strace/strace-$ver-build
-    cd $out/strace/strace-$ver-build
-    ../strace-$ver/configure --prefix=/app/strace/$prefix$ver --disable-mpers
-    make -j$cpu_num
-    create_app strace $prefix$ver
-    make install
-    set_current_app_clean_strip_cd strace $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "elfutils" ]; then
-  ver="0.196";
-  if should_make elfutils $ver; then
-    download_unpack_source https://sourceware.org/elfutils/ftp/$ver/elfutils-$ver.tar.bz2 elfutils elfutils-$ver 1
-    mkdir $out/elfutils/elfutils-$ver-build
-    cd $out/elfutils/elfutils-$ver-build
-    ../elfutils-$ver/configure --prefix=/app/elfutils/$prefix$ver
-    make -j$cpu_num
-    create_app elfutils $prefix$ver
-    make install
-    set_current_app_clean_strip_cd elfutils $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzutils" ]; then
@@ -1445,102 +1461,6 @@ if [ "$package" == "fs" ] || [ "$package" == "mtdev" ]; then
     create_app_in_tmp_and_link_it mtdev $prefix$ver
     make install
     set_current_app_clean_strip_cd mtdev $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fontconfig" ]; then
-#  ver="2.18.3";
-  ver="2.17.1";
-  if should_make fontconfig $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/fontconfig/fontconfig/-/archive/$ver/fontconfig-$ver.tar.bz2 fontconfig fontconfig-$ver 1
-    meson setup -Dprefix=/app/fontconfig/current --buildtype release -Dlibdir=lib -Ddoc=disabled _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it fontconfig $prefix$ver
-    meson install -C _build
-    cp COPYING /app/fontconfig/current
-    set_current_app_clean_strip_cd fontconfig $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxinerama" ]; then
-  ver="1.1.6";
-  if should_make libxinerama $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxinerama/-/archive/libXinerama-1.1.6/libxinerama-libXinerama-1.1.6.tar.bz2?ref_type=tags libXinerama libxinerama-libXinerama-$ver 1
-    meson setup -Dprefix=/app/libxinerama/current --buildtype release -Dlibdir=lib _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libxinerama $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd libxinerama $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxrender" ]; then
-  ver="0.9.13";
-  if should_make libxrender $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.13/libxrender-libXrender-0.9.13.tar.bz2?ref_type=tags libXrender libxrender-libXrender-$ver 1
-    meson setup -Dprefix=/app/libxrender/current --buildtype release -Dlibdir=lib _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libxrender $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd libxrender $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
-  ver="1.13.2";
-  if should_make libxkbcommon $ver; then
-    download_unpack_source https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.2.tar.gz libxkbcommon libxkbcommon-xkbcommon-$ver 1
-    meson setup -Dprefix=/app/libxkbcommon/current --buildtype release -Dlibdir=lib -Dbash-completion-path=/app/libxkbcommon/current/completion _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libxkbcommon $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd libxkbcommon $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xcalc" ]; then
-#libxaw7-dev
-  ver="1.1.3";
-  if should_make xcalc $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xcalc-1.1.3.tar.xz xcalc xcalc-$ver 1
-    ./configure --prefix=/app/xcalc/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xcalc $prefix$ver
-    make install
-    mkdir /app/xcalc/current/bin
-    cp xcalc /app/xcalc/current/bin
-    set_current_app_clean_strip_cd xcalc $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxaw" ]; then
-  ver="1.0.16";
-  if should_make libxaw $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxaw/-/archive/libXaw-1.0.16/libxaw-libXaw-1.0.16.tar.bz2?ref_type=tags libxaw libxaw-libXaw-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libxaw/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libxaw $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libxaw $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxt" ]; then
-  ver="1.3.1";
-  if should_make libxt $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxt/-/archive/libXt-1.3.1/libxt-libXt-1.3.1.tar.bz2?ref_type=tags libxt libxt-libXt-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libxt/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libxt $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libxt $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxext" ]; then
-  ver="1.3.7";
-  if should_make libxext $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.7/libxext-libXext-1.3.7.tar.bz2?ref_type=tags libxext libxext-libXext-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libxext/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libxext $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libxext $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libpng" ]; then
@@ -1607,22 +1527,6 @@ if [ "$package" == "fs" ] || [ "$package" == "tecmake" ]; then
     create_app tecmake $prefix$ver
     cp * /app/tecmake/$prefix$ver
     set_current_app_clean_strip_cd tecmake $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "mediainfo" ]; then
-#in progress
-  ver="26.10";
-  if should_make mediainfo $ver; then
-#apt-get install git automake autoconf libtool pkg-config make g++ zlib1g-dev
-#libzen-dev
-    download_unpack_source https://github.com/MediaArea/MediaInfo/archive/refs/tags/v$ver.tar.gz mediainfo MediaInfo-$ver 1
-    cd Project/GNU/CLI
-    ./autogen.sh
-    ./configure --prefix=/app/mediainfo/current --enable-shared
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it mediainfo $prefix$ver
-    make install
-#    set_current_app_clean_strip_cd hyprutils $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lm-sensors" ]; then
@@ -2145,6 +2049,102 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulka
   fi
 fi
 #----------------------------------- x11 ------------------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "fontconfig" ]; then
+#  ver="2.18.3";
+  ver="2.17.1";
+  if should_make fontconfig $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/fontconfig/fontconfig/-/archive/$ver/fontconfig-$ver.tar.bz2 fontconfig fontconfig-$ver 1
+    meson setup -Dprefix=/app/fontconfig/current --buildtype release -Dlibdir=lib -Ddoc=disabled _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it fontconfig $prefix$ver
+    meson install -C _build
+    cp COPYING /app/fontconfig/current
+    set_current_app_clean_strip_cd fontconfig $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxinerama" ]; then
+  ver="1.1.6";
+  if should_make libxinerama $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxinerama/-/archive/libXinerama-1.1.6/libxinerama-libXinerama-1.1.6.tar.bz2?ref_type=tags libXinerama libxinerama-libXinerama-$ver 1
+    meson setup -Dprefix=/app/libxinerama/current --buildtype release -Dlibdir=lib _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libxinerama $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libxinerama $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxrender" ]; then
+  ver="0.9.13";
+  if should_make libxrender $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.13/libxrender-libXrender-0.9.13.tar.bz2?ref_type=tags libXrender libxrender-libXrender-$ver 1
+    meson setup -Dprefix=/app/libxrender/current --buildtype release -Dlibdir=lib _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libxrender $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libxrender $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
+  ver="1.13.2";
+  if should_make libxkbcommon $ver; then
+    download_unpack_source https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.2.tar.gz libxkbcommon libxkbcommon-xkbcommon-$ver 1
+    meson setup -Dprefix=/app/libxkbcommon/current --buildtype release -Dlibdir=lib -Dbash-completion-path=/app/libxkbcommon/current/completion _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libxkbcommon $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libxkbcommon $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xcalc" ]; then
+#libxaw7-dev
+  ver="1.1.3";
+  if should_make xcalc $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xcalc-1.1.3.tar.xz xcalc xcalc-$ver 1
+    ./configure --prefix=/app/xcalc/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xcalc $prefix$ver
+    make install
+    mkdir /app/xcalc/current/bin
+    cp xcalc /app/xcalc/current/bin
+    set_current_app_clean_strip_cd xcalc $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxaw" ]; then
+  ver="1.0.16";
+  if should_make libxaw $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxaw/-/archive/libXaw-1.0.16/libxaw-libXaw-1.0.16.tar.bz2?ref_type=tags libxaw libxaw-libXaw-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libxaw/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libxaw $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxaw $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxt" ]; then
+  ver="1.3.1";
+  if should_make libxt $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxt/-/archive/libXt-1.3.1/libxt-libXt-1.3.1.tar.bz2?ref_type=tags libxt libxt-libXt-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libxt/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libxt $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxt $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxext" ]; then
+  ver="1.3.7";
+  if should_make libxext $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxext/-/archive/libXext-1.3.7/libxext-libXext-1.3.7.tar.bz2?ref_type=tags libxext libxext-libXext-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libxext/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libxext $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxext $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "xkeyboard-config" ]; then
   ver="2.44";
   if should_make xkeyboard-config $ver; then
