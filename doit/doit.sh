@@ -386,6 +386,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
 
   cd $curdir
 fi
+# --------------------------------- basic packages -------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
   ver="7.3.1";
   ver="6.18.60";
@@ -1044,19 +1045,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
     create_app_in_tmp_and_link_it libliftoff $prefix$ver
     ninja -C builddir install
     set_current_app_clean_strip_cd libliftoff $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
-  ver="0.13.0";
-  if should_make yyjson $ver; then
-    download_unpack_source https://github.com/ibireme/yyjson/archive/refs/tags/0.13.0.tar.gz yyjson yyjson-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/yyjson/current \
-      -DBUILD_SHARED_LIBS=true -S . -B ./build 
-    create_app_in_tmp_and_link_it yyjson $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it yyjson $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd yyjson $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libjpeg-turbo" ]; then
@@ -2173,20 +2161,6 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprgraphics" ]; then
     set_current_app_clean_strip_cd hyprgraphics $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "hyprlang" ]; then
-  ver="0.6.8";
-  if should_make hyprlang $ver; then
-    download_unpack_source https://github.com/hyprwm/hyprlang/archive/refs/tags/v0.6.8.tar.gz hyprlang hyprlang-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprlang/current \
-      -D CMAKE_PREFIX_PATH="/app/hyprutils/current" \
-      -S . -B ./build
-    create_app_in_tmp_and_link_it hyprlang $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it hyprlang $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd hyprlang $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "mediainfo" ]; then
 #in progress
   ver="26.10";
@@ -2426,6 +2400,286 @@ if [ "$package" == "fs" ] || [ "$package" == "libdrm" ]; then
     set_current_app_clean_strip_cd libdrm $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpciaccess" ]; then
+  ver="0.19";
+  if should_make libpciaccess $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libpciaccess-$ver.tar.xz libpciaccess libpciaccess-$ver 1
+    meson setup -Dprefix=/app/libpciaccess/$prefix$ver _build
+    meson compile -C _build
+    create_app libpciaccess $prefix$ver
+    set_current_app libpciaccess $prefix$ver 1
+    meson install -C _build
+    rsync -a $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/json-c/$prefix$ver/lib
+    rm -r $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/
+#    echo "" >> /app/libexpat/current/readme.md
+#    echo "**Last**" >> /app/libexpat/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
+    set_current_app_clean_strip_cd libpciaccess $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libglvnd" ]; then
+  ver="1.7.0";
+  if should_make libglvnd $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/glvnd/libglvnd/-/archive/v1.7.0/libglvnd-v1.7.0.tar.gz libglvnd libglvnd-v$ver 1
+    meson setup -Dprefix=/app/libglvnd/$prefix$ver _build
+    meson compile -C _build
+    create_app libglvnd $prefix$ver
+    set_current_app libglvnd $prefix$ver 1
+    meson install -C _build
+    rsync -a $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libglvnd/$prefix$ver/lib
+    rm -r $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/
+    set_current_app_clean_strip_cd libglvnd $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "volk" ]; then
+  ver="1.4.350";
+  if should_make volk $ver; then
+    download_unpack_source https://github.com/zeux/volk/archive/refs/tags/$ver.tar.gz volk volk-$ver 1
+    cmake -D CMAKE_BUILD_TYPE=Release -DVOLK_INSTALL=ON \
+      -D CMAKE_INSTALL_PREFIX=/app/volk/current \
+      -D CMAKE_SKIP_INSTALL_RPATH=ON .
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it volk $prefix$ver
+    make install
+    set_current_app_clean_strip_cd volk $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdisplay-info" ]; then
+#  ver="0.4.0";
+  ver="0.2.0";
+  if should_make libdisplay-info $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/emersion/libdisplay-info/-/releases/$ver/downloads/libdisplay-info-$ver.tar.xz \
+          libdisplay-info libdisplay-info-$ver 1
+    meson setup -Dprefix=/app/libdisplay-info/current _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libdisplay-info $prefix$ver
+    meson install -C _build
+    rsync -a /app/libdisplay-info/current/lib/x86_64-linux-gnu/* /app/libdisplay-info/current/lib
+    rm -r /app/libdisplay-info/current/lib/x86_64-linux-gnu/
+    set_current_app_clean_strip_cd libdisplay-info $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libX11" ]; then
+  ver="1.8.13";
+  if should_make libx11 $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libX11-$ver.tar.xz libX11 libX11-$ver 1
+    ./configure --prefix=/app/libx11/current
+    make all -j$cpu_num
+    create_app libx11 $prefix$ver
+    set_current_app libx11 $prefix$ver 1
+    make install
+#    echo "" >> /app/libexpat/current/readme.md
+#    echo "**Last**" >> /app/libexpat/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
+    set_current_app_clean_strip_cd libx11 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxshmfence" ]; then
+  ver="1.3.3";
+  if should_make libxshmfence $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libxshmfence-$ver.tar.xz libxshmfence libxshmfence-$ver 1
+    ./configure --prefix=/app/libxshmfence/current
+    make all -j$cpu_num
+    create_app libxshmfence $prefix$ver
+    set_current_app libxshmfence $prefix$ver 1
+    make install
+#    echo "" >> /app/libexpat/current/readme.md
+#    echo "**Last**" >> /app/libexpat/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
+    set_current_app_clean_strip_cd libxshmfence $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libffi" ]; then
+  ver="3.8.0";
+  if should_make libffi $ver; then
+    download_unpack_source https://github.com/libffi/libffi/archive/refs/tags/v3.8.0.tar.gz libffi libffi-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libffi/current
+    make all -j$cpu_num
+    create_app libffi $prefix$ver
+    set_current_app libffi $prefix$ver 1
+    make install
+#    echo "" >> /app/libexpat/current/readme.md
+#    echo "**Last**" >> /app/libexpat/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
+    set_current_app_clean_strip_cd libffi $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libudev-zero" ]; then
+  ver="1.0.5";
+  if should_make libudev-zero $ver; then
+    download_unpack_source https://github.com/illiliti/libudev-zero/archive/refs/tags/1.0.5.tar.gz libudev-zero libudev-zero-$ver 1
+    #    install_host_deps "libusb-dev libudev-dev"
+    meson setup -Dprefix=/app/libudev-zero/$prefix$ver _build
+    meson compile -C _build
+    create_app libudev-zero $prefix$ver
+    meson install -C _build
+    rsync -a $output/app/libudev-zero/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libudev-zero/$prefix$ver/lib
+    rm -r $output/app/libudev-zero/$prefix$ver/lib/x86_64-linux-gnu/
+    set_current_app_clean_strip_cd libudev-zero $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "memtest86plus" ]; then
+  ver="9.00";
+  if should_make memtest86plus $ver; then
+    download_unpack_source https://github.com/memtest86plus/memtest86plus/archive/refs/tags/v9.00.tar.gz memtest86plus memtest86plus-$ver 1
+    cd build/x86_64
+    make
+    create_app memtest86plus $prefix$ver
+    cp mt86plus $output/app/memtest86plus/$prefix$ver/mt86plus.efi
+    set_current_app_clean_strip_cd memtest86plus $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "i2c-tools" ]; then
+  ver="4.4";
+  if should_make i2c-tools $ver; then
+    download_unpack_source https://www.kernel.org/pub/software/utils/i2c-tools/i2c-tools-$ver.tar.xz i2c-tools i2c-tools-$ver 1
+    sed -i "s/\/usr\/local/\/app\/i2c-tools\/$prefix$ver/g" Makefile
+    make all -j$cpu_num
+    create_app i2c-tools $prefix$ver
+    make install
+    set_current_app_clean_strip_cd i2c-tools $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
+  ver="${prefix:0:6}";
+  if should_make ccadb $ver; then
+    download_unpack_source https://ccadb.my.salesforce-sites.com/mozilla/IncludedRootsPEMTxt?TrustBitsInclude=Websites ccadb_$ver . 1
+    create_app ccadb $prefix$ver
+    rm *.pem
+    listnr=1
+    while read -r line; do
+      case $line in 
+      *BEGIN*) listnr=$(($listnr+1)) ;;
+      esac
+      echo $line >> ${listnr}.pem
+    done < "ccadb"
+    c_rehash .
+    mkdir $output/app/ccadb/$prefix$ver/files
+    cp *.0 $output/app/ccadb/$prefix$ver/files
+#    mkdir $output/app/ccadb/$prefix$ver/all
+#    cp ccadb $output/app/ccadb/$prefix$ver/all/ca-certificates.crt
+    set_current_app_clean_strip_cd ccadb $prefix$ver 0
+  fi
+fi
+if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
+  ver="3.0.2";
+  if should_make read-edid $ver; then
+    install_host_deps "cmake libx86-dev"
+    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-$ver.tar.gz read-edid read-edid-$ver 1
+    cmake . -DCMAKE_C_FLAGS="-fcommon"
+    make
+    echo > COPYING
+    create_app_in_tmp_and_link_it read-edid $prefix$ver
+    cmake --install . --prefix /app/read-edid/current
+    set_current_app_clean_strip_cd read-edid $prefix$ver 1
+  fi
+fi
+#---------------------------------- mesa ------------------------------------------------
+if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llvm" ]; then
+  #  ver="23.1.3";
+  ver="19.1.7";   #we use this version because of dep from mesa. Maybe should be more investigated, if 23.* could be used
+  if should_make llvm $ver; then
+    download_unpack_source https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-$ver.tar.gz llvm llvm-project-llvmorg-$ver 1
+    cmake -S llvm -B builddir -G Ninja \
+       -DCMAKE_SKIP_INSTALL_RPATH=ON \
+       -DLLVM_ENABLE_RTTI=ON \
+       -DCLANG_DEFAULT_PIE_ON_LINUX=ON \
+       -DLLVM_ENABLE_FFI=ON \
+       -DCMAKE_BUILD_TYPE=MinSizeRel -DLLVM_TARGETS_TO_BUILD="X86;AMDGPU" \
+       -DCMAKE_INSTALL_PREFIX=/app/llvm/current \
+       -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON \
+       -DLLVM_ENABLE_PROJECTS=clang -DLLVM_ENABLE_RUNTIMES=compiler-rt
+    create_app llvm $prefix$ver
+    set_current_app llvm $prefix$ver 1
+    ninja -C builddir install
+    set_current_app_clean_strip_cd llvm $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa" ]; then
+  # ver="26.2.4";  # not possible because of -Degl-native-platform=drm
+  ver="26.1.8"; #OK with GL
+#ver="25.3.6";
+  if should_make mesa $ver; then
+    # sudo apt-get build-dep mesa
+    # python3-pycparser
+    download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
+    meson setup -Dprefix=/app/mesa/current _build \
+       -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
+       -Dgles1=enabled -Dgles2=enabled -Dglvnd=enabled \
+       -Dplatforms=x11 \
+       -Dgallium-drivers="asahi,crocus,ethosu,etnaviv,freedreno,i915,iris,lima,llvmpipe,nouveau,panfrost,r300,r600,radeonsi,rocket,softpipe,svga,tegra,v3d,vc4,virgl,zink" \
+       -Dgallium-d3d12-graphics=disabled -Dgallium-d3d12-video=disabled \
+       -Dvulkan-drivers="amd,broadcom,freedreno,intel,intel_hasvk,panfrost,swrast,virtio,imagination,nouveau,asahi,gfxstream,kosmickrisp" \
+       -Dvulkan-layers="device-select,intel-nullhw,overlay" \
+       -Dglx=dri -Degl-native-platform=drm
+    meson compile -C _build
+    create_app_in_tmp_and_link_it mesa $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd mesa $prefix$ver 1
+  fi
+fi
+#----------------------------------- vulkan ---------------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "swiftshader" ]; then
+  ver="1";
+  if should_make swiftshader $ver; then
+    download_unpack_source https://github.com/google/swiftshader/archive/refs/heads/master.zip swiftshader swiftshader-master 1
+    cd third_party
+    git clone https://github.com/google/googletest.git
+    git clone https://github.com/KhronosGroup/glslang.git
+    cd ..
+#          -DSWIFTSHADER_BUILD_WSI_DIRECTFB=true \
+    cmake -S . -DCMAKE_INSTALL_PREFIX=/app/swiftshader/current -DSWIFTSHADER_BUILD_WSI_WAYLAND=false \
+     -DSWIFTSHADER_BUILD_WSI_D2D=true  -B build
+    cmake --build build
+    create_app_in_tmp_and_link_it swiftshader $prefix$ver
+#    cmake --install build #installs everything excluding important files
+    mkdir /app/swiftshader/current/lib
+    cp build/Linux/libvk_swiftshader.so /app/swiftshader/current/lib
+    cp build/Linux/vk_swiftshader_icd.json /app/swiftshader/current/lib
+    cd /app/swiftshader/current/lib
+    ln -s libvk_swiftshader.so libvulkan.so.1
+    set_current_app_clean_strip_cd swiftshader $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulkan-loader" ]; then
+  ver="1.4.309";
+ # ver="1.4.364";
+# need to remove vulkan-headers from host system? inteferfering with compilation?
+  if should_make vulkan-loader $ver; then
+    download_unpack_source https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/tags/v$ver.tar.gz vulkan-loader Vulkan-Loader-$ver 1
+    mkdir build
+    cd build
+    cmake -D CMAKE_BUILD_TYPE=Release \
+      -D VULKAN_HEADERS_INSTALL_DIR=/app/vulkan-loader/current \
+      -D CMAKE_INSTALL_PREFIX=/app/vulkan-loader/current \
+      -D CMAKE_SKIP_INSTALL_RPATH=ON \
+      -D BUILD_WSI_WAYLAND_SUPPORT=OFF \
+      -D UPDATE_DEPS=ON ..
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it vulkan-loader $prefix$ver
+    make install
+    set_current_app_clean_strip_cd vulkan-loader $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulkan-tools" ]; then
+  ver="1.4.309";
+ # ver="1.4.364";
+  if should_make vulkan-tools $ver; then
+    download_unpack_source https://github.com/KhronosGroup/Vulkan-Tools/archive/refs/tags/v$ver.tar.gz vulkan-tools Vulkan-Tools-$ver 1
+    mkdir build
+    cd build
+    cmake -D CMAKE_BUILD_TYPE=Release \
+      -D CMAKE_PREFIX_PATH=/app/volk-dev/current \
+      -D CMAKE_INSTALL_PREFIX=/app/vulkan-tools/current \
+      -D CMAKE_SKIP_INSTALL_RPATH=ON ..
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it vulkan-tools $prefix$ver
+    make install
+    set_current_app_clean_strip_cd vulkan-tools $prefix$ver 1
+  fi
+fi
+#----------------------------------- x11 ------------------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcb" ]; then
   ver="1.17.0";
   if should_make libxcb $ver; then
@@ -2505,238 +2759,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxd
     set_current_app_clean_strip_cd libxdmcp $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpciaccess" ]; then
-  ver="0.19";
-  if should_make libpciaccess $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libpciaccess-$ver.tar.xz libpciaccess libpciaccess-$ver 1
-    meson setup -Dprefix=/app/libpciaccess/$prefix$ver _build
-    meson compile -C _build
-    create_app libpciaccess $prefix$ver
-    set_current_app libpciaccess $prefix$ver 1
-    meson install -C _build
-    rsync -a $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/json-c/$prefix$ver/lib
-    rm -r $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
-    set_current_app_clean_strip_cd libpciaccess $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libglvnd" ]; then
-  ver="1.7.0";
-  if should_make libglvnd $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/glvnd/libglvnd/-/archive/v1.7.0/libglvnd-v1.7.0.tar.gz libglvnd libglvnd-v$ver 1
-    meson setup -Dprefix=/app/libglvnd/$prefix$ver _build
-    meson compile -C _build
-    create_app libglvnd $prefix$ver
-    set_current_app libglvnd $prefix$ver 1
-    meson install -C _build
-    rsync -a $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libglvnd/$prefix$ver/lib
-    rm -r $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd libglvnd $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulkan-loader" ]; then
-  ver="1.4.309";
- # ver="1.4.364";
-# need to remove vulkan-headers from host system? inteferfering with compilation?
-  if should_make vulkan-loader $ver; then
-    download_unpack_source https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/tags/v$ver.tar.gz vulkan-loader Vulkan-Loader-$ver 1
-    mkdir build
-    cd build
-    cmake -D CMAKE_BUILD_TYPE=Release \
-      -D VULKAN_HEADERS_INSTALL_DIR=/app/vulkan-loader/current \
-      -D CMAKE_INSTALL_PREFIX=/app/vulkan-loader/current \
-      -D CMAKE_SKIP_INSTALL_RPATH=ON \
-      -D BUILD_WSI_WAYLAND_SUPPORT=OFF \
-      -D UPDATE_DEPS=ON ..
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it vulkan-loader $prefix$ver
-    make install
-    set_current_app_clean_strip_cd vulkan-loader $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "volk" ]; then
-  ver="1.4.350";
-  if should_make volk $ver; then
-    download_unpack_source https://github.com/zeux/volk/archive/refs/tags/$ver.tar.gz volk volk-$ver 1
-    cmake -D CMAKE_BUILD_TYPE=Release -DVOLK_INSTALL=ON \
-      -D CMAKE_INSTALL_PREFIX=/app/volk/current \
-      -D CMAKE_SKIP_INSTALL_RPATH=ON .
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it volk $prefix$ver
-    make install
-    set_current_app_clean_strip_cd volk $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulkan-tools" ]; then
-  ver="1.4.309";
- # ver="1.4.364";
-  if should_make vulkan-tools $ver; then
-    download_unpack_source https://github.com/KhronosGroup/Vulkan-Tools/archive/refs/tags/v$ver.tar.gz vulkan-tools Vulkan-Tools-$ver 1
-    mkdir build
-    cd build
-    cmake -D CMAKE_BUILD_TYPE=Release \
-      -D CMAKE_PREFIX_PATH=/app/volk-dev/current \
-      -D CMAKE_INSTALL_PREFIX=/app/vulkan-tools/current \
-      -D CMAKE_SKIP_INSTALL_RPATH=ON ..
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it vulkan-tools $prefix$ver
-    make install
-    set_current_app_clean_strip_cd vulkan-tools $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdisplay-info" ]; then
-#  ver="0.4.0";
-  ver="0.2.0";
-  if should_make libdisplay-info $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/emersion/libdisplay-info/-/releases/$ver/downloads/libdisplay-info-$ver.tar.xz \
-          libdisplay-info libdisplay-info-$ver 1
-    meson setup -Dprefix=/app/libdisplay-info/current _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libdisplay-info $prefix$ver
-    meson install -C _build
-    rsync -a /app/libdisplay-info/current/lib/x86_64-linux-gnu/* /app/libdisplay-info/current/lib
-    rm -r /app/libdisplay-info/current/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd libdisplay-info $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libX11" ]; then
-  ver="1.8.13";
-  if should_make libx11 $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libX11-$ver.tar.xz libX11 libX11-$ver 1
-    ./configure --prefix=/app/libx11/current
-    make all -j$cpu_num
-    create_app libx11 $prefix$ver
-    set_current_app libx11 $prefix$ver 1
-    make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
-    set_current_app_clean_strip_cd libx11 $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxshmfence" ]; then
-  ver="1.3.3";
-  if should_make libxshmfence $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libxshmfence-$ver.tar.xz libxshmfence libxshmfence-$ver 1
-    ./configure --prefix=/app/libxshmfence/current
-    make all -j$cpu_num
-    create_app libxshmfence $prefix$ver
-    set_current_app libxshmfence $prefix$ver 1
-    make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
-    set_current_app_clean_strip_cd libxshmfence $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libffi" ]; then
-  ver="3.8.0";
-  if should_make libffi $ver; then
-    download_unpack_source https://github.com/libffi/libffi/archive/refs/tags/v3.8.0.tar.gz libffi libffi-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libffi/current
-    make all -j$cpu_num
-    create_app libffi $prefix$ver
-    set_current_app libffi $prefix$ver 1
-    make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
-    set_current_app_clean_strip_cd libffi $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llvm" ]; then
-  #  ver="23.1.3";
-  ver="19.1.7";   #we use this version because of dep from mesa. Maybe should be more investigated, if 23.* could be used
-  if should_make llvm $ver; then
-    download_unpack_source https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-$ver.tar.gz llvm llvm-project-llvmorg-$ver 1
-    cmake -S llvm -B builddir -G Ninja \
-       -DCMAKE_SKIP_INSTALL_RPATH=ON \
-       -DLLVM_ENABLE_RTTI=ON \
-       -DCLANG_DEFAULT_PIE_ON_LINUX=ON \
-       -DLLVM_ENABLE_FFI=ON \
-       -DCMAKE_BUILD_TYPE=MinSizeRel -DLLVM_TARGETS_TO_BUILD="X86;AMDGPU" \
-       -DCMAKE_INSTALL_PREFIX=/app/llvm/current \
-       -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON \
-       -DLLVM_ENABLE_PROJECTS=clang -DLLVM_ENABLE_RUNTIMES=compiler-rt
-    create_app llvm $prefix$ver
-    set_current_app llvm $prefix$ver 1
-    ninja -C builddir install
-    set_current_app_clean_strip_cd llvm $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa" ]; then
-  # ver="26.2.4";  # not possible because of -Degl-native-platform=drm
-  ver="26.1.8"; #OK with GL
-#ver="25.3.6";
-  if should_make mesa $ver; then
-    # sudo apt-get build-dep mesa
-    # python3-pycparser
-    download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
-    meson setup -Dprefix=/app/mesa/current _build \
-       -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
-       -Dgles1=enabled -Dgles2=enabled -Dglvnd=enabled \
-       -Dplatforms=x11 \
-       -Dgallium-drivers="asahi,crocus,ethosu,etnaviv,freedreno,i915,iris,lima,llvmpipe,nouveau,panfrost,r300,r600,radeonsi,rocket,softpipe,svga,tegra,v3d,vc4,virgl,zink" \
-       -Dgallium-d3d12-graphics=disabled -Dgallium-d3d12-video=disabled \
-       -Dvulkan-drivers="amd,broadcom,freedreno,intel,intel_hasvk,panfrost,swrast,virtio,imagination,nouveau,asahi,gfxstream,kosmickrisp" \
-       -Dvulkan-layers="device-select,intel-nullhw,overlay" \
-       -Dglx=dri -Degl-native-platform=drm
-    meson compile -C _build
-    create_app_in_tmp_and_link_it mesa $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd mesa $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "swiftshader" ]; then
-  ver="1";
-  if should_make swiftshader $ver; then
-    download_unpack_source https://github.com/google/swiftshader/archive/refs/heads/master.zip swiftshader swiftshader-master 1
-    cd third_party
-    git clone https://github.com/google/googletest.git
-    git clone https://github.com/KhronosGroup/glslang.git
-    cd ..
-#          -DSWIFTSHADER_BUILD_WSI_DIRECTFB=true \
-    cmake -S . -DCMAKE_INSTALL_PREFIX=/app/swiftshader/current -DSWIFTSHADER_BUILD_WSI_WAYLAND=false \
-     -DSWIFTSHADER_BUILD_WSI_D2D=true  -B build
-    cmake --build build
-    create_app_in_tmp_and_link_it swiftshader $prefix$ver
-#    cmake --install build #installs everything excluding important files
-    mkdir /app/swiftshader/current/lib
-    cp build/Linux/libvk_swiftshader.so /app/swiftshader/current/lib
-    cp build/Linux/vk_swiftshader_icd.json /app/swiftshader/current/lib
-    cd /app/swiftshader/current/lib
-    ln -s libvk_swiftshader.so libvulkan.so.1
-    set_current_app_clean_strip_cd swiftshader $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libudev-zero" ]; then
-  ver="1.0.5";
-  if should_make libudev-zero $ver; then
-    download_unpack_source https://github.com/illiliti/libudev-zero/archive/refs/tags/1.0.5.tar.gz libudev-zero libudev-zero-$ver 1
-    #    install_host_deps "libusb-dev libudev-dev"
-    meson setup -Dprefix=/app/libudev-zero/$prefix$ver _build
-    meson compile -C _build
-    create_app libudev-zero $prefix$ver
-    meson install -C _build
-    rsync -a $output/app/libudev-zero/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libudev-zero/$prefix$ver/lib
-    rm -r $output/app/libudev-zero/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd libudev-zero $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "memtest86plus" ]; then
-  ver="9.00";
-  if should_make memtest86plus $ver; then
-    download_unpack_source https://github.com/memtest86plus/memtest86plus/archive/refs/tags/v9.00.tar.gz memtest86plus memtest86plus-$ver 1
-    cd build/x86_64
-    make
-    create_app memtest86plus $prefix$ver
-    cp mt86plus $output/app/memtest86plus/$prefix$ver/mt86plus.efi
-    set_current_app_clean_strip_cd memtest86plus $prefix$ver 1
-  fi
-fi
+#--------------------------------- programming languages --------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "python" ]; then
 #  ver="3.15.0";
   ver="3.14.0";
@@ -2770,17 +2793,6 @@ if [ "$package" == "fs" ] || [ "$package" == "node" ]; then
     create_app node $prefix$ver
     make install
     set_current_app_clean_strip_cd node $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "i2c-tools" ]; then
-  ver="4.4";
-  if should_make i2c-tools $ver; then
-    download_unpack_source https://www.kernel.org/pub/software/utils/i2c-tools/i2c-tools-$ver.tar.xz i2c-tools i2c-tools-$ver 1
-    sed -i "s/\/usr\/local/\/app\/i2c-tools\/$prefix$ver/g" Makefile
-    make all -j$cpu_num
-    create_app i2c-tools $prefix$ver
-    make install
-    set_current_app_clean_strip_cd i2c-tools $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "php" ]; then
@@ -2826,50 +2838,8 @@ if [ "$package" == "fs2" ] || [ "$package" == "fpc" ]; then
 #    set_current_app_clean_strip_cd php $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
-  ver="${prefix:0:6}";
-  if should_make ccadb $ver; then
-    download_unpack_source https://ccadb.my.salesforce-sites.com/mozilla/IncludedRootsPEMTxt?TrustBitsInclude=Websites ccadb_$ver . 1
-    create_app ccadb $prefix$ver
-    rm *.pem
-    listnr=1
-    while read -r line; do
-      case $line in 
-      *BEGIN*) listnr=$(($listnr+1)) ;;
-      esac
-      echo $line >> ${listnr}.pem
-    done < "ccadb"
-    c_rehash .
-    mkdir $output/app/ccadb/$prefix$ver/files
-    cp *.0 $output/app/ccadb/$prefix$ver/files
-#    mkdir $output/app/ccadb/$prefix$ver/all
-#    cp ccadb $output/app/ccadb/$prefix$ver/all/ca-certificates.crt
-    set_current_app_clean_strip_cd ccadb $prefix$ver 0
-  fi
-fi
-if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
-  ver="3.0.2";
-  if should_make read-edid $ver; then
-    install_host_deps "cmake libx86-dev"
-    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-$ver.tar.gz read-edid read-edid-$ver 1
-    cmake . -DCMAKE_C_FLAGS="-fcommon"
-    make
-    echo > COPYING
-    create_app_in_tmp_and_link_it read-edid $prefix$ver
-    cmake --install . --prefix /app/read-edid/current
-    set_current_app_clean_strip_cd read-edid $prefix$ver 1
-  fi
-fi
 
-
-
-
-
-
-
-
-
-
+# ---------------------------- experiments -----------------------------
 
 if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "mcnosandbox" ]; then
   ver="4.8.33";
@@ -3318,6 +3288,20 @@ if [ "$package" == "fs" ] || [ "$package" == "graphviz" ]; then
     set_current_app_clean_strip_cd graphviz $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprlang" ]; then
+  ver="0.6.8";
+  if should_make hyprlang $ver; then
+    download_unpack_source https://github.com/hyprwm/hyprlang/archive/refs/tags/v0.6.8.tar.gz hyprlang hyprlang-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprlang/current \
+      -D CMAKE_PREFIX_PATH="/app/hyprutils/current" \
+      -S . -B ./build
+    create_app_in_tmp_and_link_it hyprlang $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it hyprlang $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd hyprlang $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "cairo" ]; then
   ver="1.18.6";
   if should_make cairo $ver; then
@@ -3498,5 +3482,18 @@ if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
     create_app xorriso $prefix$ver
     make install
     set_current_app_clean_strip_cd xorriso $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
+  ver="0.13.0";
+  if should_make yyjson $ver; then
+    download_unpack_source https://github.com/ibireme/yyjson/archive/refs/tags/0.13.0.tar.gz yyjson yyjson-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/yyjson/current \
+      -DBUILD_SHARED_LIBS=true -S . -B ./build 
+    create_app_in_tmp_and_link_it yyjson $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it yyjson $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd yyjson $prefix$ver 1
   fi
 fi
