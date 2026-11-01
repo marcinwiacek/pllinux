@@ -1072,19 +1072,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libjpeg-turbo" ]; then
     set_current_app_clean_strip_cd libjpeg-turbo $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "little-cms" ]; then
-  ver="2.19.1";
-  if should_make little-cms $ver; then
-    download_unpack_source https://github.com/mm2/Little-CMS/archive/refs/tags/lcms2.19.1.tar.gz  little-cms Little-CMS-lcms$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/little-cms/current \
-      -DBUILD_SHARED_LIBS=true -S . -B ./build 
-    create_app_in_tmp_and_link_it little-cms $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it little-cms $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd little-cms $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "dbus" ]; then
   ver="1.16.2";
   if should_make dbus $ver; then
@@ -1351,46 +1338,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libth
     create_app_in_tmp_and_link_it libthai $prefix$ver
     make install
     set_current_app_clean_strip_cd libthai $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "autoconf" ]; then
-  ver="2.73";
-  if should_make autoconf $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/autoconf/autoconf-2.73.tar.xz autoconf autoconf-$ver 1
-    mkdir $out/autoconf/autoconf-$ver-build
-    cd $out/autoconf/autoconf-$ver-build
-    ../autoconf-$ver/configure --prefix=$output/app/autoconf/$prefix$ver
-    make all -j$cpu_num
-    create_app autoconf $prefix$ver
-    make install
-    set_current_app_clean_strip_cd autoconf $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "automake" ]; then
-  ver="1.18";
-  if should_make automake $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/automake/automake-$ver.tar.xz automake automake-$ver 1
-    mkdir $out/automake/automake-$ver-build
-    cd $out/automake/automake-$ver-build
-    ../automake-$ver/configure --prefix=$output/app/automake/$prefix$ver
-    make all -j$cpu_num
-    create_app automake $prefix$ver
-    make install
-    remove_duplicates_cd $output/app/automake/$prefix$ver/bin
-    set_current_app_clean_strip_cd automake $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
-  ver="1.5.8";
-  if should_make xorriso $ver; then
-    download_unpack_source https://www.gnu.org/software/xorriso/xorriso-$ver.pl02.tar.gz xorriso xorriso-$ver 1
-    mkdir $out/xorriso/xorriso-$ver-build
-    cd $out/xorriso/xorisso-$ver-build
-    ../xorriso-$ver/configure --prefix=$output/app/xorriso/$prefix$ver
-    make -j$cpu_num
-    create_app xorriso $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xorriso $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "tzdb" ]; then
@@ -2005,18 +1952,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libxft" ]; then
     create_app_in_tmp_and_link_it libxft  $prefix$ver
     make install
     set_current_app_clean_strip_cd libxft $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "kitty" ]; then
-#golang-go
-  ver="0.49.2";
-  if should_make kitty $ver; then
-    download_unpack_source https://github.com/kovidgoyal/kitty/archive/refs/tags/v0.49.2.tar.gz kitty kitty-$ver 1
-    ./dev.sh build
-    create_app kitty $prefix$ver
-    mkdir /app/kitty/$prefix$ver/bin
-    cp kitty/launcher/kitty /app/kitty/$prefix$ver/bin
-    set_current_app_clean_strip_cd kitty $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xkbcomp" ]; then
@@ -3407,6 +3342,19 @@ if [ "$package" == "fs" ] || [ "$package" == "pango" ]; then
     set_current_app_clean_strip_cd pango $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "little-cms" ]; then
+  ver="2.19.1";
+  if should_make little-cms $ver; then
+    download_unpack_source https://github.com/mm2/Little-CMS/archive/refs/tags/lcms2.19.1.tar.gz  little-cms Little-CMS-lcms$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/little-cms/current \
+      -DBUILD_SHARED_LIBS=true -S . -B ./build 
+    create_app_in_tmp_and_link_it little-cms $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it little-cms $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd little-cms $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "librsvg" ]; then
 #cargo-c
 #  ver="2.63.4";
@@ -3498,5 +3446,57 @@ if [ "$package" == "fs" ] || [ "$package" == "gnupg" ]; then
     make install
     #fixme: some errors
     set_current_app_clean_strip_cd gnupg $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "kitty" ]; then
+#golang-go
+  ver="0.49.2";
+  if should_make kitty $ver; then
+    download_unpack_source https://github.com/kovidgoyal/kitty/archive/refs/tags/v0.49.2.tar.gz kitty kitty-$ver 1
+    ./dev.sh build
+    create_app kitty $prefix$ver
+    mkdir /app/kitty/$prefix$ver/bin
+    cp kitty/launcher/kitty /app/kitty/$prefix$ver/bin
+    set_current_app_clean_strip_cd kitty $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "autoconf" ]; then
+  ver="2.73";
+  if should_make autoconf $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/autoconf/autoconf-2.73.tar.xz autoconf autoconf-$ver 1
+    mkdir $out/autoconf/autoconf-$ver-build
+    cd $out/autoconf/autoconf-$ver-build
+    ../autoconf-$ver/configure --prefix=$output/app/autoconf/$prefix$ver
+    make all -j$cpu_num
+    create_app autoconf $prefix$ver
+    make install
+    set_current_app_clean_strip_cd autoconf $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "automake" ]; then
+  ver="1.18";
+  if should_make automake $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/automake/automake-$ver.tar.xz automake automake-$ver 1
+    mkdir $out/automake/automake-$ver-build
+    cd $out/automake/automake-$ver-build
+    ../automake-$ver/configure --prefix=$output/app/automake/$prefix$ver
+    make all -j$cpu_num
+    create_app automake $prefix$ver
+    make install
+    remove_duplicates_cd $output/app/automake/$prefix$ver/bin
+    set_current_app_clean_strip_cd automake $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
+  ver="1.5.8";
+  if should_make xorriso $ver; then
+    download_unpack_source https://www.gnu.org/software/xorriso/xorriso-$ver.pl02.tar.gz xorriso xorriso-$ver 1
+    mkdir $out/xorriso/xorriso-$ver-build
+    cd $out/xorriso/xorisso-$ver-build
+    ../xorriso-$ver/configure --prefix=$output/app/xorriso/$prefix$ver
+    make -j$cpu_num
+    create_app xorriso $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xorriso $prefix$ver 1
   fi
 fi
