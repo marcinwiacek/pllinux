@@ -1844,171 +1844,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libxext" ]; then
     set_current_app_clean_strip_cd libxext $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "libxmu" ]; then
-  ver="1.3.1";
-  if should_make libxmu $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxmu/-/archive/libXmu-1.3.1/libxmu-libXmu-1.3.1.tar.bz2?ref_type=tags libxmu libxmu-libXmu-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libxmu/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libxmu $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libxmu $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxpm" ]; then
-  ver="3.5.20";
-  if should_make libxpm $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXpm-3.5.20.tar.xz  libxpm libXpm-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libxpm/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libxpm $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libxpm $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libsm" ]; then
-  ver="1.2.6";
-  if should_make libsm $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libSM-1.2.6.tar.xz  libSM libSM-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libsm/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libsm $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libsm $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libice" ]; then
-  ver="1.1.2";
-  if should_make libice $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libICE-$ver.tar.xz  libICE libICE-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libice/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libice $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libice $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xauth" ]; then
-#libxmuu-dev
-  ver="1.1.5";
-  if should_make xauth $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xauth-1.1.5.tar.xz xauth xauth-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/xauth/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xauth $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xauth $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xterm" ]; then
-  ver="4.12";
-  if should_make xterm $ver; then
-    download_unpack_source https://invisible-island.net/archives/xterm/xterm-412.tgz xterm xterm-412 1
-#    ./autogen.sh
-    ./configure --prefix=/app/xterm/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xterm $prefix$ver
-    make install
-    cp COPYING /app/xterm/current
-    set_current_app_clean_strip_cd xterm $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xinit" ]; then
-  ver="1.4.4";
-  if should_make xinit $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/app/xinit/-/archive/xinit-1.4.4/xinit-xinit-1.4.4.tar.bz2?ref_type=tags xinit xinit-xinit-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/xinit/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xinit  $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xinit $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxft" ]; then
-  ver="2.3.9";
-  if should_make libxft $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxft/-/archive/libXft-2.3.9/libxft-libXft-2.3.9.tar.bz2?ref_type=tags libxft libxft-libXft-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libxft/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libxft  $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libxft $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xkbcomp" ]; then
-  ver="1.5.0";
-  if should_make xkbcomp $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xkbcomp-1.5.0.tar.xz xkbcomp xkbcomp-$ver 1
-    ./configure --prefix=/app/xkbcomp/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xkbcomp $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xkbcomp $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxkbfile" ]; then
-  ver="1.2.0";
-  if should_make libxkbfile $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxkbfile/-/archive/libxkbfile-1.2.0/libxkbfile-libxkbfile-1.2.0.tar.bz2?ref_type=tags libxkbfile libxkbfile-libxkbfile-$ver 1
-    meson setup -Dprefix=/app/libxkbfile/current --buildtype release -Dlibdir=lib  _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libxkbfile $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd libxkbfile $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "pixman" ]; then
-  ver="0.46.4";
-  if should_make pixman $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/pixman/pixman/-/archive/pixman-0.46.4/pixman-pixman-0.46.4.tar.bz2?ref_type=tags pixman pixman-pixman-$ver 1
-    meson setup -Dprefix=/app/pixman/current --buildtype release -Dlibdir=lib _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it pixman $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd pixman $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libnice" ]; then
-  ver="0.1.24";
-  if should_make libnice $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/libnice/libnice/-/archive/0.1.24/libnice-0.1.24.tar.bz2?ref_type=tags libnice libnice-$ver 1
-    meson setup -Dprefix=/app/libnice/current --buildtype release -Dlibdir=lib _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libnice $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd libnice $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxfont2" ]; then
-  ver="2.0.9";
-  if should_make libxfont2 $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxfont/-/archive/libXfont2-2.0.9/libxfont-libXfont2-2.0.9.tar.bz2?ref_type=tags libxfont libxfont-libXfont2-$ver 1
-   ./autogen.sh
-    ./configure --prefix=/app/libxfont2/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libxfont2 $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libxfont2 $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxcvt" ]; then
-  ver="0.1.3";
-  if should_make libxcvt $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxcvt/-/archive/libxcvt-0.1.3/libxcvt-libxcvt-0.1.3.tar.bz2?ref_type=tags libxcvt libxcvt-libxcvt-$ver 1
-    meson setup -Dprefix=/app/libxcvt/current --buildtype release -Dlibdir=lib _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libxcvt $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd libxcvt $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "seatd" ]; then
   ver="0.9.3";
   if should_make seatd $ver; then
@@ -2343,51 +2178,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libex
     set_current_app_clean_strip_cd libexpat $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
-  ver="2.32.10";
-  if should_make sdl $ver; then
-    install_host_deps "cmake ninja-build libasound2-dev libpulse-dev \
-    libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
-    libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
-    libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
-    libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
-    download_unpack_source https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.32.10.tar.gz sdl SDL-release-$ver 1
-    ./configure --enable-rpath --enable-video-directfb --enable-directfb-shared --enable-video-kmsdrm --enable-kmsdrm-shared \
-          --enable-video-opengl --enable-video-opengles --enable-video-opengles1 --enable-video-opengles2 \
-          --disable-video-x11 --disable-video-wayland \
-          --disable-libudev --disable-dbus --prefix=/app/sdl/current
-    make -j$cpu_num
-    create_app sdl $prefix$ver
-    set_current_app sdl $prefix$ver 1
-    make install
-    cd test
-    ./configure --prefix=/app/sdl/current --with-sdl-prefix=/app/sdl/current
-    make -j$cpu_num
-    make install
-    set_current_app_clean_strip_cd sdl $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
-  ver="3.4.16";
-  if should_make sdl $ver; then
-    install_host_deps "cmake ninja-build libasound2-dev libpulse-dev \
-    libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
-    libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
-    libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
-    libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
-    download_unpack_source https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz sdl SDL3-$ver 1
-    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
-       -DSDL_KMSDRM=ON \
-       -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON \
-       -DSDL_LIBUDEV=OFF -DSDL_STATIC=OFF -DSDL_RPATH=OFF \
-       -DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF \
-       -DSDL_WAYLAND=OFF -DSDL_X11=OFF -DSDL_UNIX_CONSOLE_BUILD=ON
-    cmake --build build
-    create_app sdl $prefix$ver
-    cmake --install build --prefix $output/app/sdl/$prefix$ver
-    set_current_app_clean_strip_cd sdl $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "libdrm" ]; then
   ver="2.4.134";
   if should_make libdrm $ver; then
@@ -2680,6 +2470,171 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulka
   fi
 fi
 #----------------------------------- x11 ------------------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "libxmu" ]; then
+  ver="1.3.1";
+  if should_make libxmu $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxmu/-/archive/libXmu-1.3.1/libxmu-libXmu-1.3.1.tar.bz2?ref_type=tags libxmu libxmu-libXmu-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libxmu/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libxmu $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxmu $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxpm" ]; then
+  ver="3.5.20";
+  if should_make libxpm $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXpm-3.5.20.tar.xz  libxpm libXpm-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libxpm/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libxpm $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxpm $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libsm" ]; then
+  ver="1.2.6";
+  if should_make libsm $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libSM-1.2.6.tar.xz  libSM libSM-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libsm/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libsm $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libsm $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libice" ]; then
+  ver="1.1.2";
+  if should_make libice $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libICE-$ver.tar.xz  libICE libICE-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libice/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libice $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libice $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xauth" ]; then
+#libxmuu-dev
+  ver="1.1.5";
+  if should_make xauth $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xauth-1.1.5.tar.xz xauth xauth-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/xauth/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xauth $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xauth $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xterm" ]; then
+  ver="4.12";
+  if should_make xterm $ver; then
+    download_unpack_source https://invisible-island.net/archives/xterm/xterm-412.tgz xterm xterm-412 1
+#    ./autogen.sh
+    ./configure --prefix=/app/xterm/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xterm $prefix$ver
+    make install
+    cp COPYING /app/xterm/current
+    set_current_app_clean_strip_cd xterm $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xinit" ]; then
+  ver="1.4.4";
+  if should_make xinit $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/app/xinit/-/archive/xinit-1.4.4/xinit-xinit-1.4.4.tar.bz2?ref_type=tags xinit xinit-xinit-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/xinit/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xinit  $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xinit $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxft" ]; then
+  ver="2.3.9";
+  if should_make libxft $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxft/-/archive/libXft-2.3.9/libxft-libXft-2.3.9.tar.bz2?ref_type=tags libxft libxft-libXft-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libxft/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libxft  $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxft $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xkbcomp" ]; then
+  ver="1.5.0";
+  if should_make xkbcomp $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xkbcomp-1.5.0.tar.xz xkbcomp xkbcomp-$ver 1
+    ./configure --prefix=/app/xkbcomp/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xkbcomp $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xkbcomp $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxkbfile" ]; then
+  ver="1.2.0";
+  if should_make libxkbfile $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxkbfile/-/archive/libxkbfile-1.2.0/libxkbfile-libxkbfile-1.2.0.tar.bz2?ref_type=tags libxkbfile libxkbfile-libxkbfile-$ver 1
+    meson setup -Dprefix=/app/libxkbfile/current --buildtype release -Dlibdir=lib  _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libxkbfile $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libxkbfile $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "pixman" ]; then
+  ver="0.46.4";
+  if should_make pixman $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/pixman/pixman/-/archive/pixman-0.46.4/pixman-pixman-0.46.4.tar.bz2?ref_type=tags pixman pixman-pixman-$ver 1
+    meson setup -Dprefix=/app/pixman/current --buildtype release -Dlibdir=lib _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it pixman $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd pixman $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libnice" ]; then
+  ver="0.1.24";
+  if should_make libnice $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/libnice/libnice/-/archive/0.1.24/libnice-0.1.24.tar.bz2?ref_type=tags libnice libnice-$ver 1
+    meson setup -Dprefix=/app/libnice/current --buildtype release -Dlibdir=lib _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libnice $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libnice $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxfont2" ]; then
+  ver="2.0.9";
+  if should_make libxfont2 $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxfont/-/archive/libXfont2-2.0.9/libxfont-libXfont2-2.0.9.tar.bz2?ref_type=tags libxfont libxfont-libXfont2-$ver 1
+   ./autogen.sh
+    ./configure --prefix=/app/libxfont2/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libxfont2 $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxfont2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxcvt" ]; then
+  ver="0.1.3";
+  if should_make libxcvt $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxcvt/-/archive/libxcvt-0.1.3/libxcvt-libxcvt-0.1.3.tar.bz2?ref_type=tags libxcvt libxcvt-libxcvt-$ver 1
+    meson setup -Dprefix=/app/libxcvt/current --buildtype release -Dlibdir=lib _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libxcvt $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libxcvt $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcb" ]; then
   ver="1.17.0";
   if should_make libxcb $ver; then
@@ -2757,6 +2712,52 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxd
 #    echo "**Last**" >> /app/libexpat/current/readme.md
 #    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
     set_current_app_clean_strip_cd libxdmcp $prefix$ver 1
+  fi
+fi
+#---------------------------------- graphic stuff ---------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
+  ver="2.32.10";
+  if should_make sdl $ver; then
+    install_host_deps "cmake ninja-build libasound2-dev libpulse-dev \
+    libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
+    libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
+    libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+    libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
+    download_unpack_source https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.32.10.tar.gz sdl SDL-release-$ver 1
+    ./configure --enable-rpath --enable-video-directfb --enable-directfb-shared --enable-video-kmsdrm --enable-kmsdrm-shared \
+          --enable-video-opengl --enable-video-opengles --enable-video-opengles1 --enable-video-opengles2 \
+          --disable-video-x11 --disable-video-wayland \
+          --disable-libudev --disable-dbus --prefix=/app/sdl/current
+    make -j$cpu_num
+    create_app sdl $prefix$ver
+    set_current_app sdl $prefix$ver 1
+    make install
+    cd test
+    ./configure --prefix=/app/sdl/current --with-sdl-prefix=/app/sdl/current
+    make -j$cpu_num
+    make install
+    set_current_app_clean_strip_cd sdl $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
+  ver="3.4.16";
+  if should_make sdl $ver; then
+    install_host_deps "cmake ninja-build libasound2-dev libpulse-dev \
+    libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
+    libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
+    libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+    libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
+    download_unpack_source https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz sdl SDL3-$ver 1
+    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+       -DSDL_KMSDRM=ON \
+       -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON \
+       -DSDL_LIBUDEV=OFF -DSDL_STATIC=OFF -DSDL_RPATH=OFF \
+       -DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF \
+       -DSDL_WAYLAND=OFF -DSDL_X11=OFF -DSDL_UNIX_CONSOLE_BUILD=ON
+    cmake --build build
+    create_app sdl $prefix$ver
+    cmake --install build --prefix $output/app/sdl/$prefix$ver
+    set_current_app_clean_strip_cd sdl $prefix$ver 1
   fi
 fi
 #--------------------------------- programming languages --------------------------------
