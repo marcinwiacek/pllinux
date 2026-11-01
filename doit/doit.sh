@@ -1051,6 +1051,22 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lvm2"
     set_current_app_clean_strip_cd lvm2 $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "smartmontools" ]; then
+  rel="7_5";
+  ver="7.5";
+  if should_make smartmontools $ver; then
+    download_unpack_source https://github.com/smartmontools/smartmontools/releases/download/RELEASE_$rel/smartmontools-$ver.tar.gz smartmontools smartmontools-$ver 1
+    ./configure --prefix=/app/smartmontools/current
+    make -j$cpu_num
+    create_app smartmontools $prefix$ver
+    set_current_app smartmontools $prefix$ver 1
+    make install
+#    echo "" >> /app/smartmontools/current/readme.md
+#    echo "**Last**" >> /app/smartmontools/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/smartmontools/current/readme.md
+    set_current_app_clean_strip_cd smartmontools $prefix$ver 1
+  fi
+fi
 # ----------------------------- basic - usefull libs ------------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "libunistring" ]; then
   ver="1.5";
@@ -1325,22 +1341,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
     set_current_app_clean_strip_cd libxml2 $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "smartmontools" ]; then
-  rel="7_5";
-  ver="7.5";
-  if should_make smartmontools $ver; then
-    download_unpack_source https://github.com/smartmontools/smartmontools/releases/download/RELEASE_$rel/smartmontools-$ver.tar.gz smartmontools smartmontools-$ver 1
-    ./configure --prefix=/app/smartmontools/current
-    make -j$cpu_num
-    create_app smartmontools $prefix$ver
-    set_current_app smartmontools $prefix$ver 1
-    make install
-#    echo "" >> /app/smartmontools/current/readme.md
-#    echo "**Last**" >> /app/smartmontools/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/smartmontools/current/readme.md
-    set_current_app_clean_strip_cd smartmontools $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "libxcrypt" ]; then
   ver="4.5.2";
   if should_make libxcrypt $ver; then
@@ -1364,35 +1364,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libse
     cd $output/app/libselinux/$prefix$ver/lib
     ln -s libselinux.so.1 libselinux.so
     set_current_app_clean_strip_cd libselinux $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "dmidecode" ]; then
-  ver="3.7";
-  if should_make dmidecode $ver; then
-    download_unpack_source https://download.savannah.gnu.org/releases/dmidecode/dmidecode-$ver.tar.xz dmidecode dmidecode-$ver 1
-    make all -j$cpu_num
-    create_app dmidecode $prefix$ver
-#    we need make install - this could work with changing DESTDIR maybe
-    for folderentry in bin man completion; do
-      mkdir $output/app/dmidecode/$prefix$ver/$folderentry
-    done
-    for binentry in biosdecode dmidecode ownership vpddecode; do
-      cp $binentry $output/app/dmidecode/$prefix$ver/bin
-    done
-    cp completion/* $output/app/dmidecode/$prefix$ver/completion
-    cp man/*.8 $output/app/dmidecode/$prefix$ver/man
-    set_current_app_clean_strip_cd dmidecode $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pciutils" ]; then
-  ver="3.15.0";
-  if should_make pciutils $ver; then
-    download_unpack_source https://github.com/pciutils/pciutils/releases/download/v$ver/pciutils-$ver.tar.gz pciutils pciutils-$ver 1
-    sed -i 's/HWDB=/HWDB=no/g' Makefile
-    make PREFIX=/app/pciutils/current -j$cpu_num
-    create_app_in_tmp_and_link_it pciutils $prefix$ver
-    make PREFIX=/app/pciutils/current  install
-    set_current_app_clean_strip_cd pciutils $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libestr" ]; then
@@ -1520,25 +1491,6 @@ if [ "$package" == "fs" ] || [ "$package" == "freetype" ]; then
     set_current_app_clean_strip_cd freetype $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "tecmake" ]; then
-  ver="4.20";
-  if should_make tecmake $ver; then
-    download_unpack_source https://www.tecgraf.puc-rio.br/tecmake/download/tecmake.tar.gz tecmake . 1
-    create_app tecmake $prefix$ver
-    cp * /app/tecmake/$prefix$ver
-    set_current_app_clean_strip_cd tecmake $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lm-sensors" ]; then
-  ver="3-6-2";
-  if should_make lm-sensors $ver; then
-    download_unpack_source https://github.com/lm-sensors/lm-sensors/archive/refs/tags/V$ver.tar.gz lm-sensors lm-sensors-$ver 1
-    make -j$cpu_num
-    create_app lm-sensors $prefix$ver
-    make install PREFIX=$output/app/lm-sensors/$prefix$ver
-    set_current_app_clean_strip_cd lm-sensors $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "brotli" ]; then
   ver="1.2.0";
   if should_make brotli $ver; then
@@ -1578,18 +1530,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libss
 #    echo "**Last**" >> /app/libssh/current/readme.md
 #    echo "$LATEST_FILE_UPDATE" >> /app/libssh/current/readme.md
     set_current_app_clean_strip_cd libssh $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "usbutils" ]; then
-  ver="019";
-  if should_make usbutils $ver; then
-    download_unpack_source https://github.com/gregkh/usbutils/archive/refs/tags/v$ver.tar.gz usbutils usbutils-$ver 1
-    install_host_deps "libusb-dev libudev-dev"
-    meson setup -Dprefix=$output/app/usbutils/$prefix$ver _build
-    meson compile -C _build
-    create_app usbutils $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd usbutils $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libexpat" ]; then
@@ -1666,9 +1606,58 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libud
     set_current_app_clean_strip_cd libudev-zero $prefix$ver 1
   fi
 fi
-# -------------------------------- basic - fs ---------------------------------------------
-# -------------------------------- basic - lib ---------------------------------------------
 # -------------------------------- basic - info --------------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "dmidecode" ]; then
+  ver="3.7";
+  if should_make dmidecode $ver; then
+    download_unpack_source https://download.savannah.gnu.org/releases/dmidecode/dmidecode-$ver.tar.xz dmidecode dmidecode-$ver 1
+    make all -j$cpu_num
+    create_app dmidecode $prefix$ver
+#    we need make install - this could work with changing DESTDIR maybe
+    for folderentry in bin man completion; do
+      mkdir $output/app/dmidecode/$prefix$ver/$folderentry
+    done
+    for binentry in biosdecode dmidecode ownership vpddecode; do
+      cp $binentry $output/app/dmidecode/$prefix$ver/bin
+    done
+    cp completion/* $output/app/dmidecode/$prefix$ver/completion
+    cp man/*.8 $output/app/dmidecode/$prefix$ver/man
+    set_current_app_clean_strip_cd dmidecode $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pciutils" ]; then
+  ver="3.15.0";
+  if should_make pciutils $ver; then
+    download_unpack_source https://github.com/pciutils/pciutils/releases/download/v$ver/pciutils-$ver.tar.gz pciutils pciutils-$ver 1
+    sed -i 's/HWDB=/HWDB=no/g' Makefile
+    make PREFIX=/app/pciutils/current -j$cpu_num
+    create_app_in_tmp_and_link_it pciutils $prefix$ver
+    make PREFIX=/app/pciutils/current  install
+    set_current_app_clean_strip_cd pciutils $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lm-sensors" ]; then
+  ver="3-6-2";
+  if should_make lm-sensors $ver; then
+    download_unpack_source https://github.com/lm-sensors/lm-sensors/archive/refs/tags/V$ver.tar.gz lm-sensors lm-sensors-$ver 1
+    make -j$cpu_num
+    create_app lm-sensors $prefix$ver
+    make install PREFIX=$output/app/lm-sensors/$prefix$ver
+    set_current_app_clean_strip_cd lm-sensors $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "usbutils" ]; then
+  ver="019";
+  if should_make usbutils $ver; then
+    download_unpack_source https://github.com/gregkh/usbutils/archive/refs/tags/v$ver.tar.gz usbutils usbutils-$ver 1
+    install_host_deps "libusb-dev libudev-dev"
+    meson setup -Dprefix=$output/app/usbutils/$prefix$ver _build
+    meson compile -C _build
+    create_app usbutils $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd usbutils $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "i2c-tools" ]; then
   ver="4.4";
   if should_make i2c-tools $ver; then
@@ -2694,6 +2683,16 @@ if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
     mkdir /app/lua/current/lib/pkgconfig
     cp $curdir/in/lua/lua55.pc /app/lua/current/lib/pkgconfig
     set_current_app_clean_strip_cd lua $prefix$ver 1
+  fi
+fi
+# ---------------------------- compiling -------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "tecmake" ]; then
+  ver="4.20";
+  if should_make tecmake $ver; then
+    download_unpack_source https://www.tecgraf.puc-rio.br/tecmake/download/tecmake.tar.gz tecmake . 1
+    create_app tecmake $prefix$ver
+    cp * /app/tecmake/$prefix$ver
+    set_current_app_clean_strip_cd tecmake $prefix$ver 1
   fi
 fi
 # ---------------------------- experiments -----------------------------
