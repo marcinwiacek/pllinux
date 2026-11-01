@@ -2063,20 +2063,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "shim"
     set_current_app_clean_strip_cd shim $prefix$ver 0
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "crispy-doom" ]; then
-  ver="7.2";
-  if should_make crispy-doom $ver; then
-    download_unpack_source https://github.com/fabiangreffrath/crispy-doom/archive/refs/tags/crispy-doom-7.2.tar.gz crispy-doom crispy-doom-crispy-doom-$ver 1
-PKG_CONFIG_PATH=/app/sdl/261015_2.32.10/lib/pkgconfig ./autogen.sh --disable-sdl2mixer  --disable-sdl2net
-    ./configure --installprefix=/app/cripsy-doom/current --disable-sdl2mixer  --disable-sdl2net
-    make -j$cpu_num
-#    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
-#    meson compile -C _build
-#    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
-#    meson install -C _build
-#    set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "chezscheme" ]; then
   ver="10.4.1";
   if should_make chezscheme $ver; then
@@ -2715,6 +2701,20 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxd
   fi
 fi
 #---------------------------------- graphic stuff ---------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "crispy-doom" ]; then
+  ver="7.2";
+  if should_make crispy-doom $ver; then
+    download_unpack_source https://github.com/fabiangreffrath/crispy-doom/archive/refs/tags/crispy-doom-7.2.tar.gz crispy-doom crispy-doom-crispy-doom-$ver 1
+PKG_CONFIG_PATH=/app/sdl/261015_2.32.10/lib/pkgconfig ./autogen.sh --disable-sdl2mixer  --disable-sdl2net
+    ./configure --installprefix=/app/cripsy-doom/current --disable-sdl2mixer  --disable-sdl2net
+    make -j$cpu_num
+#    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
+#    meson compile -C _build
+#    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
+#    meson install -C _build
+#    set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
   ver="2.32.10";
   if should_make sdl $ver; then
@@ -2839,9 +2839,59 @@ if [ "$package" == "fs2" ] || [ "$package" == "fpc" ]; then
 #    set_current_app_clean_strip_cd php $prefix$ver 1
   fi
 fi
-
 # ---------------------------- experiments -----------------------------
-
+if [ "$package" == "fs" ] || [ "$package" == "kitty" ]; then
+#golang-go
+  ver="0.49.2";
+  if should_make kitty $ver; then
+    download_unpack_source https://github.com/kovidgoyal/kitty/archive/refs/tags/v0.49.2.tar.gz kitty kitty-$ver 1
+    ./dev.sh build
+    create_app kitty $prefix$ver
+    mkdir /app/kitty/$prefix$ver/bin
+    cp kitty/launcher/kitty /app/kitty/$prefix$ver/bin
+    set_current_app_clean_strip_cd kitty $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "autoconf" ]; then
+  ver="2.73";
+  if should_make autoconf $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/autoconf/autoconf-2.73.tar.xz autoconf autoconf-$ver 1
+    mkdir $out/autoconf/autoconf-$ver-build
+    cd $out/autoconf/autoconf-$ver-build
+    ../autoconf-$ver/configure --prefix=$output/app/autoconf/$prefix$ver
+    make all -j$cpu_num
+    create_app autoconf $prefix$ver
+    make install
+    set_current_app_clean_strip_cd autoconf $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "automake" ]; then
+  ver="1.18";
+  if should_make automake $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/automake/automake-$ver.tar.xz automake automake-$ver 1
+    mkdir $out/automake/automake-$ver-build
+    cd $out/automake/automake-$ver-build
+    ../automake-$ver/configure --prefix=$output/app/automake/$prefix$ver
+    make all -j$cpu_num
+    create_app automake $prefix$ver
+    make install
+    remove_duplicates_cd $output/app/automake/$prefix$ver/bin
+    set_current_app_clean_strip_cd automake $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
+  ver="1.5.8";
+  if should_make xorriso $ver; then
+    download_unpack_source https://www.gnu.org/software/xorriso/xorriso-$ver.pl02.tar.gz xorriso xorriso-$ver 1
+    mkdir $out/xorriso/xorriso-$ver-build
+    cd $out/xorriso/xorisso-$ver-build
+    ../xorriso-$ver/configure --prefix=$output/app/xorriso/$prefix$ver
+    make -j$cpu_num
+    create_app xorriso $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xorriso $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "mcnosandbox" ]; then
   ver="4.8.33";
   if should_make mc $ver; then
@@ -3018,6 +3068,7 @@ fi
 #    set_current_app_clean_strip_cd grub-dejavu-fonts $prefix$ver 0
 #  fi
 #fi
+#----------------------------------------- Wayland stuff -------------------------
 if [ "$package" == "fs" ] || [ "$package" == "hyprcursor" ]; then
 #libcairo-dev libzip-dev libtomlplusplus-dev librsvg2-dev
   ver="0.1.13";
@@ -3354,7 +3405,7 @@ ver="2.60.2";
     set_current_app_clean_strip_cd librsvg $prefix$ver 1
   fi
 fi
-# PGP
+# ------------------------------------------ PGP ---------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "libgpg-error" ]; then
   ver="1.61";
   if should_make libgpg-error $ver; then
@@ -3431,58 +3482,6 @@ if [ "$package" == "fs" ] || [ "$package" == "gnupg" ]; then
     make install
     #fixme: some errors
     set_current_app_clean_strip_cd gnupg $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "kitty" ]; then
-#golang-go
-  ver="0.49.2";
-  if should_make kitty $ver; then
-    download_unpack_source https://github.com/kovidgoyal/kitty/archive/refs/tags/v0.49.2.tar.gz kitty kitty-$ver 1
-    ./dev.sh build
-    create_app kitty $prefix$ver
-    mkdir /app/kitty/$prefix$ver/bin
-    cp kitty/launcher/kitty /app/kitty/$prefix$ver/bin
-    set_current_app_clean_strip_cd kitty $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "autoconf" ]; then
-  ver="2.73";
-  if should_make autoconf $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/autoconf/autoconf-2.73.tar.xz autoconf autoconf-$ver 1
-    mkdir $out/autoconf/autoconf-$ver-build
-    cd $out/autoconf/autoconf-$ver-build
-    ../autoconf-$ver/configure --prefix=$output/app/autoconf/$prefix$ver
-    make all -j$cpu_num
-    create_app autoconf $prefix$ver
-    make install
-    set_current_app_clean_strip_cd autoconf $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "automake" ]; then
-  ver="1.18";
-  if should_make automake $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/automake/automake-$ver.tar.xz automake automake-$ver 1
-    mkdir $out/automake/automake-$ver-build
-    cd $out/automake/automake-$ver-build
-    ../automake-$ver/configure --prefix=$output/app/automake/$prefix$ver
-    make all -j$cpu_num
-    create_app automake $prefix$ver
-    make install
-    remove_duplicates_cd $output/app/automake/$prefix$ver/bin
-    set_current_app_clean_strip_cd automake $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xorriso" ]; then
-  ver="1.5.8";
-  if should_make xorriso $ver; then
-    download_unpack_source https://www.gnu.org/software/xorriso/xorriso-$ver.pl02.tar.gz xorriso xorriso-$ver 1
-    mkdir $out/xorriso/xorriso-$ver-build
-    cd $out/xorriso/xorisso-$ver-build
-    ../xorriso-$ver/configure --prefix=$output/app/xorriso/$prefix$ver
-    make -j$cpu_num
-    create_app xorriso $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xorriso $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
