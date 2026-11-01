@@ -6,6 +6,9 @@ glibc current
 pcre2 current
 util-linux current
 zlib current
+libselinux current
+libffi current
+gcclib current
 
 **Description**
 Core part of PLLINUX. Bundle of C libraries created mainly by Gnome.

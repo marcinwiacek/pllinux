@@ -23,6 +23,8 @@ See COPYING
 **Description**
 Command line tool and library for transfering data with URLs
 
+CURL_GNUTLS_4 symbol in libraries replaced with CURL_GNUTLS_3 to have compatibility (similar like in Debian).
+
 **Project**
 https://curl.se/
 
