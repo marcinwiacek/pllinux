@@ -964,6 +964,17 @@ if [ "$package" == "fs" ] || [ "$package" == "elfutils" ]; then
     set_current_app_clean_strip_cd elfutils $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsync" ]; then
+  ver="3.5.0";
+  if should_make rsync $ver; then
+    download_unpack_source https://download.samba.org/pub/rsync/src/rsync-$ver.tar.gz rsync rsync-$ver 1
+    ./configure --disable-xxhash --disable-lz4 --prefix=$output/app/rsync/$prefix$ver
+    make all -j$cpu_num
+    create_app rsync $prefix$ver
+    make install
+    set_current_app_clean_strip_cd rsync $prefix$ver 1
+  fi
+fi
 # ----------------------------- basic - fs ----------------------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "e2fsprogs" ]; then
   ver="1.47.4";
@@ -1176,64 +1187,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libevdev" ]; then
     set_current_app_clean_strip_cd libevdev $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
-  ver="0.5.0";
-  if should_make libliftoff $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/emersion/libliftoff/-/releases/v0.5.0/downloads/libliftoff-0.5.0.tar.gz libliftoff libliftoff-$ver 1
-    meson setup -Dprefix=/app/libliftoff/current -Dlibdir=lib builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it libliftoff $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd libliftoff $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsync" ]; then
-  ver="3.5.0";
-  if should_make rsync $ver; then
-    download_unpack_source https://download.samba.org/pub/rsync/src/rsync-$ver.tar.gz rsync rsync-$ver 1
-    ./configure --disable-xxhash --disable-lz4 --prefix=$output/app/rsync/$prefix$ver
-    make all -j$cpu_num
-    create_app rsync $prefix$ver
-    make install
-    set_current_app_clean_strip_cd rsync $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zstd" ]; then
-  ver="1.5.7";
-  if should_make zstd $ver; then
-    download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver 1
-    make all -j$cpu_num
-    create_app zstd $prefix$ver
-    cp LICENSE $output/app/zstd/$prefix$ver
-    rsync -a $curdir/in/zstd/ $output/app/zstd/$prefix$ver
-    mkdir $output/app/zstd/$prefix$ver/bin
-    for binrentry in zstd zstd-compress zstd-decompress zstd-small zstdgrep zstdsmall; do
-      cp programs/$binentry $output/app/zstd/$prefix$ver/bin
-    done
-    mkdir $output/app/zstd/$prefix$ver/lib
-    rsync -a lib/lib* $output/app/zstd/$prefix$ver/lib
-    cd $output/app/zstd/$prefix$ver/lib
-    rm libzstd.so
-    ln -s libzstd.so.$ver libzstd.so
-    rm libzstd.so.1
-    ln -s libzstd.so.$ver libzstd.so.1
-    set_current_app_clean_strip_cd zstd $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zlib" ]; then
-  ver="1.3.2";
-  if should_make zlib $ver; then
-    download_unpack_source https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver 1
-    ./configure
-    make all -j$cpu_num
-    create_app zlib $prefix$ver
-    cp LICENSE $output/app/zlib/$prefix$ver
-    rsync -a $curdir/in/zlib/ $output/app/zlib/$prefix$ver
-    mkdir $output/app/zlib/$prefix$ver/lib
-    rsync -a libz* $output/app/zlib/$prefix$ver/lib
-    set_current_app_clean_strip_cd zlib $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pcre2" ]; then
   ver="10.47";
   if should_make pcre2 $ver; then
@@ -1384,34 +1337,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libfa
     set_current_app_clean_strip_cd libfastjson $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzutils" ]; then
-  ver="5.8.4";
-  if should_make xzutils $ver; then
-    download_unpack_source https://github.com/tukaani-project/xz/releases/download/v$ver/xz-$ver.tar.xz xzutils xz-$ver 1
-    mkdir $out/xzutils/xz-$ver-build
-    cd $out/xzutils/xz-$ver-build
-    ../xz-$ver/autogen.sh
-    ../xz-$ver/configure --prefix=/app/xzutils/$prefix$ver
-    make -j$cpu_num
-    create_app xzutils $prefix$ver
-    make install
-    cp ../xz-$ver/COPYING $output/app/xzutils/$prefix$ver
-    set_current_app_clean_strip_cd xzutils $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
-  ver="1.0.8";
-  if should_make bzip2 $ver; then
-    download_unpack_source https://sourceware.org/pub/bzip2/bzip2-$ver.tar.gz bzip2 bzip2-$ver 1
-    make -j$cpu_num
-    create_app bzip2 $prefix$ver
-    make install PREFIX=/app/bzip2/$prefix$ver
-    make clean
-    make -f Makefile-libbz2_so -j$cpu_num
-    cp libbz2.so* $output/app/bzip2/$prefix$ver/lib
-    set_current_app_clean_strip_cd bzip2 $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "mtdev" ]; then
   ver="1.1.7";
   if should_make mtdev $ver; then
@@ -1466,17 +1391,6 @@ if [ "$package" == "fs" ] || [ "$package" == "freetype" ]; then
     create_app_in_tmp_and_link_it freetype $prefix$ver
     make install
     set_current_app_clean_strip_cd freetype $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "brotli" ]; then
-  ver="1.2.0";
-  if should_make brotli $ver; then
-    download_unpack_source https://github.com/google/brotli/archive/refs/tags/v$ver.tar.gz brotli brotli-$ver 1
-    mkdir out && cd out
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$output/app/brotli/$prefix$ver ..
-    create_app brotli $prefix$ver
-    cmake --build . --config Release --target install
-    set_current_app_clean_strip_cd brotli $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "json-c" ]; then
@@ -1581,6 +1495,82 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libud
     rsync -a $output/app/libudev-zero/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libudev-zero/$prefix$ver/lib
     rm -r $output/app/libudev-zero/$prefix$ver/lib/x86_64-linux-gnu/
     set_current_app_clean_strip_cd libudev-zero $prefix$ver 1
+  fi
+fi
+# -------------------------------- basic - compression libs and tools ----------------------
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zstd" ]; then
+  ver="1.5.7";
+  if should_make zstd $ver; then
+    download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver 1
+    make all -j$cpu_num
+    create_app zstd $prefix$ver
+    cp LICENSE $output/app/zstd/$prefix$ver
+    rsync -a $curdir/in/zstd/ $output/app/zstd/$prefix$ver
+    mkdir $output/app/zstd/$prefix$ver/bin
+    for binrentry in zstd zstd-compress zstd-decompress zstd-small zstdgrep zstdsmall; do
+      cp programs/$binentry $output/app/zstd/$prefix$ver/bin
+    done
+    mkdir $output/app/zstd/$prefix$ver/lib
+    rsync -a lib/lib* $output/app/zstd/$prefix$ver/lib
+    cd $output/app/zstd/$prefix$ver/lib
+    rm libzstd.so
+    ln -s libzstd.so.$ver libzstd.so
+    rm libzstd.so.1
+    ln -s libzstd.so.$ver libzstd.so.1
+    set_current_app_clean_strip_cd zstd $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zlib" ]; then
+  ver="1.3.2";
+  if should_make zlib $ver; then
+    download_unpack_source https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver 1
+    ./configure
+    make all -j$cpu_num
+    create_app zlib $prefix$ver
+    cp LICENSE $output/app/zlib/$prefix$ver
+    rsync -a $curdir/in/zlib/ $output/app/zlib/$prefix$ver
+    mkdir $output/app/zlib/$prefix$ver/lib
+    rsync -a libz* $output/app/zlib/$prefix$ver/lib
+    set_current_app_clean_strip_cd zlib $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzutils" ]; then
+  ver="5.8.4";
+  if should_make xzutils $ver; then
+    download_unpack_source https://github.com/tukaani-project/xz/releases/download/v$ver/xz-$ver.tar.xz xzutils xz-$ver 1
+    mkdir $out/xzutils/xz-$ver-build
+    cd $out/xzutils/xz-$ver-build
+    ../xz-$ver/autogen.sh
+    ../xz-$ver/configure --prefix=/app/xzutils/$prefix$ver
+    make -j$cpu_num
+    create_app xzutils $prefix$ver
+    make install
+    cp ../xz-$ver/COPYING $output/app/xzutils/$prefix$ver
+    set_current_app_clean_strip_cd xzutils $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
+  ver="1.0.8";
+  if should_make bzip2 $ver; then
+    download_unpack_source https://sourceware.org/pub/bzip2/bzip2-$ver.tar.gz bzip2 bzip2-$ver 1
+    make -j$cpu_num
+    create_app bzip2 $prefix$ver
+    make install PREFIX=/app/bzip2/$prefix$ver
+    make clean
+    make -f Makefile-libbz2_so -j$cpu_num
+    cp libbz2.so* $output/app/bzip2/$prefix$ver/lib
+    set_current_app_clean_strip_cd bzip2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "brotli" ]; then
+  ver="1.2.0";
+  if should_make brotli $ver; then
+    download_unpack_source https://github.com/google/brotli/archive/refs/tags/v$ver.tar.gz brotli brotli-$ver 1
+    mkdir out && cd out
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$output/app/brotli/$prefix$ver ..
+    create_app brotli $prefix$ver
+    cmake --build . --config Release --target install
+    set_current_app_clean_strip_cd brotli $prefix$ver 1
   fi
 fi
 # -------------------------------- basic - info --------------------------------------------
@@ -3423,6 +3413,17 @@ if [ "$package" == "fs" ] || [ "$package" == "libgudev" ]; then
     create_app_in_tmp_and_link_it libgudev $prefix$ver
     ninja -C builddir install
     set_current_app_clean_strip_cd libgudev $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
+  ver="0.5.0";
+  if should_make libliftoff $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/emersion/libliftoff/-/releases/v0.5.0/downloads/libliftoff-0.5.0.tar.gz libliftoff libliftoff-$ver 1
+    meson setup -Dprefix=/app/libliftoff/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it libliftoff $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd libliftoff $prefix$ver 1
   fi
 fi
 # ------------------------------------------ PGP ---------------------------------
