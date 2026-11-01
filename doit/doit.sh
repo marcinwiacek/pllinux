@@ -2444,12 +2444,10 @@ if [ "$package" == "fs" ] || [ "$package" == "jwm" ]; then
   ver="2.4.6";
   if should_make jwm $ver; then
     download_unpack_source https://github.com/joewing/jwm/releases/download/v$ver/jwm-$ver.tar.xz jwm jwm-$ver 1
-#    ./autogen.sh
-    ./configure --prefix=/app/jwm/current
+    ./configure --prefix=/app/jwm/current  --disable-cairo  --disable-rsvg
     make -j$cpu_num
     create_app_in_tmp_and_link_it jwm $prefix$ver
     make install
-#    cp COPYING /app/xterm/current
     set_current_app_clean_strip_cd jwm $prefix$ver 1
   fi
 fi
