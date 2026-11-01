@@ -1943,69 +1943,6 @@ if [ "$package" == "fs" ] || [ "$package" == "mediainfo" ]; then
 #    set_current_app_clean_strip_cd hyprutils $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub" ]; then
-  ver="2.16";
-  if should_make grub $ver; then
-    install_host_deps "autoconf-archive"
-    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
-    ./bootstrap
-    ./autogen.sh
-    ./configure --prefix=/app/grub/$prefix$ver --target=x86_64 --with-platform=efi
-    make all -j$cpu_num
-    create_app grub $prefix$ver
-    make install
-    set_current_app_clean_strip_cd grub $prefix$ver 1 #ignors lib in stripping
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efivar" ]; then
-  ver="39";
-  if should_make efivar $ver; then
-    install_host_deps "mandoc"
-    download_unpack_source https://github.com/rhboot/efivar/archive/refs/tags/$ver.tar.gz efivar efivar-$ver 1
-    make -j$cpu_num
-    create_app efivar $prefix$ver
-    make install PREFIX=/app/efivar/$prefix$ver
-    mv /app/efivar/$prefix$ver/lib64 /app/efivar/$prefix$ver/lib
-    set_current_app_clean_strip_cd efivar $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efibootmgr" ]; then
-  ver="18";
-  if should_make efibootmgr $ver; then
-    install_host_deps "libefivar-dev efivar pkg-config libefiboot-dev"
-    download_unpack_source https://github.com/rhboot/efibootmgr/releases/download/$ver/efibootmgr-$ver.tar.bz2 efibootmgr efibootmgr-$ver 1
-    make -j$cpu_num EFIDIR=/app/efibootmgr/$prefix$ver/dynamic
-    create_app efibootmgr $prefix$ver
-    mkdir /app/efibootmgr/$prefix$ver/dynamic
-    make install EFIDIR=/app/efibootmgr/$prefix$ver/dynamic DESTDIR=/app/efibootmgr/$prefix$ver
-    set_current_app_clean_strip_cd efibootmgr $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "shim" ]; then
-  # Source https://github.com/rhboot/shim
-  # Currently we take signed package from the https://koji.fedoraproject.org/koji/packageinfo?packageID=14502
-  # This must be resolved in the future
-  ver="16.1-9";
-  if should_make shim $ver; then
-    download_unpack_source https://kojipkgs.fedoraproject.org//packages/shim/16.1/9/x86_64/shim-x64-$ver.x86_64.rpm shim shim-$ver 1
-    create_app shim $prefix$ver
-    cd usr/lib/efi/shim/$ver/EFI
-    rsync -a . "$output/app/shim/$prefix$ver"
-    set_current_app_clean_strip_cd shim $prefix$ver 0
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "chezscheme" ]; then
-  ver="10.4.1";
-  if should_make chezscheme $ver; then
-    download_unpack_source https://github.com/cisco/ChezScheme/releases/download/v$ver/csv$ver.tar.gz chezscheme csv$ver 1
-    ./configure --installprefix=$output/app/chezscheme/$prefix$ver
-    make -j$cpu_num
-    create_app chezscheme $prefix$ver
-    make install
-    remove_duplicates_cd $output/app/chezscheme/$prefix$ver/lib/csv$ver/ta6le
-    set_current_app_clean_strip_cd chezscheme $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lm-sensors" ]; then
   ver="3-6-2";
   if should_make lm-sensors $ver; then
@@ -2124,33 +2061,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpc
     set_current_app_clean_strip_cd libpciaccess $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libglvnd" ]; then
-  ver="1.7.0";
-  if should_make libglvnd $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/glvnd/libglvnd/-/archive/v1.7.0/libglvnd-v1.7.0.tar.gz libglvnd libglvnd-v$ver 1
-    meson setup -Dprefix=/app/libglvnd/$prefix$ver _build
-    meson compile -C _build
-    create_app libglvnd $prefix$ver
-    set_current_app libglvnd $prefix$ver 1
-    meson install -C _build
-    rsync -a $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libglvnd/$prefix$ver/lib
-    rm -r $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd libglvnd $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "volk" ]; then
-  ver="1.4.350";
-  if should_make volk $ver; then
-    download_unpack_source https://github.com/zeux/volk/archive/refs/tags/$ver.tar.gz volk volk-$ver 1
-    cmake -D CMAKE_BUILD_TYPE=Release -DVOLK_INSTALL=ON \
-      -D CMAKE_INSTALL_PREFIX=/app/volk/current \
-      -D CMAKE_SKIP_INSTALL_RPATH=ON .
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it volk $prefix$ver
-    make install
-    set_current_app_clean_strip_cd volk $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdisplay-info" ]; then
 #  ver="0.4.0";
   ver="0.2.0";
@@ -2196,17 +2106,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libud
     set_current_app_clean_strip_cd libudev-zero $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "memtest86plus" ]; then
-  ver="9.00";
-  if should_make memtest86plus $ver; then
-    download_unpack_source https://github.com/memtest86plus/memtest86plus/archive/refs/tags/v9.00.tar.gz memtest86plus memtest86plus-$ver 1
-    cd build/x86_64
-    make
-    create_app memtest86plus $prefix$ver
-    cp mt86plus $output/app/memtest86plus/$prefix$ver/mt86plus.efi
-    set_current_app_clean_strip_cd memtest86plus $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "i2c-tools" ]; then
   ver="4.4";
   if should_make i2c-tools $ver; then
@@ -2218,6 +2117,83 @@ if [ "$package" == "fs" ] || [ "$package" == "i2c-tools" ]; then
     set_current_app_clean_strip_cd i2c-tools $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
+  ver="3.0.2";
+  if should_make read-edid $ver; then
+    install_host_deps "cmake libx86-dev"
+    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-$ver.tar.gz read-edid read-edid-$ver 1
+    cmake . -DCMAKE_C_FLAGS="-fcommon"
+    make
+    echo > COPYING
+    create_app_in_tmp_and_link_it read-edid $prefix$ver
+    cmake --install . --prefix /app/read-edid/current
+    set_current_app_clean_strip_cd read-edid $prefix$ver 1
+  fi
+fi
+#--------------------------------- basic - bootloader chain -----------------------------
+if [ "$package" == "fs" ] || [ "$package" == "memtest86plus" ]; then
+  ver="9.00";
+  if should_make memtest86plus $ver; then
+    download_unpack_source https://github.com/memtest86plus/memtest86plus/archive/refs/tags/v9.00.tar.gz memtest86plus memtest86plus-$ver 1
+    cd build/x86_64
+    make
+    create_app memtest86plus $prefix$ver
+    cp mt86plus $output/app/memtest86plus/$prefix$ver/mt86plus.efi
+    set_current_app_clean_strip_cd memtest86plus $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub" ]; then
+  ver="2.16";
+  if should_make grub $ver; then
+    install_host_deps "autoconf-archive"
+    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
+    ./bootstrap
+    ./autogen.sh
+    ./configure --prefix=/app/grub/$prefix$ver --target=x86_64 --with-platform=efi
+    make all -j$cpu_num
+    create_app grub $prefix$ver
+    make install
+    set_current_app_clean_strip_cd grub $prefix$ver 1 #ignors lib in stripping
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efivar" ]; then
+  ver="39";
+  if should_make efivar $ver; then
+    install_host_deps "mandoc"
+    download_unpack_source https://github.com/rhboot/efivar/archive/refs/tags/$ver.tar.gz efivar efivar-$ver 1
+    make -j$cpu_num
+    create_app efivar $prefix$ver
+    make install PREFIX=/app/efivar/$prefix$ver
+    mv /app/efivar/$prefix$ver/lib64 /app/efivar/$prefix$ver/lib
+    set_current_app_clean_strip_cd efivar $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efibootmgr" ]; then
+  ver="18";
+  if should_make efibootmgr $ver; then
+    install_host_deps "libefivar-dev efivar pkg-config libefiboot-dev"
+    download_unpack_source https://github.com/rhboot/efibootmgr/releases/download/$ver/efibootmgr-$ver.tar.bz2 efibootmgr efibootmgr-$ver 1
+    make -j$cpu_num EFIDIR=/app/efibootmgr/$prefix$ver/dynamic
+    create_app efibootmgr $prefix$ver
+    mkdir /app/efibootmgr/$prefix$ver/dynamic
+    make install EFIDIR=/app/efibootmgr/$prefix$ver/dynamic DESTDIR=/app/efibootmgr/$prefix$ver
+    set_current_app_clean_strip_cd efibootmgr $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "shim" ]; then
+  # Source https://github.com/rhboot/shim
+  # Currently we take signed package from the https://koji.fedoraproject.org/koji/packageinfo?packageID=14502
+  # This must be resolved in the future
+  ver="16.1-9";
+  if should_make shim $ver; then
+    download_unpack_source https://kojipkgs.fedoraproject.org//packages/shim/16.1/9/x86_64/shim-x64-$ver.x86_64.rpm shim shim-$ver 1
+    create_app shim $prefix$ver
+    cd usr/lib/efi/shim/$ver/EFI
+    rsync -a . "$output/app/shim/$prefix$ver"
+    set_current_app_clean_strip_cd shim $prefix$ver 0
+  fi
+fi
+#---------------------------------- basic - network -------------------------------------
 if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
   ver="${prefix:0:6}";
   if should_make ccadb $ver; then
@@ -2237,19 +2213,6 @@ if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
 #    mkdir $output/app/ccadb/$prefix$ver/all
 #    cp ccadb $output/app/ccadb/$prefix$ver/all/ca-certificates.crt
     set_current_app_clean_strip_cd ccadb $prefix$ver 0
-  fi
-fi
-if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
-  ver="3.0.2";
-  if should_make read-edid $ver; then
-    install_host_deps "cmake libx86-dev"
-    download_unpack_source http://www.polypux.org/projects/read-edid/read-edid-$ver.tar.gz read-edid read-edid-$ver 1
-    cmake . -DCMAKE_C_FLAGS="-fcommon"
-    make
-    echo > COPYING
-    create_app_in_tmp_and_link_it read-edid $prefix$ver
-    cmake --install . --prefix /app/read-edid/current
-    set_current_app_clean_strip_cd read-edid $prefix$ver 1
   fi
 fi
 #---------------------------------- mesa ------------------------------------------------
@@ -2357,6 +2320,20 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulka
   fi
 fi
 #----------------------------------- x11 ------------------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libglvnd" ]; then
+  ver="1.7.0";
+  if should_make libglvnd $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/glvnd/libglvnd/-/archive/v1.7.0/libglvnd-v1.7.0.tar.gz libglvnd libglvnd-v$ver 1
+    meson setup -Dprefix=/app/libglvnd/$prefix$ver _build
+    meson compile -C _build
+    create_app libglvnd $prefix$ver
+    set_current_app libglvnd $prefix$ver 1
+    meson install -C _build
+    rsync -a $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libglvnd/$prefix$ver/lib
+    rm -r $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/
+    set_current_app_clean_strip_cd libglvnd $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libX11" ]; then
   ver="1.8.13";
   if should_make libx11 $ver; then
@@ -2734,6 +2711,18 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
   fi
 fi
 #--------------------------------- programming languages --------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "chezscheme" ]; then
+  ver="10.4.1";
+  if should_make chezscheme $ver; then
+    download_unpack_source https://github.com/cisco/ChezScheme/releases/download/v$ver/csv$ver.tar.gz chezscheme csv$ver 1
+    ./configure --installprefix=$output/app/chezscheme/$prefix$ver
+    make -j$cpu_num
+    create_app chezscheme $prefix$ver
+    make install
+    remove_duplicates_cd $output/app/chezscheme/$prefix$ver/lib/csv$ver/ta6le
+    set_current_app_clean_strip_cd chezscheme $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
   ver="2.3.3";
   if should_make slang $ver; then
@@ -2840,6 +2829,19 @@ if [ "$package" == "fs2" ] || [ "$package" == "fpc" ]; then
   fi
 fi
 # ---------------------------- experiments -----------------------------
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "volk" ]; then
+  ver="1.4.350";
+  if should_make volk $ver; then
+    download_unpack_source https://github.com/zeux/volk/archive/refs/tags/$ver.tar.gz volk volk-$ver 1
+    cmake -D CMAKE_BUILD_TYPE=Release -DVOLK_INSTALL=ON \
+      -D CMAKE_INSTALL_PREFIX=/app/volk/current \
+      -D CMAKE_SKIP_INSTALL_RPATH=ON .
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it volk $prefix$ver
+    make install
+    set_current_app_clean_strip_cd volk $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "kitty" ]; then
 #golang-go
   ver="0.49.2";
@@ -3405,6 +3407,19 @@ ver="2.60.2";
     set_current_app_clean_strip_cd librsvg $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
+  ver="0.13.0";
+  if should_make yyjson $ver; then
+    download_unpack_source https://github.com/ibireme/yyjson/archive/refs/tags/0.13.0.tar.gz yyjson yyjson-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/yyjson/current \
+      -DBUILD_SHARED_LIBS=true -S . -B ./build 
+    create_app_in_tmp_and_link_it yyjson $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it yyjson $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd yyjson $prefix$ver 1
+  fi
+fi
 # ------------------------------------------ PGP ---------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "libgpg-error" ]; then
   ver="1.61";
@@ -3482,18 +3497,5 @@ if [ "$package" == "fs" ] || [ "$package" == "gnupg" ]; then
     make install
     #fixme: some errors
     set_current_app_clean_strip_cd gnupg $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
-  ver="0.13.0";
-  if should_make yyjson $ver; then
-    download_unpack_source https://github.com/ibireme/yyjson/archive/refs/tags/0.13.0.tar.gz yyjson yyjson-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/yyjson/current \
-      -DBUILD_SHARED_LIBS=true -S . -B ./build 
-    create_app_in_tmp_and_link_it yyjson $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it yyjson $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd yyjson $prefix$ver 1
   fi
 fi
