@@ -1225,19 +1225,6 @@ if [ "$package" == "fs" ] || [ "$package" == "grep" ]; then
   make install
   set_current_app_clean_strip_cd grep $prefix$ver 1
 fi
-if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
-  ver="2.3.3";
-  if should_make slang $ver; then
-    download_unpack_source https://www.jedsoft.org/releases/slang/slang-$ver.tar.bz2 slang slang-$ver 1
-    ./configure --prefix=/app/slang/current
-    make all -j$cpu_num
-    create_app slang $prefix$ver
-    set_current_app slang $prefix$ver 1
-    make install
-    chmod a-x $output/app/slang/$prefix$ver/lib/slang/v2/modules/*.so
-    set_current_app_clean_strip_cd slang $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glib" ]; then
   #glib (GTK, gnome), not GNU C library
   ver="2.89.1";
@@ -1692,51 +1679,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
     set_current_app_clean_strip_cd libinput $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "vala" ]; then
-#vala
-  ver="0.56.19";
-  if should_make vala $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/vala/-/archive/0.56.19/vala-0.56.19.tar.bz2 vala vala-$ver 1
-    ./autogen.sh
-    PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig:/app/graphviz/current/lib/pkgconfig \
-        ./configure --prefix=/app/vala/current PACKAGE_VERSION=$ver
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it vala $prefix$ver
-    make install
-    set_current_app_clean_strip_cd vala $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
-#apt-get install x11proto-dev xtrans-dev libpixman-1-dev libxkbcommon-x11-dev \
-#libxfont-dev libxcvt-dev libdrm-dev libepoxy-dev \
-#x11proto-present-dev x11proto-dev libxkbfile-dev libudev-dev libxshmfence-dev \
-#libbsd-dev x11proto-xf86dri-dev libgl1-mesa-dev libglu1-mesa-dev \
-#libglu1-mesa-dev libgl-dev libdrm-dev xutils-dev mesa-common-dev libgbm-dev \
-#libxcb-shape0-dev libxcb-util-dev libxcb-icccm4-dev
-
-#libxkbfile-dev xfont2* libxcvt-dev
-  ver="25.1.9";
-  if should_make xlibre-xserver $ver; then
-    download_unpack_source https://github.com/X11Libre/xserver/archive/refs/tags/xlibre-xserver-25.1.9.tar.gz xlibre-xserver xserver-xlibre-xserver-$ver 1
-    meson setup -Dprefix=/app/xlibre-xserver/current -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it xlibre-xserver $prefix$ver
-    ninja -C builddir install
-    rsync -a $curdir/in/xlibre-xserver/ /app/xlibre-xserver/current
-    set_current_app_clean_strip_cd xlibre-xserver $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xf86-input-evdev" ]; then
-  ver="2.11.0";
-  if should_make xf86-input-evdev $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-evdev-2.11.0.tar.xz xf86-input-evdev xf86-input-evdev-$ver 1
-    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-evdev/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xf86-input-evdev $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xf86-input-evdev $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "mtdev" ]; then
   ver="1.1.7";
   if should_make mtdev $ver; then
@@ -1842,17 +1784,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libxext" ]; then
     create_app_in_tmp_and_link_it libxext $prefix$ver
     make install
     set_current_app_clean_strip_cd libxext $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "seatd" ]; then
-  ver="0.9.3";
-  if should_make seatd $ver; then
-    download_unpack_source https://github.com/kennylevinsen/seatd/archive/refs/tags/0.9.3.tar.gz seatd seatd-$ver 1
-    meson setup -Dprefix=/app/seatd/current --buildtype release -Dlibdir=lib -Dlibseat-logind=disabled _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it seatd $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd seatd $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libpng" ]; then
@@ -2235,36 +2166,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdi
     set_current_app_clean_strip_cd libdisplay-info $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libX11" ]; then
-  ver="1.8.13";
-  if should_make libx11 $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libX11-$ver.tar.xz libX11 libX11-$ver 1
-    ./configure --prefix=/app/libx11/current
-    make all -j$cpu_num
-    create_app libx11 $prefix$ver
-    set_current_app libx11 $prefix$ver 1
-    make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
-    set_current_app_clean_strip_cd libx11 $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxshmfence" ]; then
-  ver="1.3.3";
-  if should_make libxshmfence $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libxshmfence-$ver.tar.xz libxshmfence libxshmfence-$ver 1
-    ./configure --prefix=/app/libxshmfence/current
-    make all -j$cpu_num
-    create_app libxshmfence $prefix$ver
-    set_current_app libxshmfence $prefix$ver 1
-    make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
-    set_current_app_clean_strip_cd libxshmfence $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libffi" ]; then
   ver="3.8.0";
   if should_make libffi $ver; then
@@ -2456,6 +2357,36 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulka
   fi
 fi
 #----------------------------------- x11 ------------------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libX11" ]; then
+  ver="1.8.13";
+  if should_make libx11 $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libX11-$ver.tar.xz libX11 libX11-$ver 1
+    ./configure --prefix=/app/libx11/current
+    make all -j$cpu_num
+    create_app libx11 $prefix$ver
+    set_current_app libx11 $prefix$ver 1
+    make install
+#    echo "" >> /app/libexpat/current/readme.md
+#    echo "**Last**" >> /app/libexpat/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
+    set_current_app_clean_strip_cd libx11 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxshmfence" ]; then
+  ver="1.3.3";
+  if should_make libxshmfence $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libxshmfence-$ver.tar.xz libxshmfence libxshmfence-$ver 1
+    ./configure --prefix=/app/libxshmfence/current
+    make all -j$cpu_num
+    create_app libxshmfence $prefix$ver
+    set_current_app libxshmfence $prefix$ver 1
+    make install
+#    echo "" >> /app/libexpat/current/readme.md
+#    echo "**Last**" >> /app/libexpat/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
+    set_current_app_clean_strip_cd libxshmfence $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "libxmu" ]; then
   ver="1.3.1";
   if should_make libxmu $ver; then
@@ -2700,6 +2631,48 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxd
     set_current_app_clean_strip_cd libxdmcp $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "seatd" ]; then
+  ver="0.9.3";
+  if should_make seatd $ver; then
+    download_unpack_source https://github.com/kennylevinsen/seatd/archive/refs/tags/0.9.3.tar.gz seatd seatd-$ver 1
+    meson setup -Dprefix=/app/seatd/current --buildtype release -Dlibdir=lib -Dlibseat-logind=disabled _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it seatd $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd seatd $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
+#apt-get install x11proto-dev xtrans-dev libpixman-1-dev libxkbcommon-x11-dev \
+#libxfont-dev libxcvt-dev libdrm-dev libepoxy-dev \
+#x11proto-present-dev x11proto-dev libxkbfile-dev libudev-dev libxshmfence-dev \
+#libbsd-dev x11proto-xf86dri-dev libgl1-mesa-dev libglu1-mesa-dev \
+#libglu1-mesa-dev libgl-dev libdrm-dev xutils-dev mesa-common-dev libgbm-dev \
+#libxcb-shape0-dev libxcb-util-dev libxcb-icccm4-dev
+
+#libxkbfile-dev xfont2* libxcvt-dev
+  ver="25.1.9";
+  if should_make xlibre-xserver $ver; then
+    download_unpack_source https://github.com/X11Libre/xserver/archive/refs/tags/xlibre-xserver-25.1.9.tar.gz xlibre-xserver xserver-xlibre-xserver-$ver 1
+    meson setup -Dprefix=/app/xlibre-xserver/current -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it xlibre-xserver $prefix$ver
+    ninja -C builddir install
+    rsync -a $curdir/in/xlibre-xserver/ /app/xlibre-xserver/current
+    set_current_app_clean_strip_cd xlibre-xserver $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xf86-input-evdev" ]; then
+  ver="2.11.0";
+  if should_make xf86-input-evdev $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-evdev-2.11.0.tar.xz xf86-input-evdev xf86-input-evdev-$ver 1
+    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-evdev/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xf86-input-evdev $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xf86-input-evdev $prefix$ver 1
+  fi
+fi
 #---------------------------------- graphic stuff ---------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "crispy-doom" ]; then
   ver="7.2";
@@ -2761,6 +2734,33 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
   fi
 fi
 #--------------------------------- programming languages --------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
+  ver="2.3.3";
+  if should_make slang $ver; then
+    download_unpack_source https://www.jedsoft.org/releases/slang/slang-$ver.tar.bz2 slang slang-$ver 1
+    ./configure --prefix=/app/slang/current
+    make all -j$cpu_num
+    create_app slang $prefix$ver
+    set_current_app slang $prefix$ver 1
+    make install
+    chmod a-x $output/app/slang/$prefix$ver/lib/slang/v2/modules/*.so
+    set_current_app_clean_strip_cd slang $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "vala" ]; then
+#vala
+  ver="0.56.19";
+  if should_make vala $ver; then
+    download_unpack_source https://gitlab.gnome.org/GNOME/vala/-/archive/0.56.19/vala-0.56.19.tar.bz2 vala vala-$ver 1
+    ./autogen.sh
+    PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig:/app/graphviz/current/lib/pkgconfig \
+        ./configure --prefix=/app/vala/current PACKAGE_VERSION=$ver
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it vala $prefix$ver
+    make install
+    set_current_app_clean_strip_cd vala $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "python" ]; then
 #  ver="3.15.0";
   ver="3.14.0";
