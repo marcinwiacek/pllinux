@@ -1701,22 +1701,6 @@ if [ "$package" == "fs" ] || [ "$package" == "tecmake" ]; then
     set_current_app_clean_strip_cd tecmake $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
-  ver="5.5.0";
-  if should_make lua $ver; then
-    download_unpack_source https://www.lua.org/ftp/lua-5.5.0.tar.gz lua lua-$ver 1
-    make linux
-    create_app lua $prefix$ver
-    make install INSTALL_TOP=/app/lua/$prefix$ver
-    download_unpack_source https://sourceforge.net/projects/luabinaries/files/5.5.0/Docs%20and%20Sources/lua-5.5.0_Sources.tar.gz/download lua lua55 1
-    cd src
-    make -f Makefile.tecmake
-    cp ../lib/Linux612_64/*.so /app/lua/$prefix$ver/lib
-    mkdir /app/lua/current/lib/pkgconfig
-    cp $curdir/in/lua/lua55.pc /app/lua/current/lib/pkgconfig
-    set_current_app_clean_strip_cd lua $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
   ver="1.26.0";
   if should_make wayland $ver; then
@@ -1888,21 +1872,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpc
     set_current_app_clean_strip_cd libpciaccess $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdisplay-info" ]; then
-#  ver="0.4.0";
-  ver="0.2.0";
-  if should_make libdisplay-info $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/emersion/libdisplay-info/-/releases/$ver/downloads/libdisplay-info-$ver.tar.xz \
-          libdisplay-info libdisplay-info-$ver 1
-    meson setup -Dprefix=/app/libdisplay-info/current _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libdisplay-info $prefix$ver
-    meson install -C _build
-    rsync -a /app/libdisplay-info/current/lib/x86_64-linux-gnu/* /app/libdisplay-info/current/lib
-    rm -r /app/libdisplay-info/current/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd libdisplay-info $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libffi" ]; then
   ver="3.8.0";
   if should_make libffi $ver; then
@@ -1933,6 +1902,9 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libud
     set_current_app_clean_strip_cd libudev-zero $prefix$ver 1
   fi
 fi
+# -------------------------------- basic - fs ---------------------------------------------
+# -------------------------------- basic - lib ---------------------------------------------
+# -------------------------------- basic - info --------------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "i2c-tools" ]; then
   ver="4.4";
   if should_make i2c-tools $ver; then
@@ -2238,6 +2210,21 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa"
   fi
 fi
 #----------------------------------- vulkan ---------------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdisplay-info" ]; then
+#  ver="0.4.0";
+  ver="0.2.0";
+  if should_make libdisplay-info $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/emersion/libdisplay-info/-/releases/$ver/downloads/libdisplay-info-$ver.tar.xz \
+          libdisplay-info libdisplay-info-$ver 1
+    meson setup -Dprefix=/app/libdisplay-info/current _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libdisplay-info $prefix$ver
+    meson install -C _build
+    rsync -a /app/libdisplay-info/current/lib/x86_64-linux-gnu/* /app/libdisplay-info/current/lib
+    rm -r /app/libdisplay-info/current/lib/x86_64-linux-gnu/
+    set_current_app_clean_strip_cd libdisplay-info $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "swiftshader" ]; then
   ver="1";
   if should_make swiftshader $ver; then
@@ -2818,6 +2805,22 @@ if [ "$package" == "fs2" ] || [ "$package" == "fpc" ]; then
   fi
 fi
 # ---------------------------- experiments -----------------------------
+if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
+  ver="5.5.0";
+  if should_make lua $ver; then
+    download_unpack_source https://www.lua.org/ftp/lua-5.5.0.tar.gz lua lua-$ver 1
+    make linux
+    create_app lua $prefix$ver
+    make install INSTALL_TOP=/app/lua/$prefix$ver
+    download_unpack_source https://sourceforge.net/projects/luabinaries/files/5.5.0/Docs%20and%20Sources/lua-5.5.0_Sources.tar.gz/download lua lua55 1
+    cd src
+    make -f Makefile.tecmake
+    cp ../lib/Linux612_64/*.so /app/lua/$prefix$ver/lib
+    mkdir /app/lua/current/lib/pkgconfig
+    cp $curdir/in/lua/lua55.pc /app/lua/current/lib/pkgconfig
+    set_current_app_clean_strip_cd lua $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "volk" ]; then
   ver="1.4.350";
   if should_make volk $ver; then
