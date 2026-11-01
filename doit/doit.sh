@@ -386,7 +386,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
 
   cd $curdir
 fi
-#--------------------------------- basic - booting -----------------------------
+#--------------------------------- basic - basic -----------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
   ver="7.3.1";
   ver="6.18.60";
@@ -478,68 +478,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dinit
     set_current_app_clean_strip_cd dinit $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "memtest86plus" ]; then
-  ver="9.00";
-  if should_make memtest86plus $ver; then
-    download_unpack_source https://github.com/memtest86plus/memtest86plus/archive/refs/tags/v9.00.tar.gz memtest86plus memtest86plus-$ver 1
-    cd build/x86_64
-    make
-    create_app memtest86plus $prefix$ver
-    cp mt86plus $output/app/memtest86plus/$prefix$ver/mt86plus.efi
-    set_current_app_clean_strip_cd memtest86plus $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub" ]; then
-  ver="2.16";
-  if should_make grub $ver; then
-    install_host_deps "autoconf-archive"
-    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
-    ./bootstrap
-    ./autogen.sh
-    ./configure --prefix=/app/grub/$prefix$ver --target=x86_64 --with-platform=efi
-    make all -j$cpu_num
-    create_app grub $prefix$ver
-    make install
-    set_current_app_clean_strip_cd grub $prefix$ver 1 #ignors lib in stripping
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efivar" ]; then
-  ver="39";
-  if should_make efivar $ver; then
-    install_host_deps "mandoc"
-    download_unpack_source https://github.com/rhboot/efivar/archive/refs/tags/$ver.tar.gz efivar efivar-$ver 1
-    make -j$cpu_num
-    create_app efivar $prefix$ver
-    make install PREFIX=/app/efivar/$prefix$ver
-    mv /app/efivar/$prefix$ver/lib64 /app/efivar/$prefix$ver/lib
-    set_current_app_clean_strip_cd efivar $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efibootmgr" ]; then
-  ver="18";
-  if should_make efibootmgr $ver; then
-    install_host_deps "libefivar-dev efivar pkg-config libefiboot-dev"
-    download_unpack_source https://github.com/rhboot/efibootmgr/releases/download/$ver/efibootmgr-$ver.tar.bz2 efibootmgr efibootmgr-$ver 1
-    make -j$cpu_num EFIDIR=/app/efibootmgr/$prefix$ver/dynamic
-    create_app efibootmgr $prefix$ver
-    mkdir /app/efibootmgr/$prefix$ver/dynamic
-    make install EFIDIR=/app/efibootmgr/$prefix$ver/dynamic DESTDIR=/app/efibootmgr/$prefix$ver
-    set_current_app_clean_strip_cd efibootmgr $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "shim" ]; then
-  # Source https://github.com/rhboot/shim
-  # Currently we take signed package from the https://koji.fedoraproject.org/koji/packageinfo?packageID=14502
-  # This must be resolved in the future
-  ver="16.1-9";
-  if should_make shim $ver; then
-    download_unpack_source https://kojipkgs.fedoraproject.org//packages/shim/16.1/9/x86_64/shim-x64-$ver.x86_64.rpm shim shim-$ver 1
-    create_app shim $prefix$ver
-    cd usr/lib/efi/shim/$ver/EFI
-    rsync -a . "$output/app/shim/$prefix$ver"
-    set_current_app_clean_strip_cd shim $prefix$ver 0
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "initramfs" ]; then
   ver="0.1";
   if should_make initramfs $ver; then
@@ -619,7 +557,86 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pllin
   rsync -a $curdir/in/pllinux/ $output/app/pllinux/$prefix$ver
   set_current_app_clean_strip_cd pllinux $prefix$ver 0
 fi
+# --------------------------------- basic - bootloader and extra booting stuff ------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "memtest86plus" ]; then
+  ver="9.00";
+  if should_make memtest86plus $ver; then
+    download_unpack_source https://github.com/memtest86plus/memtest86plus/archive/refs/tags/v9.00.tar.gz memtest86plus memtest86plus-$ver 1
+    cd build/x86_64
+    make
+    create_app memtest86plus $prefix$ver
+    cp mt86plus $output/app/memtest86plus/$prefix$ver/mt86plus.efi
+    set_current_app_clean_strip_cd memtest86plus $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "grub" ]; then
+  ver="2.16";
+  if should_make grub $ver; then
+    install_host_deps "autoconf-archive"
+    download_unpack_source https://gitlab.freedesktop.org/gnu-grub/grub/-/archive/grub-$ver/grub-grub-$ver.tar.gz?ref_type=tags grub grub-grub-$ver 1
+    ./bootstrap
+    ./autogen.sh
+    ./configure --prefix=/app/grub/$prefix$ver --target=x86_64 --with-platform=efi
+    make all -j$cpu_num
+    create_app grub $prefix$ver
+    make install
+    set_current_app_clean_strip_cd grub $prefix$ver 1 #ignors lib in stripping
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efivar" ]; then
+  ver="39";
+  if should_make efivar $ver; then
+    install_host_deps "mandoc"
+    download_unpack_source https://github.com/rhboot/efivar/archive/refs/tags/$ver.tar.gz efivar efivar-$ver 1
+    make -j$cpu_num
+    create_app efivar $prefix$ver
+    make install PREFIX=/app/efivar/$prefix$ver
+    mv /app/efivar/$prefix$ver/lib64 /app/efivar/$prefix$ver/lib
+    set_current_app_clean_strip_cd efivar $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efibootmgr" ]; then
+  ver="18";
+  if should_make efibootmgr $ver; then
+    install_host_deps "libefivar-dev efivar pkg-config libefiboot-dev"
+    download_unpack_source https://github.com/rhboot/efibootmgr/releases/download/$ver/efibootmgr-$ver.tar.bz2 efibootmgr efibootmgr-$ver 1
+    make -j$cpu_num EFIDIR=/app/efibootmgr/$prefix$ver/dynamic
+    create_app efibootmgr $prefix$ver
+    mkdir /app/efibootmgr/$prefix$ver/dynamic
+    make install EFIDIR=/app/efibootmgr/$prefix$ver/dynamic DESTDIR=/app/efibootmgr/$prefix$ver
+    set_current_app_clean_strip_cd efibootmgr $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "shim" ]; then
+  # Source https://github.com/rhboot/shim
+  # Currently we take signed package from the https://koji.fedoraproject.org/koji/packageinfo?packageID=14502
+  # This must be resolved in the future
+  ver="16.1-9";
+  if should_make shim $ver; then
+    download_unpack_source https://kojipkgs.fedoraproject.org//packages/shim/16.1/9/x86_64/shim-x64-$ver.x86_64.rpm shim shim-$ver 1
+    create_app shim $prefix$ver
+    cd usr/lib/efi/shim/$ver/EFI
+    rsync -a . "$output/app/shim/$prefix$ver"
+    set_current_app_clean_strip_cd shim $prefix$ver 0
+  fi
+fi
 # --------------------------------- basic - console env and basic tools -------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bash" ]; then
+  ver="5.3";
+  if should_make bash $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/bash/bash-$ver.tar.gz bash bash-$ver 1
+    ./configure --prefix=/app/bash/current
+    make all -j$cpu_num
+    create_app bash $prefix$ver
+    set_current_app bash $prefix$ver 1
+    make install
+    cp $curdir/in/bash/* $output/app/bash/$prefix$ver
+    echo "" >> /app/bash/current/readme.md
+    echo "**Last**" >> /app/bash/current/readme.md
+    echo "$LATEST_FILE_UPDATE" >> /app/bash/current/readme.md
+    set_current_app_clean_strip_cd bash $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kbd" ]; then
   ver="2.10.0";
   if should_make kbd $ver; then
@@ -640,46 +657,24 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kbd" 
     set_current_app_clean_strip_cd kbd $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glibc" ]; then
-  # GNU C Library, not glib (gtk, gnome)
-  ver="2.44";
-  if should_make glibc $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
-    mkdir $out/glibc/glibc-$ver-build
-    cd $out/glibc/glibc-$ver-build
-    ../glibc-$ver/configure --prefix=/app/glibc/current
-    cp $curdir/in/glibc/2_44_rtld.c ../glibc-$ver/elf/rtld.c
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it glibc $prefix$ver
-    make install
-    chmod a-x /app/glibc/current/lib/audit/*so*
-    chmod a-x /app/glibc/current/lib/gconv/*so*
-    cd /app/glibc/current/share
-    ln -s /app/tzdb/current/usr/share/zoneinfo zoneinfo
-    cd /app/glibc # to silence some error in set_current_app...
-    cp $curdir/in/glibc/2_43_patch_ver6.txt /app/glibc/current
-    set_current_app_clean_strip_cd glibc $prefix$ver 1
-    chmod a+x $output/app/glibc/$prefix$ver/lib/ld-linux-x86-64.so.2
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "console-fonts-zap" ]; then
+  ver="2.4";
+  if should_make console-fonts-zap $ver; then
+    download_unpack_source https://ftp.zap.org.au/pub/fonts/console-fonts-zap/console-fonts-zap-2.4.tar.xz console-fonts console-fonts-zap-$ver 1
+    create_app console-fonts-zap $prefix$ver
+    cp *.psf /app/console-fonts-zap/$prefix$ver
+    set_current_app_clean_strip_cd console-fonts-zap $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "util-linux" ]; then
-  ver1="2.42";
-  ver="2.42.4";
-  if should_make util-linux $ver; then
-    download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver1/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
-    #without --disable-makeinstall... tries to remove files from /usr/share... doesn't respect --prefix
-    #without --disable-bash-compiletion similar story
-    ./configure --prefix=/app/util-linux/current --without-systemd --disable-lsfd --disable-enosys \
-        --disable-bash-completion --disable-makeinstall-chown  --disable-makeinstall-setuid  --disable-makeinstall-tty-setgid
-    make all -j$cpu_num
-    create_app util-linux $prefix$ver
-    set_current_app util-linux $prefix$ver 1
-    make install || true
-    cp $curdir/in/util-linux/* $output/app/util-linux/$prefix$ver
-    echo "" >> /app/util-linux/current/readme.md
-    echo "**Last**" >> /app/util-linux/current/readme.md
-    echo "$LATEST_FILE_UPDATE" >> /app/util-linux/current/readme.md
-    set_current_app_clean_strip_cd util-linux $prefix$ver 1
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "terminus-font" ]; then
+  ver="4.49.1";
+  if should_make terminus-font $ver; then
+    download_unpack_source https://sourceforge.net/projects/terminus-font/files/terminus-font-4.49/terminus-font-4.49.1.tar.gz/download terminus-font terminus-font-$ver 1
+    ./configure --prefix=/app/terminus-font/$prefix$ver
+    make -j$cpu_num
+    create_app terminus-font $prefix$ver
+    make install
+    set_current_app_clean_strip_cd terminus-font $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mc" ]; then
@@ -703,22 +698,77 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mc" ]
     set_current_app_clean_strip_cd mc $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bash" ]; then
-  ver="5.3";
-  if should_make bash $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/bash/bash-$ver.tar.gz bash bash-$ver 1
-    ./configure --prefix=/app/bash/current
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurses" ]; then
+  ver="6.6";
+  if should_make ncurses $ver; then
+    download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver 1
+    ./configure --prefix=/app/ncurses/current --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
     make all -j$cpu_num
-    create_app bash $prefix$ver
-    set_current_app bash $prefix$ver 1
+    create_app ncurses $prefix$ver
+    set_current_app ncurses $prefix$ver 1
     make install
-    cp $curdir/in/bash/* $output/app/bash/$prefix$ver
-    echo "" >> /app/bash/current/readme.md
-    echo "**Last**" >> /app/bash/current/readme.md
-    echo "$LATEST_FILE_UPDATE" >> /app/bash/current/readme.md
-    set_current_app_clean_strip_cd bash $prefix$ver 1
+    rsync -a $curdir/in/ncurses/ $output/app/ncurses/$prefix$ver
+    echo "" >> /app/ncurses/current/readme.md
+    echo "**Last**" >> /app/ncurses/current/readme.md
+    echo "$LATEST_FILE_UPDATE" >> /app/ncurses/current/readme.md
+    cp $out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
+    set_current_app_clean_strip_cd ncurses $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncursesw" ]; then
+  ver="6.6";
+  if should_make ncursesw $ver; then
+    download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncursesw ncurses-$ver 1
+    ./configure --prefix=/app/ncursesw/current --with-shared  --enable-widec --with-cxx-shared --with-versioned-syms --without-normal
+    make all -j$cpu_num
+    create_app ncursesw $prefix$ver
+    set_current_app ncursesw $prefix$ver 1
+    make install
+    rsync -a $curdir/in/ncurses/ $output/app/ncursesw/$prefix$ver
+    echo "" >> /app/ncursesw/current/readme.md
+    echo "**Last**" >> /app/ncursesw/current/readme.md
+    echo "$LATEST_FILE_UPDATE" >> /app/ncursesw/current/readme.md
+    cp $out/ncursesw/ncurses-$ver/COPYING $output/app/ncursesw/$prefix$ver
+    set_current_app_clean_strip_cd ncursesw $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "util-linux" ]; then
+  ver1="2.42";
+  ver="2.42.4";
+  if should_make util-linux $ver; then
+    download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver1/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
+    #without --disable-makeinstall... tries to remove files from /usr/share... doesn't respect --prefix
+    #without --disable-bash-compiletion similar story
+    ./configure --prefix=/app/util-linux/current --without-systemd --disable-lsfd --disable-enosys \
+        --disable-bash-completion --disable-makeinstall-chown  --disable-makeinstall-setuid  --disable-makeinstall-tty-setgid
+    make all -j$cpu_num
+    create_app util-linux $prefix$ver
+    set_current_app util-linux $prefix$ver 1
+    make install || true
+    cp $curdir/in/util-linux/* $output/app/util-linux/$prefix$ver
+    echo "" >> /app/util-linux/current/readme.md
+    echo "**Last**" >> /app/util-linux/current/readme.md
+    echo "$LATEST_FILE_UPDATE" >> /app/util-linux/current/readme.md
+    set_current_app_clean_strip_cd util-linux $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod" ]; then
+  ver="34";
+  if should_make kmod $ver; then
+    install_host_deps "scdoc"
+    download_unpack_source https://github.com/kmod-project/kmod/archive/refs/tags/v$ver.tar.gz kmod kmod-$ver 1
+    meson setup -Dprefix=/app/kmod/current --buildtype release _build
+    meson compile -C _build
+    create_app kmod $prefix$ver
+    set_current_app kmod $prefix$ver 1
+    meson install -C _build
+    rsync -a $output/app/kmod/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/kmod/$prefix$ver/lib
+    rm -r $output/app/kmod/$prefix$ver/lib/x86_64-linux-gnu/
+    set_current_app_clean_strip_cd kmod $prefix$ver 1
+  fi
+fi
+
+# ----------------------------- basic - fs ----------------------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "e2fsprogs" ]; then
   ver="1.47.4";
   if should_make bash $ver; then
@@ -735,6 +785,30 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "e2fsp
     set_current_app_clean_strip_cd e2fsprogs $prefix$ver 1
   fi
 fi
+
+# ----------------------------- basic - usefull libs ------------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glibc" ]; then
+  # GNU C Library, not glib (gtk, gnome)
+  ver="2.44";
+  if should_make glibc $ver; then
+    download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
+    mkdir $out/glibc/glibc-$ver-build
+    cd $out/glibc/glibc-$ver-build
+    ../glibc-$ver/configure --prefix=/app/glibc/current
+    cp $curdir/in/glibc/2_44_rtld.c ../glibc-$ver/elf/rtld.c
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it glibc $prefix$ver
+    make install
+    chmod a-x /app/glibc/current/lib/audit/*so*
+    chmod a-x /app/glibc/current/lib/gconv/*so*
+    cd /app/glibc/current/share
+    ln -s /app/tzdb/current/usr/share/zoneinfo zoneinfo
+    cd /app/glibc # to silence some error in set_current_app...
+    cp $curdir/in/glibc/2_43_patch_ver6.txt /app/glibc/current
+    set_current_app_clean_strip_cd glibc $prefix$ver 1
+    chmod a+x $output/app/glibc/$prefix$ver/lib/ld-linux-x86-64.so.2
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "libunistring" ]; then
   ver="1.5";
   if should_make libunistring $ver; then
@@ -744,21 +818,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libunistring" ]; then
     create_app_in_tmp_and_link_it libunistring $prefix$ver
     make install
     set_current_app_clean_strip_cd libunistring $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod" ]; then
-  ver="34";
-  if should_make kmod $ver; then
-    install_host_deps "scdoc"
-    download_unpack_source https://github.com/kmod-project/kmod/archive/refs/tags/v$ver.tar.gz kmod kmod-$ver 1
-    meson setup -Dprefix=/app/kmod/current --buildtype release _build
-    meson compile -C _build
-    create_app kmod $prefix$ver
-    set_current_app kmod $prefix$ver 1
-    meson install -C _build
-    rsync -a $output/app/kmod/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/kmod/$prefix$ver/lib
-    rm -r $output/app/kmod/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd kmod $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpsl" ]; then
@@ -880,31 +939,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
     set_current_app_clean_strip_cd libliftoff $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "libjpeg-turbo" ]; then
-  ver="3.2.0";
-  if should_make libjpeg-turbo $ver; then
-    download_unpack_source https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/3.2.0.tar.gz libjpeg-turbo libjpeg-turbo-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/libjpeg-turbo/current \
-      -DBUILD_SHARED_LIBS=true -S . -B ./build 
-    create_app_in_tmp_and_link_it libjpeg-turbo $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it libjpeg-turbo $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd libjpeg-turbo $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "dbus" ]; then
-  ver="1.16.2";
-  if should_make dbus $ver; then
-    download_unpack_source https://dbus.freedesktop.org/releases/dbus/dbus-1.16.2.tar.xz dbus dbus-$ver 1
-    meson setup -Dprefix=/app/dbus/current --buildtype release -Dsystemd=disabled -Dsystemd_system_unitdir=/app/dbus/current/systemd/system \
-       -Dsystemd_user_unitdir=/app/dbus/current/systemd/user -Dlibdir=lib build
-    ninja -C build
-    create_app_in_tmp_and_link_it dbus $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd dbus $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsync" ]; then
   ver="3.5.0";
   if should_make rsync $ver; then
@@ -967,40 +1001,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pcre2
     echo "**Last**" >> /app/pcre2/current/readme.md
     echo "$LATEST_FILE_UPDATE" >> /app/pcre2/current/readme.md
     set_current_app_clean_strip_cd pcre2 $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurses" ]; then
-  ver="6.6";
-  if should_make ncurses $ver; then
-    download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver 1
-    ./configure --prefix=/app/ncurses/current --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
-    make all -j$cpu_num
-    create_app ncurses $prefix$ver
-    set_current_app ncurses $prefix$ver 1
-    make install
-    rsync -a $curdir/in/ncurses/ $output/app/ncurses/$prefix$ver
-    echo "" >> /app/ncurses/current/readme.md
-    echo "**Last**" >> /app/ncurses/current/readme.md
-    echo "$LATEST_FILE_UPDATE" >> /app/ncurses/current/readme.md
-    cp $out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
-    set_current_app_clean_strip_cd ncurses $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncursesw" ]; then
-  ver="6.6";
-  if should_make ncursesw $ver; then
-    download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncursesw ncurses-$ver 1
-    ./configure --prefix=/app/ncursesw/current --with-shared  --enable-widec --with-cxx-shared --with-versioned-syms --without-normal
-    make all -j$cpu_num
-    create_app ncursesw $prefix$ver
-    set_current_app ncursesw $prefix$ver 1
-    make install
-    rsync -a $curdir/in/ncurses/ $output/app/ncursesw/$prefix$ver
-    echo "" >> /app/ncursesw/current/readme.md
-    echo "**Last**" >> /app/ncursesw/current/readme.md
-    echo "$LATEST_FILE_UPDATE" >> /app/ncursesw/current/readme.md
-    cp $out/ncursesw/ncurses-$ver/COPYING $output/app/ncursesw/$prefix$ver
-    set_current_app_clean_strip_cd ncursesw $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gcc" ]; then
@@ -1109,43 +1109,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
     create_app_in_tmp_and_link_it libxml2 $prefix$ver
     make install
     set_current_app_clean_strip_cd libxml2 $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fribidi" ]; then
-#help2man
-  ver="1.0.18";
-  if should_make fribidi $ver; then
-    download_unpack_source https://github.com/fribidi/fribidi/archive/refs/tags/v1.0.18.tar.gz fribidi fribidi-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/fribidi/current
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it fribidi $prefix$ver
-    make install
-    set_current_app_clean_strip_cd fribidi $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdatrie" ]; then
-  ver="0.2.14";
-  if should_make libdatrie $ver; then
-    download_unpack_source https://github.com/tlwg/libdatrie/archive/refs/tags/v0.2.14.tar.gz libdatrie libdatrie-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libdatrie/current
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it libdatrie $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libdatrie $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libthai" ]; then
-  ver="0.1.30";
-  if should_make libthai $ver; then
-    download_unpack_source https://github.com/tlwg/libthai/archive/refs/tags/v0.1.30.tar.gz libthai libthai-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libthai/current --disable-dict
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it libthai $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libthai $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "tzdb" ]; then
@@ -1284,26 +1247,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lvm2"
     cd $output/app/lvm2/$prefix$ver/lib
     ln -s libdevmapper.so.1.02 libdevmapper.so.1.02.1 # cross fingers this version works
     set_current_app_clean_strip_cd lvm2 $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "console-fonts-zap" ]; then
-  ver="2.4";
-  if should_make console-fonts-zap $ver; then
-    download_unpack_source https://ftp.zap.org.au/pub/fonts/console-fonts-zap/console-fonts-zap-2.4.tar.xz console-fonts console-fonts-zap-$ver 1
-    create_app console-fonts-zap $prefix$ver
-    cp *.psf /app/console-fonts-zap/$prefix$ver
-    set_current_app_clean_strip_cd console-fonts-zap $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "terminus-font" ]; then
-  ver="4.49.1";
-  if should_make terminus-font $ver; then
-    download_unpack_source https://sourceforge.net/projects/terminus-font/files/terminus-font-4.49/terminus-font-4.49.1.tar.gz/download terminus-font terminus-font-$ver 1
-    ./configure --prefix=/app/terminus-font/$prefix$ver
-    make -j$cpu_num
-    create_app terminus-font $prefix$ver
-    make install
-    set_current_app_clean_strip_cd terminus-font $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "parted" ]; then
@@ -3421,6 +3364,68 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprgraphics" ]; then
     create_app_in_tmp_and_link_it hyprgraphics $prefix$ver
     cmake --install build
     set_current_app_clean_strip_cd hyprgraphics $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fribidi" ]; then
+#help2man
+  ver="1.0.18";
+  if should_make fribidi $ver; then
+    download_unpack_source https://github.com/fribidi/fribidi/archive/refs/tags/v1.0.18.tar.gz fribidi fribidi-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/fribidi/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it fribidi $prefix$ver
+    make install
+    set_current_app_clean_strip_cd fribidi $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdatrie" ]; then
+  ver="0.2.14";
+  if should_make libdatrie $ver; then
+    download_unpack_source https://github.com/tlwg/libdatrie/archive/refs/tags/v0.2.14.tar.gz libdatrie libdatrie-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libdatrie/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libdatrie $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libdatrie $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libthai" ]; then
+  ver="0.1.30";
+  if should_make libthai $ver; then
+    download_unpack_source https://github.com/tlwg/libthai/archive/refs/tags/v0.1.30.tar.gz libthai libthai-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libthai/current --disable-dict
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libthai $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libthai $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libjpeg-turbo" ]; then
+  ver="3.2.0";
+  if should_make libjpeg-turbo $ver; then
+    download_unpack_source https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/3.2.0.tar.gz libjpeg-turbo libjpeg-turbo-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/libjpeg-turbo/current \
+      -DBUILD_SHARED_LIBS=true -S . -B ./build 
+    create_app_in_tmp_and_link_it libjpeg-turbo $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it libjpeg-turbo $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd libjpeg-turbo $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "dbus" ]; then
+  ver="1.16.2";
+  if should_make dbus $ver; then
+    download_unpack_source https://dbus.freedesktop.org/releases/dbus/dbus-1.16.2.tar.xz dbus dbus-$ver 1
+    meson setup -Dprefix=/app/dbus/current --buildtype release -Dsystemd=disabled -Dsystemd_system_unitdir=/app/dbus/current/systemd/system \
+       -Dsystemd_user_unitdir=/app/dbus/current/systemd/user -Dlibdir=lib build
+    ninja -C build
+    create_app_in_tmp_and_link_it dbus $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd dbus $prefix$ver 1
   fi
 fi
 # ------------------------------------------ PGP ---------------------------------
