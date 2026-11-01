@@ -1176,17 +1176,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libevdev" ]; then
     set_current_app_clean_strip_cd libevdev $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "libgudev" ]; then
-  ver="238";
-  if should_make libgudev $ver; then
-    download_unpack_source https://github.com/GNOME/libgudev/archive/refs/tags/238.tar.gz libgudev libgudev-$ver 1
-    meson setup -Dprefix=/app/libgudev/current -Dlibdir=lib builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it libgudev $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd libgudev $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
   ver="0.5.0";
   if should_make libliftoff $ver; then
@@ -1443,18 +1432,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libpng" ]; then
     create_app_in_tmp_and_link_it libpng $prefix$ver
     make install
     set_current_app_clean_strip_cd libpng $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libfontenc" ]; then
-  ver="1.1.9";
-  if should_make libfontenc $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libfontenc/-/archive/libfontenc-1.1.9/libfontenc-libfontenc-1.1.9.tar.bz2?ref_type=tags libfontenc libfontenc-libfontenc-$ver 1
-   ./autogen.sh
-    ./configure --prefix=/app/libfontenc/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libfontenc $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libfontenc $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "harfbuzz" ]; then
@@ -2038,6 +2015,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulka
   fi
 fi
 #----------------------------------- x11 ------------------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "libfontenc" ]; then
+  ver="1.1.9";
+  if should_make libfontenc $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libfontenc/-/archive/libfontenc-1.1.9/libfontenc-libfontenc-1.1.9.tar.bz2?ref_type=tags libfontenc libfontenc-libfontenc-$ver 1
+   ./autogen.sh
+    ./configure --prefix=/app/libfontenc/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libfontenc $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libfontenc $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fontconfig" ]; then
 #  ver="2.18.3";
   ver="2.17.1";
@@ -3423,6 +3412,17 @@ if [ "$package" == "fs" ] || [ "$package" == "dbus" ]; then
     create_app_in_tmp_and_link_it dbus $prefix$ver
     ninja -C build install
     set_current_app_clean_strip_cd dbus $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libgudev" ]; then
+  ver="238";
+  if should_make libgudev $ver; then
+    download_unpack_source https://github.com/GNOME/libgudev/archive/refs/tags/238.tar.gz libgudev libgudev-$ver 1
+    meson setup -Dprefix=/app/libgudev/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it libgudev $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd libgudev $prefix$ver 1
   fi
 fi
 # ------------------------------------------ PGP ---------------------------------
