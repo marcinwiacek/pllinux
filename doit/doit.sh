@@ -1591,11 +1591,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
 
 #--enable-versioned-symbols  doesn't exist
     ./autogen.sh
-    ./configure --prefix=/app/libxml2/current --libdir=/app/libxml2/current/lib
+    ./configure --prefix=/app/libxml2/current --libdir=/app/libxml2/current/lib --with-icu --static-libs
     make all -j$cpu_num
     create_app_in_tmp_and_link_it libxml2 $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libxml2 $prefix$ver 1
+#    make install
+#    set_current_app_clean_strip_cd libxml2 $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "autoconf" ]; then
@@ -2274,6 +2274,7 @@ if [ "$package" == "fs" ] || [ "$package" == "xterm" ]; then
     make -j$cpu_num
     create_app_in_tmp_and_link_it xterm $prefix$ver
     make install
+    cp COPYING /app/xterm/current
     set_current_app_clean_strip_cd xterm $prefix$ver 1
   fi
 fi

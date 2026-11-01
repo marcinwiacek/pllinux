@@ -10,3 +10,12 @@ libxshmfence current
 libdrm current
 libepoxy current
 mesa current
+
+**Project**
+https://gitlab.freedesktop.org/xorg/xserver
+
+**Description**
+Xorg server running on top of the Wayland (allows for running X clients).
+
+**License**
+SGI Free Software License B v1.1
