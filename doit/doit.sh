@@ -1869,22 +1869,6 @@ if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
     set_current_app_clean_strip_cd ccadb $prefix$ver 0
   fi
 fi
-#----------------------------------------------tools -----------------------------------
-if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
-  ver="2.55.0";
-  if should_make git $ver; then
-    install_host_deps "gettext asciidoc docbook2x"
-    download_unpack_source https://www.kernel.org/pub/software/scm/git/git-$ver.tar.xz git git-$ver 1
-    ./configure
-    make -j$cpu_num all doc info NO_RUST=1
-    create_app git $prefix$ver
-    set_current_app git $prefix$ver 1
-    make prefix=/app/git/current install install-doc install-html install-info NO_RUST=1
-    set_current_app_clean_strip_cd git $prefix$ver 1
-    remove_duplicates_cd $output/app/git/$prefix$ver/bin
-    remove_duplicates_cd $output/app/git/$prefix$ver/libexec/git-core
-  fi
-fi
 #---------------------------------- mesa ------------------------------------------------
 if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llvm" ]; then
   #  ver="23.1.3";
@@ -2664,7 +2648,22 @@ if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
     set_current_app_clean_strip_cd lua $prefix$ver 1
   fi
 fi
-# ---------------------------- compiling -------------------------------
+# ---------------------------- compiling and dev tools -------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
+  ver="2.55.0";
+  if should_make git $ver; then
+    install_host_deps "gettext asciidoc docbook2x"
+    download_unpack_source https://www.kernel.org/pub/software/scm/git/git-$ver.tar.xz git git-$ver 1
+    ./configure
+    make -j$cpu_num all doc info NO_RUST=1
+    create_app git $prefix$ver
+    set_current_app git $prefix$ver 1
+    make prefix=/app/git/current install install-doc install-html install-info NO_RUST=1
+    set_current_app_clean_strip_cd git $prefix$ver 1
+    remove_duplicates_cd $output/app/git/$prefix$ver/bin
+    remove_duplicates_cd $output/app/git/$prefix$ver/libexec/git-core
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "tecmake" ]; then
   ver="4.20";
   if should_make tecmake $ver; then
