@@ -2438,7 +2438,6 @@ if [ "$package" == "fs" ] || [ "$package" == "xcalc" ]; then
     set_current_app_clean_strip_cd xcalc $prefix$ver 1
   fi
 fi
-
 #----------------------------------- x11 graphic env ------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "jwm" ]; then
   ver="2.4.6";
