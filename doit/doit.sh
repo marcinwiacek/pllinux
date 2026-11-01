@@ -856,85 +856,6 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
     remove_duplicates_cd $output/app/git/$prefix$ver/libexec/git-core
   fi
 fi
-# PGP
-if [ "$package" == "fs" ] || [ "$package" == "libgpg-error" ]; then
-  ver="1.61";
-  if should_make libgpg-error $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${ver}.tar.bz2 libgpg-error libgpg-error-$ver 1
-    ./configure --prefix=$output/app/libgpg-error/$prefix$ver --enable-install-gpg-error-config
-    make all -j$cpu_num
-    create_app libgpg-error $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libgpg-error $prefix$ver 1
-  fi
-fi
-# PGP
-if [ "$package" == "fs" ] || [ "$package" == "libgcrypt" ]; then
-  ver="1.12.2";
-  if should_make libgcrypt $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${ver}.tar.bz2 libgcrypt libgcrypt-$ver 1
-    ./configure --prefix=$output/app/libgcrypt/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
-    make all -j$cpu_num
-    create_app libgcrypt $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libgcrypt $prefix$ver 1
-  fi
-fi
-# PGP
-if [ "$package" == "fs" ] || [ "$package" == "libassuan" ]; then
-  ver="3.0.2";
-  if should_make libassuan $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/libassuan/libassuan-${ver}.tar.bz2 libassuan libassuan-$ver 1
-    ./configure --prefix=$output/app/libassuan/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
-    make all -j$cpu_num
-    create_app libassuan $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libassuan $prefix$ver 1
-  fi
-fi
-# PGP
-if [ "$package" == "fs" ] || [ "$package" == "libksba" ]; then
-  ver="1.8.0";
-  if should_make libksba $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/libksba/libksba-${ver}.tar.bz2 libksba libksba-$ver 1
-    ./configure --prefix=$output/app/libksba/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
-    make all -j$cpu_num
-    create_app libksba $prefix$ver
-    make install
-    cp COPYING $output/app/libksba/$prefix$ver
-    set_current_app_clean_strip_cd libksba $prefix$ver 1
-  fi
-fi
-# PGP
-if [ "$package" == "fs" ] || [ "$package" == "npth" ]; then
-  ver="1.8";
-  if should_make npth $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/npth/npth-${ver}.tar.bz2 npth npth-$ver 1
-    ./configure --prefix=$output/app/npth/$prefix$ver --enable-install-npth-config
-    make all -j$cpu_num
-    create_app npth $prefix$ver
-    make install
-    set_current_app_clean_strip_cd npth $prefix$ver 1
-  fi
-fi
-# PGP
-if [ "$package" == "fs" ] || [ "$package" == "gnupg" ]; then
-  ver="2.5.21";
-  if should_make gnupg $ver; then
-    download_unpack_source https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${ver}.tar.bz2 gnupg gnupg-$ver 1
-    ./configure --with-libgpg-error-prefix=$output/app/libgpg-error/current \
-      --with-libgcrypt-prefix=$output/app/libgcrypt/current \
-      --with-libassuan-prefix=$output/app/libassuan/current \
-      --with-ksba-prefix=$output/app/libksba/current \
-      --with-npth-prefix=$output/app/npth/current \
-      --prefix=$output/app/gnupg/$prefix$ver
-    make all -j$cpu_num
-    create_app gnupg $prefix$ver
-    make install
-    #fixme: some errors
-    set_current_app_clean_strip_cd gnupg $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "openssl" ]; then
 #3.5.9 LTS
   for ver in 3.5.9 4.1.0; do 
@@ -3498,5 +3419,84 @@ ver="2.60.2";
     create_app_in_tmp_and_link_it librsvg $prefix$ver
     ninja -C build install
     set_current_app_clean_strip_cd librsvg $prefix$ver 1
+  fi
+fi
+# PGP
+if [ "$package" == "fs" ] || [ "$package" == "libgpg-error" ]; then
+  ver="1.61";
+  if should_make libgpg-error $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${ver}.tar.bz2 libgpg-error libgpg-error-$ver 1
+    ./configure --prefix=$output/app/libgpg-error/$prefix$ver --enable-install-gpg-error-config
+    make all -j$cpu_num
+    create_app libgpg-error $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libgpg-error $prefix$ver 1
+  fi
+fi
+# PGP
+if [ "$package" == "fs" ] || [ "$package" == "libgcrypt" ]; then
+  ver="1.12.2";
+  if should_make libgcrypt $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${ver}.tar.bz2 libgcrypt libgcrypt-$ver 1
+    ./configure --prefix=$output/app/libgcrypt/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
+    make all -j$cpu_num
+    create_app libgcrypt $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libgcrypt $prefix$ver 1
+  fi
+fi
+# PGP
+if [ "$package" == "fs" ] || [ "$package" == "libassuan" ]; then
+  ver="3.0.2";
+  if should_make libassuan $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libassuan/libassuan-${ver}.tar.bz2 libassuan libassuan-$ver 1
+    ./configure --prefix=$output/app/libassuan/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
+    make all -j$cpu_num
+    create_app libassuan $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libassuan $prefix$ver 1
+  fi
+fi
+# PGP
+if [ "$package" == "fs" ] || [ "$package" == "libksba" ]; then
+  ver="1.8.0";
+  if should_make libksba $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/libksba/libksba-${ver}.tar.bz2 libksba libksba-$ver 1
+    ./configure --prefix=$output/app/libksba/$prefix$ver --with-libgpg-error-prefix=$output/app/libgpg-error/current
+    make all -j$cpu_num
+    create_app libksba $prefix$ver
+    make install
+    cp COPYING $output/app/libksba/$prefix$ver
+    set_current_app_clean_strip_cd libksba $prefix$ver 1
+  fi
+fi
+# PGP
+if [ "$package" == "fs" ] || [ "$package" == "npth" ]; then
+  ver="1.8";
+  if should_make npth $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/npth/npth-${ver}.tar.bz2 npth npth-$ver 1
+    ./configure --prefix=$output/app/npth/$prefix$ver --enable-install-npth-config
+    make all -j$cpu_num
+    create_app npth $prefix$ver
+    make install
+    set_current_app_clean_strip_cd npth $prefix$ver 1
+  fi
+fi
+# PGP
+if [ "$package" == "fs" ] || [ "$package" == "gnupg" ]; then
+  ver="2.5.21";
+  if should_make gnupg $ver; then
+    download_unpack_source https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${ver}.tar.bz2 gnupg gnupg-$ver 1
+    ./configure --with-libgpg-error-prefix=$output/app/libgpg-error/current \
+      --with-libgcrypt-prefix=$output/app/libgcrypt/current \
+      --with-libassuan-prefix=$output/app/libassuan/current \
+      --with-ksba-prefix=$output/app/libksba/current \
+      --with-npth-prefix=$output/app/npth/current \
+      --prefix=$output/app/gnupg/$prefix$ver
+    make all -j$cpu_num
+    create_app gnupg $prefix$ver
+    make install
+    #fixme: some errors
+    set_current_app_clean_strip_cd gnupg $prefix$ver 1
   fi
 fi
