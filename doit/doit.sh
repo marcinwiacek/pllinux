@@ -1125,17 +1125,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
     set_current_app_clean_strip_cd libliftoff $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "cairo" ]; then
-  ver="1.18.6";
-  if should_make cairo $ver; then
-    download_unpack_source https://www.cairographics.org/releases/cairo-1.18.6.tar.xz cairo cairo-$ver 1
-    meson setup -Dprefix=/app/cairo/current --buildtype release -Dlibdir=lib build
-    ninja -C build
-    create_app_in_tmp_and_link_it cairo $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd cairo $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
   ver="0.13.0";
   if should_make yyjson $ver; then
@@ -1185,33 +1174,6 @@ if [ "$package" == "fs" ] || [ "$package" == "dbus" ]; then
     create_app_in_tmp_and_link_it dbus $prefix$ver
     ninja -C build install
     set_current_app_clean_strip_cd dbus $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "pango" ]; then
-  ver="1.58.2";
-  if should_make pango $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/pango/-/archive/$ver/pango-$ver.tar.bz2?ref_type=tags pango pango-$ver 1
-    PATH=$PATH:/app/gobject-introspection/current/bin && \
-    PKG_CONFIG_PATH=/app/glib/current/lib/pkgconfig:/app/gobject-introspection/current/lib/pkgconfig:/app/harfbuzz/current/lib/pkgconfig:/app/fontconfig/current/lib/pkgconfig     meson setup \
-       -Dprefix=/app/pango/current --buildtype release -Dlibdir=lib -Dbuild-examples=false -Dbuild-testsuite=false build
-    ninja -C build
-    create_app_in_tmp_and_link_it pango $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd pango $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "librsvg" ]; then
-#cargo-c
-#  ver="2.63.4";
-#  ver="2.63.0";
-ver="2.60.2";
-  if should_make librsvg $ver; then
-    download_unpack_source https://github.com/GNOME/librsvg/archive/refs/tags/$ver.tar.gz librsvg librsvg-$ver 1
-    meson setup -Dprefix=/app/librsvg/current --buildtype release -Dlibdir=lib -Ddocs=disabled -Dpixbuf-loader=disabled -Dtests=false build
-    ninja -C build
-    create_app_in_tmp_and_link_it librsvg $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd librsvg $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsync" ]; then
@@ -3498,5 +3460,43 @@ if [ "$package" == "fs" ] || [ "$package" == "graphviz" ]; then
     create_app_in_tmp_and_link_it graphviz $prefix$ver
     make install
     set_current_app_clean_strip_cd graphviz $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "cairo" ]; then
+  ver="1.18.6";
+  if should_make cairo $ver; then
+    download_unpack_source https://www.cairographics.org/releases/cairo-1.18.6.tar.xz cairo cairo-$ver 1
+    meson setup -Dprefix=/app/cairo/current --buildtype release -Dlibdir=lib build
+    ninja -C build
+    create_app_in_tmp_and_link_it cairo $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd cairo $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "pango" ]; then
+  ver="1.58.2";
+  if should_make pango $ver; then
+    download_unpack_source https://gitlab.gnome.org/GNOME/pango/-/archive/$ver/pango-$ver.tar.bz2?ref_type=tags pango pango-$ver 1
+    PATH=$PATH:/app/gobject-introspection/current/bin && \
+    PKG_CONFIG_PATH=/app/glib/current/lib/pkgconfig:/app/gobject-introspection/current/lib/pkgconfig:/app/harfbuzz/current/lib/pkgconfig:/app/fontconfig/current/lib/pkgconfig     meson setup \
+       -Dprefix=/app/pango/current --buildtype release -Dlibdir=lib -Dbuild-examples=false -Dbuild-testsuite=false build
+    ninja -C build
+    create_app_in_tmp_and_link_it pango $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd pango $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "librsvg" ]; then
+#cargo-c
+#  ver="2.63.4";
+#  ver="2.63.0";
+ver="2.60.2";
+  if should_make librsvg $ver; then
+    download_unpack_source https://github.com/GNOME/librsvg/archive/refs/tags/$ver.tar.gz librsvg librsvg-$ver 1
+    meson setup -Dprefix=/app/librsvg/current --buildtype release -Dlibdir=lib -Ddocs=disabled -Dpixbuf-loader=disabled -Dtests=false build
+    ninja -C build
+    create_app_in_tmp_and_link_it librsvg $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd librsvg $prefix$ver 1
   fi
 fi
