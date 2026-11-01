@@ -1097,9 +1097,14 @@ EOF
       esac
     done <<< "$disks"
     if [ $1 = "1" ]; then
+      if [ "$EFIPART" == "" ]; then
+        INFOPART=" - NOT FOUND";
+      else
+        INFOPART=" - $EFIPART found";
+      fi
       cmd=$(dialog --stdout --backtitle "PLLinux\install to other disk" --cancel-label "Back" \
            --default-item $defnum \
-           --menu "Install PLLinux to other partition or disk.\n\nSystem needs:\n1.UEFI FAT32 partition with boot flag for boot files (can be used existing one, about 6MB free space required)\n2.partition for main filesystem (it will be formatted to EXT4)\n\nSelect disk" 0 0 6 $list )
+           --menu "Install PLLinux to other partition or disk.\n\nSystem needs:\n\n1.UEFI FAT32 partition with boot flag for boot files (can be used existing one, about 6MB free space required)$INFOPART\n\n2.partition for main filesystem (it will be formatted to EXT4)\n\nSelect disk first" 0 0 6 $list )
     else
       cmd=$(dialog --stdout --backtitle "PLLinux\device manager\disk info" --cancel-label "Back" \
            --default-item $defnum \
