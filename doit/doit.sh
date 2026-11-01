@@ -540,7 +540,86 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "shim"
     set_current_app_clean_strip_cd shim $prefix$ver 0
   fi
 fi
-# --------------------------------- basic - console env -------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "initramfs" ]; then
+  ver="0.1";
+  if should_make initramfs $ver; then
+    create_app initramfs $prefix$ver
+
+    mkdir $out/initramfs
+    cp $curdir/in/initramfs/init $out/initramfs
+
+    for folderentry in app dev lib64 proc mnt run sys etc; do mkdir $out/initramfs/$folderentry; done
+
+    for app in busybox; do mkdir $out/initramfs/app/$app; rsync -a $output/app/$app/ $out/initramfs/app/$app; done
+
+    # we should have cryptsetup command compiled static with minimum size
+    # instead of this we copy a lot of libraries and unnecessary dependencies
+    # current solution is temporary, in the future:
+    # 1. we need to decrease amount of copied elements OR
+    # 2. compile cryptsetup static (this is much better)
+
+#    ver2="2.8.8";
+#    install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
+#    install_host_deps "make autoconf automake autopoint pkg-config libtool gettext libssl-dev libdevmapper-dev libpopt-dev uuid-dev libsepol-dev libjson-c-dev libssh-dev libblkid-dev tar asciidoctor"
+#    download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver2.tar.xz cryptsetup cryptsetup-$ver2 1
+#    meson setup -Dprefix=$output/app/cryptsetup/$prefix$ver -Dstatic-cryptsetup=true -Dudev=false -Dveritysetup=false  _build
+#    meson compile -C _build
+#    create_app glib $prefix$ver
+#    meson install -C _build
+#    ./configure --prefix=$output/app/cryptsetup/$prefix$ver \
+#--enable-static-cryptsetup --enable-static --disable-udev \
+#LIBS="-L/app/lvm2/current/usr/lib "
+#DEVMAPPER_CFLAGS="-I/app/lvm2/current/usr/include" \
+#         LDFLAGS=-L/app/lvm2/current/usr/lib \
+#      --disable-udev --disable-selinux --disable-veritysetup --disable-integritysetup
+#    make -j$cpu_num
+
+    mkdir $out/initramfs/app/cryptsetup
+    mkdir $out/initramfs/app/cryptsetup/current
+    mkdir $out/initramfs/app/cryptsetup/current/sbin
+    cp $output/app/cryptsetup/current/sbin/cryptsetup $out/initramfs/app/cryptsetup/current/sbin
+    cp $output/app/cryptsetup/current/readme.md $out/initramfs/app/cryptsetup/current
+
+    DEPS="glibc current:cryptsetup current:openssl 260725_3.6.3"
+    while true; do
+      IFS=":"
+      for DEP in $DEPS; do
+        IFS=" " read -r APP_NAME APP_VER << EOF
+$DEP
+EOF
+        find_app_deps $output/app/$APP_NAME/$APP_VER "Deps" 1
+      done
+      break
+    done
+
+    for DEP in $DEPS; do
+      IFS=" " read -r APP_NAME3 APP_VER3 << EOF
+$DEP
+EOF
+      mkdir $out/initramfs/app/$APP_NAME3
+      mkdir $out/initramfs/app/$APP_NAME3/$APP_VER3
+      rsync -a $output/app/$APP_NAME3/$APP_VER3/lib $out/initramfs/app/$APP_NAME3/$APP_VER3
+      cp $output/app/$APP_NAME3/$APP_VER3/readme.md $out/initramfs/app/$APP_NAME3/$APP_VER3
+    done
+
+    cd $out/initramfs/lib64
+    ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
+    chmod a+x ld-linux-x86-64.so.2
+
+    cd $out/initramfs
+    find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $output/app/initramfs/$prefix$ver/initramfs.gz
+
+    set_current_app_clean_strip_cd initramfs $prefix$ver 0
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pllinux" ]; then
+  ver="0.1";
+  create_app pllinux $prefix$ver
+  mkdir $output/app/pllinux/$prefix$ver
+  rsync -a $curdir/in/pllinux/ $output/app/pllinux/$prefix$ver
+  set_current_app_clean_strip_cd pllinux $prefix$ver 0
+fi
+# --------------------------------- basic - console env and basic tools -------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kbd" ]; then
   ver="2.10.0";
   if should_make kbd $ver; then
@@ -682,85 +761,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod"
     set_current_app_clean_strip_cd kmod $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "initramfs" ]; then
-  ver="0.1";
-  if should_make initramfs $ver; then
-    create_app initramfs $prefix$ver
-
-    mkdir $out/initramfs
-    cp $curdir/in/initramfs/init $out/initramfs
-
-    for folderentry in app dev lib64 proc mnt run sys etc; do mkdir $out/initramfs/$folderentry; done
-
-    for app in busybox; do mkdir $out/initramfs/app/$app; rsync -a $output/app/$app/ $out/initramfs/app/$app; done
-
-    # we should have cryptsetup command compiled static with minimum size
-    # instead of this we copy a lot of libraries and unnecessary dependencies
-    # current solution is temporary, in the future:
-    # 1. we need to decrease amount of copied elements OR
-    # 2. compile cryptsetup static (this is much better)
-
-#    ver2="2.8.8";
-#    install_host_deps "asciidoctor libpopt-dev libjson-c-dev libssh-dev"
-#    install_host_deps "make autoconf automake autopoint pkg-config libtool gettext libssl-dev libdevmapper-dev libpopt-dev uuid-dev libsepol-dev libjson-c-dev libssh-dev libblkid-dev tar asciidoctor"
-#    download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver2.tar.xz cryptsetup cryptsetup-$ver2 1
-#    meson setup -Dprefix=$output/app/cryptsetup/$prefix$ver -Dstatic-cryptsetup=true -Dudev=false -Dveritysetup=false  _build
-#    meson compile -C _build
-#    create_app glib $prefix$ver
-#    meson install -C _build
-#    ./configure --prefix=$output/app/cryptsetup/$prefix$ver \
-#--enable-static-cryptsetup --enable-static --disable-udev \
-#LIBS="-L/app/lvm2/current/usr/lib "
-#DEVMAPPER_CFLAGS="-I/app/lvm2/current/usr/include" \
-#         LDFLAGS=-L/app/lvm2/current/usr/lib \
-#      --disable-udev --disable-selinux --disable-veritysetup --disable-integritysetup
-#    make -j$cpu_num
-
-    mkdir $out/initramfs/app/cryptsetup
-    mkdir $out/initramfs/app/cryptsetup/current
-    mkdir $out/initramfs/app/cryptsetup/current/sbin
-    cp $output/app/cryptsetup/current/sbin/cryptsetup $out/initramfs/app/cryptsetup/current/sbin
-    cp $output/app/cryptsetup/current/readme.md $out/initramfs/app/cryptsetup/current
-
-    DEPS="glibc current:cryptsetup current:openssl 260725_3.6.3"
-    while true; do
-      IFS=":"
-      for DEP in $DEPS; do
-        IFS=" " read -r APP_NAME APP_VER << EOF
-$DEP
-EOF
-        find_app_deps $output/app/$APP_NAME/$APP_VER "Deps" 1
-      done
-      break
-    done
-
-    for DEP in $DEPS; do
-      IFS=" " read -r APP_NAME3 APP_VER3 << EOF
-$DEP
-EOF
-      mkdir $out/initramfs/app/$APP_NAME3
-      mkdir $out/initramfs/app/$APP_NAME3/$APP_VER3
-      rsync -a $output/app/$APP_NAME3/$APP_VER3/lib $out/initramfs/app/$APP_NAME3/$APP_VER3
-      cp $output/app/$APP_NAME3/$APP_VER3/readme.md $out/initramfs/app/$APP_NAME3/$APP_VER3
-    done
-
-    cd $out/initramfs/lib64
-    ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
-    chmod a+x ld-linux-x86-64.so.2
-
-    cd $out/initramfs
-    find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $output/app/initramfs/$prefix$ver/initramfs.gz
-
-    set_current_app_clean_strip_cd initramfs $prefix$ver 0
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pllinux" ]; then
-  ver="0.1";
-  create_app pllinux $prefix$ver
-  mkdir $output/app/pllinux/$prefix$ver
-  rsync -a $curdir/in/pllinux/ $output/app/pllinux/$prefix$ver
-  set_current_app_clean_strip_cd pllinux $prefix$ver 0
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpsl" ]; then
   ver="0.23.3";
   if should_make libpsl $ver; then
@@ -856,22 +856,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libevdev" ]; then
     create_app_in_tmp_and_link_it libevdev $prefix$ver
     ninja -C builddir install
     set_current_app_clean_strip_cd libevdev $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libwacom" ]; then
-#python-pytest*
-#python-libevdev*
-#python3-pyudev
-#pytest
-#libevdev
-  ver="2.20.0";
-  if should_make libwacom $ver; then
-    download_unpack_source https://github.com/linuxwacom/libwacom/archive/refs/tags/libwacom-$ver.tar.gz libwacom libwacom-libwacom-$ver 1
-    meson setup -Dprefix=/app/libwacom/current -Dlibdir=lib builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it libwacom $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd libwacom $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libgudev" ]; then
@@ -1516,18 +1500,6 @@ if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
     set_current_app_clean_strip_cd bzip2 $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
-  ver="1.32.0";
-#sudo apt-get build-dep libinput
-  if should_make libinput $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.32.0/libinput-1.32.0.tar.gz libinput libinput-$ver 1
-    meson setup -Dprefix=/app/libinput/current -Dlibdir=lib builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it libinput $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd libinput $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "mtdev" ]; then
   ver="1.1.7";
   if should_make mtdev $ver; then
@@ -1699,43 +1671,6 @@ if [ "$package" == "fs" ] || [ "$package" == "tecmake" ]; then
     create_app tecmake $prefix$ver
     cp * /app/tecmake/$prefix$ver
     set_current_app_clean_strip_cd tecmake $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
-  ver="1.26.0";
-  if should_make wayland $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.26.0/downloads/wayland-1.26.0.tar.xz wayland wayland-$ver 1
-    meson setup -Dprefix=/app/wayland/current --buildtype release _build -Ddocumentation=false -Dlibdir=lib
-    meson compile -C _build
-    create_app_in_tmp_and_link_it wayland $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd wayland $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xkbcommon" ]; then
-  ver="1.13.2";
-  if should_make xkbcommon $ver; then
-    download_unpack_source https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.2.tar.gz xkbcommon libxkbcommon-xkbcommon-$ver 1
-    meson setup -Dprefix=/app/xkbcommon/current --buildtype release _build -Denable-x11=false -Denable-bash-completion=false
-    meson compile -C _build
-    create_app_in_tmp_and_link_it xkbcommon $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd xkbcommon $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "hyprgraphics" ]; then
-  ver="0.5.1";
-#libmagic-dev
-  if should_make hyprgraphics $ver; then
-    download_unpack_source https://github.com/hyprwm/hyprgraphics/archive/refs/tags/v0.5.1.tar.gz hyprgraphics hyprgraphics-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprgraphics/current \
-      -S . -B ./build \
-      -D CMAKE_PREFIX_PATH="/app/hyprutils/current"
-    create_app_in_tmp_and_link_it hyprgraphics $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it hyprgraphics $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd hyprgraphics $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "mediainfo" ]; then
@@ -2804,7 +2739,6 @@ if [ "$package" == "fs2" ] || [ "$package" == "fpc" ]; then
 #    set_current_app_clean_strip_cd php $prefix$ver 1
   fi
 fi
-# ---------------------------- experiments -----------------------------
 if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
   ver="5.5.0";
   if should_make lua $ver; then
@@ -2821,6 +2755,7 @@ if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
     set_current_app_clean_strip_cd lua $prefix$ver 1
   fi
 fi
+# ---------------------------- experiments -----------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "volk" ]; then
   ver="1.4.350";
   if should_make volk $ver; then
@@ -3421,6 +3356,71 @@ if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
     create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
     meson install -C _build
     set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libwacom" ]; then
+#python-pytest*
+#python-libevdev*
+#python3-pyudev
+#pytest
+#libevdev
+  ver="2.20.0";
+  if should_make libwacom $ver; then
+    download_unpack_source https://github.com/linuxwacom/libwacom/archive/refs/tags/libwacom-$ver.tar.gz libwacom libwacom-libwacom-$ver 1
+    meson setup -Dprefix=/app/libwacom/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it libwacom $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd libwacom $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
+  ver="1.32.0";
+#sudo apt-get build-dep libinput
+  if should_make libinput $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.32.0/libinput-1.32.0.tar.gz libinput libinput-$ver 1
+    meson setup -Dprefix=/app/libinput/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it libinput $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd libinput $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xkbcommon" ]; then
+  ver="1.13.2";
+  if should_make xkbcommon $ver; then
+    download_unpack_source https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.2.tar.gz xkbcommon libxkbcommon-xkbcommon-$ver 1
+    meson setup -Dprefix=/app/xkbcommon/current --buildtype release _build -Denable-x11=false -Denable-bash-completion=false
+    meson compile -C _build
+    create_app_in_tmp_and_link_it xkbcommon $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd xkbcommon $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
+  ver="1.26.0";
+  if should_make wayland $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.26.0/downloads/wayland-1.26.0.tar.xz wayland wayland-$ver 1
+    meson setup -Dprefix=/app/wayland/current --buildtype release _build -Ddocumentation=false -Dlibdir=lib
+    meson compile -C _build
+    create_app_in_tmp_and_link_it wayland $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd wayland $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "hyprgraphics" ]; then
+  ver="0.5.1";
+#libmagic-dev
+  if should_make hyprgraphics $ver; then
+    download_unpack_source https://github.com/hyprwm/hyprgraphics/archive/refs/tags/v0.5.1.tar.gz hyprgraphics hyprgraphics-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/hyprgraphics/current \
+      -S . -B ./build \
+      -D CMAKE_PREFIX_PATH="/app/hyprutils/current"
+    create_app_in_tmp_and_link_it hyprgraphics $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it hyprgraphics $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd hyprgraphics $prefix$ver 1
   fi
 fi
 # ------------------------------------------ PGP ---------------------------------
