@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libdatrie"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="jwm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2047,20 +2047,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
     set_current_app_clean_strip_cd libxkbcommon $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "xcalc" ]; then
-#libxaw7-dev
-  ver="1.1.3";
-  if should_make xcalc $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xcalc-1.1.3.tar.xz xcalc xcalc-$ver 1
-    ./configure --prefix=/app/xcalc/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xcalc $prefix$ver
-    make install
-    mkdir /app/xcalc/current/bin
-    cp xcalc /app/xcalc/current/bin
-    set_current_app_clean_strip_cd xcalc $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "libxaw" ]; then
   ver="1.0.16";
   if should_make libxaw $ver; then
@@ -2211,19 +2197,6 @@ if [ "$package" == "fs" ] || [ "$package" == "xauth" ]; then
     create_app_in_tmp_and_link_it xauth $prefix$ver
     make install
     set_current_app_clean_strip_cd xauth $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xterm" ]; then
-  ver="4.12";
-  if should_make xterm $ver; then
-    download_unpack_source https://invisible-island.net/archives/xterm/xterm-412.tgz xterm xterm-412 1
-#    ./autogen.sh
-    ./configure --prefix=/app/xterm/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xterm $prefix$ver
-    make install
-    cp COPYING /app/xterm/current
-    set_current_app_clean_strip_cd xterm $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xinit" ]; then
@@ -2414,7 +2387,6 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
 #libbsd-dev x11proto-xf86dri-dev libgl1-mesa-dev libglu1-mesa-dev \
 #libglu1-mesa-dev libgl-dev libdrm-dev xutils-dev mesa-common-dev libgbm-dev \
 #libxcb-shape0-dev libxcb-util-dev libxcb-icccm4-dev
-
 #libxkbfile-dev xfont2* libxcvt-dev
   ver="25.1.9";
   if should_make xlibre-xserver $ver; then
@@ -2436,6 +2408,49 @@ if [ "$package" == "fs" ] || [ "$package" == "xf86-input-evdev" ]; then
     create_app_in_tmp_and_link_it xf86-input-evdev $prefix$ver
     make install
     set_current_app_clean_strip_cd xf86-input-evdev $prefix$ver 1
+  fi
+fi
+#----------------------------------- x11 apps -------------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "xterm" ]; then
+  ver="4.12";
+  if should_make xterm $ver; then
+    download_unpack_source https://invisible-island.net/archives/xterm/xterm-412.tgz xterm xterm-412 1
+#    ./autogen.sh
+    ./configure --prefix=/app/xterm/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xterm $prefix$ver
+    make install
+    cp COPYING /app/xterm/current
+    set_current_app_clean_strip_cd xterm $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xcalc" ]; then
+#libxaw7-dev
+  ver="1.1.3";
+  if should_make xcalc $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xcalc-1.1.3.tar.xz xcalc xcalc-$ver 1
+    ./configure --prefix=/app/xcalc/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xcalc $prefix$ver
+    make install
+    mkdir /app/xcalc/current/bin
+    cp xcalc /app/xcalc/current/bin
+    set_current_app_clean_strip_cd xcalc $prefix$ver 1
+  fi
+fi
+
+#----------------------------------- x11 graphic env ------------------------------------
+if [ "$package" == "fs" ] || [ "$package" == "jwm" ]; then
+  ver="2.4.6";
+  if should_make jwm $ver; then
+    download_unpack_source https://github.com/joewing/jwm/releases/download/v$ver/jwm-$ver.tar.xz jwm jwm-$ver 1
+#    ./autogen.sh
+    ./configure --prefix=/app/jwm/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it jwm $prefix$ver
+    make install
+#    cp COPYING /app/xterm/current
+    set_current_app_clean_strip_cd jwm $prefix$ver 1
   fi
 fi
 #---------------------------------- graphic stuff ---------------------------------------
