@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libxml2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="pango"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1355,14 +1355,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "pango" ]; then
   ver="1.58.2";
   if should_make pango $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/pango/-/archive/1.58.2/pango-1.58.2.tar.bz2?ref_type=tags pango pango-$ver 1
+    download_unpack_source https://gitlab.gnome.org/GNOME/pango/-/archive/$ver/pango-$ver.tar.bz2?ref_type=tags pango pango-$ver 1
     PATH=$PATH:/app/gobject-introspection/current/bin && \
     PKG_CONFIG_PATH=/app/glib/current/lib/pkgconfig:/app/gobject-introspection/current/lib/pkgconfig:/app/harfbuzz/current/lib/pkgconfig:/app/fontconfig/current/lib/pkgconfig     meson setup \
-       -Dprefix=/app/pango/current --buildtype release -Dlibdir=lib build
+       -Dprefix=/app/pango/current --buildtype release -Dlibdir=lib -Dbuild-examples=false -Dbuild-testsuite=false build
     ninja -C build
     create_app_in_tmp_and_link_it pango $prefix$ver
     ninja -C build install
-#    set_current_app_clean_strip_cd pango $prefix$ver 1
+    set_current_app_clean_strip_cd pango $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "librsvg" ]; then
@@ -1548,6 +1548,7 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glib" ]; then
   #glib (GTK, gnome), not GNU C library
   ver="2.89.1";
+  ver="2.90.1";
   if should_make glib $ver; then
     download_unpack_source https://github.com/GNOME/glib/archive/refs/tags/$ver.tar.gz glib glib-$ver 1
     if [ -d "subprojects/packagefiles" ]; then
@@ -1560,19 +1561,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glib"
     fi
     mkdir ../$prefix$ver-compile
     ln -s ../$prefix$ver-compile _build
-    meson setup -Dprefix=/app/glib/current --buildtype minsize _build
+    meson setup -Dprefix=/app/glib/current --libdir=lib --buildtype minsize _build
     meson compile -C _build
-    create_app glib $prefix$ver
-    set_current_app glib $prefix$ver 1
+    create_app_in_tmp_and_link_it glib $prefix$ver
     meson install -C _build
-    chmod a+x $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/
-    chmod a-x $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/*so*
-    rsync -a $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/glib/$prefix$ver/lib
-    rm -r $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/
-    rsync -a $curdir/in/glib/ $output/app/glib/$prefix$ver
-    echo "" >> /app/glib/current/readme.md
-    echo "**Last**" >> /app/glib/current/readme.md
-    echo "$LATEST_FILE_UPDATE" >> /app/glib/current/readme.md
+#    chmod a+x $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/
+#    chmod a-x $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/*so*
+#    rsync -a $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/glib/$prefix$ver/lib
+#    rm -r $output/app/glib/$prefix$ver/lib/x86_64-linux-gnu/
+#    rsync -a $curdir/in/glib/ $output/app/glib/$prefix$ver
+#    echo "" >> /app/glib/current/readme.md
+#    echo "**Last**" >> /app/glib/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/glib/current/readme.md
     set_current_app_clean_strip_cd glib $prefix$ver 1
   fi
 fi
