@@ -1,7 +1,8 @@
+#!/app/busybox/current/bin/sh
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="font-adobe-100dpi"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="fonts-x11"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -257,9 +258,9 @@ remove_duplicates_cd() {
   while true; do
     DOITAGAIN="0"
     for fname in $(find . -maxdepth 1 -type f); do
-      CHECKSUM=($(md5sum $fname))
+      CHECKSUM=$(md5sum $fname)
       for fname2 in $(find . -maxdepth 1 -type f); do
-        CHECKSUM2=($(md5sum $fname2))
+        CHECKSUM2=$(md5sum $fname2)
         if [ "$fname" != "$fname2" ] && [ "$CHECKSUM" = "$CHECKSUM2" ]; then
             chmod a+w $fname2
             rm $fname2
@@ -2189,27 +2190,36 @@ if [ "$package" == "fs" ] || [ "$package" == "xkeyboard-config" ]; then
     set_current_app_clean_strip_cd xkeyboard-config $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "font-adobe-75dpi" ]; then
-  ver="1.0.4";
-  if should_make font-adobe-75dpi $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/font/font-adobe-75dpi-$ver.tar.xz font-adobe-75dpi font-adobe-75dpi-$ver 1
-    ./configure --with-fontrootdir=/app/font-adobe-75dpi/current
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it font-adobe-75dpi $prefix$ver
-    make install
-    set_current_app_clean_strip_cd font-adobe-75dpi $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "font-adobe-100dpi" ]; then
-  ver="1.0.4";
-  if should_make font-adobe-100dpi $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/font/font-adobe-100dpi-$ver.tar.xz font-adobe-100dpi font-adobe-100dpi-$ver 1
-    ./configure --with-fontrootdir=/app/font-adobe-100dpi/current
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it font-adobe-100dpi $prefix$ver
-    make install
-    set_current_app_clean_strip_cd font-adobe-100dpi $prefix$ver 1
-  fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fonts-x11" ]; then
+#part errors
+  for DIR_NAME in encodings:1.1.0 \
+      font-adobe-75dpi:1.0.4 font-adobe-100dpi:1.0.4 font-adobe-utopia-100dpi:1.0.5 font-adobe-utopia-type1:1.0.5 font-alias:1.0.6 \
+      font-arabic-misc:1.0.4 font-bh-75dpi:1.0.4 font-bh-100dpi:1.0.4 font-bh-lucidatypewriter-75dpi:1.0.4 font-bh-lucidatypewriter-100dpi:1.0.4 \
+      font-bh-ttf:1.0.4 font-bh-type1:1.0.4 font-bitstream-75dpi:1.0.4 font-bitstream-100dpi:1.0.4 font-bitstream-speedo:1.0.2 \
+      font-bitstream-type1:1.0.4 font-cronyx-cyrillic:1.0.4 font-cursor-misc:1.0.4 font-daewoo-misc:1.0.4 font-dec-misc:1.0.4 \
+      font-ibm-type1:1.0.4 font-isas-misc:1.0.4 font-jis-misc:1.0.4 font-micro-misc:1.0.4 font-misc-cyrillic:1.0.4 \
+      font-misc-ethiopic:1.0.5 font-misc-meltho:1.0.4 font-misc-misc:1.1.3 font-mutt-misc:1.0.4 font-schumacher-misc:1.1.3 \
+      font-screen-cyrillic:1.0.5 font-sony-misc:1.0.4 font-sun-misc:1.0.4 font-winitzki-cyrillic:1.0.4 font-xfree86-type1:1.0.5; do
+    fname="";
+    IFS=":"
+    for X in $DIR_NAME; do
+      if [ "$fname" == "" ]; then
+        fname=$X;
+      else
+        ver=$X;
+      fi
+    done
+    IFS=$IFSORIG
+    if should_make $fname $ver; then
+      download_unpack_source https://xorg.freedesktop.org/archive/individual/font/$fname-$ver.tar.xz $fname $fname-$ver 1
+      ./configure --with-fontrootdir=/app/$fname/current --prefix=/app/$fname/current --exec-prefix=/app/$fname/current
+      make all -j$cpu_num
+      create_app_in_tmp_and_link_it $fname $prefix$ver
+      make install
+      set_current_app_clean_strip_cd $fname $prefix$ver 1
+      mkdir "/tmp/doit"
+    fi
+  done
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libX11" ]; then
   ver="1.8.13";
