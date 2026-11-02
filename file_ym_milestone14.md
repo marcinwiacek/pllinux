@@ -51,6 +51,12 @@ compilation errors with WP_COLOR_MANAGER_V1...:
 
  Why is that? Maybe I should try Sway in that case? Or woodland? Or labwc? The "Wayland" race has just started - the winner takes it all :D
 
+ And in the end first quite complete config is...X11 with JWM (screen from 2 Nov):
+
+![Alt text](2026/nov_x11.png)
+
+ Real old-school in first attempts... and main work will be connected with separating config, making it working in different situations, with other manager (scaling), etc.
+
 # Improving old ideas
 
 Do you remember how complicated was versioning thing? It was discussed in [Milestone 4](file_yv_milestone4.md) and after using PLLinux for some time

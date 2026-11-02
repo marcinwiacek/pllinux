@@ -76,6 +76,8 @@ encryption for main filesystem.
   9. 5 Oct 2026 - first complete booting with LUKS2 encryption
   10. 15 Oct 2026 - OpenGL (+many examples from SDL2 and SDL3) works at least with software rendering
   11. 18 Oct 2026 - first "Hello world" with gcc
+  12. 25 Oct 2026 - first successfull X11/X11 app start
+  14. 2 Nov 2026 - first working setup with window manager (JWM)
 
 **Building and starting system from the partition (in the host system)**
 
