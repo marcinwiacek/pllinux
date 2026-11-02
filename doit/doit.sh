@@ -1989,18 +1989,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulka
   fi
 fi
 #----------------------------------- x11 ------------------------------------------------
-if [ "$package" == "fs" ] || [ "$package" == "libfontenc" ]; then
-  ver="1.1.9";
-  if should_make libfontenc $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libfontenc/-/archive/libfontenc-1.1.9/libfontenc-libfontenc-1.1.9.tar.bz2?ref_type=tags libfontenc libfontenc-libfontenc-$ver 1
-   ./autogen.sh
-    ./configure --prefix=/app/libfontenc/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libfontenc $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libfontenc $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fontconfig" ]; then
 #  ver="2.18.3";
   ver="2.17.1";
@@ -2012,6 +2000,54 @@ if [ "$package" == "fs" ] || [ "$package" == "fontconfig" ]; then
     meson install -C _build
     cp COPYING /app/fontconfig/current
     set_current_app_clean_strip_cd fontconfig $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libglvnd" ]; then
+  ver="1.7.0";
+  if should_make libglvnd $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/glvnd/libglvnd/-/archive/v1.7.0/libglvnd-v1.7.0.tar.gz libglvnd libglvnd-v$ver 1
+    meson setup -Dprefix=/app/libglvnd/$prefix$ver _build
+    meson compile -C _build
+    create_app libglvnd $prefix$ver
+    set_current_app libglvnd $prefix$ver 1
+    meson install -C _build
+    rsync -a $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libglvnd/$prefix$ver/lib
+    rm -r $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/
+    set_current_app_clean_strip_cd libglvnd $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "pixman" ]; then
+  ver="0.46.4";
+  if should_make pixman $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/pixman/pixman/-/archive/pixman-0.46.4/pixman-pixman-0.46.4.tar.bz2?ref_type=tags pixman pixman-pixman-$ver 1
+    meson setup -Dprefix=/app/pixman/current --buildtype release -Dlibdir=lib _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it pixman $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd pixman $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libnice" ]; then
+  ver="0.1.24";
+  if should_make libnice $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/libnice/libnice/-/archive/0.1.24/libnice-0.1.24.tar.bz2?ref_type=tags libnice libnice-$ver 1
+    meson setup -Dprefix=/app/libnice/current --buildtype release -Dlibdir=lib _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libnice $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libnice $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libfontenc" ]; then
+  ver="1.1.9";
+  if should_make libfontenc $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libfontenc/-/archive/libfontenc-1.1.9/libfontenc-libfontenc-1.1.9.tar.bz2?ref_type=tags libfontenc libfontenc-libfontenc-$ver 1
+   ./autogen.sh
+    ./configure --prefix=/app/libfontenc/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libfontenc $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libfontenc $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxinerama" ]; then
@@ -2034,17 +2070,6 @@ if [ "$package" == "fs" ] || [ "$package" == "libxrender" ]; then
     create_app_in_tmp_and_link_it libxrender $prefix$ver
     meson install -C _build
     set_current_app_clean_strip_cd libxrender $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
-  ver="1.13.2";
-  if should_make libxkbcommon $ver; then
-    download_unpack_source https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.2.tar.gz libxkbcommon libxkbcommon-xkbcommon-$ver 1
-    meson setup -Dprefix=/app/libxkbcommon/current --buildtype release -Dlibdir=lib -Dbash-completion-path=/app/libxkbcommon/current/completion _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libxkbcommon $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd libxkbcommon $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxaw" ]; then
@@ -2083,6 +2108,76 @@ if [ "$package" == "fs" ] || [ "$package" == "libxext" ]; then
     set_current_app_clean_strip_cd libxext $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "libxmu" ]; then
+  ver="1.3.1";
+  if should_make libxmu $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxmu/-/archive/libXmu-1.3.1/libxmu-libXmu-1.3.1.tar.bz2?ref_type=tags libxmu libxmu-libXmu-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libxmu/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libxmu $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxmu $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxft" ]; then
+  ver="2.3.9";
+  if should_make libxft $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxft/-/archive/libXft-2.3.9/libxft-libXft-2.3.9.tar.bz2?ref_type=tags libxft libxft-libXft-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libxft/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libxft  $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxft $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxfont2" ]; then
+  ver="2.0.9";
+  if should_make libxfont2 $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxfont/-/archive/libXfont2-2.0.9/libxfont-libXfont2-2.0.9.tar.bz2?ref_type=tags libxfont libxfont-libXfont2-$ver 1
+   ./autogen.sh
+    ./configure --prefix=/app/libxfont2/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libxfont2 $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxfont2 $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxcvt" ]; then
+  ver="0.1.3";
+  if should_make libxcvt $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxcvt/-/archive/libxcvt-0.1.3/libxcvt-libxcvt-0.1.3.tar.bz2?ref_type=tags libxcvt libxcvt-libxcvt-$ver 1
+    meson setup -Dprefix=/app/libxcvt/current --buildtype release -Dlibdir=lib _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libxcvt $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libxcvt $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxkbfile" ]; then
+  ver="1.2.0";
+  if should_make libxkbfile $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxkbfile/-/archive/libxkbfile-1.2.0/libxkbfile-libxkbfile-1.2.0.tar.bz2?ref_type=tags libxkbfile libxkbfile-libxkbfile-$ver 1
+    meson setup -Dprefix=/app/libxkbfile/current --buildtype release -Dlibdir=lib  _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libxkbfile $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libxkbfile $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xinit" ]; then
+  ver="1.4.4";
+  if should_make xinit $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/xorg/app/xinit/-/archive/xinit-1.4.4/xinit-xinit-1.4.4.tar.bz2?ref_type=tags xinit xinit-xinit-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/xinit/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xinit  $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xinit $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "xkeyboard-config" ]; then
   ver="2.44";
   if should_make xkeyboard-config $ver; then
@@ -2092,20 +2187,6 @@ if [ "$package" == "fs" ] || [ "$package" == "xkeyboard-config" ]; then
     create_app_in_tmp_and_link_it xkeyboard-config $prefix$ver
     meson install -C _build
     set_current_app_clean_strip_cd xkeyboard-config $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libglvnd" ]; then
-  ver="1.7.0";
-  if should_make libglvnd $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/glvnd/libglvnd/-/archive/v1.7.0/libglvnd-v1.7.0.tar.gz libglvnd libglvnd-v$ver 1
-    meson setup -Dprefix=/app/libglvnd/$prefix$ver _build
-    meson compile -C _build
-    create_app libglvnd $prefix$ver
-    set_current_app libglvnd $prefix$ver 1
-    meson install -C _build
-    rsync -a $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libglvnd/$prefix$ver/lib
-    rm -r $output/app/libglvnd/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd libglvnd $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libX11" ]; then
@@ -2136,18 +2217,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxs
 #    echo "**Last**" >> /app/libexpat/current/readme.md
 #    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
     set_current_app_clean_strip_cd libxshmfence $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxmu" ]; then
-  ver="1.3.1";
-  if should_make libxmu $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxmu/-/archive/libXmu-1.3.1/libxmu-libXmu-1.3.1.tar.bz2?ref_type=tags libxmu libxmu-libXmu-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libxmu/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libxmu $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libxmu $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxpm" ]; then
@@ -2186,108 +2255,34 @@ if [ "$package" == "fs" ] || [ "$package" == "libice" ]; then
     set_current_app_clean_strip_cd libice $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "xauth" ]; then
-#libxmuu-dev
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxau" ]; then
+  ver="1.0.12";
+  if should_make libxau $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXau-$ver.tar.xz libxau libXau-$ver 1
+    ./configure --prefix=/app/libxau/current
+    make all -j$cpu_num
+    create_app libxau $prefix$ver
+    set_current_app libxau $prefix$ver 1
+    make install
+#    echo "" >> /app/libexpat/current/readme.md
+#    echo "**Last**" >> /app/libexpat/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
+    set_current_app_clean_strip_cd libxau $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxdmcp" ]; then
   ver="1.1.5";
-  if should_make xauth $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xauth-1.1.5.tar.xz xauth xauth-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/xauth/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xauth $prefix$ver
+  if should_make libxdmcp $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXdmcp-$ver.tar.xz libxdmcp libXdmcp-$ver 1
+    ./configure --prefix=/app/libxdmcp/current
+    make all -j$cpu_num
+    create_app libxdmcp $prefix$ver
+    set_current_app libxdmcp $prefix$ver 1
     make install
-    set_current_app_clean_strip_cd xauth $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xinit" ]; then
-  ver="1.4.4";
-  if should_make xinit $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/app/xinit/-/archive/xinit-1.4.4/xinit-xinit-1.4.4.tar.bz2?ref_type=tags xinit xinit-xinit-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/xinit/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xinit  $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xinit $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxft" ]; then
-  ver="2.3.9";
-  if should_make libxft $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxft/-/archive/libXft-2.3.9/libxft-libXft-2.3.9.tar.bz2?ref_type=tags libxft libxft-libXft-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libxft/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libxft  $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libxft $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xkbcomp" ]; then
-  ver="1.5.0";
-  if should_make xkbcomp $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xkbcomp-1.5.0.tar.xz xkbcomp xkbcomp-$ver 1
-    ./configure --prefix=/app/xkbcomp/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xkbcomp $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xkbcomp $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxkbfile" ]; then
-  ver="1.2.0";
-  if should_make libxkbfile $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxkbfile/-/archive/libxkbfile-1.2.0/libxkbfile-libxkbfile-1.2.0.tar.bz2?ref_type=tags libxkbfile libxkbfile-libxkbfile-$ver 1
-    meson setup -Dprefix=/app/libxkbfile/current --buildtype release -Dlibdir=lib  _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libxkbfile $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd libxkbfile $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "pixman" ]; then
-  ver="0.46.4";
-  if should_make pixman $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/pixman/pixman/-/archive/pixman-0.46.4/pixman-pixman-0.46.4.tar.bz2?ref_type=tags pixman pixman-pixman-$ver 1
-    meson setup -Dprefix=/app/pixman/current --buildtype release -Dlibdir=lib _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it pixman $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd pixman $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libnice" ]; then
-  ver="0.1.24";
-  if should_make libnice $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/libnice/libnice/-/archive/0.1.24/libnice-0.1.24.tar.bz2?ref_type=tags libnice libnice-$ver 1
-    meson setup -Dprefix=/app/libnice/current --buildtype release -Dlibdir=lib _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libnice $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd libnice $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxfont2" ]; then
-  ver="2.0.9";
-  if should_make libxfont2 $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxfont/-/archive/libXfont2-2.0.9/libxfont-libXfont2-2.0.9.tar.bz2?ref_type=tags libxfont libxfont-libXfont2-$ver 1
-   ./autogen.sh
-    ./configure --prefix=/app/libxfont2/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it libxfont2 $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libxfont2 $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libxcvt" ]; then
-  ver="0.1.3";
-  if should_make libxcvt $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxcvt/-/archive/libxcvt-0.1.3/libxcvt-libxcvt-0.1.3.tar.bz2?ref_type=tags libxcvt libxcvt-libxcvt-$ver 1
-    meson setup -Dprefix=/app/libxcvt/current --buildtype release -Dlibdir=lib _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it libxcvt $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd libxcvt $prefix$ver 1
+#    echo "" >> /app/libexpat/current/readme.md
+#    echo "**Last**" >> /app/libexpat/current/readme.md
+#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
+    set_current_app_clean_strip_cd libxdmcp $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcb" ]; then
@@ -2339,34 +2334,50 @@ fi
 #    set_current_app_clean_strip_cd xcb-util $prefix$ver 1
 #  fi
 #fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxau" ]; then
-  ver="1.0.12";
-  if should_make libxau $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXau-$ver.tar.xz libxau libXau-$ver 1
-    ./configure --prefix=/app/libxau/current
-    make all -j$cpu_num
-    create_app libxau $prefix$ver
-    set_current_app libxau $prefix$ver 1
+if [ "$package" == "fs" ] || [ "$package" == "xauth" ]; then
+#libxmuu-dev
+  ver="1.1.5";
+  if should_make xauth $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xauth-1.1.5.tar.xz xauth xauth-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/xauth/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xauth $prefix$ver
     make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
-    set_current_app_clean_strip_cd libxau $prefix$ver 1
+    set_current_app_clean_strip_cd xauth $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxdmcp" ]; then
-  ver="1.1.5";
-  if should_make libxdmcp $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXdmcp-$ver.tar.xz libxdmcp libXdmcp-$ver 1
-    ./configure --prefix=/app/libxdmcp/current
-    make all -j$cpu_num
-    create_app libxdmcp $prefix$ver
-    set_current_app libxdmcp $prefix$ver 1
+if [ "$package" == "fs" ] || [ "$package" == "xkbcomp" ]; then
+  ver="1.5.0";
+  if should_make xkbcomp $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xkbcomp-1.5.0.tar.xz xkbcomp xkbcomp-$ver 1
+    ./configure --prefix=/app/xkbcomp/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xkbcomp $prefix$ver
     make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
-    set_current_app_clean_strip_cd libxdmcp $prefix$ver 1
+    set_current_app_clean_strip_cd xkbcomp $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xf86-input-evdev" ]; then
+  ver="2.11.0";
+  if should_make xf86-input-evdev $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-evdev-2.11.0.tar.xz xf86-input-evdev xf86-input-evdev-$ver 1
+    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-evdev/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xf86-input-evdev $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xf86-input-evdev $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
+  ver="1.13.2";
+  if should_make libxkbcommon $ver; then
+    download_unpack_source https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.2.tar.gz libxkbcommon libxkbcommon-xkbcommon-$ver 1
+    meson setup -Dprefix=/app/libxkbcommon/current --buildtype release -Dlibdir=lib -Dbash-completion-path=/app/libxkbcommon/current/completion _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libxkbcommon $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libxkbcommon $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "seatd" ]; then
@@ -2397,17 +2408,6 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
     ninja -C builddir install
     rsync -a $curdir/in/xlibre-xserver/ /app/xlibre-xserver/current
     set_current_app_clean_strip_cd xlibre-xserver $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xf86-input-evdev" ]; then
-  ver="2.11.0";
-  if should_make xf86-input-evdev $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-evdev-2.11.0.tar.xz xf86-input-evdev xf86-input-evdev-$ver 1
-    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-evdev/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xf86-input-evdev $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xf86-input-evdev $prefix$ver 1
   fi
 fi
 #----------------------------------- x11 apps -------------------------------------------
