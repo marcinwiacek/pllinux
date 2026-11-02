@@ -1,7 +1,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="jwm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="font-adobe-100dpi"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2187,6 +2187,28 @@ if [ "$package" == "fs" ] || [ "$package" == "xkeyboard-config" ]; then
     create_app_in_tmp_and_link_it xkeyboard-config $prefix$ver
     meson install -C _build
     set_current_app_clean_strip_cd xkeyboard-config $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "font-adobe-75dpi" ]; then
+  ver="1.0.4";
+  if should_make font-adobe-75dpi $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/font/font-adobe-75dpi-$ver.tar.xz font-adobe-75dpi font-adobe-75dpi-$ver 1
+    ./configure --with-fontrootdir=/app/font-adobe-75dpi/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it font-adobe-75dpi $prefix$ver
+    make install
+    set_current_app_clean_strip_cd font-adobe-75dpi $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "font-adobe-100dpi" ]; then
+  ver="1.0.4";
+  if should_make font-adobe-100dpi $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/font/font-adobe-100dpi-$ver.tar.xz font-adobe-100dpi font-adobe-100dpi-$ver 1
+    ./configure --with-fontrootdir=/app/font-adobe-100dpi/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it font-adobe-100dpi $prefix$ver
+    make install
+    set_current_app_clean_strip_cd font-adobe-100dpi $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libX11" ]; then
