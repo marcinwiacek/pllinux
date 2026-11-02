@@ -2191,11 +2191,11 @@ if [ "$package" == "fs" ] || [ "$package" == "xkeyboard-config" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fonts-x11" ]; then
-#part errors
+#font-bitstream-speedo:1.0.2 \
   for DIR_NAME in encodings:1.1.0 \
       font-adobe-75dpi:1.0.4 font-adobe-100dpi:1.0.4 font-adobe-utopia-100dpi:1.0.5 font-adobe-utopia-type1:1.0.5 font-alias:1.0.6 \
       font-arabic-misc:1.0.4 font-bh-75dpi:1.0.4 font-bh-100dpi:1.0.4 font-bh-lucidatypewriter-75dpi:1.0.4 font-bh-lucidatypewriter-100dpi:1.0.4 \
-      font-bh-ttf:1.0.4 font-bh-type1:1.0.4 font-bitstream-75dpi:1.0.4 font-bitstream-100dpi:1.0.4 font-bitstream-speedo:1.0.2 \
+      font-bh-ttf:1.0.4 font-bh-type1:1.0.4 font-bitstream-75dpi:1.0.4 font-bitstream-100dpi:1.0.4 \
       font-bitstream-type1:1.0.4 font-cronyx-cyrillic:1.0.4 font-cursor-misc:1.0.4 font-daewoo-misc:1.0.4 font-dec-misc:1.0.4 \
       font-ibm-type1:1.0.4 font-isas-misc:1.0.4 font-jis-misc:1.0.4 font-micro-misc:1.0.4 font-misc-cyrillic:1.0.4 \
       font-misc-ethiopic:1.0.5 font-misc-meltho:1.0.4 font-misc-misc:1.1.3 font-mutt-misc:1.0.4 font-schumacher-misc:1.1.3 \
@@ -2212,12 +2212,14 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fonts
     IFS=$IFSORIG
     if should_make $fname $ver; then
       download_unpack_source https://xorg.freedesktop.org/archive/individual/font/$fname-$ver.tar.xz $fname $fname-$ver 1
-      ./configure --with-fontrootdir=/app/$fname/current --prefix=/app/$fname/current --exec-prefix=/app/$fname/current
+      ./configure --with-fontrootdir=/app/$fname/current --prefix=/app/$fname/current --exec-prefix=/app/$fname/current \
+           --with-fontdir=/app/$fname/current  --with-fc-confdir=/app/$fname/current/cfg
       make all -j$cpu_num
       create_app_in_tmp_and_link_it $fname $prefix$ver
       make install
       set_current_app_clean_strip_cd $fname $prefix$ver 1
       mkdir "/tmp/doit"
+      cd $curdir
     fi
   done
 fi
