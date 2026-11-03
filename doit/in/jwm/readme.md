@@ -10,10 +10,7 @@ MIT
 **Deps**
 libx11 current
 libpng current
-librsvg current
 glib current
-cairo current
-libjpeg current
 libjpeg-turbo current
 libxft current
 libxrender current
@@ -38,8 +35,8 @@ bzip2 current
 brotli current
 pcre2 current
 util-linux current
-libselinux current
 libdatrie current
 libsm current
 libice current
 gcclib current
+libselinux current

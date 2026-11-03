@@ -6,7 +6,6 @@ libdrm current
 glibc current
 gcclib current
 mesa current
-swiftshader current
 libxau current
 libxdmcp current
 llvm current

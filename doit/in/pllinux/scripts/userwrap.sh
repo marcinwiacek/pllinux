@@ -35,6 +35,7 @@ PARAMS="$PARAMS --dev dev "
 PARAMS="$PARAMS --tmpfs tmp "
 PARAMS="$PARAMS --bind home/$USER home "
 PARAMS="$PARAMS --ro-bind /etc/localtime /etc/localtime "
+PARAMS="$PARAMS --ro-bind /etc/fonts /etc/fonts "
 PARAMS="$PARAMS --ro-bind /usr usr "
 PARAMS="$PARAMS --ro-bind /lib64 lib64 "
 allapp=0
