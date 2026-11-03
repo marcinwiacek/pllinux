@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="kernel"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1890,8 +1890,8 @@ if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
 fi
 #---------------------------------- mesa ------------------------------------------------
 if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llvm" ]; then
-  #  ver="23.1.3";
   ver="19.1.7";   #we use this version because of dep from mesa. Maybe should be more investigated, if 23.* could be used
+  ver="23.1.4";
   if should_make llvm $ver; then
     download_unpack_source https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-$ver.tar.gz llvm llvm-project-llvmorg-$ver 1
     cmake -S llvm -B builddir -G Ninja \
@@ -1909,23 +1909,40 @@ if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llv
     set_current_app_clean_strip_cd llvm $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "cbindgen" ]; then
+  ver="0.29.4";
+  if should_make cbindgen $ver; then
+    download_unpack_source https://github.com/mozilla/cbindgen/archive/refs/tags/0.29.4.tar.gz cbindgen cbindgen-$ver 1
+    cargo build --release
+    create_app_in_tmp_and_link_it cbindgen $prefix$ver
+    mkdir /app/cbindgen/current/bin
+    install -Dm755 target/release/cbindgen /app/cbindgen/current/bin/
+    set_current_app_clean_strip_cd cbindgen $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa" ]; then
+  #ver="25.3.6";
+  ver="26.1.8"; #OK with GL and egl-native-platform=drm
   # ver="26.2.4";  # not possible because of -Degl-native-platform=drm
-  ver="26.1.8"; #OK with GL
-#ver="25.3.6";
+  ver="26.3.0-rc3"; # ok with removed egl-native-platform=drm, but links to llvm 19 ?
   if should_make mesa $ver; then
     # sudo apt-get build-dep mesa
     # python3-pycparser
     download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
-    meson setup -Dprefix=/app/mesa/current _build \
+    PATH=/app/llvm/current/bin:/app/cbindgen/current/bin:$PATH PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/lua/current/lib/pkgconfig \
+      meson setup -Dprefix=/app/mesa/current _build \
        -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
        -Dgles1=enabled -Dgles2=enabled -Dglvnd=enabled \
        -Dplatforms=x11 \
-       -Dgallium-drivers="asahi,crocus,ethosu,etnaviv,freedreno,i915,iris,lima,llvmpipe,nouveau,panfrost,r300,r600,radeonsi,rocket,softpipe,svga,tegra,v3d,vc4,virgl,zink" \
+       -Dgallium-drivers="lima,llvmpipe,softpipe,svga" \
        -Dgallium-d3d12-graphics=disabled -Dgallium-d3d12-video=disabled \
-       -Dvulkan-drivers="amd,broadcom,freedreno,intel,intel_hasvk,panfrost,swrast,virtio,imagination,nouveau,asahi,gfxstream,kosmickrisp" \
-       -Dvulkan-layers="device-select,intel-nullhw,overlay" \
-       -Dglx=dri -Degl-native-platform=drm
+       -Dvulkan-drivers="swrast,virtio" \
+       -Dvulkan-layers="device-select,overlay" \
+       -Dglx=dri -Degl-native-platform=x11
+#       -Dvulkan-drivers="amd,broadcom,freedreno,intel,intel_hasvk,panfrost,swrast,virtio,imagination,nouveau,asahi,gfxstream,kosmickrisp" \
+#       -Dvulkan-layers="device-select,intel-nullhw,overlay" \
+#       -Dgallium-drivers="asahi,crocus,ethosu,etnaviv,freedreno,i915,iris,lima,llvmpipe,nouveau,panfrost,r300,r600,radeonsi,rocket,softpipe,svga,tegra,v3d,vc4,virgl,zink" \
+#-Degl-native-platform=drm
     meson compile -C _build
     create_app_in_tmp_and_link_it mesa $prefix$ver
     meson install -C _build
@@ -2767,17 +2784,19 @@ if [ "$package" == "fs2" ] || [ "$package" == "fpc" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
   ver="5.5.0";
+  ver="5.4.0";
+#fixme
   if should_make lua $ver; then
-    download_unpack_source https://www.lua.org/ftp/lua-5.5.0.tar.gz lua lua-$ver 1
+    download_unpack_source https://www.lua.org/ftp/lua-$ver.tar.gz lua lua-$ver 1
     make linux
     create_app lua $prefix$ver
     make install INSTALL_TOP=/app/lua/$prefix$ver
-    download_unpack_source https://sourceforge.net/projects/luabinaries/files/5.5.0/Docs%20and%20Sources/lua-5.5.0_Sources.tar.gz/download lua lua55 1
+    download_unpack_source https://sourceforge.net/projects/luabinaries/files/$ver/Docs%20and%20Sources/lua-${ver}_Sources.tar.gz/download lua$ver lua54 1
     cd src
     make -f Makefile.tecmake
     cp ../lib/Linux612_64/*.so /app/lua/$prefix$ver/lib
     mkdir /app/lua/current/lib/pkgconfig
-    cp $curdir/in/lua/lua55.pc /app/lua/current/lib/pkgconfig
+    cp $curdir/in/lua/lua54.pc /app/lua/current/lib/pkgconfig
     set_current_app_clean_strip_cd lua $prefix$ver 1
   fi
 fi

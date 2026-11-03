@@ -1,0 +1,10 @@
+prefix=/app/lua/current
+includedir=/app/lua/current/include
+libdir=/app/lua/current/lib
+
+Name: lua54
+Description: xyz
+URL: url
+Version: 5.4.0
+Cflags: -I${includedir}
+Libs: -L${libdir} -lliblua54
