@@ -26,13 +26,15 @@ PS111="[\t] $USER # "
 #doesnt work because it's started always in /
 #PS111="$USER : reparse $(pwd) $(/app/git/current/git branch --show-current) po $(if [ -f "/app/git/current/bin/git" ] && /app/git/current/git rev-parse --git-dir > /dev/null 2>&1; then echo -n \" \e[33m\";/app/git/current/git branch --show-current; fi) # "
 
+#bin / /  makes problem - everything created in bin is visible outside
 /app/bwrap/current/bin/bwrap \
     --setenv HOME $MCHOME \
+    --bind / / \
+    --dir bin \
+    --symlink /app/busybox/current/bin/sh /bin/sh \
     --dev dev \
     --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
     --proc proc \
-    --symlink /app/busybox/current/bin/sh /bin/sh \
-    --dev-bind-try /app2 app2 \
     --bind /tmp tmp \
     --bind /home home \
     --bind-try /run run \
