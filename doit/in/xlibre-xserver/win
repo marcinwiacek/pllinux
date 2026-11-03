@@ -1,5 +1,5 @@
 #!/bin/sh
-/app/xinit/current/bin/startx -- -logfile /tmp/abc &
+/app/xinit/current/bin/startx -- -logfile /tmp/abc 2> /tmp/xxx &
 _pid=$!
 sleep 20 && kill $_pid &
 
