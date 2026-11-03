@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="sdl3"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2611,40 +2611,50 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
     libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
     libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
     libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
+#          --disable-video-x11 
     download_unpack_source https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.32.10.tar.gz sdl SDL-release-$ver 1
-    ./configure --enable-rpath --enable-video-directfb --enable-directfb-shared --enable-video-kmsdrm --enable-kmsdrm-shared \
+    ./configure --disable-rpath --enable-video-directfb --enable-directfb-shared --enable-video-kmsdrm --enable-kmsdrm-shared \
           --enable-video-opengl --enable-video-opengles --enable-video-opengles1 --enable-video-opengles2 \
-          --disable-video-x11 --disable-video-wayland \
+          --disable-video-wayland \
           --disable-libudev --disable-dbus --prefix=/app/sdl/current
     make -j$cpu_num
     create_app sdl $prefix$ver
     set_current_app sdl $prefix$ver 1
     make install
     cd test
-    ./configure --prefix=/app/sdl/current --with-sdl-prefix=/app/sdl/current
+    ./configure --prefix=/app/sdl/current --with-sdl-prefix=/app/sdl/current --libexecdir=/app/sdl/current
     make -j$cpu_num
     make install
+    cd /app/sdl/current/installed-tests/SDL2
+    mv * ..
+    cd ..
+    rm -r SDL2
     set_current_app_clean_strip_cd sdl $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
-  ver="3.4.16";
+  ver="3.4.20";
   if should_make sdl $ver; then
     install_host_deps "cmake ninja-build libasound2-dev libpulse-dev \
     libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
     libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
     libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
     libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev"
-    download_unpack_source https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz sdl SDL3-$ver 1
+    download_unpack_source https://github.com/libsdl-org/SDL/releases/download/release-$ver/SDL3-$ver.tar.gz sdl SDL3-$ver 1
     cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
        -DSDL_KMSDRM=ON \
        -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON \
        -DSDL_LIBUDEV=OFF -DSDL_STATIC=OFF -DSDL_RPATH=OFF \
        -DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF \
-       -DSDL_WAYLAND=OFF -DSDL_X11=OFF -DSDL_UNIX_CONSOLE_BUILD=ON
+       -DSDL_WAYLAND=OFF -DSDL_UNIX_CONSOLE_BUILD=ON
+#-DSDL_X11=OFF 
     cmake --build build
     create_app sdl $prefix$ver
     cmake --install build --prefix $output/app/sdl/$prefix$ver
+    cd /app/sdl/$prefix$ver
+    mkdir installed-tests
+    mv libexec/installed-tests/SDL3/* installed-tests
+    rm -r libexec
     set_current_app_clean_strip_cd sdl $prefix$ver 1
   fi
 fi
