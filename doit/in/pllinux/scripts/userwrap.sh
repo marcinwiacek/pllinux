@@ -32,6 +32,12 @@ else
   PARAMS="$PARAMS --unshare-all "
 fi
 PARAMS="$PARAMS --dev dev "
+for DEV in $(ls /dev); do
+  case $DEV in
+  nvme*|fb0|log|mapper|dri|tty*|input)
+    PARAMS="$PARAMS --dev-bind-try /dev/$DEV /dev/$DEV"
+  esac
+done
 PARAMS="$PARAMS --tmpfs tmp "
 PARAMS="$PARAMS --bind home/$USER home "
 PARAMS="$PARAMS --ro-bind /etc/localtime /etc/localtime "
