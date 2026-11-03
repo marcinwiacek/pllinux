@@ -58,8 +58,8 @@ done
 #export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/icd.d/lvp_icd.x86_64.json
 #export VK_DRIVER_FILES=/app/mesa/current/share/vulkan/icd.d/virtio_icd.x86_64.json
 #export VK_DRIVER_FILES=/app/swiftshader/current/lib/vk_swiftshader_icd.json
-export DISPLAY=":0"
-export TERM="linux"
+#export DISPLAY=:0
+#export TERM="linux"
 export TZ=Europe/Warsaw
 export LANG=$(/app/pllinux/current/pllinux LANG)
 export LANGUAGE=$(/app/pllinux/current/pllinux LANG)

@@ -51,6 +51,9 @@ fi
 
 /app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
 
+mkdir /dev/pts
+/app/util-linux/current/bin/mount devpts -t devpts -o rw,noatime,nosuid,noexec,mode=620,gid=5 /dev/pts
+
 #/app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /log/tmp
 echo lz4 > /sys/block/zram0/comp_algorithm
 echo 1G > /sys/block/zram0/disksize
