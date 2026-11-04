@@ -414,8 +414,6 @@ fi
 #--------------------------------- basic - basic -----------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
   ver="6.18.60";
-#  ver="7.2.11";
-#  ver="7.2.6";
   ver="7.3.1";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
