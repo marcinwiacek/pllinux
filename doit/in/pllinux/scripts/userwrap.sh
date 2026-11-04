@@ -31,14 +31,15 @@ if [ "$processesall" = 1 ]; then
 else
   PARAMS="$PARAMS --unshare-all "
 fi
-PARAMS="$PARAMS --dev dev "
-for DEV in $(/app/busybox/current/bin/ls /dev); do
+PARAMS="$PARAMS --dev-bind /dev /dev "
+#PARAMS="$PARAMS --dev dev "
+#for DEV in $(/app/busybox/current/bin/ls /dev); do
 #  nvme*|fb0|log|mapper|dri|tty*|input)
-  case $DEV in
-  nvme*|fb0|log|mapper|dri|input|pts)
-    PARAMS="$PARAMS --dev-bind-try /dev/$DEV /dev/$DEV"
-  esac
-done
+#  case $DEV in
+#  nvme*|fb0|log|mapper|dri|input|pts)
+#    PARAMS="$PARAMS --dev-bind-try /dev/$DEV /dev/$DEV"
+#  esac
+#done
 PARAMS="$PARAMS --tmpfs tmp "
 PARAMS="$PARAMS --bind home/$USER home "
 PARAMS="$PARAMS --ro-bind /etc/localtime /etc/localtime "

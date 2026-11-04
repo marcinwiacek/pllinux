@@ -73,10 +73,12 @@ echo 1G > /sys/block/zram0/disksize
 # firewall rules
 /app/nftables/current/sbin/nft -f /etc/network/nftables/inet-filter.nft
 
-# just permissions
+/app/pllinux/current/pllinux BOOT
+
+# just permissions - need to setup it after pllinux (it can load graphic card modules)
 /app/busybox/current/bin/chmod a+rw /dev/null
+/app/busybox/current/bin/chmod a+rw /dev/tty0
+/app/busybox/current/bin/chmod a+rw /dev/tty4
 /app/busybox/current/bin/chmod a+rw /dev/fb0
 /app/busybox/current/bin/chmod a+rwx /dev/dri
 /app/busybox/current/bin/chmod a+rwx /dev/dri/card0
-
-/app/pllinux/current/pllinux BOOT
