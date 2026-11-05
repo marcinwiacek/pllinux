@@ -1,3 +1,6 @@
+**Description**
+Compiler for converting description of an XKB keymap for example into xkm file.
+
 **PATH**
 bin
 

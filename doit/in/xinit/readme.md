@@ -1,3 +1,6 @@
+**Description**
+Tools for starting X display server (like XLibre) from command line.
+
 **Deps**
 libx11 current
 libxcb current
@@ -6,4 +9,3 @@ libxdmcp current
 
 **PATH**
 bin
-

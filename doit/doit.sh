@@ -2460,52 +2460,6 @@ if [ "$package" == "fs" ] || [ "$package" == "xf86-input-evdev" ]; then
     set_current_app_clean_strip_cd xf86-input-evdev $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "xf86-input-libinput" ]; then
-  ver="1.5.0";
-  if should_make xf86-input-libinput $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-libinput-$ver.tar.xz xf86-input-libinput xf86-input-libinput-$ver 1
-    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-libinput/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xf86-input-libinput $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xf86-input-libinput $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xf86-input-synaptics" ]; then
-  ver="1.10.0";
-  if should_make xf86-input-synaptics $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-synaptics-$ver.tar.xz xf86-input-synaptics xf86-input-synaptics-$ver 1
-    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-synaptics/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xf86-input-synaptics $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xf86-input-synaptics $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "xf86-input-vmmouse" ]; then
-  ver="13.2.0";
-  if should_make xf86-input-vmmouse $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-vmmouse-$ver.tar.xz xf86-input-vmmouse xf86-input-vmmouse-$ver 1
-    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-vmmouse/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xf86-input-vmmouse $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xf86-input-vmmouse $prefix$ver 1
-  fi
-fi
-
-#configure: error: This is not the mouse driver you are looking for. Use evdev or libinput.
-if [ "$package" == "fs" ] || [ "$package" == "xf86-input-mouse" ]; then
-  ver="2.0.0";
-  if should_make xf86-input-mouse $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-mouse-$ver.tar.xz xf86-input-mouse xf86-input-mouse-$ver 1
-    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-mouse/current
-    make -j$cpu_num
-    create_app_in_tmp_and_link_it xf86-input-mouse $prefix$ver
-    make install
-    set_current_app_clean_strip_cd xf86-input-mouse $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
   ver="1.13.2";
   if should_make libxkbcommon $ver; then
@@ -2853,6 +2807,52 @@ if [ "$package" == "fs" ] || [ "$package" == "tecmake" ]; then
   fi
 fi
 # ---------------------------- experiments -----------------------------
+if [ "$package" == "fs" ] || [ "$package" == "xf86-input-libinput" ]; then
+  ver="1.5.0";
+  if should_make xf86-input-libinput $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-libinput-$ver.tar.xz xf86-input-libinput xf86-input-libinput-$ver 1
+    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-libinput/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xf86-input-libinput $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xf86-input-libinput $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xf86-input-synaptics" ]; then
+  ver="1.10.0";
+  if should_make xf86-input-synaptics $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-synaptics-$ver.tar.xz xf86-input-synaptics xf86-input-synaptics-$ver 1
+    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-synaptics/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xf86-input-synaptics $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xf86-input-synaptics $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xf86-input-vmmouse" ]; then
+  ver="13.2.0";
+  if should_make xf86-input-vmmouse $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-vmmouse-$ver.tar.xz xf86-input-vmmouse xf86-input-vmmouse-$ver 1
+    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-vmmouse/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xf86-input-vmmouse $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xf86-input-vmmouse $prefix$ver 1
+  fi
+fi
+
+#configure: error: This is not the mouse driver you are looking for. Use evdev or libinput.
+if [ "$package" == "fs" ] || [ "$package" == "xf86-input-mouse" ]; then
+  ver="2.0.0";
+  if should_make xf86-input-mouse $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-mouse-$ver.tar.xz xf86-input-mouse xf86-input-mouse-$ver 1
+    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure --prefix=/app/xf86-input-mouse/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xf86-input-mouse $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xf86-input-mouse $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "volk" ]; then
   ver="1.4.350";
   if should_make volk $ver; then
