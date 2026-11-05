@@ -30,7 +30,6 @@ PS111="[\t] $USER # "
 /app/bwrap/current/bin/bwrap \
     --setenv HOME $MCHOME \
     --bind / / \
-    --dir bin \
     --symlink /app/busybox/current/bin/sh /bin/sh \
     --dev dev \
     --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
@@ -47,6 +46,7 @@ PS111="[\t] $USER # "
     $APP \
     $DIR/bin/mc
 
+#    --dir bin \
 #    --setenv TERM linux \
 
     # devices are mapped, but... problem with shell prompt (we map too much and some device is making mess)
