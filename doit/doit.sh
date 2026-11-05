@@ -2472,11 +2472,13 @@ if [ "$package" == "fs" ] || [ "$package" == "seatd" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xlibre-xf86-input-evdev" ]; then
-#  ver="2.11.0";
+  # module has got (earlier) version on the freedesktop.org
+  #  ver="2.11.0";
+  #    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-evdev-2.11.0.tar.xz xf86-input-evdev xf86-input-evdev-$ver 1
   ver="25.0.0";
   if should_make xlibre-xf86-input-evdev $ver; then
-#    download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-evdev-2.11.0.tar.xz xf86-input-evdev xf86-input-evdev-$ver 1
-    download_unpack_source https://github.com/X11Libre/xf86-input-evdev/archive/refs/tags/xlibre-xf86-input-evdev-25.0.0.tar.gz xlibre-xf86-input-evdev xf86-input-evdev-xlibre-xf86-input-evdev-$ver 1
+    download_unpack_source https://github.com/X11Libre/xf86-input-evdev/archive/refs/tags/xlibre-xf86-input-evdev-$ver.tar.gz \
+         xlibre-xf86-input-evdev xf86-input-evdev-xlibre-xf86-input-evdev-$ver 1
     ./autogen.sh
     PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure \
        --prefix=/app/xlibre-xf86-input-evdev/current \
