@@ -2540,7 +2540,8 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
   ver="25.2.3";
   if should_make xlibre-xserver $ver; then
     download_unpack_source https://github.com/X11Libre/xserver/archive/refs/tags/xlibre-xserver-$ver.tar.gz xlibre-xserver xserver-xlibre-xserver-$ver 1
-    meson setup -Dprefix=/app/xlibre-xserver/current -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
+    PKG_CONFIG_PATH=/app/mesa/current/lib/pkgconfig meson setup -Dprefix=/app/xlibre-xserver/current \
+       -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
        -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
     ninja -C builddir
     create_app_in_tmp_and_link_it xlibre-xserver $prefix$ver
