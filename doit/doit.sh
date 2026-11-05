@@ -2840,9 +2840,8 @@ if [ "$package" == "fs" ] || [ "$package" == "xf86-input-vmmouse" ]; then
     set_current_app_clean_strip_cd xf86-input-vmmouse $prefix$ver 1
   fi
 fi
-
-#configure: error: This is not the mouse driver you are looking for. Use evdev or libinput.
 if [ "$package" == "fs" ] || [ "$package" == "xf86-input-mouse" ]; then
+  #configure: error: This is not the mouse driver you are looking for. Use evdev or libinput.
   ver="2.0.0";
   if should_make xf86-input-mouse $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/driver/xf86-input-mouse-$ver.tar.xz xf86-input-mouse xf86-input-mouse-$ver 1
