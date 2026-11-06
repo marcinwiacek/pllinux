@@ -1542,14 +1542,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zlib"
   ver="1.4";
   if should_make zlib $ver; then
     download_unpack_source https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver 1
-    ./configure
+    ./configure --sharedlibdir=/app/zlib/$prefix$ver/lib \
+       --libdir=/app/zlib-dev/$prefix$ver/lib --includedir=/app/zlib-dev/$prefix$ver/include --mandir=/app/zlib-dev/$prefix$ver/man
     make all -j$cpu_num
     create_app zlib $prefix$ver
-    cp LICENSE $output/app/zlib/$prefix$ver
-    rsync -a $curdir/in/zlib/ $output/app/zlib/$prefix$ver
-    mkdir $output/app/zlib/$prefix$ver/lib
-    rsync -a libz* $output/app/zlib/$prefix$ver/lib
+    create_app zlib-dev $prefix$ver
+    cp LICENSE /app/zlib/$prefix$ver
+    cp LICENSE /app/zlib-dev/$prefix$ver
+    make install
     set_current_app_clean_strip_cd zlib $prefix$ver 1
+    set_current_app_clean_strip_cd zlib-dev $prefix$ver 1
+    cp /app/zlib/current/readme.md /app/zlib-dev/current/readme.md
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzutils" ]; then
