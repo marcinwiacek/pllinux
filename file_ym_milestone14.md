@@ -85,6 +85,8 @@ What about home directory problem? Normally HOME variable is pointing (for norma
 /home/(user)/app and will try to make separate dirs (like /home/(user)/app/mc, /home/(user)/app/bash, etc.). User will get clean home directory
 with just one folder for all apps mess. We don't need /other folder anymore.
 
-During cleanup there was removed .etc directory too.
+During cleanup there was removed .etc directory too and timezone directory (TZDIR environment variable really helps). Some changes are very easy,
+some not - for example standard GNU ./configure doesn't allow for providing separate dir for so and a files (which needs extra steps during building
+main and dev packages).
 
 [Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)

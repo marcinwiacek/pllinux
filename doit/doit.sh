@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="zlib"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xzutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1292,6 +1292,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
 #    set_current_app_clean_strip_cd libxml2 $prefix$ver 0 # no stripping
 
 #--enable-versioned-symbols  doesn't exist
+#--enable-symbol-versions ?
     ./autogen.sh
     ./configure --prefix=/app/libxml2/current --libdir=/app/libxml2/current/lib --with-icu --static-libs
     make all -j$cpu_num
@@ -1559,15 +1560,22 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzuti
   ver="5.8.4";
   if should_make xzutils $ver; then
     download_unpack_source https://github.com/tukaani-project/xz/releases/download/v$ver/xz-$ver.tar.xz xzutils xz-$ver 1
-    mkdir $out/xzutils/xz-$ver-build
-    cd $out/xzutils/xz-$ver-build
-    ../xz-$ver/autogen.sh
-    ../xz-$ver/configure --prefix=/app/xzutils/$prefix$ver
+    ./autogen.sh
+    ./configure --prefix=/app/xzutils/$prefix$ver \
+       --includedir=/app/xzutils-dev/$prefix$ver/include
     make -j$cpu_num
     create_app xzutils $prefix$ver
+    create_app xzutils-dev $prefix$ver
+#    create_app xzutils-locale $prefix$ver
     make install
-    cp ../xz-$ver/COPYING $output/app/xzutils/$prefix$ver
+    cp ./COPYING /app/xzutils/$prefix$ver
+    cp ./COPYING /app/xzutils-dev/$prefix$ver
+    mkdir /app/xzutils-dev/$prefix$ver/lib
+    mv /app/xzutils/$prefix$ver/lib/pkgconfig /app/xzutils-dev/$prefix$ver/lib
+    mv /app/xzutils/$prefix$ver/lib/*.a /app/xzutils-dev/$prefix$ver/lib
+    mv /app/xzutils/$prefix$ver/lib/*.la /app/xzutils-dev/$prefix$ver/lib
     set_current_app_clean_strip_cd xzutils $prefix$ver 1
+    set_current_app_clean_strip_cd xzutils-dev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
