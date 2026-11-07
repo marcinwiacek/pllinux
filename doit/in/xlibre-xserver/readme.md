@@ -16,6 +16,9 @@ lib/xorg/modules/xlibre-25.orig
 **X11-conf**
 etc/X11/xorg.conf.d.orig
 
+**Man**
+share/man/man1:share/man/man4:share/man/man5
+
 **Deps**
 bzip2 current
 freetype current

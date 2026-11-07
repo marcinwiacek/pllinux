@@ -9,3 +9,8 @@ libxdmcp current
 
 **PATH**
 bin
+
+**License**
+
+**Man**
+share/man/man1

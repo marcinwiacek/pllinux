@@ -5,3 +5,6 @@ https://xkeyboard-config.freedesktop.org/
 Open source database of keyboard configuration data (targeted into XKB-based systems).
 
 **License**
+
+**Man**
+share/man/man7

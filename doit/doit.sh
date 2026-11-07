@@ -822,6 +822,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurs
     echo "**Last**" >> /app/ncursesw/current/readme.md
     echo "$LATEST_FILE_UPDATE" >> /app/ncursesw/current/readme.md
     cp $out/ncursesw/ncurses-$ver/COPYING $output/app/ncursesw/$prefix$ver
+    cd /app/ncursesw/$prefix$ver
+    rm -r share
     set_current_app_clean_strip_cd ncursesw $prefix$ver 1
   fi
 fi

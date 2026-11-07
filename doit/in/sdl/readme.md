@@ -1,3 +1,9 @@
+**Description**
+
+**Project**
+
+**Man**
+
 **License**
 
 **PATH**
@@ -27,9 +33,3 @@ libffi current
 libglvnd current
 libdisplay-info current
 vulkan-loader current
-
-**Description**
-
-**Project**
-
-**Man**

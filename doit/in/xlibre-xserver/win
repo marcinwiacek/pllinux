@@ -1,7 +1,7 @@
 #!/bin/sh
-/app/xinit/current/bin/startx -- vt11 -logfile /tmp/abc 2> /tmp/xxx &
-_pid=$!
-sleep 20 && kill $_pid &
+exec strace /app/xinit/current/bin/startx -- vt11 -logfile /tmp/xwin1 2> /tmp/xwin2
+#_pid=$!
+#sleep 20 && kill $_pid &
 
 #needs name X
 #/app/seatd/current/bin/seatd &

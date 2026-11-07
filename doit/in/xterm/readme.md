@@ -1,3 +1,18 @@
+**Project**
+https://xterm.dev/
+
+**Description**
+Standard terminal for the X Window System (Xorg) developed since 1986.
+
+**License**
+See COPYING
+
+**Man**
+share/man/man1
+
+**PATH**
+bin
+
 **Deps**
 libxft current
 fontconfig current
@@ -25,15 +40,3 @@ util-linux current
 libxau current
 libxdmcp current
 pcre2 current
-
-**PATH**
-bin
-
-**Project**
-https://xterm.dev/
-
-**Description**
-Standard terminal for the X Window System (Xorg) developed since 1986.
-
-**License**
-See COPYING

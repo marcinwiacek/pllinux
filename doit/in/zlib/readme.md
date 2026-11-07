@@ -9,3 +9,6 @@ Lossless compression library, not covered by any patent.
 
 **Deps**
 glibc current
+
+**Man**
+man/man3
