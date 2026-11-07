@@ -1,0 +1,2 @@
+#!/app/busybox/current/bin/sh
+/app/mc/current/bin/mc $@
