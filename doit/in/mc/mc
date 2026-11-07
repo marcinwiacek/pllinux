@@ -4,11 +4,11 @@ APP=""
 if [ -d "/home/root" ]; then
   # root
   APP="$APP --bind /app app --bind /etc etc "
-  MCHOME=/home/root/app/mc
+  MCHOME=/home/root/app
 else
   # non root
   APP="$APP --ro-bind /app app --ro-bind /etc/localtime etc/localtime "
-  MCHOME=/home/app/mc
+  MCHOME=/home/app
 fi
 if [ ! -d "/iso" ]; then
   # normal system, not iso
@@ -20,7 +20,7 @@ for DEV in $(ls /dev); do
     APP="$APP --dev-bind-try /dev/$DEV /dev/$DEV"
   esac
 done
-mkdir $MCHOME 2> /dev/null
+/app/busybox/current/bin/mkdir $MCHOME 2> /dev/null
 
 PS111="[\t] $USER # "
 #doesnt work because it's started always in /
@@ -30,6 +30,7 @@ PS111="[\t] $USER # "
 /app/bwrap/current/bin/bwrap \
     --setenv HOME $MCHOME \
     --bind / / \
+    --tmpfs bin \
     --symlink /app/busybox/current/bin/sh /bin/sh \
     --dev dev \
     --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \

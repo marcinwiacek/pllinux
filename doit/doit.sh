@@ -2236,6 +2236,8 @@ if [ "$package" == "fs" ] || [ "$package" == "xinit" ]; then
     cd /app/xinit/current/etc/X11/xinit
     mv xinitrc xinitrc.orig
     ln -s /etc/x11/xinitrc xinitrc
+    cd /app/xinit/current/bin
+    ln -s /app/xlibre-xserver/current/bin/X X
     set_current_app_clean_strip_cd xinit $prefix$ver 1
   fi
 fi

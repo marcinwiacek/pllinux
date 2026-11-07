@@ -8,7 +8,7 @@ https://www.gnu.org/software/bash/
 sh-compatible Bourne Again SHell with elements from the csh (C SHell) and ksh (Korn SHell).
 
 **PATH**
-.
+bin
 
 **SHELL**
 bin/bash
