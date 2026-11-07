@@ -15,9 +15,6 @@ glibc current
 ncurses current
 pcre2 current
 slang current
-file current
-binutils current
-grep current
 
 **PATH**
 .:bin
@@ -27,3 +24,6 @@ none
 
 **Man**
 share/man/man1
+
+**Last**
+20250123
