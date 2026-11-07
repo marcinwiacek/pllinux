@@ -198,7 +198,7 @@ EOF
         fi
       fi
     fi
-  done < "${DIR}etc/app.repos"
+  done < "${DIR}etc/pllinux/app.repos"
 #  echo "$REPO_UPDATES"
 }
 
@@ -773,7 +773,7 @@ elif [ "$1" = "help" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
   echo "help                        - this info"
   echo
   echo "Repo list:"
-  echo "$(cat ${DIR}etc/app.repos)"
+  echo "$(cat ${DIR}etc/pllinux/app.repos)"
 else
   MASK=""
   if [ "$1" = "available" ] || [ "$1" = "updates" ]; then

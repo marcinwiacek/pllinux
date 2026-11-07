@@ -2654,7 +2654,7 @@ EOF
         fi
       fi
     fi
-  done < "${DIR}etc/app.repos"
+  done < "${DIR}etc/pllinux/app.repos"
 #  echo "$REPO_UPDATES"
 }
 
@@ -3567,7 +3567,7 @@ groups() {
   done
 }
 
-CFGFILE="etc/pllinux.conf"
+CFGFILE="etc/pllinux/pllinux.conf"
 if [ "$1" = "BOOT" ]; then
   set_general_config 1
   return

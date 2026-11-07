@@ -32,8 +32,7 @@ PS111="[\t] $USER # "
     --bind / / \
     --tmpfs bin \
     --symlink /app/busybox/current/bin/sh /bin/sh \
-    --dev dev \
-    --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
+    --dev-bind /dev /dev \
     --proc proc \
     --bind /tmp tmp \
     --bind /home home \
@@ -52,6 +51,9 @@ PS111="[\t] $USER # "
 
     # devices are mapped, but... problem with shell prompt (we map too much and some device is making mess)
     #--dev-bind /dev /dev \
+
+#    --dev dev \
+#    --dev-bind-try /dev/pts/ptmx /dev/pst/ptmx \
 
     # no clean before running command in options
     #    --setenv SHELL /app/busybox/current/bin/sh \

@@ -12,7 +12,7 @@ CONS=$(/app/busybox/current/bin/tty)
 FEATURES=""
 APPS=""
 
-if [ -e "/etc/pllinux.conf" ]; then
+if [ -e "/etc/pllinux/pllinux.conf" ]; then
   while read -r line; do
     IFS="=" read -r PARAM_NAME PARAM_VALUE << EOF
 $line
@@ -27,7 +27,7 @@ EOF
     ${USER}_FONT )
       /app/kbd/current/bin/setfont -C $CONS $PARAM_VALUE ;;
     esac
-  done < "/etc/pllinux.conf"
+  done < "/etc/pllinux/pllinux.conf"
 fi
 
 if [ "$APPS" = "" ]; then
