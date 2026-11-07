@@ -106,9 +106,12 @@ EOF
           *)
             if [ "$1" = "1" ]; then
               echo Generating locale
-              mkdir /app/glibc/current/lib/locale
+              if [ ! -d /app/glibc/current/lib/locale ]; then
+                cd /app/glibc/current/lib
+                ln -s /etc/glibc locale
+              fi
               #localedef -i pl_PL -c -f UTF-8 pl_PL.UTF-8
-              localedef -i en_US -c -f UTF-8 en_US.UTF-8
+              /app/glibc/current/bin/localedef -i en_US -c -f UTF-8 en_US.UTF-8
             fi ;;
         esac
         LANG=$PARAM_VALUE ;;
