@@ -1291,7 +1291,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
 #    create_app libxml2 $prefix$ver
 #    set_current_app libxml2 $prefix$ver 1
 #    meson install -C _build
-#fixme do link .so.2 do .so
 #    set_current_app_clean_strip_cd libxml2 $prefix$ver 0 # no stripping
 
 #--enable-versioned-symbols  doesn't exist
@@ -1303,6 +1302,9 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
     make all -j$cpu_num
     create_app_in_tmp_and_link_it libxml2 $prefix$ver
     make install
+    cd /app/libxml2/current/lib
+#fixme do link .so.2 do .so
+    ln -s libxml2.so libxml2.so.2
     set_current_app_clean_strip_cd libxml2 $prefix$ver 1
   fi
 fi
