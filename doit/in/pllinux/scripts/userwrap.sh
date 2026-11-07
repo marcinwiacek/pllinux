@@ -43,7 +43,7 @@ PARAMS="$PARAMS --dev-bind /dev /dev "
 PARAMS="$PARAMS --tmpfs tmp "
 PARAMS="$PARAMS --bind home/$USER home "
 PARAMS="$PARAMS --ro-bind /etc/localtime /etc/localtime "
-PARAMS="$PARAMS --ro-bind /etc/fonts /etc/fonts "
+PARAMS="$PARAMS --ro-bind /etc/x11 /etc/x11 "
 PARAMS="$PARAMS --ro-bind /etc/glibc /etc/glibc "
 PARAMS="$PARAMS --ro-bind /etc/vulkan /etc/vulkan "
 PARAMS="$PARAMS --ro-bind /sys sys "
@@ -180,8 +180,8 @@ for PART in $shell
 do
   LAST=$PART;
 done
-PARAMS="$PARAMS --setenv HOME /home/app/$LAST "
-if [ ! -d /home/$USER/app/$LAST ]; then /app/busybox/current/bin/mkdir /home/$USER/app/$LAST; fi
+PARAMS="$PARAMS --setenv HOME /home/app "
+if [ ! -d /home/$USER/app ]; then /app/busybox/current/bin/mkdir /home/$USER/app; fi
 PARAMS="$PARAMS -- $LAST"
 #echo "$PARAMS"
 cd /

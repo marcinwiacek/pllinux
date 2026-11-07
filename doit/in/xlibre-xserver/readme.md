@@ -7,6 +7,15 @@ Regular updated display server for the X Window System Protocol Version 11 (X11)
 **License**
 Variant of the common MIT license published at http://www.opensource.org/licenses/mit-license.php
 
+**PATH**
+.
+
+**X11-modules**
+lib/xorg/modules/xlibre-25.orig
+
+**X11-conf**
+etc/X11/xorg.conf.d.orig
+
 **Deps**
 bzip2 current
 freetype current
@@ -46,6 +55,3 @@ libxml2 current
 ncurses current
 mtdev current
 libevdev current
-
-**PATH**
-.

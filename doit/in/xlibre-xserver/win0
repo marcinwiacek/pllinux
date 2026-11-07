@@ -1,9 +1,0 @@
-
-
-strace xinit /app/xlibre-xserver/current/comm -- /app/xlibre-xserver/current/bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb -logfile "/log/tmp/Xorg.log" -br 2> trace
-
-
-#/app/xlibre-xserver/current/bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb -logfile "/log/tmp/Xorg.log"
-#/app/xlibre-xserver/current/bin/X -logfile "/log/tmp/Xorg.log"
-#sleep 2
-#exec /app/xcalc/current/bin/xcalc

@@ -68,7 +68,7 @@ export PATH=$path
 #export SHELL=/app/busybox/current/bin/sh
 #export HOME=/other/app/sh
 export SHELL=/app/bash/current/bin/bash
-export HOME=/home/root/app/bash
+export HOME=/home/root/app
 export TERMINFO=/app/ncurses/current/share/terminfo
 export TZDIR=/app/tzdb/current/usr/share/zoneinfo
 mkdir $HOME 2> /dev/null
