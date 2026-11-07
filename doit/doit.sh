@@ -2583,6 +2583,9 @@ if [ "$package" == "fs" ] || [ "$package" == "jwm" ]; then
     make -j$cpu_num
     create_app_in_tmp_and_link_it jwm $prefix$ver
     make install
+    cd /app/jwm/$prefix$ver/current/etc
+    mv system.jvmrc system.jvmrc.orig
+    ln -s /etc/x11/system.jvmrc system.jvmrc
     set_current_app_clean_strip_cd jwm $prefix$ver 1
   fi
 fi
