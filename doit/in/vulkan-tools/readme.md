@@ -28,3 +28,4 @@ libffi current
 libedit current
 libxml2 current
 ncurses current
+wayland current
