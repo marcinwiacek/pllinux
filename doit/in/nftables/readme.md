@@ -1,11 +1,17 @@
+**Project**
+https://netfilter.org/projects/nftables/index.html
+
+**Description**
+Core part of PLLINUX. Firewall tool.
+
 **License**
 GPL2 (2+?)
 
 **PATH**
 sbin
 
-**Project**
-https://netfilter.org/projects/nftables/index.html
+**Man**
+share/man/man3:share/man/man5:share/man/man8
 
 **Deps**
 glibc current
@@ -16,9 +22,3 @@ libedit current
 gmp current
 libmnl current
 libnftnl current
-
-**Man**
-share/man/man3:share/man/man5:share/man/man8
-
-**Description**
-Core part of PLLINUX. Firewall tool.

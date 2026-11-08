@@ -1,8 +1,17 @@
+**Project**
+https://www.gnu.org/software/parted/
+
+**Description**
+Core part of PLLINUX. Disk partition editor.
+
 **License**
 GPL3+
 
 **PATH**
 sbin
+
+**Man**
+share/man/man8
 
 **Deps**
 readline current
@@ -12,12 +21,3 @@ ncurses current
 pcre2 current
 util-linux current
 gcclib current
-
-**Description**
-Core part of PLLINUX. Disk partition editor.
-
-**Project**
-https://www.gnu.org/software/parted/
-
-**Man**
-share/man/man8

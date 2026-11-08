@@ -1,11 +1,13 @@
-**License**
-Apache 2.0
-
 **Project**
 https://github.com/openssl/openssl
 
-**Deps**
-glibc current
+**Description**
+
+**License**
+Apache 2.0
 
 **PATH**
 bin
+
+**Deps**
+glibc current
