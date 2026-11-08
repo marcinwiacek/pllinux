@@ -2,7 +2,7 @@
 https://www.xlibre.net/
 
 **Description**
-Regular updated display server for the X Window System Protocol Version 11 (X11)
+Regularly updated display server for the X Window System Protocol Version 11 (X11)
 
 **License**
 Variant of the common MIT license published at http://www.opensource.org/licenses/mit-license.php

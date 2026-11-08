@@ -1,3 +1,6 @@
+**Project**
+https://gitlab.freedesktop.org/xorg/app/xinit
+
 **Description**
 Tools for starting X display server (like XLibre) from command line.
 
@@ -11,6 +14,7 @@ libxdmcp current
 bin
 
 **License**
+See LICENSE
 
 **Man**
 share/man/man1

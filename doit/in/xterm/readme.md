@@ -2,7 +2,7 @@
 https://xterm.dev/
 
 **Description**
-Standard terminal for the X Window System (Xorg) developed since 1986.
+Standard terminal for the X Window System (Xorg). Developed since 1986.
 
 **License**
 See COPYING

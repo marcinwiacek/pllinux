@@ -1,3 +1,16 @@
+**Project**
+https://www.gnu.org/software/wget/ or https://gitlab.com/gnuwget/wget2
+
+**Description**
+Core part of PLLINUX. File downloader.
+
+**License**
+GPL3+
+
+
+**PATH_First**
+.
+
 **Deps**
 brotli current
 glibc current
@@ -15,15 +28,3 @@ nettle 4.0-
 gmp current
 p11-kit current
 libffi current
-
-**License**
-GPL3+
-
-**Project**
-https://www.gnu.org/software/wget/ or https://gitlab.com/gnuwget/wget2
-
-**PATH_First**
-.
-
-**Description**
-Core part of PLLINUX. File downloader.
