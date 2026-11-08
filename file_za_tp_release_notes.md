@@ -14,13 +14,13 @@ in IT. And I'm building system, which could resolve many existing problems.
 
 I know, that you heard it many times. The thing is, that PLLinux is created using existing software (it gives maturity
 and knowledge about internals). It's prepared from scratch (it allows for avoiding many problems visible
-in typical Linux distributions) and I'm doing it based on long technical experience (additionally I'm lazy and preffer
+in typical Linux distributions) and I'm doing it based on long technical experience (additionally I'm very lazy and preffer
 doing something once, but good).
 
 The biggest key points for release 1.0:
 
   1. the less is more - one script for configuring everything named **pllinux**, one script for building named **doit**
-(no more magic commands for geeks, if you don't want) and decreasing amount of code from release to release
+and decreasing amount of code from release to release
   2. minimal resources usage - saving power, CPU usage, expensive RAM and SSD (no duplicated files, big logs, binary indexes, telemetry, etc.)
   3. no obsolete solutions known from many other distro - it's time to grow up and go beyond 1980 year
   4. very easy adding existing (Linux) apps - they can be always actual without weeks or months of waiting
@@ -39,7 +39,7 @@ This Technology Preview was prepared to show main architecture elements - you ch
 Current version contains many components and is vey good presenting, what's wrong with existing systems (you could compare it to the
 [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution
-was already started and somehow visible, but wasn't completed and fully ready).
+was started and somehow visible, but wasn't completed and fully ready).
 
 Some solutions are similar to used in Android, Apple products or NixOS, but not the same - they will change to better before beta or first final release
 (like it was in Windows 95, see [The Early Windows 95 Builds Microsoft DIDN'T Want Us To See](https://www.youtube.com/watch?v=cgq7LcvRFA4))
@@ -211,6 +211,11 @@ Big pressure is put into limiting disk writes or memory usage. This is very impo
 
 Note: used architecture (especially **bwrap**) can make some scenarios potentially more difficult and
 root actions are normally done from the terminal with logged root (honestly speaking you don't need to do them every second with good work framework).
+
+What about configurations?
+
+Some packages in the /app contain link to the directory in the /etc, where we put for example links to all drivers. This is happening for example
+with x11 drivers or vulkan and these /etc directories and updated ONLY by **app** package manager.
 
 # Full freedom
 
