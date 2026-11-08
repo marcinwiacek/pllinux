@@ -1,3 +1,12 @@
+**Project**
+https://astron.com/pub/file/
+
+**Description**
+Tool for recognizing file format.
+
+**License**
+Custom (see COPYING)
+
 **PATH**
 bin
 
@@ -11,11 +20,5 @@ bzip2 current
 zlib current
 glibc current
 
-**Project**
-https://astron.com/pub/file/
-
-**Description**
-Tool for recognizing file format.
-
-**License**
-Custom (see COPYING)
+**Last**
+20260608

@@ -1,8 +1,17 @@
+**Project**
+https://git-scm.com/
+
+**Description**
+Tools for devs for handling (mainly) code repositories.
+
 **License**
 GPL2
 
 **PATH**
 bin
+
+**Man**
+share/man/man1:share/man/man3:share/man/man5:share/man/man7
 
 **Deps**
 glibc current
@@ -21,12 +30,3 @@ libunistring current
 p11-kit current
 gmp current
 libffi current
-
-**Description**
-Tools for devs for handling (mainly) code repositories.
-
-**Project**
-https://git-scm.com/
-
-**Man**
-share/man/man1:share/man/man3:share/man/man5:share/man/man7

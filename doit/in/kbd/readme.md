@@ -1,14 +1,11 @@
-**License**
-GPL2+
+**Project**
+https://kbd-project.org/
 
 **Description**
 Core part of PLLINUX. 'Linux console keyboard and font tools'
 
-**Project**
-https://kbd-project.org/
-
-**Deps**
-zlib current
+**License**
+GPL2+
 
 **PATH**
 bin
@@ -18,3 +15,6 @@ share/man/man1:share/man/man5:share/man/man8
 
 **Fonts**
 share/consolefonts
+
+**Deps**
+zlib current

@@ -1,16 +1,14 @@
-**License**
-MIT
-
 **Project**
 https://github.com/google/brotli
 
 **Description**
 Brotli compression algorithm
 
+**License**
+MIT
+
 **PATH**
 bin
-
-**Deps**
 
 **Man**
 share/man/man1:share/man/man3

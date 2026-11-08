@@ -1,3 +1,6 @@
+**Project**
+[GitHub](https://github.com/marcinwiacek/pllinux) or https://www.mwiacek.com
+
 **Description**
 Core part of PLLINUX. Init filesystem for kernel.
 
@@ -8,9 +11,6 @@ Inside:
 * busybox 1.38
 * own init script
 
-**Project**
-[GitHub](https://github.com/marcinwiacek/pllinux)
-
 **License**
-  * busybox - GPL2
-  * init - I don't care
+* busybox - GPL2
+* init - I don't care

@@ -1,8 +1,8 @@
-**Description**
-Library for configuring and customizing font access.
-
 **Project**
 https://www.freedesktop.org/wiki/Software/fontconfig/
+
+**Description**
+Library for configuring and customizing font access.
 
 **License**
 See COPYING

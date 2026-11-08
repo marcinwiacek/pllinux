@@ -425,7 +425,7 @@ on profits from separating all apps like it's done in PLLinux.
 
 This project was started in April 2026 and already went into quite useable shape and form.
 
-Last 2026 months, year 2027 and beyond will be used for improving functionality (compiling more packages,
+Time till 2026 end and year 2027 and beyond will be used for improving functionality (compiling more packages,
 providing more flexible and easier structure, decreasing resources usage, etc.). It includes preparing user-friendly
 graphic environment (something similar probably to HaikuOS or desktops in the Gnome 2 / Windows 95-XP era with the nice to eye rich graphic elements
 and GUI concentrated on real productivity)

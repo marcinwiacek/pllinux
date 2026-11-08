@@ -1,3 +1,20 @@
+**Project**
+https://curl.se/
+
+**Description**
+Command line tool and library for transfering data with URLs
+
+CURL_GNUTLS_4 symbol in libraries replaced with CURL_GNUTLS_3 to have compatibility (similar like in Debian).
+
+**License**
+See COPYING
+
+**Man**
+share/man/man1:share/man/man3
+
+**PATH**
+bin
+
 **Deps**
 zlib current
 nghttp2 current
@@ -13,20 +30,3 @@ openssl 4.0.0-
 p11-kit current
 gmp current
 libffi current
-
-**Man**
-share/man/man1:share/man/man3
-
-**License**
-See COPYING
-
-**Description**
-Command line tool and library for transfering data with URLs
-
-CURL_GNUTLS_4 symbol in libraries replaced with CURL_GNUTLS_3 to have compatibility (similar like in Debian).
-
-**Project**
-https://curl.se/
-
-**PATH**
-bin

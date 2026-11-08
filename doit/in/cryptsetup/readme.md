@@ -1,8 +1,17 @@
+**Project**
+https://gitlab.com/cryptsetup/cryptsetup
+
+**Description**
+Managing LUKS/LUKS2 encrypted devices.
+
 **License**
 GPL2 or later
 
 **PATH**
 sbin
+
+**Man**
+share/man/man8
 
 **Deps**
 popt current
@@ -19,12 +28,3 @@ gcclib current
 glibc current
 libbsd current
 libmd current
-
-**Description**
-Managing LUKS/LUKS2 encrypted devices.
-
-**Project**
-https://gitlab.com/cryptsetup/cryptsetup
-
-**Man**
-share/man/man8
