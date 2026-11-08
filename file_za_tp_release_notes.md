@@ -1,33 +1,42 @@
 # Technology preview release notes
 
-  * Are you tired with waiting for next release of your Linux distribution?
-  * Are you annoyed with learning command line tools?
-  * Do you want to avoid searching in the internet for the solution for problems known in Linux for years?
-  * Do you want to see immediately latest and gratest versions of various apps?
-  * Do you want to be able to easy switch and check some software version without resigning from stable and working environment?
-  * Do you want to see, what is what in your disk without headache or long IT studies?
-  * And finally: do you expect security higher than ever without using too much RAM or disk?
+  * Do you want just use your PC and have allergy for Windows and Mac?
+  * Are you annoyed with checking AI sloop, which looks good, but many times doesn't have real support?
+  * Is resolving problems without end making your crazy?
+  * Do you want to see new features immediately?
+  * Are you annoyed with command line tools?
+  * Is waiting for next release of your Linux distribution boring?
+  * Do you want to be able to play with some new software without resigning from stable and working environment?
+  * And finally: do you want to pay less for CPU, RAM and disk and control what is used for?
 
-PLLinux contains solution for this and many other things. The biggest key points:
+My name is Marcin and I'm using PCs around 36 years, additionally I'm tired with politics
+in IT. And I'm building system, which could resolve many existing problems.
 
-  1. the less is more - one script for configuring everything named **pllinux** and one script for building all named **doit**
-(no more magic commands for geeks, if you don't want)
+I know, that you heard it many times. The thing is, that PLLinux is created using existing software (it gives maturity
+and knowledge about internals). It's prepared from scratch (it allows for avoiding many problems visible
+in typical Linux distributions) and I'm doing it based on long technical experience (additionally I'm lazy and preffer
+doing something once, but good).
+
+The biggest key points for release 1.0:
+
+  1. the less is more - one script for configuring everything named **pllinux**, one script for building named **doit**
+(no more magic commands for geeks, if you don't want) and decreasing amount of code from release to release
   2. minimal resources usage - saving power, CPU usage, expensive RAM and SSD (no duplicated files, big logs, binary indexes, telemetry, etc.)
-  3. no many stupid obsolete solutions known from many other distro - it's time to grow up and go beyond 1980 year
-  4. very easy adding existing (Linux) apps - can be always actual without weeks or months of waiting
+  3. no obsolete solutions known from many other distro - it's time to grow up and go beyond 1980 year
+  4. very easy adding existing (Linux) apps - they can be always actual without weeks or months of waiting
   5. good separating apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
 control permissions and dependencies)
   6. good separating users and their files - extra security layers
   7. doing what is setup and nothing more - reliable, repeatable and expected results and
 no hidden actions/changing settings without user knowledge
-  8. continuous implementing best technical options - we deliver, not speak (work on things without doing sloop)
+  8. continuous implementing best technical options
   9. showing reality "as is" - no hiding problems (for example obsolete code)
 
 In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should do
 whatever user want and expect.
 
-This Technology Preview already shows, how could look and work basic elements of the modern OS. Current version contains many componentes already and
-is presenting, what's wrong with existing systems (you could compare it to the
+This Technology Preview was prepared to show main architecture elements - you check see how could look and work basic elements of the modern OS. 
+Current version contains many components and is vey good presenting, what's wrong with existing systems (you could compare it to the
 [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution
 was already started and somehow visible, but wasn't completed and fully ready).
@@ -48,10 +57,11 @@ busybox has got known issues or limits
 3. [bwrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation layers in various situations
 4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
 
-We avoid changing existing software code and there are only two exceptions:
+We avoid changing existing software code and there are only few exceptions:
 
 1. [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md)
 2. some permission details in "bwrap"
+3. changing some /bin/sh references to /app/busybox/current/bin/sh
 
 Excluding permissions and other directories names system in many cases can run without any problems unmodified Linux binaries. 
 This simply works... just after giving list of dependencies in readme.md manifest files described below (this is totally different
