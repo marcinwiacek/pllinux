@@ -160,13 +160,16 @@ directory with source files)
 
 Very interesting is point 4 - PLLinux by default doesn't give access to all *.so files, they need to be whitelisted with Deps element.
 
-To save SSD space for release 1.0 there is planned to prepare three packages for the software:
+But what in situation when package is downloaded and readme.md needs to be updated?
+
+There will be added some package with updates, details will be implemented after Technical Preview. Additionally, to save SSD space for release 1.0 
+there is planned to prepare three packages for the software:
 
 1. main able to start software with English locale (for example "mc")
 2. development with header files and a libraries ("mc-dev")
 3. locale with different languages ("mc-locale")
 
-It should greatly improve disk usage.
+It should greatly decrease disk usage.
 
 # Architecture
 
