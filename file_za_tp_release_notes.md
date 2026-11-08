@@ -86,6 +86,9 @@ upgrades in background and in the last step just change "current" links. No need
 similar situation is, when you want to build your source code with concrete set of tools. No need of building separate docker or something (just
 point what you want and use it).
 
+Names of the packages are normally the same to the project names - you should be able to find them in most cases by putting package name in search
+engine (DuckDuck, Google, etc.)
+
 Readme.md is semi-text file with some elements, for example:
 
     **Project**

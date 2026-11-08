@@ -1,3 +1,12 @@
+**Project**
+https://llvm.org/
+
+**Description**
+Collection of modular and reusable compiler and toolchain technologies.
+
+**License**
+Apache2.0 wiht some exceptions
+
 **Deps**
 gcclib current
 libffi current
