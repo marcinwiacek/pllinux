@@ -47,85 +47,32 @@ Some solutions are similar to used in Android, Apple products or NixOS, but not 
 Note: project was started after finding various problems with existing Linux distributions and lack of dev reaction
 (more and more often they also remove existing for years functionalities or promote code, which was not tested).
 
-# Architecture
-
-System is based on long-supported code and tools with known reputation, for example:
-
-1. [Linux kernel](https://kernel.org) (there were other considered too, but for now let's hope, that this code won't be damaged by AI and other things)
-2. [busybox](https://busybox.net/), when possible (when it's good enough) or other tools (like [util-linux](https://github.com/util-linux/util-linux)), when
-busybox has got known issues or limits
-3. [bwrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation layers in various situations
-4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
-
-We avoid changing existing software code and there are only few exceptions:
-
-1. [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md)
-2. some permission details in "bwrap"
-3. changing some /bin/sh references to /app/busybox/current/bin/sh
-
-Excluding permissions and other directories names system in many cases can run without any problems unmodified Linux binaries. 
-This simply works... just after giving list of dependencies in readme.md manifest files described below (this is totally different
-from NixOS, where binaries normally need to be patched).
-
-There are just few services started:
-
-1. **tty1-tty3** for starting terminals
-2. **boot** and **bootsh** used for system boot actions
-3. **recovery** started when something fails during boot process
-4. **crond** for tasks started with schedule in background
-5. **syslogd** for saving logs in the disk
-
-Other actions (starting and stopping network, synchronizing time using NTP, mounting USB drives, etc.) are done mainly on event - you can wait some
-miliseconds and it doesn't hurt.
-
-DHCP is not done with services now.
-
-**bwrap** sandboxing is used for:
-
-1. user sessions (they don't see real filesystem)
-2. running package manager (it doesn't see user files)
-3. running compilation/installation script from packages (generally all changes in main filesystem are done by package manager)
-
-Big pressure is put into limiting disk writes or memory usage. This is very important with current SSD/RAM prices.
-
-Note: used architecture (especially **bwrap**) can make some scenarios potentially more difficult and
-root actions are normally done from the terminal with logged root (honestly speaking you don't need to do them every second with good work framework).
-
-# Managing system
-
-To work with PLLinux normally you just need one command **pllinux** (text mode manager for managing apps and system settings, reinstalling, cloning, fixing boot issues, etc.).
-
-In some edge cases you can be maybe interested in two more:
-
-1. **app** (command line manager for managing apps normally called from **pllinux**)
-2. **doit** (not included in ISO file, available [in GitHub](https://github.com/marcinwiacek/pllinux) and used for making practically all distribution files
-and packages from the source).
-
-They're all created using shell scripts. It's clear, that this is NOT the best way of writing code, from the other hand it really makes work and 
-you don't need anything more for apps used from time to time, additionally code can be easy modified and audited even by medium experienced people.
-
-Simplicity at all!
-
 # Filesystem
 
-* /app - place for all apps (they're saved in separate folders, you can assign different apps or app versions from the /app to other users)
-* /etc - some configuration files (much less and more readable than in typical Linux distributions, normally you can manage them with **pllinux** text mode manager
-* /home - user files, with root account you see all users, with non-root users see only own home directory.
-* /home/app or /home/root/app - we try to put all apps config and stuff there (we setup HOME to one of subdirectories there). The reason is, that user
-should see clean home)
-* /dev, /proc, /run, /sys - pseudo-filesystems exposed by kernel
+* /app - place for all apps (they're saved in separate folders, you can assign different apps or app versions from the /app to other users, normally everything inside /app
+cannot be modified)
+* /etc - some configuration files (much less files and more readable than in typical Linux distributions, normally you can manage them with **pllinux** manager)
+* /home - user files (with root account you see all users, with non-root users see only own home directory)
+* /home/app or /home/root/app - we try to put all apps config and stuff there (we setup HOME into it).
 * /lib64 - link to the dynamic loader
-* /log - visible only for root, contains temporary or permament log files written for example by **syslogd**
-* /tmp - tmpfs for temporary files
+* /log - visible only for root (contains temporary or permament log files written for example by **syslogd**)
+* /lost+found - ext4 folder
 * /mnt - CD-ROM, USB memories, memory cards, etc.
-* /bin or /usr - in some cases links to existing files from /app. The goal is to eliminate them totally. We're using activly kernel options for this
+* /tmp - tmpfs for temporary files
+* /dev, /proc, /run, /sys - pseudo-filesystems exposed by kernel
+* /bin or /usr - in some cases links to existing files from /app. The goal is to eliminate them totally. We're using activly kernel options for this (binfmt_misc).
 
-And this is everything. Every package inside /app has got own directory. Inside you have:
+And this is everything. /cache, /boot, /cdrom, /lib32, /libx32, /media, /root, /sbin, /snap, /srv, /var and many other are elimininated. And the biggest magic starts in /app.
+
+Every package inside /app has got own directory. Inside you have:
+
+1. readme.md with package description
+2. other files and directories provided "as is" by software (structure is not defined, but normally you see such directories like in "normal" Linux)
+
+Some packages will need maybe dynamic content, but... it can be modified only by **app** manager in controlled sandbox (this part is still considered). This part will probably look this way:
 
 1. scripts directory (package manager can start file from them during installation, etc.)
 2. dynamic directory (scripts can put here whatever required)
-3. readme.md with package description
-4. other files and directories (structure is not defined, but normally you see such directories like in "normal" Linux)
 
 Some of directories inside /app/(app_name) are just symlinks. And we have:
 
@@ -137,8 +84,8 @@ Links are normally changed by package manager during installing or updating depe
 
 Now imagine, that you want to assign to user for example concrete bash or latest bash + some other tools. This is possible. The same you can make
 upgrades in background and in the last step just change "current" links. No need for having separate installation partition. And of course very
-similar situation is, when you want to build your source code with concrete set of tools. No need of building separate docker or something - just
-point what you want and use it.
+similar situation is, when you want to build your source code with concrete set of tools. No need of building separate docker or something (just
+point what you want and use it).
 
 Readme.md is semi-text file with some elements, for example:
 
@@ -189,6 +136,82 @@ Readme.md is semi-text file with some elements, for example:
     **Last**
     20260505
 
+    **X11-modules**
+    lib/xorg/modules/xlibre-25.orig
+
+    **X11-conf**
+    etc/X11/xorg.conf.d.orig
+
+    **X11-fonts**
+    .
+
+    **Vulkan-modules**
+    share/vulkan.orig
+
+We have here different elements:
+
+1. descriptive (for example description is shown by **pllinux** manager, **Last** contains info about last modification of files
+inside source package in main dir)
+2. used by some software during work (for example **man** command is looking for all readme.md and searching for "Man" elements to find
+directory with source files)
+3. used for creating files in /etc during package installation (it includes for example X11-modules, X11-conf, X11-fonts or services)
+4. used for starting binaries (deps is showing, which packages can be availables for the binary - which libraries can be linked into it, when it's asked)
+5. setting up user environment (when user is logging, we create for example PATH from readme.md)
+
+Very interesting is point 4 - PLLinux by default doesn't give access to all *.so files, they need to be whitelisted with Deps element.
+
+To save SSD space for release 1.0 there is planned to prepare three packages for the software:
+
+1. main able to start software with English locale (for example "mc")
+2. development with header files and a libraries ("mc-dev")
+3. locale with different languages ("mc-locale")
+
+It should greatly improve disk usage.
+
+# Architecture
+
+System is based on long-supported code and tools with known reputation, for example:
+
+1. [Linux kernel](https://kernel.org) (there were other considered too, but for now let's hope, that this code won't be damaged by AI and other things)
+2. [busybox](https://busybox.net/), when possible (when it's good enough) or other tools (like [util-linux](https://github.com/util-linux/util-linux)), when
+busybox has got known issues or limits
+3. [bwrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation layers in various situations
+4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
+
+We avoid changing existing software code and there are only few exceptions:
+
+1. [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md)
+2. some permission details in "bwrap"
+3. changing some /bin/sh references to /app/busybox/current/bin/sh
+
+Excluding permissions and other directories names PLLinux in many cases can run without any problems unmodified Linux binaries. 
+This simply works... just after giving list of dependencies in readme.md manifest files described below (this is totally different
+from NixOS, where binaries normally need to be patched).
+
+There are just few services started:
+
+1. **tty1-tty3** for starting terminals
+2. **boot** and **bootsh** used for system boot actions
+3. **recovery** started when something fails during boot process
+4. **crond** for tasks started with schedule in background
+5. **syslogd** for saving logs in the disk
+
+Other actions (starting and stopping network, synchronizing time using NTP, mounting USB drives, etc.) are done mainly on event - you can wait some
+miliseconds and it doesn't hurt.
+
+DHCP is not done with services now.
+
+**bwrap** sandboxing is used for:
+
+1. user sessions (they don't see real filesystem)
+2. running package manager (it doesn't see user files)
+3. running compilation/installation script from packages (generally all changes in main filesystem are done by package manager)
+
+Big pressure is put into limiting disk writes or memory usage. This is very important with current SSD/RAM prices.
+
+Note: used architecture (especially **bwrap**) can make some scenarios potentially more difficult and
+root actions are normally done from the terminal with logged root (honestly speaking you don't need to do them every second with good work framework).
+
 # Full freedom
 
 With PLLinux you decide, if you want to use compiled packages or whether you want to create them from source. 
@@ -210,6 +233,23 @@ Technology Preview contains three users: root (password root), user (password us
 User files are saved in the RAM (tmpfs) and you can for example make setup using root and later login into other account.
 
 You can partition disk and clone/install system to the separate partition.
+
+If you want to play with development and extra packages, just unpack them to the /app, logout and login again. Done.
+
+# Managing system
+
+To work with PLLinux normally you just need one command **pllinux** (text mode manager for managing apps and system settings, reinstalling, cloning, fixing boot issues, etc.).
+
+In some edge cases you can be maybe interested in two more:
+
+1. **app** (command line manager for managing apps normally called from **pllinux**)
+2. **doit** (not included in ISO file, available [in GitHub](https://github.com/marcinwiacek/pllinux) and used for making practically all distribution files
+and packages from the source).
+
+They're all created using shell scripts. It's clear, that this is NOT the best way of writing code, from the other hand it really makes work and 
+you don't need anything more for apps used from time to time, additionally code can be easy modified and audited even by medium experienced people.
+
+Simplicity at all!
 
 # Building ISO, PLLinux partition or packages from sources
 
@@ -248,6 +288,18 @@ probably to do it.
 **Midnight Commander shows strange .[1m or similar things with man files in viewer**
 [mcviewer: add syntax highlighting via external command - #5065](https://github.com/MidnightCommander/mc/pull/5065)
 
+**Midnight Commander and "Broken Pipe" error**
+When you see this after pressing F3 or F4 - add link from /bin/sh to the /app/busybox/current/bin/sh
+
+**Software needs /bin/sh or /usr/share/terminfo or other "standard" location**
+
+Indeed, /bin/sh is hardcoded in many binaries and I still search for method for fully elimininating it (MC and F3/F4 "Broken pipe" is example).
+With scripts it's already done - there is used kernel mechanism for this.
+
+With /usr/share/terminfo - we use TERMINFO variable, XTERM is provided with option setting it up (by default it's removing it)
+
+With zone info directory - we use TZDIR and happily it works like should
+
 # Links
 
 * [https://sourceforge.net/projects/pllinux/](https://sourceforge.net/projects/pllinux/)
@@ -275,7 +327,7 @@ They have technology dept and many times don't want to change because of users o
 **Why opening opened doors?**
 
 Few years ago many people were thinking about Intel and AMD only. Apple created something different... and we have today very
-good Macbook Air, Pro or Mini (with ARM CPU). 
+good Macbook Air, Pro or Mini (with ARM CPU).
 
 In other words: world simply needs different solutions and staying in 1980 with OS design is bad idea.
 
@@ -320,14 +372,14 @@ It doesn't have at least just other wallpaper or branding.
 
 New products and ideas are always moving people forward. And making things by human (not AI) is extending their skills + it's known, what we have inside.
 
-**It's shipped with slow, obsolete and abandomed GNU apps. Why not musl or other?**
+**It's shipped with slow, obsolete and abandomed GNU apps. Why not use musl or other?**
 
 Number of people critizing something is always much bigger than number of people doing something. Propose updates if there is
-alternative.
+better alternative.
 
 **This is just small project written by one person and it will be abandomed soon**
 
-Take my beer - I had very long successfull projects in the past already.
+Take my beer - I had very long successfull projects in the past.
 
 Note: Linux kernel started this way too.
 
