@@ -7,6 +7,9 @@ X11 window manager
 **License**
 MIT
 
+**Man**
+share/man/man1
+
 **Deps**
 libx11 current
 libpng current

@@ -5,11 +5,7 @@ if [ ! -d "/log" ]; then
   echo "Cannot be run from host"
   return
 fi
-#  echo "running root.sh0 $@ " >> /tmp/runroot
-#if [ "$(export DISPLAY)" != "" ]; then
-#  echo "running root.sh1 $@ " >> /tmp/runroot
-#  return
-#fi
+
 
 cd /
 
@@ -89,7 +85,23 @@ export PS1="\e[31m[\t] root:\w\$(if [ -f "/app/git/current/bin/git" ] && /app/gi
 #  return
 #fi
 
-bash
+#if [ "$1" = "-c" ]; then
+#  echo "running root.sh2 $@ " >> /tmp/runroot
+#  exec /app/bash/current/bin/bash $@
+#export LANG=$(/app/pllinux/current/pllinux LANG)
+#  echo "running root.sh0 $@ " >> /tmp/runroot
+#  echo "$(export DISPLAY)" >> /tmp/runroot
+#  return
+#fi
+#if [ "$(export DISPLAY)" != "" ]; then
+#  echo "running root.sh1 $@ " >> /tmp/runroot
+#  return
+#fi
+
+/app/bash/current/bin/bash $@
+#bash
 #sh
-/app/kbd/current/bin/setfont -C $(/app/busybox/current/bin/tty) $(/app/pllinux/current/pllinux FONT)
-/app/kbd/current/bin/loadkeys -C $(/app/busybox/current/bin/tty) /app/kbd/current/share/keymaps/i386/$(/app/pllinux/current/pllinux KEYB)
+if [ "$1" != "-c" ]; then
+  /app/kbd/current/bin/setfont -C $(/app/busybox/current/bin/tty) $(/app/pllinux/current/pllinux FONT)
+  /app/kbd/current/bin/loadkeys -C $(/app/busybox/current/bin/tty) /app/kbd/current/share/keymaps/i386/$(/app/pllinux/current/pllinux KEYB)
+fi

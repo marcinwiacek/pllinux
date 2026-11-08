@@ -1,3 +1,7 @@
+
+**Vulkan-modules**
+share/vulkan.orig
+
 **Deps**
 glibc current
 glib current

@@ -1,5 +1,14 @@
 #!/bin/sh
-exec strace /app/xinit/current/bin/startx -- vt11 -logfile /tmp/xwin1 2> /tmp/xwin2
+if [ -d /log ]; then
+  exec /app/xinit/current/bin/startx -- vt11 -logfile /log/tmp/x
+else
+  exec /app/xinit/current/bin/startx -- vt11
+fi
+
+
+
+
+#exec strace /app/xinit/current/bin/startx -- vt11 -logfile /tmp/xwin1 2> /tmp/xwin2 &
 #_pid=$!
 #sleep 20 && kill $_pid &
 

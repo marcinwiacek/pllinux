@@ -24,6 +24,3 @@ none
 
 **Man**
 share/man/man1
-
-**Last**
-20250123

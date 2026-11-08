@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="slang"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="glibc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -585,11 +585,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glibc
   ver="2.44";
   if should_make glibc $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
+    cp $curdir/in/glibc/2_44_rtld.c elf/rtld.c
+    find * -name '*.c' -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
     mkdir build
     cd build
     ../configure --prefix=/app/glibc/current
-    cp $curdir/in/glibc/2_44_rtld.c ../elf/rtld.c
-    find * -name '*.c' -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
     make all -j$cpu_num
     create_app_in_tmp_and_link_it glibc $prefix$ver
     make install
@@ -1267,10 +1267,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glib"
       rm -r packagefiles
       cd ..
     fi
+    find * -name '*.c' -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
     mkdir ../$prefix$ver-compile
     ln -s ../$prefix$ver-compile _build
     meson setup -Dprefix=/app/glib/current --libdir=lib --buildtype minsize _build
-    find * -name '*.c' -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
     meson compile -C _build
     create_app_in_tmp_and_link_it glib $prefix$ver
     meson install -C _build

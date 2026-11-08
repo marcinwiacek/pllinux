@@ -1,2 +1,3 @@
 #!/app/busybox/current/bin/sh
 /app/mc/current/bin/mc $@
+#strace /app/mc/current/bin/mc $@ 2>> /tmp/debugnosand

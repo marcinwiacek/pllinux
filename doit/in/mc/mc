@@ -41,4 +41,5 @@ PS111="[\t] $USER # "
     --ro-bind /lib64 lib64 \
     --setenv PS1 "$PS111" \
     $APP -- \
-    strace $DIR/bin/mc 2> /tmp/tmpdebug
+    $DIR/bin/mc
+#    strace $DIR/bin/mc 2> /tmp/tmpdebug
