@@ -6,7 +6,6 @@ if [ ! -d "/log" ]; then
   return
 fi
 
-
 cd /
 
 APP_LIST=$(/app/busybox/current/bin/ls /app)

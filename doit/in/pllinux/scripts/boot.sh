@@ -84,3 +84,5 @@ echo 1G > /sys/block/zram0/disksize
 /app/busybox/current/bin/chmod a+rw /dev/ptmx
 /app/busybox/current/bin/chmod a+rwx /dev/dri
 /app/busybox/current/bin/chmod a+rwx /dev/dri/card0
+
+#export TERMINFO=/app/ncurses/current/share/terminfo

@@ -40,6 +40,7 @@ PS111="[\t] $USER # "
     --bind-try /usr usr \
     --ro-bind /lib64 lib64 \
     --setenv PS1 "$PS111" \
+    --setenv PS1ORIG "$(printenv PS1)" \
     $APP -- \
     $DIR/bin/mc
 #    strace $DIR/bin/mc 2> /tmp/tmpdebug

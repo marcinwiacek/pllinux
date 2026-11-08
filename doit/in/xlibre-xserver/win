@@ -1,8 +1,10 @@
 #!/bin/sh
+PS1ORIG=$(printenv PS1ORIG)
+if [ "$PS1ORIG" = "" ]; then PS1ORIG=$(printenv PS1); fi
 if [ -d /log ]; then
-  exec /app/xinit/current/bin/startx -- vt11 -logfile /log/tmp/x
+  PS1="$PS1ORIG" exec /app/xinit/current/bin/startx -- vt11 -logfile /log/tmp/x
 else
-  exec /app/xinit/current/bin/startx -- vt11
+  PS1="$PS1ORIG" exec /app/xinit/current/bin/startx -- vt11
 fi
 
 
