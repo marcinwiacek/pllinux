@@ -19,27 +19,26 @@ doing something once, but good).
 
 The biggest key points for release 1.0:
 
-  1. the less is more - one script for configuring everything named **pllinux**, one script for building named **doit**
-and decreasing amount of code from release to release
-  2. minimal resources usage - saving power, CPU usage, expensive RAM and SSD (no duplicated files, big logs, binary indexes, telemetry, etc.)
-  3. no obsolete solutions known from many other distro - it's time to grow up and go beyond 1980 year
-  4. very easy adding existing (Linux) apps - they can be always actual without weeks or months of waiting
-  5. good separating apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
+  1. the less is more - one script for configuring everything named **pllinux**, one script for building named **doit**, all system scripts built in one language
+and finally decreasing code size from release to release, saving power, CPU usage, expensive RAM and SSD (no duplicated files, big logs, binary indexes, telemetry, etc.)
+  2. no obsolete solutions known from many other distro - it's time to grow up and go beyond 1980 year
+  3. very easy adding existing (Linux) apps - they can be always actual without weeks or months of waiting
+  4. good separating apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
 control permissions and dependencies)
-  6. good separating users and their files - extra security layers
-  7. doing what is setup and nothing more - reliable, repeatable and expected results and
+  5. good separating users and their files - extra security layers
+  6. doing what is setup and nothing else - reliable, repeatable and expected results and
 no hidden actions/changing settings without user knowledge
-  8. continuous implementing best technical options
-  9. showing reality "as is" - no hiding problems (for example obsolete code)
+  7. continuous implementing best technical options
+  8. showing reality "as is" - no hiding problems (for example obsolete code)
 
 In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should do
 whatever user want and expect.
 
-This Technology Preview was prepared to show main architecture elements - you check see how could look and work basic elements of the modern OS. 
-Current version contains many components and is vey good presenting, what's wrong with existing systems (you could compare it to the
+This Technology Preview was prepared to show main architecture elements - you can see how could look and work basic elements of the modern OS.
+Current version contains many components and is very good presenting, what could be wrong with existing systems (you could compare it to the
 [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution
-was started and somehow visible, but wasn't completed and fully ready).
+was started and somehow visible, but not completed and fully ready yet).
 
 Some solutions are similar to used in Android, Apple products or NixOS, but not the same - they will change to better before beta or first final release
 (like it was in Windows 95, see [The Early Windows 95 Builds Microsoft DIDN'T Want Us To See](https://www.youtube.com/watch?v=cgq7LcvRFA4))
@@ -89,6 +88,12 @@ point what you want and use it).
 
 Readme.md is semi-text file with some elements, for example:
 
+    **Project**
+    https://gcc.gnu.org
+
+    **Description**
+    Core part of PLLINUX (libraries) + compiler.
+
     **License**
     GPL3+ with GCC Runtime Library Exception
 
@@ -100,16 +105,6 @@ Readme.md is semi-text file with some elements, for example:
 
     **SHELL**
     bin/bash
-
-    **Deps**
-    glibc current
-    zstd current
-
-    **Description**
-    Core part of PLLINUX (libraries) + compiler.
-
-    **Project**
-    https://gcc.gnu.org
 
     **Man**
     share/man/man1:share/man/man7
@@ -147,6 +142,12 @@ Readme.md is semi-text file with some elements, for example:
 
     **Vulkan-modules**
     share/vulkan.orig
+
+    **Deps**
+    glibc current
+    zstd current
+
+This is text file and order is technically not important (but I try to have project, description and license on the beginning and deps on the end).
 
 We have here different elements:
 
@@ -232,17 +233,15 @@ everything is estimated from technical perspective only (maturity, number of bug
 
 You need system with UEFI with disabled Secure Boot.
 
-Example for running with QEMU:
+The best results could be visible with VirtualBox (ICH9, VMSVGA, NVME, etc.). You can try QEMU too:
 
 **qemu-system-x86_64 -cdrom iso.iso -m 4098 -bios /usr/share/OVMF/OVMF_CODE.fd**
 
-Technology Preview contains three users: root (password root), user (password user) and user2 (password user2)
-
-User files are saved in the RAM (tmpfs) and you can for example make setup using root and later login into other account.
-
-You can partition disk and clone/install system to the separate partition.
+Technology Preview contains three users: root (password root), user (password user) and user2 (password user2). You can use configurator (**pllinux**) or start X11 available with console number 11 (**win** command). User files are saved in the RAM (tmpfs) and it's possible for example make setup using root and later login into other account. Additionally system is ready for partitioning and cloning/installing to the separate partition.
 
 If you want to play with development and extra packages, just unpack them to the /app, logout and login again. Done.
+
+During all checks please remember: this is technology preview, not production ready setup.
 
 # Managing system
 
@@ -251,10 +250,10 @@ To work with PLLinux normally you just need one command **pllinux** (text mode m
 In some edge cases you can be maybe interested in two more:
 
 1. **app** (command line manager for managing apps normally called from **pllinux**)
-2. **doit** (not included in ISO file, available [in GitHub](https://github.com/marcinwiacek/pllinux) and used for making practically all distribution files
-and packages from the source).
+2. **doit** (running from host, not included in ISO file, available [in GitHub](https://github.com/marcinwiacek/pllinux) and used for making all distribution files
+and packages from the source)
 
-They're all created using shell scripts. It's clear, that this is NOT the best way of writing code, from the other hand it really makes work and 
+They're all created using shell scripting. It's clear, that this is NOT the best way of writing code, from the other hand it really makes work and 
 you don't need anything more for apps used from time to time, additionally code can be easy modified and audited even by medium experienced people.
 
 Simplicity at all!
@@ -420,6 +419,10 @@ removing unnecessary things and debug code.
 
 My first implementation is "as is", in the future of course there will be many updates. In real life few ms is nothing, when you look
 on profits from separating all apps like it's done in PLLinux.
+
+**Some commands like man are sometimes slow**
+
+Normally there is used mandb and here it was not used - if problem will be visible for more users, decision could be reconsidered.
 
 # Schedule and future
 
