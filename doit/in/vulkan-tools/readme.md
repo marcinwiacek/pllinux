@@ -1,3 +1,12 @@
+**Project**
+https://github.com/KhronosGroup/Vulkan-Tools
+
+**Description**
+Vulkan development tools
+
+**License**
+Apache 2.0
+
 **Deps**
 libxcb current
 libx11 current

@@ -1,8 +1,11 @@
-**License**
-LGPL 3.0
-
 **Project**
 https://github.com/rsyslog/rsyslog
+
+**Description**
+Logging services.
+
+**License**
+LGPL 3.0
 
 **Deps**
 gcclib current

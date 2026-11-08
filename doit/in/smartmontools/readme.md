@@ -1,15 +1,18 @@
-**License**
-GPL2+
-
 **Project**
 https://www.smartmontools.org/
 
-**Deps**
-gcclib current
-glibc current
+**Description**
+SMART technology tools for disks (reading info, etc.)
+
+**License**
+GPL2+
 
 **PATH**
 sbin
 
 **Man**
 share/man/man5:share/man/man8
+
+**Deps**
+gcclib current
+glibc current

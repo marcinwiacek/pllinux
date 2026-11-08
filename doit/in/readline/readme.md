@@ -1,12 +1,10 @@
-**License**
-GPL3+
-
-**Deps**
+**Project**
+https://tiswww.case.edu/php/chet/readline/rltop.html
 
 **Description**
 
-**Project**
-https://tiswww.case.edu/php/chet/readline/rltop.html
+**License**
+GPL3+
 
 **Man**
 share/man/man3

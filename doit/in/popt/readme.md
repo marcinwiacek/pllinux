@@ -1,12 +1,10 @@
-**License**
-MIT
-
-**Deps**
+**Project**
 
 **Description**
-C library for parsing command line params
+C library for parsing command line params.
 
-**Project**
+**License**
+MIT
 
 **Man**
 share/man/man3

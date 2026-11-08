@@ -1,12 +1,10 @@
-**Description**
-
 **Project**
+https://www.libsdl.org/
 
-**Man**
+**Description**
+Simple DirectMedia Layer - cross-platform development library.
 
 **License**
-
-**PATH**
 
 **Deps**
 glibc current
