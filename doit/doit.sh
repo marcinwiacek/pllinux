@@ -1461,16 +1461,25 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libex
     make all -j$cpu_num
     create_app_in_tmp_and_link_it libexpat $prefix$ver
     make install
+
     set_current_app_clean_strip_cd libexpat $prefix$ver 1
+
     #this is really first version. needs to be fixed
     create_app libexpat-dev $prefix$ver
+
     cd /app/libexpat/$prefix$ver
     mv include /app/libexpat-dev/$prefix$ver
+    ln -s /app/libexpat-dev/$prefix$ver/include include
+
     mkdir /app/libexpat-dev/$prefix$ver/lib
     cd lib
     for binentry in cmake pkgconfig *.a *.la; do
       mv $binentry /app/libexpat-dev/$prefix$ver/lib
+      ln -s /app/libexpat-dev/$prefix$ver/lib/$binentry $binentry
     done
+
+    cp /app/libexpat/$prefix$ver/readme.md /app/libexpat-dev/$prefix$ver
+
     set_current_app_clean_strip_cd libexpat-dev $prefix$ver 1
   fi
 fi
