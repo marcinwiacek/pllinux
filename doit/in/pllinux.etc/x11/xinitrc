@@ -51,7 +51,7 @@
 
 #"xcalc" -geometry 50x50-1+1 &
 
-/app/xrdb/current/bin/xrdb -merge /etc/x11/Xresources
+#/app/xrdb/current/bin/xrdb -merge /etc/x11/Xresources
 
 #exec "/app/jwm/current/bin/jwm"
 exec "/app/icewm/current/bin/icewm"

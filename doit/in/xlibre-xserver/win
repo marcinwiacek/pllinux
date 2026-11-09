@@ -1,10 +1,12 @@
 #!/bin/sh
+#DPI="-dpi 140"
+DPI=""
 PS1ORIG=$(printenv PS1ORIG)
 if [ "$PS1ORIG" = "" ]; then PS1ORIG=$(printenv PS1); fi
 if [ -d /log ]; then
-  PS1="$PS1ORIG" exec /app/xinit/current/bin/startx -- vt11 -logfile /log/tmp/x
+  PS1="$PS1ORIG" exec /app/xinit/current/bin/startx -- vt11 $DPI -logfile /log/tmp/x
 else
-  PS1="$PS1ORIG" exec /app/xinit/current/bin/startx -- vt11
+  PS1="$PS1ORIG" exec /app/xinit/current/bin/startx -- $DPI vt11
 fi
 
 
