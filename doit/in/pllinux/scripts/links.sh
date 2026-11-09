@@ -1,4 +1,5 @@
 #!/app/busybox/current/bin/sh
+# Helper script to recreate entries in /etc. In the future will be included into app.sh script
 
 DIR="/" # path with / in the end. In real system /
 if [ -d "/mnt/x" ]; then

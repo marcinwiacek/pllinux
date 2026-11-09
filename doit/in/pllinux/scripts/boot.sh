@@ -79,7 +79,6 @@ echo 1G > /sys/block/zram0/disksize
 /app/busybox/current/bin/chmod a+rw /dev/null
 /app/busybox/current/bin/chmod a+rw /dev/input/*
 /app/busybox/current/bin/chmod a+rw /dev/tty*
-#/app/busybox/current/bin/chmod a+rw /dev/tty4
 /app/busybox/current/bin/chmod a+rw /dev/fb0
 /app/busybox/current/bin/chmod a+rw /dev/ptmx
 /app/busybox/current/bin/chmod a+rwx /dev/dri
