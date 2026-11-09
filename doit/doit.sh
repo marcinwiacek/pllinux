@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="icewm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xrdb"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2383,6 +2383,54 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxa
     set_current_app_clean_strip_cd libxau $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcomposite" ]; then
+  ver="0.4.7";
+  if should_make libxcomposite $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXcomposite-$ver.tar.xz libxcomposite libXcomposite-$ver 1
+    ./configure --prefix=/app/libxcomposite/current
+    make all -j$cpu_num
+    create_app libxcomposite $prefix$ver
+    set_current_app libxcomposite $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd libxcomposite $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxdamage" ]; then
+  ver="1.1.7";
+  if should_make libxdamage $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXdamage-$ver.tar.xz libxdamage libXdamage-$ver 1
+    ./configure --prefix=/app/libxdamage/current
+    make all -j$cpu_num
+    create_app libxdamage $prefix$ver
+    set_current_app libxdamage $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd libxdamage $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxfixes" ]; then
+  ver="6.0.2";
+  if should_make libxfixes $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXfixes-$ver.tar.xz libxfixes libXfixes-$ver 1
+    ./configure --prefix=/app/libxfixes/current
+    make all -j$cpu_num
+    create_app libxfixes $prefix$ver
+    set_current_app libxfixes $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd libxfixes $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcursor" ]; then
+  ver="1.2.3";
+  if should_make libxcursor $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXcursor-$ver.tar.xz libxcursor libXcursor-$ver 1
+    ./configure --prefix=/app/libxcursor/current
+    make all -j$cpu_num
+    create_app libxcursor $prefix$ver
+    set_current_app libxcursor $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd libxcursor $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxdmcp" ]; then
   ver="1.1.5";
   if should_make libxdmcp $ver; then
@@ -2458,6 +2506,18 @@ if [ "$package" == "fs" ] || [ "$package" == "xauth" ]; then
     create_app_in_tmp_and_link_it xauth $prefix$ver
     make install
     set_current_app_clean_strip_cd xauth $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xrdb" ]; then
+  ver="1.2.3";
+  if should_make xrdb $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xrdb-$ver.tar.xz xrdb xrdb-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/xrdb/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it xrdb $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xrdb $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xev" ]; then
@@ -2579,7 +2639,7 @@ if [ "$package" == "fs" ] || [ "$package" == "xcalc" ]; then
     set_current_app_clean_strip_cd xcalc $prefix$ver 1
   fi
 fi
-#----------------------------------- x11 graphic managers ------------------------------------
+#----------------------------------- x11 graphic managers and their libs ------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "jwm" ]; then
   ver="2.4.6";
   if should_make jwm $ver; then
@@ -2595,12 +2655,23 @@ if [ "$package" == "fs" ] || [ "$package" == "jwm" ]; then
     set_current_app_clean_strip_cd jwm $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "imlib2" ]; then
+  ver="1.12.7";
+  if should_make imlib2 $ver; then
+    download_unpack_source https://downloads.sourceforge.net/enlightenment/imlib2-1.12.7.tar.xz imlib2 imlib2-$ver 1
+    ./configure --prefix=/app/imlib2/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it imlib2 $prefix$ver
+    make install
+    set_current_app_clean_strip_cd imlib2 $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "icewm" ]; then
   ver="4.1.0";
   if should_make icewm $ver; then
     download_unpack_source https://github.com/ice-wm/icewm/archive/refs/tags/4.1.0.tar.gz icewm icewm-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/icewm/current
+    ./configure --prefix=/app/icewm/current --disable-gdk-pixbuf --disable-librsvg
     make -j$cpu_num
     create_app_in_tmp_and_link_it icewm $prefix$ver
     make install
@@ -3291,11 +3362,14 @@ if [ "$package" == "fs" ] || [ "$package" == "glycin" ]; then
 #  ver="2.2.0";
   if should_make glycin $ver; then
     download_unpack_source https://gitlab.gnome.org/GNOME/glycin/-/archive/$ver/glycin-$ver.tar.bz2 glycin glycin-$ver 1
+#sed -e "s/get_option('libglycin-gtk4')/(& or get_option('glycin-thumbnailer'))/" -i meson.build
+    create_app_in_tmp_and_link_it glycin $prefix$ver
+    mkdir builddir
+    cd builddir
     PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig      meson setup -Dprefix=/app/glycin/current -Dlibdir=lib \
        -Dbuildtype=release -Dlibglycin-gtk4=false -Dtests=false \
-       builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it glycin $prefix$ver
+       -Dglycin-thumbnailer=false  -Dintrospection=false       ..
+    ninja -v
     ninja -C builddir install
     set_current_app_clean_strip_cd glycin $prefix$ver 1
   fi
@@ -3367,7 +3441,7 @@ if [ "$package" == "fs" ] || [ "$package" == "librsvg" ]; then
 ver="2.60.2";
   if should_make librsvg $ver; then
     download_unpack_source https://github.com/GNOME/librsvg/archive/refs/tags/$ver.tar.gz librsvg librsvg-$ver 1
-    meson setup -Dprefix=/app/librsvg/current --buildtype release -Dlibdir=lib -Ddocs=disabled -Dpixbuf-loader=disabled -Dtests=false build
+    meson setup -Dprefix=/app/librsvg/current --buildtype release -Dlibdir=lib -Ddocs=disabled -Dpixbuf=disabled -Dpixbuf-loader=disabled -Dtests=false build
     ninja -C build
     create_app_in_tmp_and_link_it librsvg $prefix$ver
     ninja -C build install

@@ -12,17 +12,20 @@
 My name is Marcin and I'm using PCs around 36 years, additionally I'm tired with politics
 in IT. And I'm building system, which could resolve many existing problems.
 
-I know, that you heard it many times. The thing is, that PLLinux is created using existing software (it gives maturity
-and knowledge about internals). It's prepared from scratch (it allows for avoiding many problems visible
-in typical Linux distributions) and I'm doing it based on long technical experience (additionally I'm very lazy and preffer
+I know, that you heard it many times. The thing is, that PLLinux is created using existing software (it equals maturity) and
+prepared from scratch (it allows for avoiding many problems visible
+in typical Linux distributions and gives good knowledge about internals and occasion for cutting off obsolete parts), additionally I'm doing it 
+with long technical experience (I'm engineer, additionally I'm very lazy and preffer
 doing something once, but good).
 
 The biggest key points for release 1.0:
 
-  1. the less is more - one script for configuring everything named **pllinux**, one script for building named **doit**, all system scripts built in one language
-and finally decreasing code size from release to release, saving power, CPU usage, expensive RAM and SSD (no duplicated files, big logs, binary indexes, telemetry, etc.)
-  2. no obsolete solutions known from many other distro - it's time to grow up and go beyond 1980 year
-  3. very easy adding existing (Linux) apps - they can be always actual without weeks or months of waiting
+  1. the less is more - one script for configuring everything named **pllinux**, one script for building named **doit**,
+all system scripts built in one language and finally decreasing code size from release to release,
+saving power, CPU usage, expensive RAM and SSD (no duplicated files, big logs, binary indexes, telemetry, etc.)
+  2. no obsolete solutions known from many other distro - it's time to grow up and go beyond 1980 year (there is used mature software, but
+connected without iritating problems)
+  3. very easy adding existing (Linux) apps - they can be always actual (no more weeks or months of waiting)
   4. good separating apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
 control permissions and dependencies)
   5. good separating users and their files - extra security layers
@@ -34,13 +37,14 @@ no hidden actions/changing settings without user knowledge
 In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should do
 whatever user want and expect.
 
-This Technology Preview was prepared to show main architecture elements - you can see how could look and work basic elements of the modern OS.
-Current version contains many components and is very good presenting, what could be wrong with existing systems (you could compare it to the
+This Technology Preview is not created for production use. It was prepared to show main architecture elements - you can see how could look
+and work basic elements of the modern OS. Current version contains many components and is very good presenting, what could be wrong with existing
+systems (you could compare it to the
 [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution
 was started and somehow visible, but not completed and fully ready yet).
 
-Some solutions are similar to used in Android, Apple products or NixOS, but not the same - they will change to better before beta or first final release
+Some solutions are similar to used in Android, Apple products or NixOS, but not the same - they will change even to better before beta or first final release
 (like it was in Windows 95, see [The Early Windows 95 Builds Microsoft DIDN'T Want Us To See](https://www.youtube.com/watch?v=cgq7LcvRFA4))
 
 Note: project was started after finding various problems with existing Linux distributions and lack of dev reaction
@@ -79,11 +83,14 @@ Some of directories inside /app/(app_name) are just symlinks. And we have:
 2. (version number)- - link to highest version lower than specified (for example for 4.0.0- we normally select latest 3.x.x)
 3. (version number)+ - link to highest version higher than specified
 
-Links are normally changed by package manager during installing or updating dependencies.
+Links are normally changed by package manager during installing or updating dependencies. Currently packages are (mainly) compiled with config with
+"current" link inside - it could potentially sometimes make issue, when you have "non-current" package binary or script (and it tries to reach some
+other elements). It could be reconsidered in the future and we could use "version" link (in that situation for normal users we will need to
+link "current" and "version" app versions).
 
 Now imagine, that you want to assign to user for example concrete bash or latest bash + some other tools. This is possible. The same you can make
-upgrades in background and in the last step just change "current" links. No need for having separate installation partition. And of course very
-similar situation is, when you want to build your source code with concrete set of tools. No need of building separate docker or something (just
+upgrades in background and in the last step just change "current" links (no need for having separate installation partition). And of course very
+similar situation is, when you want to build your source code with concrete set of tools - no need of building separate docker or something (just
 point what you want and use it).
 
 Names of the packages are normally the same to the project names - you should be able to find them in most cases by putting package name in search
@@ -99,6 +106,9 @@ Readme.md is semi-text file with some elements, for example:
 
     **License**
     GPL3+ with GCC Runtime Library Exception
+
+    **AI**
+    https://docs.kernel.org/process/coding-assistants.html
 
     **PATH**
     bin:sbin
@@ -173,7 +183,7 @@ there is planned to prepare three packages for the software:
 2. development with header files and a libraries ("mc-dev")
 3. locale with different languages ("mc-locale")
 
-It should greatly decrease disk usage.
+It all should greatly decrease disk writes.
 
 # Architecture
 
@@ -345,19 +355,20 @@ In other words: world simply needs different solutions and staying in 1980 with 
 
 They will be used, when provide really added value. Starting and ending project info with "written in Rust" words,
 covering everything with it and pushing it like AI sloop instead of real technical discussion is anti-advertisement
-and no-go for me (additionally we don't have complete Servo till today and Rust core-utils have many baby-age problems).
+and no-go for me (additionally we don't have complete Servo till today, Rust core-utils have many baby-age problems and 
+main problems during preparing Technical Release was... surprise... surprise with Rust related packages).
 
-Systemd has got advantages, but in the same time became big & fat & is staying far away from initial goals.
+Systemd has got advantages, but in the same time became big & fat & in my opinion is staying far away from initial goals.
 
-**But systemd has got clear names for network interfaces**
+**But systemd has got clear names for network interfaces and many cool things**
 
 Yes, it has got many good and many bad elements.
 
 Note: stable network interfaces names will be implemented in the future.
 
-**It's not memory safe and contains very bad code**
+**PLLInux is not memory safe and contains very bad code**
 
-Saying this like mantra will not improve situation. Propose better code if you can. Nothing stops you from it.
+Saying this like mantra will not improve situation. Propose better code if you can. You're highly invited.
 
 **Why limited console and not GUI?**
 
@@ -402,7 +413,7 @@ admin password)
 
 **All PLLinux goals can be achieved by docker or virtualization**
 
-Yes. But we don't have distributions in mainstream doing this. And PLLinux is trying to make it with small amount of resources.
+Yes. But we don't have distributions in mainstream doing this nicely. And PLLinux is trying to make it with small amount of resources.
 
 **It will be never compatible with all dev tools or serious apps like Steam, VirtualBox, Firefox, etc.**
 
@@ -415,7 +426,7 @@ in some day full independence.
 
 **It's much bigger than Puppy Linux, Tiny Core Linux and other small distributions**
 
-Goal for PLLinux is building desktop class system with all features. Technical Preview is bigger, but next versions have in goals
+One of first goals for PLLinux is building desktop class system with all features. Technical Preview is bigger, but next versions have in goals
 removing unnecessary things and debug code.
 
 **The whole idea doesn't have sence - searching for libraries is slow now**
