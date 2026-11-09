@@ -1,18 +1,18 @@
 #!/bin/sh
 
-prefix="/app/xinit/current"
-exec_prefix="${prefix}"
-xrdb="xrdb"
-xinitdir="${prefix}/etc/X11/xinit"
-xclock="xclock"
-xterm="xterm"
-twm="twm"
-xmodmap="xmodmap"
+#prefix="/app/xinit/current"
+#exec_prefix="${prefix}"
+#xrdb="xrdb"
+#xinitdir="${prefix}/etc/X11/xinit"
+#xclock="xclock"
+#xterm="xterm"
+#twm="twm"
+#xmodmap="xmodmap"
 
-userresources="$HOME/.Xresources"
-usermodmap="$HOME/.Xmodmap"
-sysresources="$xinitdir/.Xresources"
-sysmodmap="$xinitdir/.Xmodmap"
+#userresources="$HOME/.Xresources"
+#usermodmap="$HOME/.Xmodmap"
+#sysresources="$xinitdir/.Xresources"
+#sysmodmap="$xinitdir/.Xmodmap"
 
 # merge in defaults and keymaps
 
@@ -51,7 +51,10 @@ sysmodmap="$xinitdir/.Xmodmap"
 
 #"xcalc" -geometry 50x50-1+1 &
 
-exec "/app/jwm/current/bin/jwm"
+/app/xrdb/current/bin/xrdb -merge /etc/x11/Xresources
+
+#exec "/app/jwm/current/bin/jwm"
+exec "/app/icewm/current/bin/icewm"
 
 #"$twm" &
 #"$xclock" -geometry 50x50-1+1 &
