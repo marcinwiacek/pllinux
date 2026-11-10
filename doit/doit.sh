@@ -2498,28 +2498,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-u
     set_current_app_clean_strip_cd xcb-util-errors $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util" ]; then
-  ver="0.4.1";
-  if should_make xcb-util $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/xcb-util-$ver.tar.xz xcb-util xcb-util-$ver 1
-    ./configure --prefix=/app/xcb-util/current
-    make all -j$cpu_num
-    create_app xcb-util $prefix$ver
-    set_current_app xcb-util $prefix$ver 1
-    make install
-    set_current_app_clean_strip_cd xcb-util $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-wm" ]; then
   ver="0.4.2";
   if should_make xcb-util-wm $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/xcb/xcb-util-wm-0.4.2.tar.xz xcb-util-wm xcb-util-wm-$ver 1
-
-#https://gitlab.freedesktop.org/xorg/lib/libxcb-wm/-/archive/xcb-util-wm-0.4.2/libxcb-wm-xcb-util-wm-0.4.2.tar.bz2?ref_type=tags xcb-util-wm libxcb-wm-xcb-util-wm-$ver 1
-    #https://xorg.freedesktop.org/archive/individual/lib/xcb-util-$ver.tar.xz 
-#xcb-util xcb-util-$ver 1
-#    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxcb-wm/-/archive/xcb-util-wm-0.4.2/libxcb-wm-xcb-util-wm-0.4.2.tar.bz2?ref_type=tags xcb-util-wm libxcb-wm-xcb-util-wm-$ver 1
-#./autogen.sh
     ./configure --prefix=/app/xcb-util-wm/current
     make all -j$cpu_num
     create_app xcb-util-wm $prefix$ver
