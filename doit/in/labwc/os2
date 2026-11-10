@@ -1,0 +1,3 @@
+/app/seatd/current/bin/seatd &
+XDG_RUNTIME_DIR=/run /app/labwc/current/bin/labwc
+
