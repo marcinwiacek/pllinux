@@ -1986,6 +1986,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa"
     cd /app/mesa/current/share
     mv vulkan vulkan.orig
     ln -s /etc/vulkan vulkan
+    sed -i "s/libEGL_mesa.so.0/\/app\/mesa\/current\/lib\/libEGL_mesa.so.0/" /app/mesa/current/share/glvnd/egl_vendor.d/50_mesa.json
     set_current_app_clean_strip_cd mesa $prefix$ver 1
   fi
 fi
