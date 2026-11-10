@@ -27,7 +27,6 @@ cairo current
 libexpat current
 pango current
 libpng current
-librsvg current
 libffi current
 gcclib current
 mtdev current

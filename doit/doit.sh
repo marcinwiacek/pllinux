@@ -2716,6 +2716,212 @@ if [ "$package" == "fs" ] || [ "$package" == "liblxqt" ]; then
 #    set_current_app_clean_strip_cd liblxqt $prefix$ver 1
   fi
 fi
+#---------------------------------- working Wayland elements ----------------------------
+if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
+  ver="1.26.0";
+  if should_make wayland $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.26.0/downloads/wayland-1.26.0.tar.xz wayland wayland-$ver 1
+    meson setup -Dprefix=/app/wayland/current --buildtype release _build -Ddocumentation=false -Dlibdir=lib
+    meson compile -C _build
+    create_app_in_tmp_and_link_it wayland $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd wayland $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fribidi" ]; then
+#help2man
+  ver="1.0.18";
+  if should_make fribidi $ver; then
+    download_unpack_source https://github.com/fribidi/fribidi/archive/refs/tags/v1.0.18.tar.gz fribidi fribidi-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/fribidi/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it fribidi $prefix$ver
+    make install
+    set_current_app_clean_strip_cd fribidi $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdatrie" ]; then
+  ver="0.2.14";
+  if should_make libdatrie $ver; then
+    download_unpack_source https://github.com/tlwg/libdatrie/archive/refs/tags/v0.2.14.tar.gz libdatrie libdatrie-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libdatrie/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libdatrie $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libdatrie $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libthai" ]; then
+  ver="0.1.30";
+  if should_make libthai $ver; then
+    download_unpack_source https://github.com/tlwg/libthai/archive/refs/tags/v0.1.30.tar.gz libthai libthai-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libthai/current --disable-dict
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libthai $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libthai $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libjpeg-turbo" ]; then
+  ver="3.2.0";
+  if should_make libjpeg-turbo $ver; then
+    download_unpack_source https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/3.2.0.tar.gz libjpeg-turbo libjpeg-turbo-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/libjpeg-turbo/current \
+      -DBUILD_SHARED_LIBS=true -S . -B ./build 
+    create_app_in_tmp_and_link_it libjpeg-turbo $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it libjpeg-turbo $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd libjpeg-turbo $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libgudev" ]; then
+  ver="238";
+  if should_make libgudev $ver; then
+    download_unpack_source https://github.com/GNOME/libgudev/archive/refs/tags/238.tar.gz libgudev libgudev-$ver 1
+    meson setup -Dprefix=/app/libgudev/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it libgudev $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd libgudev $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
+  ver="0.5.0";
+  if should_make libliftoff $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/emersion/libliftoff/-/releases/v0.5.0/downloads/libliftoff-0.5.0.tar.gz libliftoff libliftoff-$ver 1
+    meson setup -Dprefix=/app/libliftoff/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it libliftoff $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd libliftoff $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libwacom" ]; then
+#python-pytest*
+#python-libevdev*
+#python3-pyudev
+#pytest
+#libevdev
+  ver="2.20.0";
+  if should_make libwacom $ver; then
+    download_unpack_source https://github.com/linuxwacom/libwacom/archive/refs/tags/libwacom-$ver.tar.gz libwacom libwacom-libwacom-$ver 1
+    meson setup -Dprefix=/app/libwacom/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it libwacom $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd libwacom $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
+  ver="1.32.0";
+#sudo apt-get build-dep libinput
+  if should_make libinput $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.32.0/libinput-1.32.0.tar.gz libinput libinput-$ver 1
+    meson setup -Dprefix=/app/libinput/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it libinput $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd libinput $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "cairo" ]; then
+  ver="1.18.6";
+  if should_make cairo $ver; then
+    download_unpack_source https://www.cairographics.org/releases/cairo-1.18.6.tar.xz cairo cairo-$ver 1
+    meson setup -Dprefix=/app/cairo/current --buildtype release -Dlibdir=lib build
+    ninja -C build
+    create_app_in_tmp_and_link_it cairo $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd cairo $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "pango" ]; then
+  ver="1.58.2";
+  if should_make pango $ver; then
+    download_unpack_source https://gitlab.gnome.org/GNOME/pango/-/archive/$ver/pango-$ver.tar.bz2?ref_type=tags pango pango-$ver 1
+    PATH=$PATH:/app/gobject-introspection/current/bin && \
+    PKG_CONFIG_PATH=/app/glib/current/lib/pkgconfig:/app/gobject-introspection/current/lib/pkgconfig:/app/harfbuzz/current/lib/pkgconfig:/app/fontconfig/current/lib/pkgconfig     meson setup \
+       -Dprefix=/app/pango/current --buildtype release -Dlibdir=lib -Dbuild-examples=false -Dbuild-testsuite=false build
+    ninja -C build
+    create_app_in_tmp_and_link_it pango $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd pango $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "little-cms" ]; then
+  ver="2.19.1";
+  if should_make little-cms $ver; then
+    download_unpack_source https://github.com/mm2/Little-CMS/archive/refs/tags/lcms2.19.1.tar.gz  little-cms Little-CMS-lcms$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/little-cms/current \
+      -DBUILD_SHARED_LIBS=true -S . -B ./build 
+    create_app_in_tmp_and_link_it little-cms $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it little-cms $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd little-cms $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
+#libtirpc-dev
+  ver="24.1.14";
+  if should_make xwayland $ver; then
+    download_unpack_source https://www.x.org/pub/individual/xserver/xwayland-24.1.14.tar.xz xwayland xwayland-$ver 1
+    meson setup -Dprefix=/app/xwayland/current -Dlibdir=lib builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it xwayland $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd xwayland $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "wlroots" ]; then
+  if should_make wlroots $ver; then
+
+#        --force-fallback-for=wayland-server \
+#       --force-fallback-for=wayland-protocols \
+#    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
+  ver="0.20.2";
+#  ver="0.19.3";
+#-Dxwayland=disabled -Dbackends=drm,libinput \
+    download_unpack_source https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$ver/downloads/wlroots-$ver.tar.gz wlroots wlroots-$ver 1
+    PKG_CONFIG_PATH=/app/xwayland/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
+        meson setup -Dprefix=/app/wlroots/current --buildtype release  \
+       --force-fallback-for=wayland-protocols \
+        --wrap-mode=default \
+       -Dlibdir=lib build
+    ninja -C build
+    create_app_in_tmp_and_link_it wlroots $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd wlroots $prefix$ver 1
+#  ver="0.18.2";
+#    download_unpack_source https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$ver/downloads/wlroots-$ver.tar.gz wlroots wlroots-$ver 1
+#    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
+#        meson setup -Dprefix=/app/wlroots/current --buildtype release  \
+#        --wrap-mode=default \
+#       -Dlibdir=lib build
+#    ninja -C build
+#    create_app_in_tmp_and_link_it wlroots $prefix$ver
+#    ninja -C build install
+#    set_current_app_clean_strip_cd wlroots $prefix$ver 1
+  fi
+fi
+#libpangocairo
+if [ "$package" == "fs" ] || [ "$package" == "labwc" ]; then
+  ver="0.20.2";
+  if should_make labwc $ver; then
+    download_unpack_source https://github.com/labwc/labwc/archive/refs/tags/$ver.tar.gz labwc labwc-$ver 1
+    PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig \
+        meson setup -Dprefix=/app/labwc/current --buildtype release \
+            -Dlibdir=lib -Dsvg=disabled build -Dxwayland=disabled
+    ninja -C build
+    create_app_in_tmp_and_link_it labwc $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd labwc $prefix$ver 1
+  fi
+fi
 #---------------------------------- graphic stuff ---------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "crispy-doom" ]; then
   ver="7.2";
@@ -3339,49 +3545,6 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprgraphics" ]; then
   fi
 fi
 # ----------------------------------- other Wayland libs ----------------------------
-if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
-#libtirpc-dev
-  ver="24.1.14";
-  if should_make xwayland $ver; then
-    download_unpack_source https://www.x.org/pub/individual/xserver/xwayland-24.1.14.tar.xz xwayland xwayland-$ver 1
-    meson setup -Dprefix=/app/xwayland/current -Dlibdir=lib builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it xwayland $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd xwayland $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "wlroots" ]; then
-  if should_make wlroots $ver; then
-
-#        --force-fallback-for=wayland-server \
-#       --force-fallback-for=wayland-protocols \
-#    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
-  ver="0.20.2";
-#  ver="0.19.3";
-#-Dxwayland=disabled -Dbackends=drm,libinput \
-    download_unpack_source https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$ver/downloads/wlroots-$ver.tar.gz wlroots wlroots-$ver 1
-    PKG_CONFIG_PATH=/app/xwayland/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
-        meson setup -Dprefix=/app/wlroots/current --buildtype release  \
-       --force-fallback-for=wayland-protocols \
-        --wrap-mode=default \
-       -Dlibdir=lib build
-    ninja -C build
-    create_app_in_tmp_and_link_it wlroots $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd wlroots $prefix$ver 1
-#  ver="0.18.2";
-#    download_unpack_source https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$ver/downloads/wlroots-$ver.tar.gz wlroots wlroots-$ver 1
-#    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/pixman/current/lib/pkgconfig \
-#        meson setup -Dprefix=/app/wlroots/current --buildtype release  \
-#        --wrap-mode=default \
-#       -Dlibdir=lib build
-#    ninja -C build
-#    create_app_in_tmp_and_link_it wlroots $prefix$ver
-#    ninja -C build install
-#    set_current_app_clean_strip_cd wlroots $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "gdk-pixbuf" ]; then
   ver="2.44.8";
   if should_make gdk-pixbuf $ver; then
@@ -3435,43 +3598,6 @@ if [ "$package" == "fs" ] || [ "$package" == "graphviz" ]; then
     set_current_app_clean_strip_cd graphviz $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "cairo" ]; then
-  ver="1.18.6";
-  if should_make cairo $ver; then
-    download_unpack_source https://www.cairographics.org/releases/cairo-1.18.6.tar.xz cairo cairo-$ver 1
-    meson setup -Dprefix=/app/cairo/current --buildtype release -Dlibdir=lib build
-    ninja -C build
-    create_app_in_tmp_and_link_it cairo $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd cairo $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "pango" ]; then
-  ver="1.58.2";
-  if should_make pango $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/pango/-/archive/$ver/pango-$ver.tar.bz2?ref_type=tags pango pango-$ver 1
-    PATH=$PATH:/app/gobject-introspection/current/bin && \
-    PKG_CONFIG_PATH=/app/glib/current/lib/pkgconfig:/app/gobject-introspection/current/lib/pkgconfig:/app/harfbuzz/current/lib/pkgconfig:/app/fontconfig/current/lib/pkgconfig     meson setup \
-       -Dprefix=/app/pango/current --buildtype release -Dlibdir=lib -Dbuild-examples=false -Dbuild-testsuite=false build
-    ninja -C build
-    create_app_in_tmp_and_link_it pango $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd pango $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "little-cms" ]; then
-  ver="2.19.1";
-  if should_make little-cms $ver; then
-    download_unpack_source https://github.com/mm2/Little-CMS/archive/refs/tags/lcms2.19.1.tar.gz  little-cms Little-CMS-lcms$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/little-cms/current \
-      -DBUILD_SHARED_LIBS=true -S . -B ./build 
-    create_app_in_tmp_and_link_it little-cms $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it little-cms $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd little-cms $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "librsvg" ]; then
 #cargo-c
 #  ver="2.63.4";
@@ -3510,34 +3636,6 @@ if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
     set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "libwacom" ]; then
-#python-pytest*
-#python-libevdev*
-#python3-pyudev
-#pytest
-#libevdev
-  ver="2.20.0";
-  if should_make libwacom $ver; then
-    download_unpack_source https://github.com/linuxwacom/libwacom/archive/refs/tags/libwacom-$ver.tar.gz libwacom libwacom-libwacom-$ver 1
-    meson setup -Dprefix=/app/libwacom/current -Dlibdir=lib builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it libwacom $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd libwacom $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
-  ver="1.32.0";
-#sudo apt-get build-dep libinput
-  if should_make libinput $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.32.0/libinput-1.32.0.tar.gz libinput libinput-$ver 1
-    meson setup -Dprefix=/app/libinput/current -Dlibdir=lib builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it libinput $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd libinput $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "xkbcommon" ]; then
   ver="1.13.2";
   if should_make xkbcommon $ver; then
@@ -3547,67 +3645,6 @@ if [ "$package" == "fs" ] || [ "$package" == "xkbcommon" ]; then
     create_app_in_tmp_and_link_it xkbcommon $prefix$ver
     meson install -C _build
     set_current_app_clean_strip_cd xkbcommon $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
-  ver="1.26.0";
-  if should_make wayland $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.26.0/downloads/wayland-1.26.0.tar.xz wayland wayland-$ver 1
-    meson setup -Dprefix=/app/wayland/current --buildtype release _build -Ddocumentation=false -Dlibdir=lib
-    meson compile -C _build
-    create_app_in_tmp_and_link_it wayland $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd wayland $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fribidi" ]; then
-#help2man
-  ver="1.0.18";
-  if should_make fribidi $ver; then
-    download_unpack_source https://github.com/fribidi/fribidi/archive/refs/tags/v1.0.18.tar.gz fribidi fribidi-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/fribidi/current
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it fribidi $prefix$ver
-    make install
-    set_current_app_clean_strip_cd fribidi $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdatrie" ]; then
-  ver="0.2.14";
-  if should_make libdatrie $ver; then
-    download_unpack_source https://github.com/tlwg/libdatrie/archive/refs/tags/v0.2.14.tar.gz libdatrie libdatrie-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libdatrie/current
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it libdatrie $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libdatrie $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libthai" ]; then
-  ver="0.1.30";
-  if should_make libthai $ver; then
-    download_unpack_source https://github.com/tlwg/libthai/archive/refs/tags/v0.1.30.tar.gz libthai libthai-$ver 1
-    ./autogen.sh
-    ./configure --prefix=/app/libthai/current --disable-dict
-    make all -j$cpu_num
-    create_app_in_tmp_and_link_it libthai $prefix$ver
-    make install
-    set_current_app_clean_strip_cd libthai $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libjpeg-turbo" ]; then
-  ver="3.2.0";
-  if should_make libjpeg-turbo $ver; then
-    download_unpack_source https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/3.2.0.tar.gz libjpeg-turbo libjpeg-turbo-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/libjpeg-turbo/current \
-      -DBUILD_SHARED_LIBS=true -S . -B ./build 
-    create_app_in_tmp_and_link_it libjpeg-turbo $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it libjpeg-turbo $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd libjpeg-turbo $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "dbus" ]; then
@@ -3620,28 +3657,6 @@ if [ "$package" == "fs" ] || [ "$package" == "dbus" ]; then
     create_app_in_tmp_and_link_it dbus $prefix$ver
     ninja -C build install
     set_current_app_clean_strip_cd dbus $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libgudev" ]; then
-  ver="238";
-  if should_make libgudev $ver; then
-    download_unpack_source https://github.com/GNOME/libgudev/archive/refs/tags/238.tar.gz libgudev libgudev-$ver 1
-    meson setup -Dprefix=/app/libgudev/current -Dlibdir=lib builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it libgudev $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd libgudev $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
-  ver="0.5.0";
-  if should_make libliftoff $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/emersion/libliftoff/-/releases/v0.5.0/downloads/libliftoff-0.5.0.tar.gz libliftoff libliftoff-$ver 1
-    meson setup -Dprefix=/app/libliftoff/current -Dlibdir=lib builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it libliftoff $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd libliftoff $prefix$ver 1
   fi
 fi
 # ------------------------------------ Wayland composers - main apps -------------------------
@@ -3673,20 +3688,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fwm" ]; then
     create_app_in_tmp_and_link_it fwm $prefix$ver
     cmake --install build
     set_current_app_clean_strip_cd fwm $prefix$ver 1
-  fi
-fi
-#libpangocairo
-if [ "$package" == "fs" ] || [ "$package" == "labwc" ]; then
-  ver="0.20.2";
-  if should_make labwc $ver; then
-    download_unpack_source https://github.com/labwc/labwc/archive/refs/tags/$ver.tar.gz labwc labwc-$ver 1
-    PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig \
-        meson setup -Dprefix=/app/labwc/current --buildtype release \
-            -Dlibdir=lib -Dsvg=disabled build -Dxwayland=disabled
-    ninja -C build
-    create_app_in_tmp_and_link_it labwc $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd labwc $prefix$ver 1
   fi
 fi
 #crash + libxml2 no version available
