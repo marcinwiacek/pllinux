@@ -57,6 +57,16 @@ compilation errors with WP_COLOR_MANAGER_V1...:
 
  Real old-school in first attempts... and main work will be connected with separating config, making it working in different situations, with other manager (scaling), etc.
 
+Few days later (10 Nov) I have working IceWM (X11) and... first screen from Wayland compositor Labwc:
+
+![Alt text](2026/nov_icewm.png)
+
+![Alt text](2026/nov_wayland_labwc.png)
+
+There are strange problems... for example with compiling glycin (Failed to guess install tag for ...) or with libxml2 (can't find, how to compile symbols with version inside).
+
+And what is interesting? New (Rust or Wayland) stuff seems to be more complicated. This doesn't look very good.
+
 # Improving old ideas
 
 Do you remember how complicated was versioning thing? It was discussed in [Milestone 4](file_yv_milestone4.md) and after using PLLinux for some time
@@ -88,5 +98,13 @@ with just one folder for all apps mess. We don't need /other folder anymore.
 During cleanup there was removed .etc directory too and timezone directory (TZDIR environment variable really helps). Some changes are very easy,
 some not - for example standard GNU ./configure doesn't allow for providing separate dir for so and a files (which needs extra steps during building
 main and dev packages).
+
+Cleanup additionally started investigation, how to make separate "dev" and "locale" packages for some software. I will give example on libexpat working with configure.
+You can give --prefix and then full (prefix)/lib path is put into library. You don't have option for separating dir for *.a files. And now there are basically few options:
+
+1. compiling everything in one stage and making links from "main" to "dev" package - it looks horrible, when you don't install "dev" package (symlinks are broken)
+2. compiling everything in two stages and making links from duplicated files in "dev" to "main" - better, but there is always chance, that something will be missed
+
+A lot of fun.
 
 [Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
