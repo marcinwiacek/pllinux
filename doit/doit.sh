@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="kernel"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xcb-util-errors"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2486,31 +2486,48 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxc
     set_current_app_clean_strip_cd libxcb-renderutil $prefix$ver 1
   fi
 fi
-#if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcb-errors" ]; then
-#  ver="1.0.1";
-#  if should_make libxcb-errors $ver; then
-#    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxcb-errors/-/archive/xcb-util-errors-1.0.1/libxcb-errors-xcb-util-errors-1.0.1.tar.gz?ref_type=tags libxcb-errors libxcb-errors-xcb-util-errors-$ver 1
-#    ./autogen.sh
-#    ./configure --prefix=/app/libxcb-errors/current
-#    make all -j$cpu_num
-#    create_app libxcb-errors $prefix$ver
-#    set_current_app libxcb-errors $prefix$ver 1
-#    make install
-#    set_current_app_clean_strip_cd libxcb-error $prefix$ver 1
-#  fi
-#fi
-#if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util" ]; then
-#  ver="0.4.1";
-#  if should_make xcb-util $ver; then
-#    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/xcb-util-$ver.tar.xz xcb-util xcb-util-$ver 1
-#    ./configure --prefix=/app/xcb-util/current
-#    make all -j$cpu_num
-#    create_app xcb-util $prefix$ver
-#    set_current_app xcb-util $prefix$ver 1
-#    make install
-#    set_current_app_clean_strip_cd xcb-util $prefix$ver 1
-#  fi
-#fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-errors" ]; then
+  ver="1.0.1";
+  if should_make xcb-util-errors $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/xcb/xcb-util-errors-1.0.1.tar.xz xcb-util-errors xcb-util-errors-$ver 1
+    ./configure --prefix=/app/xcb-util-errors/current
+    make all -j$cpu_num
+    create_app xcb-util-errors $prefix$ver
+    set_current_app xcb-util-errors $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd xcb-util-errors $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util" ]; then
+  ver="0.4.1";
+  if should_make xcb-util $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/xcb-util-$ver.tar.xz xcb-util xcb-util-$ver 1
+    ./configure --prefix=/app/xcb-util/current
+    make all -j$cpu_num
+    create_app xcb-util $prefix$ver
+    set_current_app xcb-util $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd xcb-util $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-wm" ]; then
+  ver="0.4.2";
+  if should_make xcb-util-wm $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/xcb/xcb-util-wm-0.4.2.tar.xz xcb-util-wm xcb-util-wm-$ver 1
+
+#https://gitlab.freedesktop.org/xorg/lib/libxcb-wm/-/archive/xcb-util-wm-0.4.2/libxcb-wm-xcb-util-wm-0.4.2.tar.bz2?ref_type=tags xcb-util-wm libxcb-wm-xcb-util-wm-$ver 1
+    #https://xorg.freedesktop.org/archive/individual/lib/xcb-util-$ver.tar.xz 
+#xcb-util xcb-util-$ver 1
+#    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxcb-wm/-/archive/xcb-util-wm-0.4.2/libxcb-wm-xcb-util-wm-0.4.2.tar.bz2?ref_type=tags xcb-util-wm libxcb-wm-xcb-util-wm-$ver 1
+#./autogen.sh
+    ./configure --prefix=/app/xcb-util-wm/current
+    make all -j$cpu_num
+    create_app xcb-util-wm $prefix$ver
+    set_current_app xcb-util-wm $prefix$ver 1
+    make install
+    set_current_app_clean_strip_cd xcb-util-wm $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "xauth" ]; then
 #libxmuu-dev
   ver="1.1.5";
@@ -2692,6 +2709,28 @@ if [ "$package" == "fs" ] || [ "$package" == "icewm" ]; then
     create_app_in_tmp_and_link_it icewm $prefix$ver
     make install
     set_current_app_clean_strip_cd icewm $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "lxqt-build-tools" ]; then
+  ver="2.5.0";
+  if should_make lxqt-build-tools $ver; then
+    download_unpack_source https://github.com/lxqt/lxqt-build-tools/archive/refs/tags/2.5.0.tar.gz lxqt-build-tools lxqt-build-tools-$ver 1
+    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+    cmake --build build
+    create_app_in_tmp_and_link_it lxqt-build-tools $prefix$ver
+    cmake --install build --prefix /app/lxqt-build-tools/current
+    set_current_app_clean_strip_cd lxqt-build-tools $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "liblxqt" ]; then
+  ver="2.5.0";
+  if should_make liblxqt $ver; then
+    download_unpack_source https://github.com/lxqt/liblxqt/archive/refs/tags/2.5.0.tar.gz liblxqt liblxqt-$ver 1
+    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+    cmake --build build
+    create_app_in_tmp_and_link_it liblxqt $prefix$ver
+#    cmake --install build --prefix /app/liblxqt/current
+#    set_current_app_clean_strip_cd liblxqt $prefix$ver 1
   fi
 fi
 #---------------------------------- graphic stuff ---------------------------------------
@@ -3657,10 +3696,10 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "labwc" ]; then
   ver="0.20.2";
   if should_make labwc $ver; then
-    download_unpack_source https://github.com/labwc/labwc/archive/refs/tags/0.20.2.tar.gz labwc labwc-$ver 1
-    PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig \
+    download_unpack_source https://github.com/labwc/labwc/archive/refs/tags/$ver.tar.gz labwc labwc-$ver 1
+    PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig \
         meson setup -Dprefix=/app/labwc/current --buildtype release \
-            -Dlibdir=lib -Dsvg=disabled build
+            -Dlibdir=lib -Dsvg=disabled build -Dxwayland=disabled
     ninja -C build
     create_app_in_tmp_and_link_it labwc $prefix$ver
     ninja -C build install
