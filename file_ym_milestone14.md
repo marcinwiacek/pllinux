@@ -63,7 +63,7 @@ Few days later (10 Nov) I have working IceWM (X11) and... first screen from Wayl
 
 ![Alt text](2026/nov_wayland_labwc.png)
 
-There are strange problems... for example with compiling glycin (Failed to guess install tag for ...) or with libxml2 (can't find, how to compile symbols with version inside).
+There are strange problems visible... for example with compiling glycin (Failed to guess install tag for ...) or with libxml2 (can't find, how to compile symbols with version inside).
 
 And what is interesting? New (Rust or Wayland) stuff seems to be more complicated. This doesn't look very good.
 
@@ -106,5 +106,7 @@ You can give --prefix and then full (prefix)/lib path is put into library. You d
 2. compiling everything in two stages and making links from duplicated files in "dev" to "main" - better, but there is always chance, that something will be missed
 
 A lot of fun.
+
+In mean time I have for example tried also calling CONFIG_MODPROBE_PATH from kernel - it doesn't work with Bash shell scripts (or I'm making something wrong)
 
 [Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
