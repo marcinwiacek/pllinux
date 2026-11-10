@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="glycin"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xwayland"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2611,6 +2611,7 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
   ver="25.2.3";
   if should_make xlibre-xserver $ver; then
     download_unpack_source https://github.com/X11Libre/xserver/archive/refs/tags/xlibre-xserver-$ver.tar.gz xlibre-xserver xserver-xlibre-xserver-$ver 1
+#don't forget to make sync with xwayland
     PKG_CONFIG_PATH=/app/mesa/current/lib/pkgconfig meson setup -Dprefix=/app/xlibre-xserver/current \
        -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
        -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
@@ -2867,10 +2868,13 @@ if [ "$package" == "fs" ] || [ "$package" == "little-cms" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
 #libtirpc-dev
-  ver="24.1.14";
+  ver="24.1.15";
   if should_make xwayland $ver; then
-    download_unpack_source https://www.x.org/pub/individual/xserver/xwayland-24.1.14.tar.xz xwayland xwayland-$ver 1
-    meson setup -Dprefix=/app/xwayland/current -Dlibdir=lib builddir
+    download_unpack_source https://www.x.org/pub/individual/xserver/xwayland-$ver.tar.xz xwayland xwayland-$ver 1
+    #don't forget about about sync with xlibre-xserver
+    meson setup -Dprefix=/app/xwayland/current \
+       -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
+       -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
     ninja -C builddir
     create_app_in_tmp_and_link_it xwayland $prefix$ver
     ninja -C builddir install
@@ -2913,9 +2917,9 @@ if [ "$package" == "fs" ] || [ "$package" == "labwc" ]; then
   ver="0.20.2";
   if should_make labwc $ver; then
     download_unpack_source https://github.com/labwc/labwc/archive/refs/tags/$ver.tar.gz labwc labwc-$ver 1
-    PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig \
+    PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/xwayland/current/lib/pkgconfig \
         meson setup -Dprefix=/app/labwc/current --buildtype release \
-            -Dlibdir=lib -Dsvg=disabled build -Dxwayland=disabled
+            -Dlibdir=lib -Dsvg=disabled build -Dxwayland=enabled
     ninja -C build
     create_app_in_tmp_and_link_it labwc $prefix$ver
     ninja -C build install
