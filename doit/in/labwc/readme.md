@@ -1,9 +1,11 @@
 **Project**
+https://labwc.github.io/
 
 **Description**
-Wayland compositor
+Wayland window-stacking compositor
 
 **License**
+GPL2
 
 **PATH**
 .
