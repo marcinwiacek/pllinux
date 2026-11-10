@@ -65,7 +65,9 @@ Few days later (10 Nov) I have working IceWM (X11) and... first screen from Wayl
 
 There are strange problems visible... for example with compiling glycin (Failed to guess install tag for ...) or with libxml2 (can't find, how to compile symbols with version inside).
 
-And what is interesting? New (Rust or Wayland) stuff seems to be more complicated. This doesn't look very good.
+And what is interesting? New (Rust or Wayland) stuff seems to be more complicated and this doesn't look very good. Anyway, after short playing with XOrg server I have XWaylaynd running (it starts after few crashes). And now very, very funny thing - X11 will stay with us forever, if we want or not. My XLibre server seems to work with acceleration, the same Vulkan demo in Wayland session is slower... now I need not only one X11 server on my disk, but there will be actually even two (and two codebases for devs creating them). Total mess.
+
+![Alt text](2026/nov_wayland2.png)
 
 # Improving old ideas
 
