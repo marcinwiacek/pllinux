@@ -7,6 +7,9 @@ Xorg server running on top of the Wayland (allows for running X clients).
 **License**
 SGI Free Software License B v1.1
 
+**Man**
+share/man/man1
+
 **Deps**
 pixman current
 libbsd current
@@ -36,3 +39,6 @@ libx11 current
 glib current
 libxcb current
 pcre2 current
+
+**Last**
+20261110

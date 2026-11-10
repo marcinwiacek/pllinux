@@ -8,7 +8,7 @@ Wayland window-stacking compositor
 GPL2
 
 **PATH**
-.
+.:bin
 
 **Deps**
 pixman current

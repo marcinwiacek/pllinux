@@ -57,9 +57,11 @@ compilation errors with WP_COLOR_MANAGER_V1...:
 
  Real old-school in first attempts... and main work will be connected with separating config, making it working in different situations, with other manager (scaling), etc.
 
-Few days later (10 Nov) I have working IceWM (X11) and... first screen from Wayland compositor Labwc:
+Few days later (10 Nov) I have working IceWM (X11):
 
 ![Alt text](2026/nov_icewm.png)
+
+and... first screen from Wayland compositor Labwc:
 
 ![Alt text](2026/nov_wayland_labwc.png)
 
