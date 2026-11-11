@@ -54,8 +54,10 @@ was started and somehow visible, but not completed and fully ready yet).
 Some solutions are similar to used in Android, Apple products or NixOS, but not the same - they will change even to better before beta or first final release
 (like it was in Windows 95, see [The Early Windows 95 Builds Microsoft DIDN'T Want Us To See](https://www.youtube.com/watch?v=cgq7LcvRFA4))
 
+Let's make Linux and Open Source great again!
+
 Note: project was started after finding various problems with existing Linux distributions and lack of dev reaction
-(more and more often they also remove existing for years functionalities or promote code, which was not tested).
+(more and more often they remove existing for years functionalities or promote code, which was not tested).
 
 # Filesystem
 
