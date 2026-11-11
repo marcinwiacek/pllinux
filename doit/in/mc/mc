@@ -27,8 +27,6 @@ fi
 /app/bwrap/current/bin/bwrap \
     --setenv HOME $MCHOME \
     --bind / / \
-    --tmpfs bin \
-    --symlink /app/busybox/current/bin/sh /bin/sh \
     --dev-bind /dev /dev \
     --proc proc \
     --bind /tmp tmp \
@@ -43,4 +41,3 @@ fi
     --setenv PS1ORIG "$(printenv PS1)" \
     $APP -- \
     $DIR/bin/mc
-#    strace $DIR/bin/mc 2> /tmp/tmpdebug

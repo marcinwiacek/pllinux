@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="labwc-themes"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="glibc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -586,7 +586,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glibc
   if should_make glibc $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/glibc/glibc-$ver.tar.xz glibc glibc-$ver 1
     cp $curdir/in/glibc/2_44_rtld.c elf/rtld.c
+    echo Making sed replacement. Needs some time.
     find * -name '*.c' -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
+    #this help for example with MC & Pipe Failed error
+    find * -name '*.h' -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
     mkdir build
     cd build
     ../configure --prefix=/app/glibc/current
@@ -757,23 +760,21 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mc" ]
     install_host_deps "libglib2.0-dev libslang2-dev libgpm-dev"
     download_unpack_source https://ftp.osuosl.org/pub/midnightcommander/mc-$ver.tar.xz mc mc-$ver 1
     #--with-screen=ncurses  <- this seems to make MC hanging after pressing key
-    #gpm seems not to work
-#    PATH=/app/busybox/current/bin:$PATH
+    #gpm    <- seems not to work
     ./configure --disable-vfs -without-gpm-mouse --prefix=/app/mc/current --exec-prefix=/app/mc/current
     # normally without /bin/sh Pipe failed error, when try to view or edit something
     # even after years MC doesn't respect SHELL variable. This is rudicolous
-#even changing everything in c files doesn't help
-#    find * -name '*.c' -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
+    # even changing everything in c files doesn't help - you need to patch glibc too
+    find * -name '*.c' -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
     make all -j$cpu_num
     create_app_in_tmp_and_link_it mc $prefix$ver
     make install
-#    cd /app/mc/current/bin
-#    ln -s /app/busybox/current/bin/sh sh
     cp $curdir/in/mc/mc /app/mc/current
     set_current_app_clean_strip_cd mc $prefix$ver 1
     # normally without /bin/sh Pipe failed error, when try to view or edit something
     # even after years MC doesn't respect SHELL variable. This is rudicolous
-#    find /app/mc/current/etc/mc/* -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
+    # even changing everything in c files doesn't help - you need to patch glibc too
+    find /app/mc/current/etc/mc/* -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "mediainfo" ]; then

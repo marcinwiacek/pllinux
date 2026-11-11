@@ -48,7 +48,9 @@ echo ':perl2:M::#!/usr/local/bin/perl::/app/perl/current/bin/perl:' > register
 /app/util-linux/current/bin/mount --make-shared /mnt
 
 #now starts few boring mounts
-/app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
+#/app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,mode=1777 /tmp
+/app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,nodev /tmp
+/app/busybox/current/bin/chmod a+t /tmp
 
 mkdir /dev/pts
 /app/util-linux/current/bin/mount devpts -t devpts -o rw,noatime,nosuid,noexec,mode=620,gid=5 /dev/pts
