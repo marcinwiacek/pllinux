@@ -29,9 +29,9 @@ The biggest key points for release 1.0:
     * no dev elements when user doesn't want do development (no header files, compilers, etc.)
     * no all world localization files when user needs just English
     * all system scripts built in one language and put in one place
-    * decreasing code size from release to release for saving power, CPU and expensive RAM and SSD usage (no duplicated files, big logs, binary indexes, telemetry, etc.)
-  2. no obsolete solutions known from many other distro - it's time to grow up and go beyond 1980 year (there is used mature software, but
-connected without iritating problems)
+    * decreasing code size from release to release for saving power, decreasing CPU / RAM / network usage and SSD wearing (no duplicated files,
+big logs and packages, binary indexes, telemetry, etc.)
+  2. no crap - no obsolete solutions known from many other distro (it's time to grow up and go beyond 1980 year and of course there is used mature software, but connected without iritating problems)
   3. very easy adding existing (Linux) apps - they can be always actual (no more weeks or months of waiting)
   4. good separating apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
 control permissions and dependencies)
@@ -338,10 +338,13 @@ With zone info directory - we use TZDIR and happily it works like should
 # How can you help?
 
   1. proposing new ideas - it's never too late for them
-  2. showing this project to other people - good party must be big & nothing helps more than testers, users and developers
-  3. submitting bugs - project is very early stage, but don't be shy, when have something to say
-  4. further updates for existing dynamic loader or making other development - always welcome (mainly C or Bash shell scripting required now)
-  5. packaging software - always welcome (needs mainly Bash shell scripting now)
+  2. discussing and showing crap in this what is already done - the best propose fix, if you can't do it, try to suggest alternatives (note: every design decision can be changed to better)
+  3. showing this project to other people - good party must be big & nothing helps more than testers, users and developers
+  4. submitting bugs - project is very early stage, but don't be shy, when have something to say
+  5. further updates for existing dynamic loader or making other development - always welcome (mainly C or Bash shell scripting required now)
+  6. packaging software - always welcome (needs mainly Bash shell scripting now)
+
+If you see something else (creating webpage, repo, whatever), please ping me.
 
 # Contact
 
@@ -349,7 +352,7 @@ Use for example GitHub or marcin ( at ) mwiacek ( dot ) com. I'm not answering v
 
 # FAQ
 
-**AI will be build more beautiful system in one day**
+**AI can build more beautiful system in one day**
 
 Go there... with all advantages and disadvantages.
 
@@ -451,6 +454,18 @@ on profits from separating all apps like it's done in PLLinux.
 **Some commands like man are sometimes slow**
 
 Normally there is used mandb and here it was not used - if problem will be visible for more users, decision could be reconsidered.
+
+**Project will be less and less organized during time**
+
+Every bigger system or structure has got three periods: growing, stagnation and collapse.
+
+PLLinux is in first stage and it will be during long time... or at least so long like I will be able to handle keyboard and mouse (additionally I'm from this generation, which tried to optimalize everything)
+
+**I can do it better**
+
+3, 2, 1... start (this is how Open Source works).
+
+Remember only one thing - forking sometimes gives more problems than merging everything into mainstream.
 
 # Schedule and future
 

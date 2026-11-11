@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libzip"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="highway"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1929,7 +1929,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libti
   ver="4.7.2";
   if should_make libtiff $ver; then
     download_unpack_source http://download.osgeo.org/libtiff/tiff-4.7.2.tar.xz tiff tiff-$ver 1
-    ./configure --prefix=/app/libtiff/current
+    ./configure --prefix=/app/libtiff/current --disable-jbig
     make all -j$cpu_num
     create_app_in_tmp_and_link_it libtiff $prefix$ver
     make install
@@ -2008,6 +2008,58 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libzi
     create_app_in_tmp_and_link_it libzip $prefix$ver
     cmake --install build
     set_current_app_clean_strip_cd libzip $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lerc" ]; then
+  ver="4.3.0";
+  if should_make lerc $ver; then
+    download_unpack_source https://github.com/Esri/lerc/archive/refs/tags/v4.3.0.tar.gz lerc lerc-$ver 1
+    mkdir build
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/lerc/current \
+      -B build
+    cmake --build build -- -j$cpu_num
+    create_app_in_tmp_and_link_it lerc $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd lerc $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "jbigkit" ]; then
+  ver="2.2";
+  if should_make jbigkit $ver; then
+    download_unpack_source https://www.cl.cam.ac.uk/~mgk25/jbigkit/download/jbigkit-2.2.tar.gz jbigkit jbigkit-$ver 1
+#    mkdir build
+#    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/lerc/current \
+#      -B build
+#    cmake --build build -- -j$cpu_num
+#    create_app_in_tmp_and_link_it lerc $prefix$ver
+#    cmake --install build
+#    set_current_app_clean_strip_cd lerc $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdeflate" ]; then
+  ver="1.26";
+  if should_make libdeflate $ver; then
+    download_unpack_source https://github.com/ebiggers/libdeflate/archive/refs/tags/v1.26.tar.gz libdeflate libdeflate-$ver 1
+    mkdir build
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libdeflate/current \
+      -B build
+    cmake --build build -- -j$cpu_num
+    create_app_in_tmp_and_link_it libdeflate $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd libdeflate $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "highway" ]; then
+  ver="1.3.0";
+  if should_make highway $ver; then
+    download_unpack_source https://github.com/google/highway/archive/1.3.0/highway-1.3.0.tar.gz highway highway-$ver 1
+    mkdir build
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/highway/current \
+      -DBUILD_SHARED_LIBS=ON -B build
+    cmake --build build -- -j$cpu_num
+    create_app_in_tmp_and_link_it highway $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd highway $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "imagemagick" ]; then
