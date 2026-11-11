@@ -9,8 +9,8 @@
   * Do you want to be able to play with some new software without resigning from stable and working environment?
   * And finally: do you want to pay less for CPU, RAM and disk and control what is used for?
 
-My name is Marcin and I'm using PCs around 36 years and I love beauty and simplicity, additionally I'm tired with politics
-in IT. And I'm building system, which could resolve many existing problems.
+Hi, my name is Marcin, I'm using PCs around 36 years and I love beauty and simplicity, additionally I'm tired with politics
+in IT and words "nothing can be done". And I'm building system, which could resolve many existing problems.
 
 I know, that you heard it many times. The thing is, that PLLinux:
 
@@ -18,9 +18,8 @@ I know, that you heard it many times. The thing is, that PLLinux:
 * prepared from scratch (it allows for avoiding many problems visible
 in typical Linux distributions and gives good knowledge about internals and occasion for cutting off obsolete parts),
 
-additionally I'm doing it
-with long technical experience (I'm certified engineer working in the past for such companies like Google, additionally I'm very lazy and preffer
-doing something once, but good).
+additionally I'm doing it with long technical experience (I'm certified engineer working in the past for such companies like Google,
+on top of it I'm very lazy and preffer doing something once, but good).
 
 The biggest key points for release 1.0:
 
@@ -38,7 +37,7 @@ connected without iritating problems)
 control permissions and dependencies)
   5. good separating users and their files - extra security layers
   6. doing what is setup and nothing else - reliable, repeatable and expected results and
-no hidden actions/changing settings without user knowledge
+no hidden actions / changing settings without user knowledge
   7. continuous implementing best technical options
   8. showing reality "as is" - no hiding problems (for example obsolete code)
 
@@ -348,6 +347,10 @@ Use for example GitHub or marcin ( at ) mwiacek ( dot ) com. I'm not answering v
 
 # FAQ
 
+**AI will be build more beautiful system in one day**
+
+Go there... with all advantages and disadvantages.
+
 **Why not extend existing project?**
 
 They have technology dept and many times don't want to change because of users or politics. There is required fresh air in this situation.
@@ -376,7 +379,8 @@ Note: stable network interfaces names will be implemented in the future.
 
 **PLLInux is not memory safe and contains very bad code**
 
-Saying this like mantra will not improve situation. Propose better code if you can. You're highly invited.
+Saying this like mantra will not improve situation. Propose better code if you can. You're highly invited. Show working tested
+solution and it will be included, when... (this is important) when it will be better than existing one.
 
 **Why limited console and not GUI?**
 
@@ -450,7 +454,7 @@ Normally there is used mandb and here it was not used - if problem will be visib
 
 This project was started in April 2026 and already went into quite useable shape and form.
 
-Time till 2026 end and year 2027 and beyond will be used for improving functionality (compiling more packages,
+Time in the 2026/2027 and beyond will be used for improving functionality (compiling more packages,
 providing more flexible and easier structure, decreasing resources usage, etc.). It includes preparing user-friendly
 graphic environment (something similar probably to HaikuOS or desktops in the Gnome 2 / Windows 95-XP era with the nice to eye rich graphic elements
 and GUI concentrated on real productivity)

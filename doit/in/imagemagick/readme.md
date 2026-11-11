@@ -12,3 +12,9 @@ bin
 **Deps**
 little-cms current
 libtiff current
+libjpeg-turbo current
+libjxl current
+libpng current
+fontconfig current
+freetype current
+libheif current
