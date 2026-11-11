@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="labwc-tweaks"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="labwc-themes"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -3093,7 +3093,7 @@ if [ "$package" == "fs" ] || [ "$package" == "labwc-tweaks" ]; then
   ver="0.2.0";
   if should_make labwc-tweaks $ver; then
     download_unpack_source https://github.com/labwc/labwc-tweaks/archive/refs/tags/0.2.0.tar.gz  labwc-tweaks labwc-tweaks-$ver 1
-cmake -B build -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/app/labwc-tweaks -W no-dev
+cmake -B build -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/app/labwc-tweaks/current -W no-dev
     create_app_in_tmp_and_link_it labwc-tweaks $prefix$ver
 cmake --build build --verbose
     set_current_app_clean_strip_cd labwc-tweaks $prefix$ver 1
@@ -3106,6 +3106,16 @@ cmake --build build --verbose
 #    ninja -C build install
 #    cp $curdir/in/labwc/* /tmp/installit
 #    set_current_app_clean_strip_cd labwc $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "labwc-themes" ]; then
+  ver="0.1.0";
+  if should_make labwc-themes $ver; then
+    download_unpack_source https://github.com/labwc/labwc-themes/archive/refs/tags/0.1.0.tar.gz  labwc-themes labwc-themes-$ver 1
+    meson setup build --prefix="/app/labwc-themes/current"
+    create_app_in_tmp_and_link_it labwc-themes $prefix$ver
+    meson install -C build
+    set_current_app_clean_strip_cd labwc-themes $prefix$ver 1
   fi
 fi
 #---------------------------------- graphic stuff ---------------------------------------

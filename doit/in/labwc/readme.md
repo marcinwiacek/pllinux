@@ -10,6 +10,9 @@ GPL2
 **PATH**
 .:bin
 
+**Man**
+share/man/man1:share/man/man5
+
 **Deps**
 pixman current
 libglvnd current
