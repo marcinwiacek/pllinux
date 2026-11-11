@@ -9,20 +9,28 @@
   * Do you want to be able to play with some new software without resigning from stable and working environment?
   * And finally: do you want to pay less for CPU, RAM and disk and control what is used for?
 
-My name is Marcin and I'm using PCs around 36 years, additionally I'm tired with politics
+My name is Marcin and I'm using PCs around 36 years and I love beauty and simplicity, additionally I'm tired with politics
 in IT. And I'm building system, which could resolve many existing problems.
 
-I know, that you heard it many times. The thing is, that PLLinux is created using existing software (it equals maturity) and
-prepared from scratch (it allows for avoiding many problems visible
-in typical Linux distributions and gives good knowledge about internals and occasion for cutting off obsolete parts), additionally I'm doing it 
-with long technical experience (I'm engineer, additionally I'm very lazy and preffer
+I know, that you heard it many times. The thing is, that PLLinux:
+
+* is created using existing software (it equals maturity in many cases) and
+* prepared from scratch (it allows for avoiding many problems visible
+in typical Linux distributions and gives good knowledge about internals and occasion for cutting off obsolete parts),
+
+additionally I'm doing it
+with long technical experience (I'm certified engineer working in the past for such companies like Google, additionally I'm very lazy and preffer
 doing something once, but good).
 
 The biggest key points for release 1.0:
 
-  1. the less is more - one script for configuring everything named **pllinux**, one script for building named **doit**,
-all system scripts built in one language and finally decreasing code size from release to release,
-saving power, CPU usage, expensive RAM and SSD (no duplicated files, big logs, binary indexes, telemetry, etc.)
+  1. the less is more - for example:
+    * one script for configuring everything named **pllinux** (it calls command line tools including script for managing apps called **app**)
+    * one script for building distro named **doit**
+    * no dev elements when user doesn't want do development (no header files, compilers, etc.)
+    * no all world localization files when user needs just English
+    * all system scripts built in one language and put in one place
+    * decreasing code size from release to release for saving power, CPU and expensive RAM and SSD usage (no duplicated files, big logs, binary indexes, telemetry, etc.)
   2. no obsolete solutions known from many other distro - it's time to grow up and go beyond 1980 year (there is used mature software, but
 connected without iritating problems)
   3. very easy adding existing (Linux) apps - they can be always actual (no more weeks or months of waiting)
@@ -52,20 +60,20 @@ Note: project was started after finding various problems with existing Linux dis
 
 # Filesystem
 
-* /app - place for all apps (they're saved in separate folders, you can assign different apps or app versions from the /app to other users, normally everything inside /app
+* /app - place for all apps normally with read-only permission (they're saved in separate folders, you can assign different apps or app versions from the /app to other users, excluding package updates everything inside /app
 cannot be modified)
 * /etc - some configuration files (much less files and more readable than in typical Linux distributions, normally you can manage them with **pllinux** manager)
-* /home - user files (with root account you see all users, with non-root users see only own home directory)
-* /home/app or /home/root/app - we try to put all apps config and stuff there (we setup HOME into it).
+* /home - user files (with root account you see all users, with non-root users see only own home directory; we setup HOME into app directory inside we try to put all apps config and stuff there).
 * /lib64 - link to the dynamic loader
 * /log - visible only for root (contains temporary or permament log files written for example by **syslogd**)
 * /lost+found - ext4 folder
 * /mnt - CD-ROM, USB memories, memory cards, etc.
-* /tmp - tmpfs for temporary files
+* /tmp - tmpfs for temporary files (maybe it will later replaced with zram)
 * /dev, /proc, /run, /sys - pseudo-filesystems exposed by kernel
-* /bin or /usr - in some cases links to existing files from /app. The goal is to eliminate them totally. We're using activly kernel options for this (binfmt_misc).
 
-And this is everything. /cache, /boot, /cdrom, /lib32, /libx32, /media, /root, /sbin, /snap, /srv, /var and many other are elimininated. And the biggest magic starts in /app.
+Sometime you can see /bin or /usr too (they have links to existing files from /app). The goal is to eliminate them totally, currently we're using activly kernel options for this (binfmt_misc).
+
+And this is everything. /cache, /boot, /cdrom, /lib32, /libx32, /media, /root, /sbin, /snap, /srv, /var and many other are elimininated. And the biggest magic starts in /app:
 
 Every package inside /app has got own directory. Inside you have:
 

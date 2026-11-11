@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="imagemagick"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libwebp"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1923,6 +1923,65 @@ if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
 #    mkdir $output/app/ccadb/$prefix$ver/all
 #    cp ccadb $output/app/ccadb/$prefix$ver/all/ca-certificates.crt
     set_current_app_clean_strip_cd ccadb $prefix$ver 0
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libtiff" ]; then
+  ver="4.7.2";
+  if should_make libtiff $ver; then
+    download_unpack_source http://download.osgeo.org/libtiff/tiff-4.7.2.tar.xz tiff tiff-$ver 1
+    ./configure --prefix=/app/libtiff/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libtiff $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libtiff $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libjxl" ]; then
+  ver="0.12.0";
+  ver="0.11.0";
+  if should_make libjxl $ver; then
+    download_unpack_source https://github.com/libjxl/libjxl/archive/refs/tags/v$ver.tar.gz libjxl libjxl-$ver 1
+    sed -i "s/download_github third/#download_github third/" ./deps.sh
+    sed -i "s/#download_github third_party\/skcms/download_github third_party\/skcms/" ./deps.sh
+    sed -i "s/#download_github third_party\/sjpeg/download_github third_party\/sjpeg/" ./deps.sh
+    ./deps.sh
+    mkdir build
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libjxl/current \
+      -B build
+#      -D CMAKE_PREFIX_PATH="/app/brotli/current"  #it seems not to work very well
+    cmake --build build -- -j$cpu_num
+    create_app_in_tmp_and_link_it libjxl $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd libjxl $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libheif" ]; then
+  ver="1.23.7";
+  if should_make libheif $ver; then
+    download_unpack_source https://github.com/strukturag/libheif/archive/refs/tags/v1.23.7.tar.gz libheif libheif-$ver 1
+#    sed -i "s/download_github third/#download_github third/" ./deps.sh
+#    sed -i "s/#download_github third_party\/skcms/download_github third_party\/skcms/" ./deps.sh
+#    sed -i "s/#download_github third_party\/sjpeg/download_github third_party\/sjpeg/" ./deps.sh
+#    ./deps.sh
+    mkdir build
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libheif/current \
+      -B build
+#      -D CMAKE_PREFIX_PATH="/app/brotli/current"  #it seems not to work very well
+    cmake --build build -- -j$cpu_num
+    create_app_in_tmp_and_link_it libheif $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd libheif $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libwebp" ]; then
+  ver="1.3.2";
+  if should_make libwebp $ver; then
+    download_unpack_source https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.3.2.tar.gz libwebp libwebp-$ver 1
+    ./configure --prefix=/app/libwebp/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libwebp $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libwebp $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "imagemagick" ]; then
