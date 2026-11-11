@@ -2700,8 +2700,8 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "xkbcomp" ]; then
   ver="1.5.0";
   if should_make xkbcomp $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xkbcomp-1.5.0.tar.xz xkbcomp xkbcomp-$ver 1
-    ./configure --prefix=/app/xkbcomp/current
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xkbcomp-$ver.tar.xz xkbcomp xkbcomp-$ver 1
+    ./configure --prefix=/app/xkbcomp/current --with-xkb-config-root=/app/xkeyboard-config/current/share/X11/xkb
     make -j$cpu_num
     create_app_in_tmp_and_link_it xkbcomp $prefix$ver
     make install
@@ -3033,10 +3033,14 @@ if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
   ver="24.1.15";
   if should_make xwayland $ver; then
     download_unpack_source https://www.x.org/pub/individual/xserver/xwayland-$ver.tar.xz xwayland xwayland-$ver 1
+#    PKG_CONFIG_PATH=/app/mesa/current/lib/pkgconfig meson setup -Dprefix=/app/xlibre-xserver/current \
+#       -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
+#       -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
     #don't forget about about sync with xlibre-xserver
     meson setup -Dprefix=/app/xwayland/current \
        -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
-       -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
+-Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
+#       -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb 
     ninja -C builddir
     create_app_in_tmp_and_link_it xwayland $prefix$ver
     ninja -C builddir install

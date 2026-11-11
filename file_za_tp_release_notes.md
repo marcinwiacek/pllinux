@@ -72,9 +72,8 @@ cannot be modified)
 * /tmp - tmpfs for temporary files (maybe it will later replaced with zram)
 * /dev, /proc, /run, /sys - pseudo-filesystems exposed by kernel
 
-Sometime you can see /bin or /usr too (they have links to existing files from /app). The goal is to eliminate them totally, currently we're using activly kernel options for this (binfmt_misc).
-
-And this is everything. /cache, /boot, /cdrom, /lib32, /libx32, /media, /root, /sbin, /snap, /srv, /var and many other are elimininated. And the biggest magic starts in /app:
+And this is everything. /bin, /usr, /cache, /boot, /cdrom, /lib32, /libx32, /media, /root, /sbin, /snap, /srv, /var and many other are eliminated.
+And scripts with first line with /bin/sh and many others are working thx to the binfmt_misc from kernel. But this is nothing - the biggest magic starts in /app:
 
 Every package inside /app has got own directory. Inside you have:
 
