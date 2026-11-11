@@ -2701,7 +2701,8 @@ if [ "$package" == "fs" ] || [ "$package" == "xkbcomp" ]; then
   ver="1.5.0";
   if should_make xkbcomp $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xkbcomp-$ver.tar.xz xkbcomp xkbcomp-$ver 1
-    ./configure --prefix=/app/xkbcomp/current --with-xkb-config-root=/app/xkeyboard-config/current/share/X11/xkb
+    ./configure --prefix=/app/xkbcomp/current
+    #--with-xkb-config-root=/app/xkeyboard-config/current/share/X11/xkb seems to make problem with normal x11
     make -j$cpu_num
     create_app_in_tmp_and_link_it xkbcomp $prefix$ver
     make install
@@ -2713,7 +2714,8 @@ if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
   if should_make libxkbcommon $ver; then
     download_unpack_source https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-$ver.tar.gz libxkbcommon libxkbcommon-xkbcommon-$ver 1
     meson setup -Dprefix=/app/libxkbcommon/current --buildtype release -Dlibdir=lib -Dbash-completion-path=/app/libxkbcommon/current/completion \
-       -Dxkb-config-root=/app/xkeyboard-config/current/share/X11/xkb _build
+      _build
+#       -Dxkb-config-root=/app/xkeyboard-config/current/share/X11/xkb 
     meson compile -C _build
     create_app_in_tmp_and_link_it libxkbcommon $prefix$ver
     meson install -C _build
@@ -3037,10 +3039,9 @@ if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
 #       -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
 #       -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
     #don't forget about about sync with xlibre-xserver
-    meson setup -Dprefix=/app/xwayland/current \
-       -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
--Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
-#       -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb 
+    PKG_CONFIG_PATH=/app/xkbcomp/current/lib/pkgconfig meson setup -Dprefix=/app/xwayland/current \
+        -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib builddir
+#        -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
     ninja -C builddir
     create_app_in_tmp_and_link_it xwayland $prefix$ver
     ninja -C builddir install

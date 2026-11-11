@@ -2,7 +2,7 @@
 # Part of PLLINUX. Creating system cfg from conf file or asking user and creating conf file.
 
 #VER="5 Oct 2026"
-VER="$(date -r $0 +%Y%m%d)"
+VER="$(/app/busybox/current/bin/date -r $0 +%Y%m%d)"
 
 DIR="/" # path with / in the end. In real system /
 if [ -d "/mnt/x" ]; then
