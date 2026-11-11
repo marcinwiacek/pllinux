@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="xwayland"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libxkbcommon"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2714,8 +2714,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
   if should_make libxkbcommon $ver; then
     download_unpack_source https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-$ver.tar.gz libxkbcommon libxkbcommon-xkbcommon-$ver 1
     meson setup -Dprefix=/app/libxkbcommon/current --buildtype release -Dlibdir=lib -Dbash-completion-path=/app/libxkbcommon/current/completion \
-      _build
-#       -Dxkb-config-root=/app/xkeyboard-config/current/share/X11/xkb 
+      _build -Dxkb-config-root=/app/xkeyboard-config/current/share/X11/xkb
     meson compile -C _build
     create_app_in_tmp_and_link_it libxkbcommon $prefix$ver
     meson install -C _build
@@ -3040,8 +3039,8 @@ if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
 #       -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
     #don't forget about about sync with xlibre-xserver
     PKG_CONFIG_PATH=/app/xkbcomp/current/lib/pkgconfig meson setup -Dprefix=/app/xwayland/current \
-        -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib builddir
-#        -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
+        -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
+        -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
     ninja -C builddir
     create_app_in_tmp_and_link_it xwayland $prefix$ver
     ninja -C builddir install
