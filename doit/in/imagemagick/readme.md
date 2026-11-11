@@ -18,3 +18,8 @@ libpng current
 fontconfig current
 freetype current
 libheif current
+libwebp current
+libxext current
+libx11 current
+xzutils current
+bzip2 current
