@@ -113,4 +113,15 @@ A lot of fun.
 
 In mean time I have for example tried also calling CONFIG_MODPROBE_PATH from kernel - it doesn't work with Bash shell scripts (or I'm making something wrong)
 
+# /bin/sh hell
+
+It's 1979 year. Bourne shell (sh) is distributed into Version 7 Unix and file/symlink /bin/sh became informal standard for basic system shell - you have
+SHELL variable, but for many users /bin/sh. But what when we will delete it? Will be system more modern then? 
+
+In PLLinux some apps don't respect SHELL, but point directly to /bin/sh (I don't speak about scripts, which is other story). 
+Let's take everything using glibc or xwayland. Maybe time to move forward and forget about this almost 50 old tradition?
+
+For now optimal solution is replacing /bin/sh in some code into /app/busybox/current/bin/sh (it's not bid problem) and make the same for scripts
+(replacement is done by kernel itself) and when user want symlink, it can create it, but it shouldn't be necessary.
+
 [Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
