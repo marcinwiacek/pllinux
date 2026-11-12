@@ -39,6 +39,3 @@ libx11 current
 glib current
 libxcb current
 pcre2 current
-
-**Last**
-20261110
