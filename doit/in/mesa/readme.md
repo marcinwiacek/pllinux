@@ -2,7 +2,7 @@
 https://mesa3d.org/
 
 **Description**
-Open source implementations of OpenGL, OpenGL ES, Vulkan, OpenCL and other graphic standards.
+Open source implementations of OpenGL, OpenGL ES, Vulkan, OpenCL and other graphic standards. Developed since 1995.
 
 **License**
 
