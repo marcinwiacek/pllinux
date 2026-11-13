@@ -3139,6 +3139,21 @@ if [ "$package" == "fs" ] || [ "$package" == "libsigc++" ]; then
     set_current_app_clean_strip_cd libsigc++ $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "gtk" ]; then
+  ver="3.24.52";
+  if should_make gtk $ver; then
+    download_unpack_source https://download.gnome.org/sources/gtk/3.24/gtk-3.24.52.tar.xz gtk gtk-$ver 1
+#    ./configure --prefix=/app/libsigc++/current --libdir=/app/libsigc++/current/lib
+#    make all -j$cpu_num
+#    create_app_in_tmp_and_link_it libsigc++ $prefix$ver
+#    make install
+#  ver="3.6.0";
+#    meson setup build --prefix="/app/libsigc++/current" --libdir=lib
+#    create_app_in_tmp_and_link_it libsigc++ $prefix$ver
+#    meson install -C build
+#    set_current_app_clean_strip_cd libsigc++ $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "waybar" ]; then
 #gtkmm-3.0
   ver="0.16.0";
