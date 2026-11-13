@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="xwayland"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libsigc++"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -3122,6 +3122,33 @@ if [ "$package" == "fs" ] || [ "$package" == "labwc-themes" ]; then
     create_app_in_tmp_and_link_it labwc-themes $prefix$ver
     meson install -C build
     set_current_app_clean_strip_cd labwc-themes $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libsigc++" ]; then
+  ver="2.9.3";
+  if should_make libsigc++ $ver; then
+    download_unpack_source https://download.gnome.org/sources/libsigc++/2.9/libsigc%2B%2B-$ver.tar.xz  libsigc libsigc++-$ver 1
+    ./configure --prefix=/app/libsigc++/current --libdir=/app/libsigc++/current/lib
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libsigc++ $prefix$ver
+    make install
+#  ver="3.6.0";
+#    meson setup build --prefix="/app/libsigc++/current" --libdir=lib
+#    create_app_in_tmp_and_link_it libsigc++ $prefix$ver
+#    meson install -C build
+    set_current_app_clean_strip_cd libsigc++ $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "waybar" ]; then
+#gtkmm-3.0
+  ver="0.16.0";
+  if should_make waybar $ver; then
+    download_unpack_source https://github.com/Alexays/Waybar/archive/refs/tags/0.16.0.tar.gz  waybar Waybar-$ver 1
+    PKG_CONFIG_PATH=/app/libxkbcommon/current/lib/pkgconfig:/app/wayland-protocols/current/share/pkgconfig \
+      meson setup build --prefix="/app/waybar/current"
+    create_app_in_tmp_and_link_it waybar $prefix$ver
+    meson install -C build
+    set_current_app_clean_strip_cd waybar $prefix$ver 1
   fi
 fi
 #---------------------------------- graphic stuff ---------------------------------------
