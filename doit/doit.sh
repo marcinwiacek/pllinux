@@ -3160,7 +3160,7 @@ if [ "$package" == "fs" ] || [ "$package" == "sfwbar" ]; then
     meson setup build --prefix="/app/sfwbar/current"
     create_app_in_tmp_and_link_it sfwbar $prefix$ver
     meson install -C build
-#    set_current_app_clean_strip_cd sfwbar $prefix$ver 1
+    set_current_app_clean_strip_cd sfwbar $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "waybar" ]; then
@@ -3803,11 +3803,11 @@ if [ "$package" == "fs" ] || [ "$package" == "gdk-pixbuf" ]; then
   ver="2.44.8";
   if should_make gdk-pixbuf $ver; then
     download_unpack_source https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/archive/2.44.8/gdk-pixbuf-2.44.8.tar.bz2 gdk-pixbuf gdk-pixbuf-$ver 1
-    PKG_CONFIG_PATH=/app/glycin/current/lib/pkgconfig    meson setup -Dprefix=/app/gdk-pixbuf/current -Dlibdir=lib builddir
-#    ninja -C builddir
-#    create_app_in_tmp_and_link_it libinput $prefix$ver
-#    ninja -C builddir install
-#    set_current_app_clean_strip_cd libinput $prefix$ver 1
+    PKG_CONFIG_PATH=/app/glycin/current/lib/pkgconfig    meson setup -Dprefix=/app/gdk-pixbuf/current -Dlibdir=lib builddir -Dtests=false
+    ninja -C builddir
+    create_app_in_tmp_and_link_it gdk-pixbuf $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd gdk-pixbuf $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "glycin" ]; then
@@ -3825,7 +3825,7 @@ if [ "$package" == "fs" ] || [ "$package" == "glycin" ]; then
        -Dbuildtype=release -Dlibglycin-gtk4=false -Dtests=false \
        -Dglycin-thumbnailer=false  -Dintrospection=false       ..
     ninja -v
-    ninja -C builddir install
+    ninja -C . install
     set_current_app_clean_strip_cd glycin $prefix$ver 1
   fi
 fi
