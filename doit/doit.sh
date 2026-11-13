@@ -3160,7 +3160,7 @@ if [ "$package" == "fs" ] || [ "$package" == "sfwbar" ]; then
     meson setup build --prefix="/app/sfwbar/current"
     create_app_in_tmp_and_link_it sfwbar $prefix$ver
     meson install -C build
-    set_current_app_clean_strip_cd sfwbar $prefix$ver 1
+#    set_current_app_clean_strip_cd sfwbar $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "waybar" ]; then
