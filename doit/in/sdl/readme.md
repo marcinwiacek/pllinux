@@ -31,3 +31,6 @@ libffi current
 libglvnd current
 libdisplay-info current
 vulkan-loader current
+libxrandr current
+libxext current
+libxrender current
