@@ -41,3 +41,20 @@ libedit current
 ncurses current
 lm-sensors current
 glibc current
+cairo current
+pango current
+fontconfig current
+freetype current
+libxext current
+libxrender current
+fribidi current
+libthai current
+harfbuzz current
+bzip2 current
+brotli current
+util-linux current
+libselinux current
+libdatrie current
+
+**Last**
+20260727

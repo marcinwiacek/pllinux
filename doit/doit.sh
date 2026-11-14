@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="at-spi2-core"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libseccomp"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1511,6 +1511,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpc
 #    echo "**Last**" >> /app/libexpat/current/readme.md
 #    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
     set_current_app_clean_strip_cd libpciaccess $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxxf86vm" ]; then
+  ver="1.1.7";
+  if should_make libxxf86vm $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXxf86vm-1.1.7.tar.xz libXxf86vm libXxf86vm-$ver 1
+    meson setup -Dprefix=/app/libxxf86vm/current _build -Dlibdir=lib
+    meson compile -C _build
+    create_app_in_tmp_and_link_it libxxf86vm $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd libxxf86vm $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libffi" ]; then
@@ -3201,6 +3212,18 @@ if [ "$package" == "fs" ] || [ "$package" == "atk" ]; then
     create_app_in_tmp_and_link_it atk $prefix$ver
     meson install -C build
     set_current_app_clean_strip_cd atk $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "libseccomp" ]; then
+  ver="2.6.1";
+  if should_make libseccomp $ver; then
+    download_unpack_source https://github.com/seccomp/libseccomp/archive/refs/tags/v2.6.1.tar.gz  libseccomp  libseccomp-$ver 1
+    ./autogen.sh
+    ./configure --prefix=/app/libseccomp/current
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it libseccomp $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libseccomp $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "sfwbar" ]; then

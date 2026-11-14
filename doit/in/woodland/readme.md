@@ -1,3 +1,12 @@
+**Description**
+Wayland compositor based on wlroots (inspired by Wayfire and TinyWl)
+
+**Project**
+https://github.com/DiogenesN/woodland
+
+**License**
+GPL2
+
 **Deps**
 cairo current
 dbus current
@@ -16,12 +25,5 @@ libxext current
 libxrender current
 libxcb current
 pixman current
-
-**Description**
-Wayland compositor based on wlroots (inspired by Wayfire and TinyWl)
-
-**License**
-GPL2
-
-**Project**
-https://github.com/DiogenesN/woodland
+cairo current
+gcclib current
