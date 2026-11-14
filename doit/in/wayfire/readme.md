@@ -31,3 +31,13 @@ libxdmcp current
 libgudev current
 glib current
 pcre2 current
+xcb-util-wm current
+xcb-util-errors current
+zstd current
+llvm current
+libx11 current
+libxshmfence current
+libedit current
+ncurses current
+lm-sensors current
+glibc current

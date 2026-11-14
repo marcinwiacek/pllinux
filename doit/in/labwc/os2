@@ -1,7 +1,8 @@
 #!/bin/bash
+rm -r /tmp/.X11-unix
 /app/seatd/current/bin/seatd &
 #chmod a+rwx /run/seatd.sock
 #XDG_RUNTIME_DIR=/run strace /app/labwc/current/bin/labwc 2> /tmp/log
 #XDG_RUNTIME_DIR=/run /app/labwc/current/bin/labwc
 #XDG_RUNTIME_DIR=/run /app/labwc/current/bin/labwc -V --debug -c /etc/wayland/rc.xml
-XDG_RUNTIME_DIR=/run /app/labwc/current/bin/labwc -V --debug
+XDG_RUNTIME_DIR=/run /app/labwc/current/bin/labwc -V --debug 2> /tmp/log1

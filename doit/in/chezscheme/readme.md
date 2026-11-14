@@ -1,11 +1,11 @@
-**License**
-Apache 2.0
-
 **Project**
 https://github.com/cisco/ChezScheme
 
 **Description**
 Programming language
+
+**License**
+Apache 2.0
 
 **Deps**
 ncurses current
