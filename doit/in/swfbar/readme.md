@@ -50,3 +50,6 @@ bzip2 current
 brotli current
 libxau current
 libxdmcp current
+libseccomp current
+libmd current
+libxi current

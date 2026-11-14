@@ -1,0 +1,8 @@
+#!/bin/bash
+#rm -r /tmp/.X11-unix #this folder can be created by normal x11 and it's not sticky then
+/app/seatd/current/bin/seatd &
+#chmod a+rwx /run/seatd.sock
+#XDG_RUNTIME_DIR=/run strace /app/labwc/current/bin/labwc 2> /tmp/log
+#XDG_RUNTIME_DIR=/run /app/labwc/current/bin/labwc
+#XDG_RUNTIME_DIR=/run /app/labwc/current/bin/labwc -V --debug -c /etc/wayland/rc.xml
+XDG_RUNTIME_DIR=/run /app/woodland/current/bin/woodland
