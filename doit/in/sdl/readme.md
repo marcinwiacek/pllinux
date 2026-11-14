@@ -34,3 +34,7 @@ vulkan-loader current
 libxrandr current
 libxext current
 libxrender current
+libxxf86vm current
+libxcursor current
+libxfixes current
+libxtst current

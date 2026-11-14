@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="dav1d"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="sdl3"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2126,11 +2126,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa"
     # sudo apt-get build-dep mesa
     # python3-pycparser
     download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
-    PATH=/app/llvm/current/bin:/app/cbindgen/current/bin:$PATH PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/lua/current/lib/pkgconfig \
+    PATH=/app/llvm/current/bin:/app/cbindgen/current/bin:$PATH PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/lua/current/lib/pkgconfig:/app/wayland-protocols/current/share/pkgconfig \
       meson setup -Dprefix=/app/mesa/current _build \
        -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
        -Dgles1=enabled -Dgles2=enabled -Dglvnd=enabled \
-       -Dplatforms=x11 \
+       -Dplatforms="x11,wayland" \
        -Dgallium-drivers="lima,llvmpipe,softpipe,svga" \
        -Dgallium-d3d12-graphics=disabled -Dgallium-d3d12-video=disabled \
        -Dvulkan-drivers="swrast,virtio" \
@@ -2281,7 +2281,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libfontenc" ]; then
   ver="1.1.9";
   if should_make libfontenc $ver; then
     download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libfontenc/-/archive/libfontenc-1.1.9/libfontenc-libfontenc-1.1.9.tar.bz2?ref_type=tags libfontenc libfontenc-libfontenc-$ver 1
-   ./autogen.sh
+    ./autogen.sh
     ./configure --prefix=/app/libfontenc/current
     make -j$cpu_num
     create_app_in_tmp_and_link_it libfontenc $prefix$ver
@@ -2375,7 +2375,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libxfont2" ]; then
   ver="2.0.9";
   if should_make libxfont2 $ver; then
     download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxfont/-/archive/libXfont2-2.0.9/libxfont-libXfont2-2.0.9.tar.bz2?ref_type=tags libxfont libxfont-libXfont2-$ver 1
-   ./autogen.sh
+    ./autogen.sh
     ./configure --prefix=/app/libxfont2/current
     make -j$cpu_num
     create_app_in_tmp_and_link_it libxfont2 $prefix$ver
@@ -2477,9 +2477,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libX1
     create_app libx11 $prefix$ver
     set_current_app libx11 $prefix$ver 1
     make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
     set_current_app_clean_strip_cd libx11 $prefix$ver 1
   fi
 fi
@@ -2492,9 +2489,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxs
     create_app libxshmfence $prefix$ver
     set_current_app libxshmfence $prefix$ver 1
     make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
     set_current_app_clean_strip_cd libxshmfence $prefix$ver 1
   fi
 fi
@@ -2554,9 +2548,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxa
     create_app libxau $prefix$ver
     set_current_app libxau $prefix$ver 1
     make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
     set_current_app_clean_strip_cd libxau $prefix$ver 1
   fi
 fi
@@ -2582,6 +2573,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxd
     set_current_app libxdamage $prefix$ver 1
     make install
     set_current_app_clean_strip_cd libxdamage $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxtst" ]; then
+  ver="1.2.6";
+  if should_make libxtst $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXtst-$ver.tar.xz libxtst libXtst-$ver 1
+    ./configure --prefix=/app/libxtst/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libxtst $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxtst $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxfixes" ]; then
@@ -3290,7 +3292,7 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
     download_unpack_source https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.32.10.tar.gz sdl SDL-release-$ver 1
     ./configure --disable-rpath --enable-video-directfb --enable-directfb-shared --enable-video-kmsdrm --enable-kmsdrm-shared \
           --enable-video-opengl --enable-video-opengles --enable-video-opengles1 --enable-video-opengles2 \
-          --disable-video-wayland \
+          --enable-video-wayland --enable-x11-shared --enable-wayland-shared \
           --disable-libudev --disable-dbus --prefix=/app/sdl/current
     make -j$cpu_num
     create_app sdl $prefix$ver
@@ -3321,7 +3323,7 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
        -DSDL_KMSDRM=ON \
        -DSDL_TESTS=ON -DSDL_TEST_LIBRARY=ON -DSDL_INSTALL_TESTS=ON \
        -DSDL_LIBUDEV=OFF -DSDL_STATIC=OFF -DSDL_RPATH=OFF -DSDL_DBUS=OFF -DSDL_IBUS=OFF -DSDL_LIBTHAI=OFF \
-       -DSDL_WAYLAND=OFF \
+       -DSDL_WAYLAND=ON \
        -DSDL_X11=ON -DSDL_X11_XRANDR_DEFAULT=ON -DSDL_XINPUT=ON
     cmake --build build
     create_app sdl $prefix$ver
