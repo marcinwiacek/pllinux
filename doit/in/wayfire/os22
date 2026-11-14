@@ -1,0 +1,4 @@
+#!/bin/bash
+/app/seatd/current/bin/seatd &
+XDG_RUNTIME_DIR=/run strace /app/wayfire/current/bin/wayfire 2> /tmp/log22
+
