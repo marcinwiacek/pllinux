@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="atk"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="at-spi2-core"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2612,6 +2612,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxd
     set_current_app_clean_strip_cd libxdmcp $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxi" ]; then
+  ver="1.8.4";
+  if should_make libxi $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXi-1.8.4.tar.xz libxi libXi-$ver 1
+    ./configure --prefix=/app/libxi/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libxi $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxi $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcb" ]; then
   ver="1.17.0";
   if should_make libxcb $ver; then
@@ -3148,6 +3159,16 @@ if [ "$package" == "fs" ] || [ "$package" == "gtk" ]; then
     create_app_in_tmp_and_link_it gtk $prefix$ver
     meson install -C build
     set_current_app_clean_strip_cd gtk $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "at-spi2-core" ]; then
+  ver="2.62.1";
+  if should_make at-spi2-core $ver; then
+    download_unpack_source https://download.gnome.org/sources/at-spi2-core/2.62/at-spi2-core-2.62.1.tar.xz at-spi2-core at-spi2-core-$ver 1
+    meson setup build --prefix="/app/at-spi2-core/current" --libdir=lib
+    create_app_in_tmp_and_link_it at-spi2-core $prefix$ver
+    meson install -C build
+    set_current_app_clean_strip_cd at-spi2-core $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "gtkmm" ]; then
