@@ -48,7 +48,7 @@ Currently in early alpha. Some things are done and many still todo:
  12. [Milestone 12 - software compiling, graphic drivers and SDL/framebuffer support, creating packages - let's optimalize it](file_yn_milestone12.md)
  14. [Milestone 14 - Wayland or X11? Improving old ideas, /bin/sh hell](file_ym_milestone14.md)
  15. Milestone 15 - dbus? AppArmor? SeLinux?
- 16. Milestone 16 - more packages, matrioszka (compiling PLLinux from PLLinux) and reliable offline builds from host (with docker?), etc.
+ 16. Milestone 16 - more packages, matrioszka (compiling PLLinux from PLLinux) and reliable offline builds from host (with docker?), checking signature, etc.
  17. Milestone 17 - installation with Secure Boot, firmware and CPU microcode, CVE database, etc.
  18. Milestone 18 - packages with optional config (for example installing some localization only or removing a files),
 impossible things (like deleting to trash or firewall per process), quotas, managed installation, SMART logging, schedule "older than", etc.
