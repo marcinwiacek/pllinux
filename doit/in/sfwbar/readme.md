@@ -1,8 +1,11 @@
 **Project**
+https://github.com/LBCrion/sfwbar
 
 **Description**
+S* Floating Window Bar is taskbar for Wayland compositors.
 
 **License**
+GPL3.0
 
 **Deps**
 gtk current
@@ -52,6 +55,3 @@ libxau current
 libxdmcp current
 libseccomp current
 libmd current
-
-**Last**
-20260318
