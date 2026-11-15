@@ -41,5 +41,4 @@ libxtst current
 wayland current
 libxkbcommon current
 libxi current
-libxss current
 libxscrnsaver current
