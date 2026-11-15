@@ -1,8 +1,8 @@
 #!/app/busybox/current/bin/sh
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
-output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libxscrnsaver"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+output="/mnt/y/a";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
+package="fsfs"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -333,55 +333,41 @@ install_host_deps "rsync"
 #install_host_deps "mc retext git gitk gedit"
 #[ -d out ] || mkdir out
 [ -d download ] || mkdir download
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ]; then
+if [ "$package" == "fsfs" ] || [ "$package" == "fsmin" ]; then
 
   #don't forget about sync with pllinux and initramfs
 
-  for folderentry in app bin dev etc home mnt proc run sys tmp lib64 log log/tmp usr usr/share usr/bin; do mkdir $output/$folderentry; done
+  for folderentry in app dev etc etc/users mnt proc run sys tmp lib64 log log/tmp; do mkdir $output/$folderentry; done
 
   rsync -a in/pllinux.etc/ $output/etc
 
   for userentry in root user user2; do 
     case $userentry in
-      root) GRP=root ;;
-      user) GRP=1000 ;;
-      user2) GRP=1001 ;;
+      root) GRP=root
+            DIRDIR=home ;;
+      user) GRP=1000
+            DIRDIR=etc/users/$userentry ;;
+      user2) GRP=1001
+             DIRDIR=etc/users/$userentry ;;
     esac
 
-    for direntry in $output/home/$userentry $output/home/$userentry/app; do
+    for direntry in $output/$DIRDIR $output/$DIRDIR/app; do
       sudo mkdir $direntry
       sudo chown $GRP $direntry
       sudo chgrp $GRP $direntry
     done
 
-    sudo chmod u+rwx $output/home/$userentry
-    sudo chmod g-rwx $output/home/$userentry
-    sudo chmod o-rwx $output/home/$userentry
+    sudo chmod u+rwx $output/$DIRDIR
+    sudo chmod g-rwx $output/$DIRDIR
+    sudo chmod o-rwx $output/$DIRDIR
   done
 
-  cd $output
-#  if [ ! -d "etc." ]; then ln -s etc etc.; fi
-#  if [ ! -d "other" ]; then ln -s home/root other; fi
-#  cd bin
-#  ln -s /app/busybox/current/bin/sh sh
-#  ln -s /app/bash/current/bin/bash bash
-#  cd ..
-  cd lib64
+  cd $output/etc/users
+  ln -s ../../home root
+
+  cd $output/lib64
   ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
   chmod a+x ld-linux-x86-64.so.2
-  cd ..
-  cd usr/share
-  ln -s /app/tzdb/current/usr/share/zoneinfo zoneinfo
-  cd ..
-  cd ..
-  cd etc
-  cd vulkan
-  ln -s /app/mesa/current/share/vulkan/icd.d implicit_layer.d
-  cd ..
-  cd ..
-  cd usr
-  cd bin
-  ln -s /app/xkbcomp/current/bin/xkbcomp xkbcomp
 
   #don't forget about sync with pllinux and initramfs
 
