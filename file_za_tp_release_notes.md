@@ -25,21 +25,24 @@ The biggest key points for release 1.0:
 
   1. the less is more - for example:
     * one script for configuring everything named **pllinux** (it calls command line tools including script for managing apps called **app**)
-    * one script for building distro named **doit**
-    * no dev elements when user doesn't want do development (no header files, compilers, etc.)
+    * one script for building distro named **doit** (you should be able to do everything even from cheap desktop, laptop or mini pc, no servers required)
+    * no dev elements when user doesn't want and need development (no header files, compilers, etc.)
     * no all world localization files when user needs just English
-    * all system scripts built in one language and put in one place
+    * one small installation file for all (no more many similiar "flavors")
+    * modular structure for giving normal user chance to understand what is done internally (it includes all system scripts built in one language
+and put in one place)
     * decreasing code size from release to release for saving power, decreasing CPU / RAM / network usage and SSD wearing (no duplicated files,
 big logs and packages, binary indexes, telemetry, etc.)
-  2. no crap - no obsolete solutions known from many other distro (it's time to grow up and go beyond 1980 year and of course there is used mature software, but connected without iritating problems)
-  3. very easy adding existing (Linux) apps - they can be always actual (no more weeks or months of waiting)
+  2. continuous implementing best technical options and no crap - no obsolete solutions known from many
+other distro (it's time to grow up and go beyond 1980 year and of course there is used mature software, 
+but connected without iritating problems)
+  3. very easy adding existing (Linux) apps - they can be always actual (no weeks or months of waiting)
   4. good separating apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
 control permissions and dependencies)
   5. good separating users and their files - extra security layers
   6. doing what is setup and nothing else - reliable, repeatable and expected results and
 no hidden actions / changing settings without user knowledge
-  7. continuous implementing best technical options
-  8. showing reality "as is" - no hiding problems (for example obsolete code)
+  7. showing reality "as is" - no hiding problems (for example obsolete code)
 
 In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should do
 whatever user want and expect.
