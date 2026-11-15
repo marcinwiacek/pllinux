@@ -1,3 +1,11 @@
+**Project**
+https://gitlab.freedesktop.org/libinput/libinput/
+
+**Description**
+Library to handle input devices for most Wayland compositors and the X.Org xf86-input-libinput driver.
+
+**License**
+
 **Deps**
 libudev-zero current
 libevdev current
