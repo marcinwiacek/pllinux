@@ -63,9 +63,9 @@ Note: project was started after finding various problems with existing Linux dis
 
 * /app - place for all apps normally with read-only permission (they're saved in separate folders, you can assign different apps or app versions from the /app to other users, excluding package updates everything inside /app
 cannot be modified)
-* /etc - some configuration files (much less files and more readable than in typical Linux distributions, normally you can manage them with **pllinux** manager)
-* /home - user files (with root account you see all users, with non-root users see only own home directory; we setup HOME into app directory inside we try to put all apps config and stuff there).
-* /lib64 - link to the dynamic loader
+* /etc - home dirs from all "normal" users (inside /etc/users) and some system-wide configuration files (much less files and more readable than in typical Linux distributions, normally you can manage them with **pllinux** manager)
+* /home - user files for every user including root (we setup HOME into app directory inside we try to put all apps config and stuff there)
+* /lib64 - one single link to the dynamic loader
 * /log - visible only for root (contains temporary or permament log files written for example by **syslogd**)
 * /lost+found - ext4 folder
 * /mnt - CD-ROM, USB memories, memory cards, etc.
