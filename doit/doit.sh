@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libglvnd"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libxscrnsaver"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2563,6 +2563,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxa
     set_current_app_clean_strip_cd libxau $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxscrnsaver" ]; then
+  ver="1.2.5";
+  if should_make libxscrnsaver $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXScrnSaver-1.2.5.tar.xz libXScrnSaver libXScrnSaver-$ver 1
+    ./configure --prefix=/app/libxscrnsaver/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it libxscrnsaver $prefix$ver
+    make install
+    set_current_app_clean_strip_cd libxscrnsaver $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcomposite" ]; then
   ver="0.4.7";
   if should_make libxcomposite $ver; then
@@ -3076,7 +3087,8 @@ if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
     #don't forget about about sync with xlibre-xserver
     PKG_CONFIG_PATH=/app/xkbcomp/current/lib/pkgconfig meson setup -Dprefix=/app/xwayland/current \
         -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
-        -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
+        -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir \
+        -Ddri3=true -Dmitshm=true
     sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/" os/utils.c
     ninja -C builddir
     create_app_in_tmp_and_link_it xwayland $prefix$ver
@@ -3330,6 +3342,8 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl" ]; then
     mv * ..
     cd ..
     rm -r SDL2
+    cd /app/sdl/current
+    mv installed-tests tests
     set_current_app_clean_strip_cd sdl $prefix$ver 1
   fi
 fi
@@ -3355,6 +3369,7 @@ if [ "$package" == "fs" ] || [ "$package" == "sdl3" ]; then
     cd /app/sdl/$prefix$ver
     mkdir installed-tests
     mv libexec/installed-tests/SDL3/* installed-tests
+    mv installed-tests tests
     rm -r libexec
     set_current_app_clean_strip_cd sdl $prefix$ver 1
   fi
