@@ -1,3 +1,11 @@
+**Project**
+https://github.com/linuxwacom/libwacom
+
+**Description**
+Database with a C library wrapper for information about a tablet.
+
+**License**
+
 **Deps**
 glib current
 libgudev current

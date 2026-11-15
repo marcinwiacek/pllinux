@@ -1,6 +1,8 @@
 **Project**
+https://xkbcommon.org/
 
 **Description**
+XKB specificiation specification for handling keyboard descriptions.
 
 **License**
 
