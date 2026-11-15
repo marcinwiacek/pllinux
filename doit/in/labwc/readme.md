@@ -67,3 +67,5 @@ llvm current
 libedit current
 ncurses current
 lm-sensors current
+librsvg current
+dav1d current

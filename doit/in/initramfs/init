@@ -57,7 +57,7 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
 
   for folderentry in dev etc etc/users home mnt proc run sys tmp lib64 log log/tmp; do mkdir $folderentry; done
 
-  /app/rsync/current/bin/rsync -a --info=progress2 iso/etc/ etc
+  /app/rsync/current/bin/rsync --exclude users -a --info=progress2 iso/etc/ etc
 
   for userentry in root user user2; do 
     case $userentry in

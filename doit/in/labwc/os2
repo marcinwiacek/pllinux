@@ -5,4 +5,11 @@ rm -r /tmp/.X11-unix #this folder can be created by normal x11 and it's not stic
 #XDG_RUNTIME_DIR=/run strace /app/labwc/current/bin/labwc 2> /tmp/log
 #XDG_RUNTIME_DIR=/run /app/labwc/current/bin/labwc
 #XDG_RUNTIME_DIR=/run /app/labwc/current/bin/labwc -V --debug -c /etc/wayland/rc.xml
-XDG_RUNTIME_DIR=/run /app/labwc/current/bin/labwc -V --debug -s /app/swfbar/current/bin/swfbar 2> /tmp/log1
+
+#XCURSOR_PATH=/app/xcursor-themes/current/icons \
+#XCURSOR_THEME=whiteglass \
+#XCURSOR_SIZE=24 \
+XDG_RUNTIME_DIR=/run \
+/app/labwc/current/bin/labwc -V --debug -C /etc/wayland/labwc 2> /tmp/log2 > /tmp/log1
+
+#XDG_RUNTIME_DIR=/run strace /app/labwc/current/bin/labwc -V --debug -s /app/swfbar/current/bin/swfbar 2> /tmp/log1

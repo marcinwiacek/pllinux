@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 26 Oct 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libxml2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="labwc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -3123,7 +3123,7 @@ if [ "$package" == "fs" ] || [ "$package" == "labwc" ]; then
     download_unpack_source https://github.com/labwc/labwc/archive/refs/tags/$ver.tar.gz labwc labwc-$ver 1
     PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/xwayland/current/lib/pkgconfig \
         meson setup -Dprefix=/app/labwc/current --buildtype release \
-            -Dlibdir=lib -Dsvg=disabled build -Dxwayland=enabled
+            -Dlibdir=lib build -Dxwayland=enabled # -Dsvg=disabled 
     ninja -C build
     create_app_in_tmp_and_link_it labwc $prefix$ver
     ninja -C build install
@@ -3262,6 +3262,29 @@ if [ "$package" == "fs" ] || [ "$package" == "egl-wayland" ]; then
     create_app_in_tmp_and_link_it egl-wayland $prefix$ver
     meson install -C build
     set_current_app_clean_strip_cd egl-wayland $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "apple_cursor" ]; then
+  ver="2.0.1";
+  if should_make apple_cursor $ver; then
+    download_unpack_source https://github.com/ful1e5/apple_cursor/archive/refs/tags/v2.0.1.tar.gz apple_cursor apple_cursor-$ver 1
+#    meson setup build --prefix="/app/sfwbar/current"
+#    create_app_in_tmp_and_link_it sfwbar $prefix$ver
+#    meson install -C build
+#    set_current_app_clean_strip_cd sfwbar $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "xcursor-themes" ]; then
+  ver="1.0.7";
+  if should_make xcursor-themese $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/data/xcursor-themes-1.0.7.tar.xz xcursor-themes xcursor-themes-$ver 1
+    ./configure --prefix=/app/xcursor-themes/current --exec-prefix=/app/xcursor-themes/current
+    for fileentry in Makefile handhelds/Makefile redglass/Makefile whiteglass/Makefile; do
+      sed -i "s/\/usr\/share\/icons/\/app\/xcursor-themes\/current\/icons/g" $fileentry
+    done
+    create_app_in_tmp_and_link_it xcursor-themes $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xcursor-themes $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "sfwbar" ]; then

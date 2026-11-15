@@ -730,7 +730,7 @@ format_install2() {
 
       for folderentry in app dev etc etc/users home mnt proc run sys tmp lib64 log log/tmp; do mkdir $folderentry; done
 
-      /app/rsync/current/bin/rsync -a --info=progress2 /etc/ etc
+      /app/rsync/current/bin/rsync --exclude=users -a --info=progress2 /etc/ etc
 
       if [ "$ALLAPPS" = "1" ]; then
         echo "Copying all apps from /app ($(du -c -h ${DIR}app | grep total)). This will need some time (even min)"
@@ -753,7 +753,7 @@ format_install2() {
       fi
 
       for userentry in root user user2; do 
-      
+
         case $userentry in
           root) GRP=root
                 DIRDIR=home ;;
