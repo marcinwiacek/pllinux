@@ -1,11 +1,12 @@
+**Project**
+
 **Description**
 Compiler for converting description of an XKB keymap for example into xkm file.
 
-**PATH**
-bin
-
 **License**
 
+**PATH**
+bin
 
 **Man**
 share/man/man1

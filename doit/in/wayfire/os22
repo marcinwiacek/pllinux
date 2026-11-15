@@ -2,5 +2,4 @@
 /app/seatd/current/bin/seatd &
 #mkdir /tmp/xx
 #chmod 0700 /tmp/xx
-XDG_RUNTIME_DIR=/run strace /app/wayfire/current/bin/wayfire 2> /home/log22 >/home/log11
-
+XDG_RUNTIME_DIR=/run strace /app/wayfire/current/bin/wayfire 2> /tmp/log22 >/tmp/log11
