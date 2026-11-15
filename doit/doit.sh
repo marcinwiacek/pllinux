@@ -742,6 +742,7 @@ if [ "$package" == "gpm" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mc" ]; then
   ver="4.8.33";
+#  ver="4.9.0";
   if should_make mc $ver; then
     install_host_deps "libglib2.0-dev libslang2-dev libgpm-dev"
     download_unpack_source https://ftp.osuosl.org/pub/midnightcommander/mc-$ver.tar.xz mc mc-$ver 1
@@ -1289,7 +1290,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
 #--enable-aix-soname doesn't work
 #    LDFLAGS=" -version-info 2:15:4 " 
     ./autogen.sh --prefix=/app/libxml2/current  --exec-prefix=/app/libxml2/current \
-        --libdir=/app/libxml2/current/lib --with-icu --with-history #--with-legacy #--enable-aix-soname=both
+        --libdir=/app/libxml2/current/lib #--with-icu --with-history --with-legacy #--enable-aix-soname=both
 #    no need for ./configure
 #    LDFLAGS=" -version-info 2:15:4 " && 
     make all -j$cpu_num
