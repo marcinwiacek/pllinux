@@ -7,9 +7,9 @@ fi
 
 #Midnight Commander
 if [ "$1" = "-P" ]  && [ "$2" = "cat" ] && [ "$3" != "" ]; then
-    echo "$(groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
+    groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
         -F /app/groff/current/share/groff/current/font \
-        "$3" )"
+        "$3"
     exit
 fi
 
