@@ -41,7 +41,7 @@ PARAMS="$PARAMS --dev-bind /dev /dev "
 #  esac
 #done
 PARAMS="$PARAMS --tmpfs tmp "
-PARAMS="$PARAMS --bind home/$USER home "
+PARAMS="$PARAMS --bind /etc/users/$USER home "
 PARAMS="$PARAMS --ro-bind /etc/localtime /etc/localtime "
 PARAMS="$PARAMS --ro-bind /etc/x11 /etc/x11 "
 PARAMS="$PARAMS --ro-bind /etc/glibc /etc/glibc "
@@ -181,7 +181,7 @@ do
   LAST=$PART;
 done
 PARAMS="$PARAMS --setenv HOME /home/app "
-if [ ! -d /home/$USER/app ]; then /app/busybox/current/bin/mkdir /home/$USER/app; fi
+if [ ! -d /etc/users/$USER/app ]; then /app/busybox/current/bin/mkdir /etc/users/$USER/app; fi
 PARAMS="$PARAMS -- $LAST"
 #echo "$PARAMS"
 cd /
