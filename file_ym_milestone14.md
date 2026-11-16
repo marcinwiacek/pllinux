@@ -78,10 +78,10 @@ Few more days (16 Nov) and situation looks the following:
 3. x11 + jwm - OK
 4. wayfire works with non-root only (I end just with black screen without mouse cursor)
 5. woodland is trying to do something with Intel graphic driver (doesn't start)
-6. labwc + sfwbar works, but is very laggy (I had to disable hardware cursor acceleration too)
+6. labwc + sfwbar works, but is very laggy (I had to disable hardware cursor acceleration) and has got authorization problem for xwayland in non-root account
 7. hyprland and fwm don't compile
 
-Is this better technology in Wayland case? (you could say, that problem is in PLLinux, but... many people are reporting some Wayland related issues) Or is Wayland pushed so hard because of MIT license?
+Is Wayland really better? (you could say, that problem is in PLLinux, but... many people are reporting some related issues) Or is Wayland pushed so hard just because of MIT license?
 
 # Improving old ideas
 
