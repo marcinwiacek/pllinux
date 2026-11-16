@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="wlroots"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="fwm"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -4046,15 +4046,19 @@ if [ "$package" == "fs" ] || [ "$package" == "graphviz" ]; then
     set_current_app_clean_strip_cd graphviz $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "xkbcommon" ]; then
-  ver="1.13.2";
-  if should_make xkbcommon $ver; then
-    download_unpack_source https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.2.tar.gz xkbcommon libxkbcommon-xkbcommon-$ver 1
-    meson setup -Dprefix=/app/xkbcommon/current --buildtype release _build -Denable-x11=false -Denable-bash-completion=false
-    meson compile -C _build
-    create_app_in_tmp_and_link_it xkbcommon $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd xkbcommon $prefix$ver 1
+if [ "$package" == "fs" ] || [ "$package" == "pipewire" ]; then
+  ver="1.6.11";
+  if should_make pipewire $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/1.6.11/pipewire-1.6.11.tar.bz2  pipewire  pipewire-$ver 1
+    meson setup -Dprefix=/app/pipewire/current --buildtype release -Dtests=disabled -Dlibdir=lib build \
+      -Dudevrulesdir=/app/pipewire/current/udev
+#    ./autogen.sh  --prefix=/app/pipewire/current 
+#    make -j$cpu_num
+#    make install
+    ninja -C build
+    create_app_in_tmp_and_link_it pipewire $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd pipewire $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
@@ -4071,8 +4075,8 @@ if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
   fi
 fi
 # ------------------------------------ Wayland composers - main apps -------------------------
-#libgdk-pixbuf-2.0
 if [ "$package" == "fs" ] || [ "$package" == "woodland" ]; then
+#libgdk-pixbuf-2.0
 #libstb-dev
 #libwlroots-0.18-dev
   ver="2.1.1";
@@ -4088,20 +4092,20 @@ if [ "$package" == "fs" ] || [ "$package" == "woodland" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fwm" ]; then
   ver="0.6.0";
+  ver="0.5.0";
   if should_make fwm $ver; then
 #libavcodec-dev libavformat-dev libavutil-dev libswresample-dev
 #libswscale-dev
 #libbox2d-dev
-    download_unpack_source https://github.com/iluaii/fwm/archive/refs/tags/v0.6.0.tar.gz  fwm fwm-$ver 1
+    download_unpack_source https://github.com/iluaii/fwm/archive/refs/tags/v$ver.tar.gz  fwm fwm-$ver 1
     cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/fwm/current \
-        -D CMAKE_PREFIX_PATH="/app/xwayland/current:/app/wlroots/current"      -S . -B ./build 
+        -D CMAKE_PREFIX_PATH="/app/pipewire/current;/app/libdrm/current;/app/libxkbcommon/current;/app/wayland/current;/app/xwayland/current;/app/wlroots/current"      -S . -B ./build 
     cmake --build ./build --config Release --target all -j$cpu_num
     create_app_in_tmp_and_link_it fwm $prefix$ver
     cmake --install build
     set_current_app_clean_strip_cd fwm $prefix$ver 1
   fi
 fi
-#crash + libxml2 no version available
 if [ "$package" == "fs" ] || [ "$package" == "wayfire" ]; then
 #libglm-dev
 #libyyjson-dev
