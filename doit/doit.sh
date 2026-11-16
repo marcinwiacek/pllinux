@@ -3233,6 +3233,20 @@ if [ "$package" == "fs" ] || [ "$package" == "gtk-layer-shell" ]; then
     set_current_app_clean_strip_cd gtk-layer-shell $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "librsvg" ]; then
+#cargo-c
+#  ver="2.63.4";
+#  ver="2.63.0";
+ver="2.60.2";
+  if should_make librsvg $ver; then
+    download_unpack_source https://github.com/GNOME/librsvg/archive/refs/tags/$ver.tar.gz librsvg librsvg-$ver 1
+    meson setup -Dprefix=/app/librsvg/current --buildtype release -Dlibdir=lib -Ddocs=disabled -Dpixbuf=disabled -Dpixbuf-loader=disabled -Dtests=false build
+    ninja -C build
+    create_app_in_tmp_and_link_it librsvg $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd librsvg $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "atk" ]; then
   ver="2.38.0";
   if should_make atk $ver; then
@@ -3266,6 +3280,7 @@ if [ "$package" == "fs" ] || [ "$package" == "dav1d" ]; then
     set_current_app_clean_strip_cd dav1d $prefix$ver 1
   fi
 fi
+#not used, probably not usefull outside NVidia
 if [ "$package" == "fs" ] || [ "$package" == "egl-wayland" ]; then
 #eglexternalplatform-dev
   ver="1.1.24";
@@ -3278,6 +3293,73 @@ if [ "$package" == "fs" ] || [ "$package" == "egl-wayland" ]; then
     set_current_app_clean_strip_cd egl-wayland $prefix$ver 1
   fi
 fi
+#for compilation only?
+if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
+  ver="1.49";
+  if should_make wayland-protocols $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.49/downloads/wayland-protocols-1.49.tar.xz wayland-protocols wayland-protocols-$ver 1
+    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
+    meson compile -C _build
+    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "dbus" ]; then
+  ver="1.16.2";
+  if should_make dbus $ver; then
+    download_unpack_source https://dbus.freedesktop.org/releases/dbus/dbus-1.16.2.tar.xz dbus dbus-$ver 1
+    meson setup -Dprefix=/app/dbus/current --buildtype release -Dsystemd=disabled -Dsystemd_system_unitdir=/app/dbus/current/systemd/system \
+       -Dsystemd_user_unitdir=/app/dbus/current/systemd/user -Dlibdir=lib build
+    ninja -C build
+    create_app_in_tmp_and_link_it dbus $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd dbus $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "gdk-pixbuf" ]; then
+  ver="2.44.8";
+  if should_make gdk-pixbuf $ver; then
+    download_unpack_source https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/archive/2.44.8/gdk-pixbuf-2.44.8.tar.bz2 gdk-pixbuf gdk-pixbuf-$ver 1
+    PKG_CONFIG_PATH=/app/glycin/current/lib/pkgconfig    meson setup -Dprefix=/app/gdk-pixbuf/current -Dlibdir=lib builddir -Dtests=false
+    ninja -C builddir
+    create_app_in_tmp_and_link_it gdk-pixbuf $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd gdk-pixbuf $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "glycin" ]; then
+#libheif-dev
+#libjxl-dev
+  ver="2.2.5";
+#  ver="2.2.0";
+  if should_make glycin $ver; then
+    download_unpack_source https://gitlab.gnome.org/GNOME/glycin/-/archive/$ver/glycin-$ver.tar.bz2 glycin glycin-$ver 1
+#sed -e "s/get_option('libglycin-gtk4')/(& or get_option('glycin-thumbnailer'))/" -i meson.build
+    create_app_in_tmp_and_link_it glycin $prefix$ver
+    mkdir builddir
+    cd builddir
+    PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig      meson setup -Dprefix=/app/glycin/current -Dlibdir=lib \
+       -Dbuildtype=release -Dlibglycin-gtk4=false -Dtests=false \
+       -Dglycin-thumbnailer=false  -Dintrospection=false       ..
+    ninja -v
+    ninja -C . install
+    set_current_app_clean_strip_cd glycin $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "gobject-introspection" ]; then
+#rnc2rng*
+  ver="1.86.0";
+  if should_make gobject-introspection $ver; then
+    download_unpack_source https://gitlab.gnome.org/GNOME/gobject-introspection/-/archive/1.86.0/gobject-introspection-1.86.0.tar.bz2 gobject-introspection gobject-introspection-$ver 1
+    meson setup -Dprefix=/app/gobject-introspection/current -Dlibdir=lib -Dtests=false builddir
+    ninja -C builddir
+    create_app_in_tmp_and_link_it gobject-introspection $prefix$ver
+    ninja -C builddir install
+    set_current_app_clean_strip_cd gobject-introspection $prefix$ver 1
+  fi
+fi
+#not used
 if [ "$package" == "fs" ] || [ "$package" == "apple_cursor" ]; then
   ver="2.0.1";
   if should_make apple_cursor $ver; then
@@ -3953,48 +4035,6 @@ if [ "$package" == "fs" ] || [ "$package" == "hyprgraphics" ]; then
   fi
 fi
 # ----------------------------------- other Wayland libs ----------------------------
-if [ "$package" == "fs" ] || [ "$package" == "gdk-pixbuf" ]; then
-  ver="2.44.8";
-  if should_make gdk-pixbuf $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/archive/2.44.8/gdk-pixbuf-2.44.8.tar.bz2 gdk-pixbuf gdk-pixbuf-$ver 1
-    PKG_CONFIG_PATH=/app/glycin/current/lib/pkgconfig    meson setup -Dprefix=/app/gdk-pixbuf/current -Dlibdir=lib builddir -Dtests=false
-    ninja -C builddir
-    create_app_in_tmp_and_link_it gdk-pixbuf $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd gdk-pixbuf $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "glycin" ]; then
-#libheif-dev
-#libjxl-dev
-  ver="2.2.5";
-#  ver="2.2.0";
-  if should_make glycin $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/glycin/-/archive/$ver/glycin-$ver.tar.bz2 glycin glycin-$ver 1
-#sed -e "s/get_option('libglycin-gtk4')/(& or get_option('glycin-thumbnailer'))/" -i meson.build
-    create_app_in_tmp_and_link_it glycin $prefix$ver
-    mkdir builddir
-    cd builddir
-    PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig      meson setup -Dprefix=/app/glycin/current -Dlibdir=lib \
-       -Dbuildtype=release -Dlibglycin-gtk4=false -Dtests=false \
-       -Dglycin-thumbnailer=false  -Dintrospection=false       ..
-    ninja -v
-    ninja -C . install
-    set_current_app_clean_strip_cd glycin $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "gobject-introspection" ]; then
-#rnc2rng*
-  ver="1.86.0";
-  if should_make gobject-introspection $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/gobject-introspection/-/archive/1.86.0/gobject-introspection-1.86.0.tar.bz2 gobject-introspection gobject-introspection-$ver 1
-    meson setup -Dprefix=/app/gobject-introspection/current -Dlibdir=lib -Dtests=false builddir
-    ninja -C builddir
-    create_app_in_tmp_and_link_it gobject-introspection $prefix$ver
-    ninja -C builddir install
-    set_current_app_clean_strip_cd gobject-introspection $prefix$ver 1
-  fi
-fi
 if [ "$package" == "fs" ] || [ "$package" == "graphviz" ]; then
   ver="16.1.0";
   if should_make graphviz $ver; then
@@ -4004,44 +4044,6 @@ if [ "$package" == "fs" ] || [ "$package" == "graphviz" ]; then
     create_app_in_tmp_and_link_it graphviz $prefix$ver
     make install
     set_current_app_clean_strip_cd graphviz $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "librsvg" ]; then
-#cargo-c
-#  ver="2.63.4";
-#  ver="2.63.0";
-ver="2.60.2";
-  if should_make librsvg $ver; then
-    download_unpack_source https://github.com/GNOME/librsvg/archive/refs/tags/$ver.tar.gz librsvg librsvg-$ver 1
-    meson setup -Dprefix=/app/librsvg/current --buildtype release -Dlibdir=lib -Ddocs=disabled -Dpixbuf=disabled -Dpixbuf-loader=disabled -Dtests=false build
-    ninja -C build
-    create_app_in_tmp_and_link_it librsvg $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd librsvg $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
-  ver="0.13.0";
-  if should_make yyjson $ver; then
-    download_unpack_source https://github.com/ibireme/yyjson/archive/refs/tags/0.13.0.tar.gz yyjson yyjson-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/yyjson/current \
-      -DBUILD_SHARED_LIBS=true -S . -B ./build 
-    create_app_in_tmp_and_link_it yyjson $prefix$ver
-    cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it yyjson $prefix$ver
-    cmake --install build
-    set_current_app_clean_strip_cd yyjson $prefix$ver 1
-  fi
-fi
-if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
-  ver="1.49";
-  if should_make wayland-protocols $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.49/downloads/wayland-protocols-1.49.tar.xz wayland-protocols wayland-protocols-$ver 1
-    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
-    meson compile -C _build
-    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
-    meson install -C _build
-    set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xkbcommon" ]; then
@@ -4055,16 +4057,17 @@ if [ "$package" == "fs" ] || [ "$package" == "xkbcommon" ]; then
     set_current_app_clean_strip_cd xkbcommon $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "dbus" ]; then
-  ver="1.16.2";
-  if should_make dbus $ver; then
-    download_unpack_source https://dbus.freedesktop.org/releases/dbus/dbus-1.16.2.tar.xz dbus dbus-$ver 1
-    meson setup -Dprefix=/app/dbus/current --buildtype release -Dsystemd=disabled -Dsystemd_system_unitdir=/app/dbus/current/systemd/system \
-       -Dsystemd_user_unitdir=/app/dbus/current/systemd/user -Dlibdir=lib build
-    ninja -C build
-    create_app_in_tmp_and_link_it dbus $prefix$ver
-    ninja -C build install
-    set_current_app_clean_strip_cd dbus $prefix$ver 1
+if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
+  ver="0.13.0";
+  if should_make yyjson $ver; then
+    download_unpack_source https://github.com/ibireme/yyjson/archive/refs/tags/0.13.0.tar.gz yyjson yyjson-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/yyjson/current \
+      -DBUILD_SHARED_LIBS=true -S . -B ./build 
+    create_app_in_tmp_and_link_it yyjson $prefix$ver
+    cmake --build ./build --config Release --target all -j$cpu_num
+    create_app_in_tmp_and_link_it yyjson $prefix$ver
+    cmake --install build
+    set_current_app_clean_strip_cd yyjson $prefix$ver 1
   fi
 fi
 # ------------------------------------ Wayland composers - main apps -------------------------
