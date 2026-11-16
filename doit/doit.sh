@@ -3515,11 +3515,14 @@ if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
   ver="2.3.3";
   if should_make slang $ver; then
     download_unpack_source https://www.jedsoft.org/releases/slang/slang-$ver.tar.bz2 slang slang-$ver 1
-    cd src/terminfo
+    #in theory slang has got wrong terminal description and it would be enough to import correct file from ncurses...
+    #cd src/terminfo
     #part of ncurses
-    infotocap /app/ncurses/current/share/terminfo/l/linux
-    cd ..
-    ./configure --prefix=/app/slang/current --with-terminfo=parsecaps #aix4 b&w #--with-readline=gnu
+    #infotocap /app/ncurses/current/share/terminfo/l/linux
+    #infocmp linux
+    #cd ..
+    #...but Ubuntu doesn't seem to do anything special, see logs inside https://launchpad.net/ubuntu/+source/slang2
+    ./configure --prefix=/app/slang/current #--with-terminfo= #aix4 b&w #--with-readline=gnu
     find * -name '*.c' -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
     make all -j$cpu_num #RPATH=
     create_app slang $prefix$ver
