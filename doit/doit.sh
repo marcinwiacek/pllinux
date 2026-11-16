@@ -3515,14 +3515,18 @@ if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
   ver="2.3.3";
   if should_make slang $ver; then
     download_unpack_source https://www.jedsoft.org/releases/slang/slang-$ver.tar.bz2 slang slang-$ver 1
-    ./configure --prefix=/app/slang/current #--with-readline=gnu
+    cd src/terminfo
+    #part of ncurses
+    infotocap /app/ncurses/current/share/terminfo/l/linux
+    cd ..
+    ./configure --prefix=/app/slang/current --with-terminfo=parsecaps #aix4 b&w #--with-readline=gnu
     find * -name '*.c' -type f -exec bash -c 'sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/g" {}' \;
     make all -j$cpu_num #RPATH=
     create_app slang $prefix$ver
     set_current_app slang $prefix$ver 1
     make install
     chmod a-x $output/app/slang/$prefix$ver/lib/slang/v2/modules/*.so
-    set_current_app_clean_strip_cd slang $prefix$ver 1
+#    set_current_app_clean_strip_cd slang $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "vala" ]; then

@@ -26,6 +26,7 @@ MCHOME=/home/app
 
 /app/bwrap/current/bin/bwrap \
     --setenv HOME $MCHOME \
+    --setenv PAGER "/app/less/current/bin/less" \
     --bind / / \
     --dev-bind /dev /dev \
     --proc proc \
