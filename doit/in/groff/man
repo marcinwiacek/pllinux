@@ -14,15 +14,12 @@ if [ "$1" = "-P" ]  && [ "$2" = "cat" ] && [ "$3" != "" ]; then
 fi
 
 FOUND_PATH=""
-APP_LIST=$(/app/busybox/current/bin/ls /app)
-for APP_NAME in $APP_LIST; do
+for APP_NAME in $(/app/busybox/current/bin/ls /app); do
   if [ -e "/app/${APP_NAME}/current/readme.md" ]; then
     sectionMan=0
     while read -r line; do
       if [ "$line" = "**Man**" ]; then
         sectionMan=1
-      elif [ "$line" = "" ]; then
-        sectionMan=0;
       elif [ "$sectionMan" = 1 ]; then
         IFS=":"
         for folder in $line; do
@@ -34,39 +31,38 @@ for APP_NAME in $APP_LIST; do
               fi
               FOUND_PATH="$FOUND_PATH$lsls"
             fi
-            for nr in 1 2 3 4 5 6 7 8 9; do
+            # we can probably assume, that last character in folder name is also number
+            nr=${folder: -1}
+#            for nr in 1 2 3 4 5 6 7 8 9; do
               if [ -e "/app/${APP_NAME}/current/$folder/$1.$nr" ]; then
                 # search for redirection in file. It's ".so filename" string in the first line
-                while read -r line2; do
-                  case $line2 in
+                read -r line2 < "/app/${APP_NAME}/current/$folder/$1.$nr"
+                case $line2 in
                   *.so\ man*)
                     IFS=" " read -r HEAD FILENAME << EOF
 $line2
 EOF
                     if [ -e "/app/${APP_NAME}/current/$folder/../$FILENAME" ]; then
-                      OUT=$(groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
+                      groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
                         -F /app/groff/current/share/groff/current/font \
-                        "/app/${APP_NAME}/current/$folder/../$FILENAME")
-                      echo "$OUT" 2> /dev/null | less -R -M -s
+                        "/app/${APP_NAME}/current/$folder/../$FILENAME" 2> /dev/null | less -R -M -s
                       exit
                     fi
-                  esac
-                done < "/app/${APP_NAME}/current/$folder/$1.$nr"
-                OUT=$(groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
+                esac
+                groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
                    -F /app/groff/current/share/groff/current/font \
-                   "/app/${APP_NAME}/current/$folder/$1.$nr")
-                echo "$OUT" 2> /dev/null | less -R -M -s
+                   "/app/${APP_NAME}/current/$folder/$1.$nr" 2> /dev/null | less -R -M -s
                 exit
               elif [ -e "/app/${APP_NAME}/current/$folder/$1.$nr.gz" ]; then
-                OUT=$(gunzip -c "/app/${APP_NAME}/current/$folder/$1.$nr.gz" | \
-                groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
-                   -F /app/groff/current/share/groff/current/font)
-                echo "$OUT" 2> /dev/null | less -R -M -s
+                gunzip -c "/app/${APP_NAME}/current/$folder/$1.$nr.gz" | \
+                  groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
+                    -F /app/groff/current/share/groff/current/font 2> /dev/null | less -R -M -s
                 exit
               fi
-            done
+#            done
           fi
         done
+        break
       fi
     done < /app/${APP_NAME}/current/readme.md
   fi

@@ -21,6 +21,5 @@ bwrap current
 gcclib current
 glib current
 glibc current
-ncurses current
 pcre2 current
 slang current
