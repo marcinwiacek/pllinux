@@ -12,6 +12,3 @@ share/man/man1
 
 **PATH**
 bin
-
-**Last**
-20260909

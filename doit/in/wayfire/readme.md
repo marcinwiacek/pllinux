@@ -61,6 +61,3 @@ brotli current
 util-linux current
 libselinux current
 libdatrie current
-
-**Last**
-20260727

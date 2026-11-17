@@ -1,3 +1,6 @@
+**PATH**
+bin
+
 **Deps**
 libxaw current
 libxt current
@@ -11,6 +14,3 @@ libxcb current
 util-linux current
 libxau current
 libxdmcp current
-
-**PATH**
-bin

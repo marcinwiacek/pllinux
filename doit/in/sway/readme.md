@@ -57,6 +57,3 @@ libxshmfence current
 libedit current
 libxml2 current
 ncurses current
-
-**Last**
-20260525
