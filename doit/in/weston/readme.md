@@ -1,8 +1,11 @@
 **Project**
+https://gitlab.freedesktop.org/wayland/weston
 
 **Description**
+Wayland compositor
 
 **License**
+MIT
 
 **PATH**
 bin
@@ -61,6 +64,3 @@ ncurses current
 libglvnd current
 libxcursor current
 libxfixes current
-
-**Last**
-20261102
