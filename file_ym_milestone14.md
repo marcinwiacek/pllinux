@@ -83,6 +83,15 @@ Few more days (16 Nov) and situation looks the following:
 
 Is Wayland really better? (you could say, that problem is in PLLinux, but... many people are reporting some related issues) Or is Wayland pushed so hard just because of MIT license?
 
+For short time I was thinking, that first "big" versions shouldn't have Wayland, but... in the end I found Weston.
+
+![Alt text](2026/nov_weston.png)
+
+Totally different league. (almost) everything is working very smoothly and unproblematic (you have animations, no problems with cursor, etc.)
+and I could say - other compositors based on wlroots
+looks like amateur work and Weston was written by big boys and real engineers. The only one problem connected with this software is, that it doesn't
+have taskbar and processes list. This leads to natural question - could be they added?
+
 # Improving old ideas
 
 Do you remember how complicated was versioning thing? It was discussed in [Milestone 4](file_yv_milestone4.md) and after using PLLinux for some time
