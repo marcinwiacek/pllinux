@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="slang"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="weston"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2686,6 +2686,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-u
     set_current_app_clean_strip_cd xcb-util-errors $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-cursor" ]; then
+  ver="0.1.6";
+  if should_make xcb-util-cursor $ver; then
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/xcb/xcb-util-cursor-$ver.tar.xz xcb-util-cursor xcb-util-cursor-$ver 1
+    ./configure --prefix=/app/xcb-util-cursor/current
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it xcb-util-cursor $prefix$ver
+    make install
+    set_current_app_clean_strip_cd xcb-util-cursor $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-wm" ]; then
   ver="0.4.2";
   if should_make xcb-util-wm $ver; then
@@ -3409,6 +3420,34 @@ if [ "$package" == "fs" ] || [ "$package" == "waybar" ]; then
     set_current_app_clean_strip_cd waybar $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "weston" ]; then
+#  ver="15.0.2";
+  ver="16.0.2";
+  if should_make weston $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/wayland/weston/-/archive/$ver/weston-$ver.tar.bz2  weston weston-$ver 1
+    PKG_CONFIG_PATH=/app/wayland-protocols/current/share/pkgconfig:/app/lua/current/lib/pkgconfig:/app/xcb-util-cursor/current/lib/pkgconfig \
+       meson setup -Dprefix=/app/weston/current --buildtype release \
+            -Dlibdir=lib build -Dbackend-pipewire=false -Dbackend-rdp=false -Dbackend-vnc=false
+#-Dremoting=false -Dpipewire=false 
+    ninja -C build
+    create_app_in_tmp_and_link_it weston $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd weston $prefix$ver 1
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "wayward" ]; then
+  ver="1.6.0";
+  if should_make wayward $ver; then
+    download_unpack_source https://github.com/varmd/wayward/archive/refs/tags/v1.6.0.tar.gz  wayward wayward-$ver 1
+#    PKG_CONFIG_PATH=/app/wayland-protocols/current/share/pkgconfig:/app/lua/current/lib/pkgconfig:/app/xcb-util-cursor/current/lib/pkgconfig \
+       meson setup -Dprefix=/app/wayward/current --buildtype release \
+            -Dlibdir=lib build
+    ninja -C build
+    create_app_in_tmp_and_link_it wayward $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd wayward $prefix$ver 1
+  fi
+fi
 #---------------------------------- graphic stuff ---------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "crispy-doom" ]; then
   ver="7.2";
@@ -3633,13 +3672,17 @@ if [ "$package" == "fs" ] || [ "$package" == "lua" ]; then
     make linux
     create_app lua $prefix$ver
     make install INSTALL_TOP=/app/lua/$prefix$ver
+    mkdir /app/lua/current/lib/pkgconfig
+    cp $curdir/in/lua/lua54.pc /app/lua/current/lib/pkgconfig
+    cp $curdir/in/lua/lua54.pc /app/lua/current/lib/pkgconfig/lua.pc
+    set_current_app_clean_strip_cd lua $prefix$ver 1
+    mkdir /tmp/doit
+    cd /tmp/doit
     download_unpack_source https://sourceforge.net/projects/luabinaries/files/$ver/Docs%20and%20Sources/lua-${ver}_Sources.tar.gz/download lua$ver lua54 1
     cd src
     make -f Makefile.tecmake
     cp ../lib/Linux612_64/*.so /app/lua/$prefix$ver/lib
-    mkdir /app/lua/current/lib/pkgconfig
-    cp $curdir/in/lua/lua54.pc /app/lua/current/lib/pkgconfig
-    set_current_app_clean_strip_cd lua $prefix$ver 1
+    cp ../lib/Linux612_64/*.a /app/lua/$prefix$ver/lib
   fi
 fi
 # ---------------------------- compiling and dev tools -------------------------------
@@ -4082,6 +4125,20 @@ if [ "$package" == "fs" ] || [ "$package" == "yyjson" ]; then
   fi
 fi
 # ------------------------------------ Wayland composers - main apps -------------------------
+if [ "$package" == "fs" ] || [ "$package" == "sway" ]; then
+  ver="1.12";
+  if should_make sway $ver; then
+    download_unpack_source https://github.com/swaywm/sway/archive/refs/tags/1.12.tar.gz  sway sway-$ver 1
+    PKG_CONFIG_PATH=/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig \
+       meson setup -Dprefix=/app/sway/current --buildtype release \
+             -Dsd-bus-provider=libelogind \
+            -Dlibdir=lib build
+    ninja -C build
+    create_app_in_tmp_and_link_it sway $prefix$ver
+    ninja -C build install
+    set_current_app_clean_strip_cd sway $prefix$ver 1
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "woodland" ]; then
 #libgdk-pixbuf-2.0
 #libstb-dev
