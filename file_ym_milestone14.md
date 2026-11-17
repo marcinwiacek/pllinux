@@ -1,4 +1,4 @@
-[Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
+[Prev page](file_yn_milestone12.md) [Next page](file_yl_milestone15.md)
 
 # Milestone 14
 
@@ -149,4 +149,4 @@ Let's take everything using glibc or xwayland. Maybe time to move forward and fo
 For now optimal solution is replacing /bin/sh in some code into /app/busybox/current/bin/sh (it's not bid problem) and make the same for scripts
 (replacement is done by kernel itself) and when user want symlink, it can create it, but it shouldn't be necessary.
 
-[Prev page](file_yn_milestone12.md) [Next page](file_zz_milestone.md)
+[Prev page](file_yn_milestone12.md) [Next page](file_yl_milestone15.md)
