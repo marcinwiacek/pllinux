@@ -5,7 +5,7 @@ if [ "$1" = "" ]; then
   exit
 fi
 
-#Midnight Commander
+# Midnight Commander
 if [ "$1" = "-P" ]  && [ "$2" = "cat" ] && [ "$3" != "" ]; then
     groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
         -F /app/groff/current/share/groff/current/font \
@@ -13,6 +13,7 @@ if [ "$1" = "-P" ]  && [ "$2" = "cat" ] && [ "$3" != "" ]; then
     exit
 fi
 
+# We don't use MANPATH environment variable
 FOUND_PATH=""
 for APP_NAME in $(/app/busybox/current/bin/ls /app); do
   if [ -e "/app/${APP_NAME}/current/readme.md" ]; then
@@ -43,19 +44,19 @@ for APP_NAME in $(/app/busybox/current/bin/ls /app); do
 $line2
 EOF
                     if [ -e "/app/${APP_NAME}/current/$folder/../$FILENAME" ]; then
-                      groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
+                      groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
                         -F /app/groff/current/share/groff/current/font \
                         "/app/${APP_NAME}/current/$folder/../$FILENAME" 2> /dev/null | less -R -M -s
                       exit
                     fi
                 esac
-                groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
+                groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
                    -F /app/groff/current/share/groff/current/font \
                    "/app/${APP_NAME}/current/$folder/$1.$nr" 2> /dev/null | less -R -M -s
                 exit
               elif [ -e "/app/${APP_NAME}/current/$folder/$1.$nr.gz" ]; then
                 gunzip -c "/app/${APP_NAME}/current/$folder/$1.$nr.gz" | \
-                  groff -man -Tascii -E -M /app/groff/current/share/groff/current/tmac \
+                  groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
                     -F /app/groff/current/share/groff/current/font 2> /dev/null | less -R -M -s
                 exit
               fi

@@ -8,7 +8,7 @@ Tool for controlling creating executables and other files from the program's sou
 GPL3+
 
 **Man**
-man/man1
+share/man/man1
 
 **PATH**
 bin
