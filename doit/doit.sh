@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="cmake"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="qt-everywhere"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2895,6 +2895,20 @@ if [ "$package" == "fs" ] || [ "$package" == "icewm" ]; then
     set_current_app_clean_strip_cd icewm $prefix$ver 1
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "qt-everywhere" ]; then
+  ver="6.12.0";
+  if should_make qt-everywhere $ver; then
+    download_unpack_source https://download.qt.io/official_releases/qt/6.12/6.12.0/single/qt-everywhere-src-6.12.0.tar.xz qt-everywhere qt-everywhere-src-$ver 1
+    ./configure -prefix /app/qt-everywhere/current
+    cmake --build . --parallel
+#    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+#    cmake --build build
+#    create_app_in_tmp_and_link_it lxqt-build-tools $prefix$ver
+#    cmake --install build --prefix /app/lxqt-build-tools/current
+#    set_current_app_clean_strip_cd lxqt-build-tools $prefix$ver 1
+  fi
+fi
+
 if [ "$package" == "fs" ] || [ "$package" == "lxqt-build-tools" ]; then
   ver="2.5.0";
   if should_make lxqt-build-tools $ver; then
@@ -2910,9 +2924,9 @@ if [ "$package" == "fs" ] || [ "$package" == "liblxqt" ]; then
   ver="2.5.0";
   if should_make liblxqt $ver; then
     download_unpack_source https://github.com/lxqt/liblxqt/archive/refs/tags/2.5.0.tar.gz liblxqt liblxqt-$ver 1
-    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-    cmake --build build
-    create_app_in_tmp_and_link_it liblxqt $prefix$ver
+#    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+#    cmake --build build
+#    create_app_in_tmp_and_link_it liblxqt $prefix$ver
 #    cmake --install build --prefix /app/liblxqt/current
 #    set_current_app_clean_strip_cd liblxqt $prefix$ver 1
   fi
