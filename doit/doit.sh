@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="vala-dev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="slang-dev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1859,12 +1859,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "unbound" ]; then
   ver="1.26.2";
   if should_make unbound $ver; then
-    download_unpack_source https://github.com/NLnetLabs/unbound/archive/refs/tags/release-1.26.2.tar.gz unbound unbound-release-$ver 1
-    ./configure --prefix=/app/unbound/current
+    download_unpack_source https://github.com/NLnetLabs/unbound/archive/refs/tags/release-$ver.tar.gz unbound unbound-release-$ver 1
+    ./configure --prefix=/app/unbound/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it unbound $prefix$ver
+    create_app_in_tmp_and_link_it2 unbound $prefix$ver
     make install
-    set_current_app_clean_strip_cd unbound $prefix$ver 1
+    set_current_app_clean_strip_cd2 unbound $prefix$ver 1
+    create_dev_package2 unbound $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "nettle" ]; then
@@ -3872,13 +3873,13 @@ if [ "$package" == "fs" ] || [ "$package" == "git" ]; then
     remove_duplicates_cd $output/app/git/$prefix$ver/libexec/git-core
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "tecmake" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "tecmake-dev" ]; then
   ver="4.20";
-  if should_make tecmake $ver; then
+  if should_make tecmake-dev $ver; then
     download_unpack_source https://www.tecgraf.puc-rio.br/tecmake/download/tecmake.tar.gz tecmake . 1
-    create_app tecmake $prefix$ver
+    create_app tecmake-dev $prefix$ver
     cp * /app/tecmake/$prefix$ver
-    set_current_app_clean_strip_cd tecmake $prefix$ver 1
+    set_current_app_clean_strip_cd tecmake-dev $prefix$ver 1
   fi
 fi
 # ---------------------------- experiments -----------------------------
