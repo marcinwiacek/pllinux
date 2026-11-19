@@ -2924,7 +2924,8 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
        meson setup -Dprefix=/app/xlibre-xserver/$prefix$ver \
        -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
        -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir \
-       -Dmodule_dir=/app/xlibre-xserver/current/lib/xorg/modules
+       -Dmodule_dir=/app/xlibre-xserver/current/lib/xorg/modules \
+       -Dsysconfdir=/app/xlibre-xserver/current/etc
     sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/" os/utils.c
     ninja -C builddir
     create_app_in_tmp_and_link_it2 xlibre-xserver $prefix$ver
