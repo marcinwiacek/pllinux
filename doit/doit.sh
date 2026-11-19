@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="xlibre-xf86-input-evdev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="wget"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1658,6 +1658,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zstd"
     meson install -C _build
     set_current_app_clean_strip_cd2 zstd $prefix$ver 1
     create_dev_package2 zstd $prefix$ver include lib/pkgconfig
+    sed -i "s|\${prefix}/include|/app/zstd-dev/$prefix$ver/include|" /app/zstd-dev/$prefix$ver/lib/pkgconfig/libzstd.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zlib" ]; then
@@ -1677,6 +1678,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zlib"
     set_current_app_clean_strip_cd2 zlib $prefix$ver 1
     create_dev_package2 zlib $prefix$ver include man lib/pkgconfig
     cp /app/zlib/$prefix$ver/LICENSE /app/zlib-dev/$prefix$ver/LICENSE
+    sed -i "s|/app/zlib/$prefix$ver/include|/app/zlib-dev/$prefix$ver/include|" /app/zlib-dev/$prefix$ver/lib/pkgconfig/zlib.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzutils" ]; then
@@ -1695,6 +1697,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzuti
     create_dev_package2 xzutils $prefix$ver include lib/pkgconfig share/doc/xz/examples
     mv /app/xzutils/$prefix$ver/share/doc/xz/*format.txt /app/xzutils-dev/$prefix$ver/share/doc/xz
     cp /app/xzutils/$prefix$ver/COPYING* /app/xzutils-dev/$prefix$ver
+    sed -i "s|/app/xzutils/$prefix$ver/include|/app/xzutils-dev/$prefix$ver/include|" /app/xzutils-dev/$prefix$ver/lib/pkgconfig/liblzma.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
@@ -2766,24 +2769,31 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-errors" ]; then
   ver="1.0.1";
   if should_make xcb-util-errors $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/xcb/xcb-util-errors-1.0.1.tar.xz xcb-util-errors xcb-util-errors-$ver 1
-    ./configure --prefix=/app/xcb-util-errors/current
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/xcb/xcb-util-errors-$ver.tar.xz xcb-util-errors xcb-util-errors-$ver 1
+    ./configure --prefix=/app/xcb-util-errors/$prefix$ver
     make all -j$cpu_num
-    create_app xcb-util-errors $prefix$ver
-    set_current_app xcb-util-errors $prefix$ver 1
+    create_app_in_tmp_and_link_it2 xcb-util-errors $prefix$ver
     make install
-    set_current_app_clean_strip_cd xcb-util-errors $prefix$ver 1
+    rm /app/xcb-util-errors/$prefix$ver/lib/*.a
+    rm /app/xcb-util-errors/$prefix$ver/lib/*.la
+    set_current_app_clean_strip_cd2 xcb-util-errors $prefix$ver 1
+    create_dev_package2 xcb-util-errors $prefix$ver include lib/pkgconfig
+    sed -i "s|\${prefix}/include|/app/xcb-util-errors-dev/$prefix$ver/include|" /app/xcb-util-errors-dev/$prefix$ver/lib/pkgconfig/xcb-errors.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-cursor" ]; then
   ver="0.1.6";
   if should_make xcb-util-cursor $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/xcb/xcb-util-cursor-$ver.tar.xz xcb-util-cursor xcb-util-cursor-$ver 1
-    ./configure --prefix=/app/xcb-util-cursor/current
+    ./configure --prefix=/app/xcb-util-cursor/$prefix$ver
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it xcb-util-cursor $prefix$ver
+    create_app_in_tmp_and_link_it2 xcb-util-cursor $prefix$ver
     make install
-    set_current_app_clean_strip_cd xcb-util-cursor $prefix$ver 1
+    rm /app/xcb-util-cursor/$prefix$ver/lib/*.a
+    rm /app/xcb-util-cursor/$prefix$ver/lib/*.la
+    set_current_app_clean_strip_cd2 xcb-util-cursor $prefix$ver 1
+    create_dev_package2 xcb-util-cursor $prefix$ver include lib/pkgconfig
+    sed -i "s|\${prefix}/include|/app/xcb-util-cursor-dev/$prefix$ver/include|" /app/xcb-util-cursor-dev/$prefix$ver/lib/pkgconfig/xcb-cursor.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-wm" ]; then
@@ -2798,6 +2808,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-u
     rm /app/xcb-util-wm/$prefix$ver/lib/*.la
     set_current_app_clean_strip_cd2 xcb-util-wm $prefix$ver 1
     create_dev_package2 xcb-util-wm $prefix$ver include lib/pkgconfig
+    sed -i "s|\${prefix}/include|/app/xcb-util-wm-dev/$prefix$ver/include|" /app/xcb-util-wm-dev/$prefix$ver/lib/pkgconfig/xcb-ewmh.pc
+    sed -i "s|\${prefix}/include|/app/xcb-util-wm-dev/$prefix$ver/include|" /app/xcb-util-wm-dev/$prefix$ver/lib/pkgconfig/xcb-icccm.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xauth" ]; then
@@ -2883,12 +2895,12 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xf86-input-evdev" ]; then
     ./autogen.sh
     PKG_CONFIG_PATH=/app/xlibre-xserver-dev/current/lib/pkgconfig \
        ./configure --prefix=/app/xlibre-xf86-input-evdev/$prefix$ver \
-          --with-xorg-module-dir=/app/xlibre-xf86-input-evdev/current/lib/xorg/modules
+       --with-xorg-module-dir=/app/xlibre-xf86-input-evdev/$prefix$ver/lib/xorg/modules
     make -j$cpu_num
     create_app_in_tmp_and_link_it2 xlibre-xf86-input-evdev $prefix$ver
     make install
-    chmod a-x /app/xlibre-xf86-input-evdev/$prefix$ver/lib/xorg/modules/input/*.so
-    rm /app/xlibre-xf86-input-evdev/$prefix$ver/lib/xorg/modules/input/*.a
+    chmod a-x /app/xlibre-xf86-input-evdev/$prefix$ver/lib/xorg/modules/input/*
+    rm /app/xlibre-xf86-input-evdev/$prefix$ver/lib/xorg/modules/input/*.la
     set_current_app_clean_strip_cd2 xlibre-xf86-input-evdev $prefix$ver 1
   fi
 fi
@@ -2922,6 +2934,8 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
     ln -s /etc/x11/modules xlibre-25
     set_current_app_clean_strip_cd2 xlibre-xserver $prefix$ver 1
     create_dev_package2 xlibre-xserver $prefix$ver include lib/pkgconfig share/aclocal share/doc
+    sed -i "s|\${prefix}/include|/app/xlibre-xserver-dev/$prefix$ver/include|" /app/xlibre-xserver-dev/$prefix$ver/lib/pkgconfig/xlibre-server.pc
+    sed -i "s|\${prefix}/include|/app/xlibre-xserver-dev/$prefix$ver/include|" /app/xlibre-xserver-dev/$prefix$ver/lib/pkgconfig/xorg-server.pc
   fi
 fi
 #----------------------------------- x11 apps -------------------------------------------
