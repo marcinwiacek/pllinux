@@ -264,7 +264,7 @@ set_current_app_clean_strip_cd2() {
     esac
   fi
 
-  if [ -f "$curdir/in/$packagename/readme.md" ]; then 
+  if [ -f "$curdir/in/$packagename/readme.md" ]; then
     cp $curdir/in/$packagename/readme.md $pathtoapp
     echo "" >> $pathtoapp/readme.md
   else
@@ -315,6 +315,7 @@ echo $DIR1 $DIR2 $DIR3
       fi
     done
     set_current_app_clean_strip_cd2 ${packagename2}-dev $version2 1
+        cp /app/$packagename2/$version2/readme.md /app/${packagename2}-dev/$version2/readme.md
 }
 
 #install host system dependiencies, when required
@@ -1655,12 +1656,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zstd"
     meson install -C _build
     set_current_app_clean_strip_cd2 zstd $prefix$ver 1
     create_dev_package2 zstd $prefix$ver include lib/pkgconfig
-
-#    create_app_in_tmp_and_link_it2 zstd-dev $prefix$ver
-#    mv /app/zstd/$prefix$ver/include /app/zstd-dev/$prefix$ver
-#    mkdir /app/zstd-dev/$prefix$ver/lib
-#    mv /app/zstd/$prefix$ver/lib/pkgconfig /app/zstd-dev/$prefix$ver/lib/pkgconfig
-#    set_current_app_clean_strip_cd2 zstd-dev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zlib" ]; then
