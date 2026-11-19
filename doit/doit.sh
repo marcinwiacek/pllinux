@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="xlibre-xserver"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xlibre-xf86-input-evdev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2881,13 +2881,15 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xf86-input-evdev" ]; then
     download_unpack_source https://github.com/X11Libre/xf86-input-evdev/archive/refs/tags/xlibre-xf86-input-evdev-$ver.tar.gz \
          xlibre-xf86-input-evdev xf86-input-evdev-xlibre-xf86-input-evdev-$ver 1
     ./autogen.sh
-    PKG_CONFIG_PATH=/app/xlibre-xserver/current/lib/pkgconfig    ./configure \
-       --prefix=/app/xlibre-xf86-input-evdev/current \
-       --with-xorg-module-dir=/app/xlibre-xf86-input-evdev/current/lib/xorg/modules
+    PKG_CONFIG_PATH=/app/xlibre-xserver-dev/current/lib/pkgconfig \
+       ./configure --prefix=/app/xlibre-xf86-input-evdev/$prefix$ver \
+          --with-xorg-module-dir=/app/xlibre-xf86-input-evdev/current/lib/xorg/modules
     make -j$cpu_num
-    create_app_in_tmp_and_link_it xlibre-xf86-input-evdev $prefix$ver
+    create_app_in_tmp_and_link_it2 xlibre-xf86-input-evdev $prefix$ver
     make install
-    set_current_app_clean_strip_cd xlibre-xf86-input-evdev $prefix$ver 1
+    chmod a-x /app/xlibre-xf86-input-evdev/$prefix$ver/lib/xorg/modules/input/*.so
+    rm /app/xlibre-xf86-input-evdev/$prefix$ver/lib/xorg/modules/input/*.a
+    set_current_app_clean_strip_cd2 xlibre-xf86-input-evdev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
