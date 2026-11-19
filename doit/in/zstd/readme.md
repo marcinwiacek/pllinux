@@ -5,7 +5,13 @@ https://github.com/facebook/zstd
 Fast lossless compression algorithm.
 
 **License**
-GPL2 or custom (see LICENSE file)
+GPL2 or BSD
+
+**PATH**
+bin
+
+**Man**
+share/man/man1
 
 **Deps**
 glibc current

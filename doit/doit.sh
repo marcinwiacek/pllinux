@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="qt-everywhere"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="zstd"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -61,7 +61,7 @@ download_unpack_source() {
     fi
   fi
 
-echo directory1 is $(pwd)
+  echo directory1 is $(pwd)
   if [ "$canbetmp" = "1" ]; then
     if [ ! -d "$out/$packagename/$unpackeddir" ]; then
       mkdir $out/$packagename || true
@@ -90,7 +90,8 @@ echo directory1 is $(pwd)
       cd out/$packagename/$unpackeddir
     fi
   fi
-echo directory2 is $(pwd)
+
+  echo directory2 is $(pwd)
   TODAY_DATE="$(date +%Y%m%d)"
   IFS=" "
   while read -r LATEST_FILE; do
@@ -216,6 +217,104 @@ set_current_app_clean_strip_cd() {
   fi
 
   cd $curdir
+}
+
+create_app_in_tmp_and_link_it2() {
+  packagename=$1
+  version=$2
+
+  rm -r -f /tmp/installit2 2> /dev/null
+  mkdir /tmp/installit2
+  rm -r -f $output/app/$packagename/$version 2> /dev/null
+  [ -d $output/app/$packagename ] || mkdir $output/app/$packagename
+  ln -s /tmp/installit2 $output/app/$packagename/$version
+}
+
+set_current_app_clean_strip_cd2() {
+  if [ $? != 0 ]; then
+    return
+  fi
+
+  packagename=$1
+  version=$2
+  stripapp=$3
+
+  if [ -d "/tmp/installit2" ]; then
+    pathtoapp="/tmp/installit2"
+  else
+    pathtoapp="$output/app/$packagename/$version"
+  fi
+
+  if [ -d "$pathtoapp/lib" ]; then
+    chmod a-x $pathtoapp/lib/*.so* 2> /dev/null
+    chmod a-x $pathtoapp/lib/*.la* 2> /dev/null
+    chmod a-x $pathtoapp/lib/*.a 2> /dev/null
+  fi
+
+  if [ "$stripapp" = "1" ]; then
+    #strip binaries and libraries (remove debug symbols). Exclude *.o, *.a or (for Grub) lib directory
+    case $packagename in
+    *grub*) find $pathtoapp* \
+        -not -name 'lib' \
+        -type d -exec bash -c 'cd "{}" && strip * 2> /dev/null ' \; ;;
+    *) find $pathtoapp* \
+        -not -name '*.o' \
+        -not -name '*.a' \
+        -type f -exec bash -c 'strip "{}" 2> /dev/null ' \; 
+    esac
+  fi
+
+  if [ -f "$curdir/in/$packagename/readme.md" ]; then 
+    cp $curdir/in/$packagename/readme.md $pathtoapp
+    echo "" >> $pathtoapp/readme.md
+  else
+    rm $pathtoapp/readme.md 2> /dev/null
+  fi
+  echo "**Last**" >> $pathtoapp/readme.md
+  echo "$LATEST_FILE_UPDATE" >> $pathtoapp/readme.md
+
+  if [ -d "/tmp/installit2" ]; then
+#    [ -d $output/app/$packagename ] || mkdir $output/app/$packagename
+#    if [ -d $output/app/$packagename/$version ]; then 
+    rm $output/app/$packagename/$version 2> /dev/null
+    mkdir $output/app/$packagename/$version || true
+  fi
+
+  #set "current" directory to the new installed app
+  cd $output/app/$packagename
+  if [ -d "current" ]; then rm -r current; fi
+  ln -s $version current
+
+  if [ -d "/tmp/installit2" ]; then
+    rsync -a /tmp/installit2/ $output/app/$packagename/$version
+    rm -r -f /tmp/installit2
+  fi
+
+  if [ "$use_tmpfs" = "1" ]; then
+    rm -r -f $out
+  fi
+
+  cd $curdir
+}
+
+create_dev_package2() {
+  packagename2=$1
+  version2=$2
+
+    create_app_in_tmp_and_link_it2 ${packagename2}-dev $version2
+    for par in $3 $4 $5 $6; do
+echo processing $par
+      if [ "$par" != "" ]; then
+        IFS="/" read -r DIR1 DIR2 DIR3 << EOF
+$par
+EOF
+echo $DIR1 $DIR2 $DIR3
+        if [ "$DIR2" != "" ]; then mkdir /app/${packagename2}-dev/$version2/$DIR1; fi
+        if [ "$DIR3" != "" ]; then mkdir /app/${packagename2}-dev/$version2/$DIR1/$DIR2; fi
+        mv /app/$packagename2/$version2/$par /app/${packagename2}-dev/$version2/$par
+      fi
+    done
+    set_current_app_clean_strip_cd2 ${packagename2}-dev $version2 1
 }
 
 #install host system dependiencies, when required
@@ -1550,22 +1649,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zstd"
   ver="1.5.7";
   if should_make zstd $ver; then
     download_unpack_source https://github.com/facebook/zstd/releases/download/v$ver/zstd-$ver.tar.gz zstd zstd-$ver 1
-    make all -j$cpu_num
-    create_app zstd $prefix$ver
-    cp LICENSE $output/app/zstd/$prefix$ver
-    rsync -a $curdir/in/zstd/ $output/app/zstd/$prefix$ver
-    mkdir $output/app/zstd/$prefix$ver/bin
-    for binrentry in zstd zstd-compress zstd-decompress zstd-small zstdgrep zstdsmall; do
-      cp programs/$binentry $output/app/zstd/$prefix$ver/bin
-    done
-    mkdir $output/app/zstd/$prefix$ver/lib
-    rsync -a lib/lib* $output/app/zstd/$prefix$ver/lib
-    cd $output/app/zstd/$prefix$ver/lib
-    rm libzstd.so
-    ln -s libzstd.so.$ver libzstd.so
-    rm libzstd.so.1
-    ln -s libzstd.so.$ver libzstd.so.1
-    set_current_app_clean_strip_cd zstd $prefix$ver 1
+    cd build/meson
+    meson setup -Dprefix=/app/zstd/$prefix$ver -Dlibdir=lib -Dbuildtype=release -Dstrip=true -Ddefault_library=shared _build
+    create_app_in_tmp_and_link_it2 zstd $prefix$ver
+    meson install -C _build
+    set_current_app_clean_strip_cd2 zstd $prefix$ver 1
+    create_dev_package2 zstd $prefix$ver include lib/pkgconfig
+
+#    create_app_in_tmp_and_link_it2 zstd-dev $prefix$ver
+#    mv /app/zstd/$prefix$ver/include /app/zstd-dev/$prefix$ver
+#    mkdir /app/zstd-dev/$prefix$ver/lib
+#    mv /app/zstd/$prefix$ver/lib/pkgconfig /app/zstd-dev/$prefix$ver/lib/pkgconfig
+#    set_current_app_clean_strip_cd2 zstd-dev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zlib" ]; then
