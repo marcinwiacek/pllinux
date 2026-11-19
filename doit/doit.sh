@@ -2931,7 +2931,7 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
     create_app_in_tmp_and_link_it2 xlibre-xserver $prefix$ver
     ninja -C builddir install
     set_current_app_clean_strip_cd2 xlibre-xserver $prefix$ver 1
-    rsync -a $curdir/in/xlibre-xserver/ /app/xlibre-xserver/$prefix$ver
+    cp $curdir/in/xlibre-xserver/win /app/xlibre-xserver/$prefix$ver
     cd /app/xlibre-xserver/current/etc/X11
     mv xorg.conf.d xorg.conf.d.orig
     ln -s /etc/x11/xorg.conf.d xorg.conf.d
