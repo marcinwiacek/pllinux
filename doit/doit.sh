@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="xzutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xlibre-xserver"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2789,13 +2789,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-wm" ]; then
   ver="0.4.2";
   if should_make xcb-util-wm $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/xcb/xcb-util-wm-0.4.2.tar.xz xcb-util-wm xcb-util-wm-$ver 1
-    ./configure --prefix=/app/xcb-util-wm/current
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/xcb/xcb-util-wm-$ver.tar.xz xcb-util-wm xcb-util-wm-$ver 1
+    ./configure --prefix=/app/xcb-util-wm/$prefix$ver
     make all -j$cpu_num
-    create_app xcb-util-wm $prefix$ver
-    set_current_app xcb-util-wm $prefix$ver 1
+    create_app_in_tmp_and_link_it2 xcb-util-wm $prefix$ver
     make install
-    set_current_app_clean_strip_cd xcb-util-wm $prefix$ver 1
+    rm /app/xcb-util-wm/$prefix$ver/lib/*.a
+    rm /app/xcb-util-wm/$prefix$ver/lib/*.la
+    set_current_app_clean_strip_cd2 xcb-util-wm $prefix$ver 1
+    create_dev_package2 xcb-util-wm $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xauth" ]; then
@@ -2900,22 +2902,24 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
   ver="25.2.3";
   if should_make xlibre-xserver $ver; then
     download_unpack_source https://github.com/X11Libre/xserver/archive/refs/tags/xlibre-xserver-$ver.tar.gz xlibre-xserver xserver-xlibre-xserver-$ver 1
-#don't forget to make sync with xwayland
-    PKG_CONFIG_PATH=/app/mesa/current/lib/pkgconfig meson setup -Dprefix=/app/xlibre-xserver/current \
+    #don't forget to make sync with xwayland
+    PKG_CONFIG_PATH=/app/mesa/current/lib/pkgconfig meson setup -Dprefix=/app/xlibre-xserver/$prefix$ver \
        -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
        -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
     sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/" os/utils.c
     ninja -C builddir
-    create_app_in_tmp_and_link_it xlibre-xserver $prefix$ver
+    create_app_in_tmp_and_link_it2 xlibre-xserver $prefix$ver
     ninja -C builddir install
-    rsync -a $curdir/in/xlibre-xserver/ /app/xlibre-xserver/current
+    rsync -a $curdir/in/xlibre-xserver/ /app/xlibre-xserver/$prefix$ver
     cd /app/xlibre-xserver/current/etc/X11
     mv xorg.conf.d xorg.conf.d.orig
     ln -s /etc/x11/xorg.conf.d xorg.conf.d
     cd /app/xlibre-xserver/current/lib/xorg/modules
+    find * -type f -exec bash -c 'chmod a-x "{}" ' \;
     mv xlibre-25 xlibre-25.orig
     ln -s /etc/x11/modules xlibre-25
-    set_current_app_clean_strip_cd xlibre-xserver $prefix$ver 1
+    set_current_app_clean_strip_cd2 xlibre-xserver $prefix$ver 1
+    create_dev_package2 xlibre-xserver $prefix$ver include lib/pkgconfig share/aclocal share/doc
   fi
 fi
 #----------------------------------- x11 apps -------------------------------------------
