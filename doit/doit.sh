@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="zstd"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xzutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -305,17 +305,19 @@ create_dev_package2() {
     for par in $3 $4 $5 $6; do
 echo processing $par
       if [ "$par" != "" ]; then
-        IFS="/" read -r DIR1 DIR2 DIR3 << EOF
+        IFS="/" read -r DIR1 DIR2 DIR3 DIR4 DIR5 << EOF
 $par
 EOF
-echo $DIR1 $DIR2 $DIR3
+echo $DIR1 $DIR2 $DIR3 $DIR4
         if [ "$DIR2" != "" ]; then mkdir /app/${packagename2}-dev/$version2/$DIR1; fi
         if [ "$DIR3" != "" ]; then mkdir /app/${packagename2}-dev/$version2/$DIR1/$DIR2; fi
+        if [ "$DIR4" != "" ]; then mkdir /app/${packagename2}-dev/$version2/$DIR1/$DIR2/$DIR3; fi
+        if [ "$DIR5" != "" ]; then mkdir /app/${packagename2}-dev/$version2/$DIR1/$DIR2/$DIR3/$DIR4; fi
         mv /app/$packagename2/$version2/$par /app/${packagename2}-dev/$version2/$par
       fi
     done
     set_current_app_clean_strip_cd2 ${packagename2}-dev $version2 1
-        cp /app/$packagename2/$version2/readme.md /app/${packagename2}-dev/$version2/readme.md
+    cp /app/$packagename2/$version2/readme.md /app/${packagename2}-dev/$version2/readme.md
 }
 
 #install host system dependiencies, when required
@@ -1663,17 +1665,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zlib"
   ver="1.4";
   if should_make zlib $ver; then
     download_unpack_source https://zlib.net/zlib-$ver.tar.xz zlib zlib-$ver 1
+#    ./configure --sharedlibdir=/app/zlib/$prefix$ver/lib \
+#       --libdir=/app/zlib-dev/$prefix$ver/lib --includedir=/app/zlib-dev/$prefix$ver/include --mandir=/app/zlib-dev/$prefix$ver/man
     ./configure --sharedlibdir=/app/zlib/$prefix$ver/lib \
-       --libdir=/app/zlib-dev/$prefix$ver/lib --includedir=/app/zlib-dev/$prefix$ver/include --mandir=/app/zlib-dev/$prefix$ver/man
+       --libdir=/app/zlib/$prefix$ver/lib --includedir=/app/zlib/$prefix$ver/include --mandir=/app/zlib/$prefix$ver/man
     make all -j$cpu_num
-    create_app zlib $prefix$ver
-    create_app zlib-dev $prefix$ver
-    cp LICENSE /app/zlib/$prefix$ver
-    cp LICENSE /app/zlib-dev/$prefix$ver
+    create_app_in_tmp_and_link_it2 zlib $prefix$ver
     make install
-    set_current_app_clean_strip_cd zlib $prefix$ver 1
-    set_current_app_clean_strip_cd zlib-dev $prefix$ver 1
-    cp /app/zlib/current/readme.md /app/zlib-dev/current/readme.md
+    rm /app/zlib/$prefix$ver/lib/*.a
+    cp LICENSE /app/zlib/$prefix$ver
+    set_current_app_clean_strip_cd2 zlib $prefix$ver 1
+    create_dev_package2 zlib $prefix$ver include man lib/pkgconfig
+    cp /app/zlib/$prefix$ver/LICENSE /app/zlib-dev/$prefix$ver/LICENSE
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzutils" ]; then
@@ -1681,21 +1684,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzuti
   if should_make xzutils $ver; then
     download_unpack_source https://github.com/tukaani-project/xz/releases/download/v$ver/xz-$ver.tar.xz xzutils xz-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/xzutils/$prefix$ver \
-       --includedir=/app/xzutils-dev/$prefix$ver/include
+    ./configure --prefix=/app/xzutils/$prefix$ver --includedir=/app/xzutils/$prefix$ver/include
     make -j$cpu_num
-    create_app xzutils $prefix$ver
-    create_app xzutils-dev $prefix$ver
-#    create_app xzutils-locale $prefix$ver
+    create_app_in_tmp_and_link_it2 xzutils $prefix$ver
     make install
-    cp ./COPYING /app/xzutils/$prefix$ver
-    cp ./COPYING /app/xzutils-dev/$prefix$ver
-    mkdir /app/xzutils-dev/$prefix$ver/lib
-    mv /app/xzutils/$prefix$ver/lib/pkgconfig /app/xzutils-dev/$prefix$ver/lib
-    mv /app/xzutils/$prefix$ver/lib/*.a /app/xzutils-dev/$prefix$ver/lib
-    mv /app/xzutils/$prefix$ver/lib/*.la /app/xzutils-dev/$prefix$ver/lib
-    set_current_app_clean_strip_cd xzutils $prefix$ver 1
-    set_current_app_clean_strip_cd xzutils-dev $prefix$ver 1
+    rm /app/xzutils/$prefix$ver/lib/*.a
+    rm /app/xzutils/$prefix$ver/lib/*.la
+    set_current_app_clean_strip_cd2 xzutils $prefix$ver 1
+    mv /app/xzutils/$prefix$ver/share/doc/xz/COPYING* /app/xzutils/$prefix$ver
+    create_dev_package2 xzutils $prefix$ver include lib/pkgconfig share/doc/xz/examples
+    mv /app/xzutils/$prefix$ver/share/doc/xz/*format.txt /app/xzutils-dev/$prefix$ver/share/doc/xz
+    cp /app/xzutils/$prefix$ver/COPYING* /app/xzutils-dev/$prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
