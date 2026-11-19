@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="xlibre-xserver"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="vala-dev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -925,17 +925,13 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "util-
     download_unpack_source https://www.kernel.org/pub/linux/utils/util-linux/v$ver1/util-linux-$ver.tar.xz util-linux util-linux-$ver 1
     #without --disable-makeinstall... tries to remove files from /usr/share... doesn't respect --prefix
     #without --disable-bash-compiletion similar story
-    ./configure --prefix=/app/util-linux/current --without-systemd --disable-lsfd --disable-enosys \
-        --disable-bash-completion --disable-makeinstall-chown  --disable-makeinstall-setuid  --disable-makeinstall-tty-setgid
+    ./configure --prefix=/app/util-linux/$prefix$ver --without-systemd --disable-lsfd --disable-enosys \
+        --disable-bash-completion --disable-makeinstall-chown  --disable-makeinstall-setuid  --disable-makeinstall-tty-setgid --disable-static
     make all -j$cpu_num
-    create_app util-linux $prefix$ver
-    set_current_app util-linux $prefix$ver 1
-    make install || true
-    cp $curdir/in/util-linux/* $output/app/util-linux/$prefix$ver
-    echo "" >> /app/util-linux/current/readme.md
-    echo "**Last**" >> /app/util-linux/current/readme.md
-    echo "$LATEST_FILE_UPDATE" >> /app/util-linux/current/readme.md
-    set_current_app_clean_strip_cd util-linux $prefix$ver 1
+    create_app_in_tmp_and_link_it2 util-linux $prefix$ver
+    make install
+    set_current_app_clean_strip_cd2 util-linux $prefix$ver 1
+    create_dev_package2 util-linux $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod" ]; then
@@ -3434,15 +3430,15 @@ if [ "$package" == "fs" ] || [ "$package" == "egl-wayland" ]; then
   fi
 fi
 #for compilation only?
-if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols-dev" ]; then
   ver="1.49";
-  if should_make wayland-protocols $ver; then
+  if should_make wayland-protocols-dev $ver; then
     download_unpack_source https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.49/downloads/wayland-protocols-1.49.tar.xz wayland-protocols wayland-protocols-$ver 1
-    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols/current --buildtype release _build
+    PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols-dev/$prefix$ver --buildtype release _build
     meson compile -C _build
-    create_app_in_tmp_and_link_it wayland-protocols $prefix$ver
+    create_app_in_tmp_and_link_it2 wayland-protocols-dev $prefix$ver
     meson install -C _build
-    set_current_app_clean_strip_cd wayland-protocols $prefix$ver 1
+    set_current_app_clean_strip_cd2 wayland-protocols-dev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "dbus" ]; then
@@ -3724,18 +3720,18 @@ if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
 #    set_current_app_clean_strip_cd slang $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "vala" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "vala-dev" ]; then
 #vala
   ver="0.56.19";
-  if should_make vala $ver; then
-    download_unpack_source https://gitlab.gnome.org/GNOME/vala/-/archive/0.56.19/vala-0.56.19.tar.bz2 vala vala-$ver 1
+  if should_make vala-dev $ver; then
+    download_unpack_source https://gitlab.gnome.org/GNOME/vala/-/archive/$ver/vala-$ver.tar.bz2 vala vala-$ver 1
     ./autogen.sh
     PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig:/app/graphviz/current/lib/pkgconfig \
-        ./configure --prefix=/app/vala/current PACKAGE_VERSION=$ver
+        ./configure --prefix=/app/vala-dev/$prefix$ver PACKAGE_VERSION=$ver
     make -j$cpu_num
-    create_app_in_tmp_and_link_it vala $prefix$ver
+    create_app_in_tmp_and_link_it2 vala-dev $prefix$ver
     make install
-    set_current_app_clean_strip_cd vala $prefix$ver 1
+    set_current_app_clean_strip_cd2 vala-dev $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "python" ]; then
