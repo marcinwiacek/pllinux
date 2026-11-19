@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="wget"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="wget2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1965,13 +1965,16 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "wget2
   if should_make wget2 $ver; then
     install_host_deps "lzip"
     download_unpack_source https://ftp.gnu.org/gnu/wget/wget2-$ver.tar.lz wget2 wget2-$ver 1
-    ./configure --prefix=/app/wget2/current --enable-static  #fixme with static?
+    ./configure --prefix=/app/wget2/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it wget2 $prefix$ver
+    create_app_in_tmp_and_link_it2 wget2 $prefix$ver
     make install
-    rm /app/$packagename/current/bin/wget2_noinstall
-    cp $curdir/in/$package/wget /app/$packagename/current
-    set_current_app_clean_strip_cd wget2 $prefix$ver 1
+    rm /app/$packagename/$prefix$ver/bin/wget2_noinstall
+    cp $curdir/in/$package/wget /app/$packagename/$prefix$ver
+    sed -i "s|\${prefix}/include|/app/wget2-dev/$prefix$ver/include|" /app/wget2/$prefix$ver/lib/pkgconfig/libwget.pc
+    set_current_app_clean_strip_cd2 wget2 $prefix$ver 1
+    create_dev_package2 wget2 $prefix$ver include lib/pkgconfig
+    mv /app/wget2/$prefix$ver/lib/*.la /app/wget2-dev/$prefix$ver/lib
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libidn2" ]; then
