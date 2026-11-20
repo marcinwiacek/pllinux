@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="mtdev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2214,8 +2214,9 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa"
     # python3-pycparser
     #   -Dplatforms="x11,wayland" seems to make problems - x11 icewm is very unstable
     download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
-    PATH=/app/llvm/current/bin:/app/cbindgen/current/bin:$PATH PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/lua/current/lib/pkgconfig:/app/wayland-protocols/current/share/pkgconfig \
-      meson setup -Dprefix=/app/mesa/current _build \
+    PATH=/app/llvm/current/bin:/app/cbindgen/current/bin:$PATH \
+    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/lua/current/lib/pkgconfig:/app/wayland-protocols-dev/current/share/pkgconfig \
+      meson setup -Dprefix=/app/mesa/$prefix$ver _build \
        -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
        -Dgles1=enabled -Dgles2=enabled -Dglvnd=enabled \
        -Dplatforms="x11" \
@@ -2229,15 +2230,20 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa"
 #       -Dgallium-drivers="asahi,crocus,ethosu,etnaviv,freedreno,i915,iris,lima,llvmpipe,nouveau,panfrost,r300,r600,radeonsi,rocket,softpipe,svga,tegra,v3d,vc4,virgl,zink" \
 #-Degl-native-platform=drm
     meson compile -C _build
-    create_app_in_tmp_and_link_it mesa $prefix$ver
+    create_app_in_tmp_and_link_it2 mesa $prefix$ver
     meson install -C _build
-    cd /app/mesa/current/share
+    cd /app/mesa/$prefix$ver/share
     mv vulkan vulkan.orig
     ln -s /etc/vulkan vulkan
-    sed -i "s/libEGL_mesa.so.0/\/app\/mesa\/current\/lib\/libEGL_mesa.so.0/" /app/mesa/current/share/glvnd/egl_vendor.d/50_mesa.json
-    cd /app/mesa/current/lib
+    sed -i "s/libEGL_mesa.so.0/\/app\/mesa\/current\/lib\/libEGL_mesa.so.0/" /app/mesa/$prefix$ver/share/glvnd/egl_vendor.d/50_mesa.json
+    sed -i "s/$prefix$ver/current/" /app/mesa/$prefix$ver/share/vulkan.orig/icd.d/lvp_icd.x86_64.json
+    sed -i "s/$prefix$ver/current/" /app/mesa/$prefix$ver/share/vulkan.orig/icd.d/virtio_icd.x86_64.json
+    chmod a-x /app/mesa/$prefix$ver/lib/dri/*.so
+    chmod a-x /app/mesa/$prefix$ver/lib/gbm/*.so
+    cd /app/mesa/$prefix$ver/lib
     ln -s libGLX_mesa.so.0.0.0 libGLX_indirect.so.0
-    set_current_app_clean_strip_cd mesa $prefix$ver 1
+    set_current_app_clean_strip_cd2 mesa $prefix$ver 1
+    create_dev_package2 mesa $prefix$ver include lib/pkgconfig
   fi
 fi
 #----------------------------------- vulkan ---------------------------------------------
