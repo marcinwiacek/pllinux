@@ -6,6 +6,9 @@ Open source implementations of OpenGL, OpenGL ES, Vulkan, OpenCL and other graph
 
 **License**
 
+**Current**
+yes
+
 **Vulkan-modules**
 share/vulkan.orig
 

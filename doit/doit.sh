@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="mesa"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libxt"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -327,6 +327,9 @@ echo $DIR1 $DIR2 $DIR3 $DIR4
 
     set_current_app_clean_strip_cd2 ${packagename2}-dev $version2 1
     cp /app/$packagename2/$version2/readme.md /app/${packagename2}-dev/$version2/readme.md
+    echo "" >> /app/${packagename2}-dev/$version2/readme.md
+    echo "**Current**" >> /app/${packagename2}-dev/$version2/readme.md
+    echo "yes" >> /app/${packagename2}-dev/$version2/readme.md
 }
 
 #install host system dependiencies, when required
@@ -919,6 +922,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurs
     rm /app/ncursesw/$prefix$ver/lib/terminfo
     rm /app/ncursesw/$prefix$ver/lib/*.a
     set_current_app_clean_strip_cd2 ncursesw $prefix$ver 1
+    cp /app/ncurses/$prefix$ver/readme.md /app/ncursesw/$prefix$ver
     create_dev_package2 ncursesw $prefix$ver include share/man/man3
   fi
 fi
@@ -1600,12 +1604,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxxf86vm" ]; then
   ver="1.1.7";
   if should_make libxxf86vm $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXxf86vm-1.1.7.tar.xz libXxf86vm libXxf86vm-$ver 1
-    meson setup -Dprefix=/app/libxxf86vm/current _build -Dlibdir=lib
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXxf86vm-$ver.tar.xz libXxf86vm libXxf86vm-$ver 1
+    meson setup -Dprefix=/app/libxxf86vm/$prefix$ver _build -Dlibdir=lib
     meson compile -C _build
-    create_app_in_tmp_and_link_it libxxf86vm $prefix$ver
+    create_app_in_tmp_and_link_it2 libxxf86vm $prefix$ver
     meson install -C _build
-    set_current_app_clean_strip_cd libxxf86vm $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxxf86vm $prefix$ver 1
+    create_dev_package2 libxxf86vm $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libffi" ]; then
@@ -1747,9 +1752,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lm-se
   if should_make lm-sensors $ver; then
     download_unpack_source https://github.com/lm-sensors/lm-sensors/archive/refs/tags/V$ver.tar.gz lm-sensors lm-sensors-$ver 1
     make -j$cpu_num
-    create_app lm-sensors $prefix$ver
-    make install PREFIX=$output/app/lm-sensors/$prefix$ver
-    set_current_app_clean_strip_cd lm-sensors $prefix$ver 1
+    create_app_in_tmp_and_link_it2 lm-sensors $prefix$ver
+    make install PREFIX=/app/lm-sensors/$prefix$ver
+    rm /app/lm-sensors/$prefix$ver/lib/*.a
+    set_current_app_clean_strip_cd2 lm-sensors $prefix$ver 1
+    create_dev_package2 lm-sensors $prefix$ver include man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "usbutils" ]; then
@@ -2098,14 +2105,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libzip" ]; then
   ver="1.12.1";
   if should_make libzip $ver; then
-    download_unpack_source https://github.com/nih-at/libzip/archive/refs/tags/v1.12.1.tar.gz libzip libzip-$ver 1
+    download_unpack_source https://github.com/nih-at/libzip/archive/refs/tags/v$ver.tar.gz libzip libzip-$ver 1
     mkdir build
-    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libzip/current \
-      -B build
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libzip/$prefix$ver -B build
     cmake --build build -- -j$cpu_num
-    create_app_in_tmp_and_link_it libzip $prefix$ver
+    create_app_in_tmp_and_link_it2 libzip $prefix$ver
     cmake --install build
-    set_current_app_clean_strip_cd libzip $prefix$ver 1
+    set_current_app_clean_strip_cd2 libzip $prefix$ver 1
+    create_dev_package2 libzip $prefix$ver include lib/pkgconfig lib/cmake share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lerc" ]; then
@@ -2204,6 +2211,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "cbind
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa" ]; then
+  # path needs to be setup to current - contains links in so files
+
   #ver="25.3.6";
   ver="26.1.8"; #OK with GL and egl-native-platform=drm
   # ver="26.2.4";  # not possible because of -Degl-native-platform=drm
@@ -2215,8 +2224,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa"
     #   -Dplatforms="x11,wayland" seems to make problems - x11 icewm is very unstable
     download_unpack_source https://archive.mesa3d.org/mesa-$ver.tar.xz mesa mesa-$ver 1
     PATH=/app/llvm/current/bin:/app/cbindgen/current/bin:$PATH \
-    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/lua/current/lib/pkgconfig:/app/wayland-protocols-dev/current/share/pkgconfig \
-      meson setup -Dprefix=/app/mesa/$prefix$ver _build \
+    PKG_CONFIG_PATH=/app/libdrm/current/lib/pkgconfig:/app/lua/current/lib/pkgconfig:/app/wayland-protocols/current/share/pkgconfig \
+      meson setup -Dprefix=/app/mesa/current _build \
        -Dbuildtype=minsize -Ddebug=false -Dstrip=true -Dlibdir=lib -Dvideo-codecs=all -Dlibunwind=disabled \
        -Dgles1=enabled -Dgles2=enabled -Dglvnd=enabled \
        -Dplatforms="x11" \
@@ -2231,6 +2240,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa"
 #-Degl-native-platform=drm
     meson compile -C _build
     create_app_in_tmp_and_link_it2 mesa $prefix$ver
+    rm /app/mesa/current
+    ln -s /app/mesa/$prefix$ver /app/mesa/current
     meson install -C _build
     cd /app/mesa/$prefix$ver/share
     mv vulkan vulkan.orig
@@ -2432,13 +2443,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libxt" ]; then
   ver="1.3.1";
   if should_make libxt $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxt/-/archive/libXt-1.3.1/libxt-libXt-1.3.1.tar.bz2?ref_type=tags libxt libxt-libXt-$ver 1
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxt/-/archive/libXt-$ver/libxt-libXt-$ver.tar.bz2?ref_type=tags \
+      libxt libxt-libXt-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/libxt/current
+    ./configure --prefix=/app/libxt/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app_in_tmp_and_link_it libxt $prefix$ver
+    create_app_in_tmp_and_link_it2 libxt $prefix$ver
     make install
-    set_current_app_clean_strip_cd libxt $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxt $prefix$ver 1
+    create_dev_package2 libxt $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxext" ]; then
@@ -2696,11 +2709,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxt
   ver="1.2.6";
   if should_make libxtst $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXtst-$ver.tar.xz libxtst libXtst-$ver 1
-    ./configure --prefix=/app/libxtst/current
+    ./configure --prefix=/app/libxtst/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libxtst $prefix$ver
+    create_app_in_tmp_and_link_it2 libxtst $prefix$ver
     make install
-    set_current_app_clean_strip_cd libxtst $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxtst $prefix$ver 1
+    create_dev_package2 libxtst $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxfixes" ]; then
@@ -3189,14 +3203,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "little-cms" ]; then
   ver="2.19.1";
   if should_make little-cms $ver; then
-    download_unpack_source https://github.com/mm2/Little-CMS/archive/refs/tags/lcms2.19.1.tar.gz  little-cms Little-CMS-lcms$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/little-cms/current \
+    download_unpack_source https://github.com/mm2/Little-CMS/archive/refs/tags/lcms$ver.tar.gz  little-cms Little-CMS-lcms$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/little-cms/$prefix$ver \
       -DBUILD_SHARED_LIBS=true -S . -B ./build 
-    create_app_in_tmp_and_link_it little-cms $prefix$ver
     cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it little-cms $prefix$ver
+    create_app_in_tmp_and_link_it2 little-cms $prefix$ver
     cmake --install build
-    set_current_app_clean_strip_cd little-cms $prefix$ver 1
+    rm /app/little-cms/$prefix$ver/lib/*.a
+    set_current_app_clean_strip_cd2 little-cms $prefix$ver 1
+    create_dev_package2 little-cms $prefix$ver include lib/pkgconfig lib/cmake
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libtirpc" ]; then
@@ -3438,15 +3453,16 @@ if [ "$package" == "fs" ] || [ "$package" == "egl-wayland" ]; then
   fi
 fi
 #for compilation only?
-if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols-dev" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "wayland-protocols" ]; then
   ver="1.49";
-  if should_make wayland-protocols-dev $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.49/downloads/wayland-protocols-1.49.tar.xz wayland-protocols wayland-protocols-$ver 1
+  if should_make wayland-protocols $ver; then
+    download_unpack_source https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/$ver/downloads/wayland-protocols-$ver.tar.xz \
+        wayland-protocols wayland-protocols-$ver 1
     PKG_CONFIG_PATH=/app/wayland/current/lib/pkgconfig  meson setup -Dprefix=/app/wayland-protocols-dev/$prefix$ver --buildtype release _build
     meson compile -C _build
-    create_app_in_tmp_and_link_it2 wayland-protocols-dev $prefix$ver
+    create_app_in_tmp_and_link_it2 wayland-protocols $prefix$ver
     meson install -C _build
-    set_current_app_clean_strip_cd2 wayland-protocols-dev $prefix$ver 1
+    set_current_app_clean_strip_cd2 wayland-protocols $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "dbus" ]; then
