@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="slang-dev"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="util-linux"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -316,6 +316,13 @@ echo $DIR1 $DIR2 $DIR3 $DIR4
         mv /app/$packagename2/$version2/$par /app/${packagename2}-dev/$version2/$par
       fi
     done
+
+    for filename in $(ls /app/${packagename2}-dev/${version2}/lib/pkgconfig/*.pc); do
+      echo $filename
+      sed -i "s|\${prefix}/include|/app/${packagename2}-dev/$version2/include|" $filename
+      sed -i "s|/app/${packagename2}/$version2/include|/app/${packagename2}-dev/$version2/include|" $filename
+    done
+
     set_current_app_clean_strip_cd2 ${packagename2}-dev $version2 1
     cp /app/$packagename2/$version2/readme.md /app/${packagename2}-dev/$version2/readme.md
 }
@@ -930,6 +937,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "util-
     make all -j$cpu_num
     create_app_in_tmp_and_link_it2 util-linux $prefix$ver
     make install
+    chmod a-x /app/util-linux/$prefix$ver/lib/security/*
+    chmod a-x /app/util-linux/$prefix$ver/lib/python3.13/site-packages/libmount/*
     set_current_app_clean_strip_cd2 util-linux $prefix$ver 1
     create_dev_package2 util-linux $prefix$ver include lib/pkgconfig share/man/man3
   fi
@@ -1654,7 +1663,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zstd"
     meson install -C _build
     set_current_app_clean_strip_cd2 zstd $prefix$ver 1
     create_dev_package2 zstd $prefix$ver include lib/pkgconfig
-    sed -i "s|\${prefix}/include|/app/zstd-dev/$prefix$ver/include|" /app/zstd-dev/$prefix$ver/lib/pkgconfig/libzstd.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zlib" ]; then
@@ -1674,7 +1682,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "zlib"
     set_current_app_clean_strip_cd2 zlib $prefix$ver 1
     create_dev_package2 zlib $prefix$ver include man lib/pkgconfig
     cp /app/zlib/$prefix$ver/LICENSE /app/zlib-dev/$prefix$ver/LICENSE
-    sed -i "s|/app/zlib/$prefix$ver/include|/app/zlib-dev/$prefix$ver/include|" /app/zlib-dev/$prefix$ver/lib/pkgconfig/zlib.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzutils" ]; then
@@ -1693,7 +1700,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xzuti
     create_dev_package2 xzutils $prefix$ver include lib/pkgconfig share/doc/xz/examples
     mv /app/xzutils/$prefix$ver/share/doc/xz/*format.txt /app/xzutils-dev/$prefix$ver/share/doc/xz
     cp /app/xzutils/$prefix$ver/COPYING* /app/xzutils-dev/$prefix$ver
-    sed -i "s|/app/xzutils/$prefix$ver/include|/app/xzutils-dev/$prefix$ver/include|" /app/xzutils-dev/$prefix$ver/lib/pkgconfig/liblzma.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
@@ -2778,7 +2784,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-u
     rm /app/xcb-util-errors/$prefix$ver/lib/*.la
     set_current_app_clean_strip_cd2 xcb-util-errors $prefix$ver 1
     create_dev_package2 xcb-util-errors $prefix$ver include lib/pkgconfig
-    sed -i "s|\${prefix}/include|/app/xcb-util-errors-dev/$prefix$ver/include|" /app/xcb-util-errors-dev/$prefix$ver/lib/pkgconfig/xcb-errors.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-cursor" ]; then
@@ -2793,7 +2798,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-u
     rm /app/xcb-util-cursor/$prefix$ver/lib/*.la
     set_current_app_clean_strip_cd2 xcb-util-cursor $prefix$ver 1
     create_dev_package2 xcb-util-cursor $prefix$ver include lib/pkgconfig
-    sed -i "s|\${prefix}/include|/app/xcb-util-cursor-dev/$prefix$ver/include|" /app/xcb-util-cursor-dev/$prefix$ver/lib/pkgconfig/xcb-cursor.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-wm" ]; then
@@ -2808,8 +2812,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-u
     rm /app/xcb-util-wm/$prefix$ver/lib/*.la
     set_current_app_clean_strip_cd2 xcb-util-wm $prefix$ver 1
     create_dev_package2 xcb-util-wm $prefix$ver include lib/pkgconfig
-    sed -i "s|\${prefix}/include|/app/xcb-util-wm-dev/$prefix$ver/include|" /app/xcb-util-wm-dev/$prefix$ver/lib/pkgconfig/xcb-ewmh.pc
-    sed -i "s|\${prefix}/include|/app/xcb-util-wm-dev/$prefix$ver/include|" /app/xcb-util-wm-dev/$prefix$ver/lib/pkgconfig/xcb-icccm.pc
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xauth" ]; then
@@ -2937,8 +2939,6 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
     mv xlibre-25 xlibre-25.orig
     ln -s /etc/x11/modules xlibre-25
     create_dev_package2 xlibre-xserver $prefix$ver include lib/pkgconfig share/aclocal share/doc
-    sed -i "s|\${prefix}/include|/app/xlibre-xserver-dev/$prefix$ver/include|" /app/xlibre-xserver-dev/$prefix$ver/lib/pkgconfig/xlibre-server.pc
-    sed -i "s|\${prefix}/include|/app/xlibre-xserver-dev/$prefix$ver/include|" /app/xlibre-xserver-dev/$prefix$ver/lib/pkgconfig/xorg-server.pc
   fi
 fi
 #----------------------------------- x11 apps -------------------------------------------
