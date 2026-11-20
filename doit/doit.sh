@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libxcomposite"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libwebp"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2084,12 +2084,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libwebp" ]; then
   ver="1.3.2";
   if should_make libwebp $ver; then
-    download_unpack_source https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.3.2.tar.gz libwebp libwebp-$ver 1
-    ./configure --prefix=/app/libwebp/current
+    download_unpack_source https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-$ver.tar.gz libwebp libwebp-$ver 1
+    ./configure --prefix=/app/libwebp/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libwebp $prefix$ver
+    create_app_in_tmp_and_link_it2 libwebp $prefix$ver
     make install
-    set_current_app_clean_strip_cd libwebp $prefix$ver 1
+    set_current_app_clean_strip_cd2 libwebp $prefix$ver 1
+    create_dev_package2 libwebp $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "openjpeg" ]; then
@@ -2438,13 +2439,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libxaw" ]; then
   ver="1.0.16";
   if should_make libxaw $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxaw/-/archive/libXaw-1.0.16/libxaw-libXaw-1.0.16.tar.bz2?ref_type=tags libxaw libxaw-libXaw-$ver 1
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxaw/-/archive/libXaw-$ver/libxaw-libXaw-$ver.tar.bz2?ref_type=tags \
+        libxaw libxaw-libXaw-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/libxaw/current
+    ./configure --prefix=/app/libxaw/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app_in_tmp_and_link_it libxaw $prefix$ver
+    create_app_in_tmp_and_link_it2 libxaw $prefix$ver
     make install
-    set_current_app_clean_strip_cd libxaw $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxaw $prefix$ver 1
+    create_dev_package2 libxaw $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxt" ]; then
@@ -2606,16 +2609,16 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fonts
     fi
   done
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libX11" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libx11" ]; then
   ver="1.8.13";
   if should_make libx11 $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libX11-$ver.tar.xz libX11 libX11-$ver 1
-    ./configure --prefix=/app/libx11/current
+    ./configure --prefix=/app/libx11/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app libx11 $prefix$ver
-    set_current_app libx11 $prefix$ver 1
+    create_app_in_tmp_and_link_it2 libx11 $prefix$ver
     make install
-    set_current_app_clean_strip_cd libx11 $prefix$ver 1
+    set_current_app_clean_strip_cd2 libx11 $prefix$ver 1
+    create_dev_package2 libx11 $prefix$ver include lib/pkgconfig share/doc share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxshmfence" ]; then
@@ -2683,12 +2686,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxa
   ver="1.0.12";
   if should_make libxau $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXau-$ver.tar.xz libxau libXau-$ver 1
-    ./configure --prefix=/app/libxau/current
+    ./configure --prefix=/app/libxau/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app libxau $prefix$ver
-    set_current_app libxau $prefix$ver 1
+    create_app_in_tmp_and_link_it2 libxau $prefix$ver
     make install
-    set_current_app_clean_strip_cd libxau $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxau $prefix$ver 1
+    create_dev_package2 libxau $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxscrnsaver" ]; then
@@ -2791,24 +2794,26 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxc
   ver="1.17.0";
   if should_make libxcb $ver; then
     install_host_deps "python3-xcbgen xcb-proto"
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libxcb-1.17.0.tar.xz libxcb libxcb-$ver 1
-    ./configure --prefix=/app/libxcb/current
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libxcb-$ver.tar.xz libxcb libxcb-$ver 1
+    ./configure --prefix=/app/libxcb/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app libxcb $prefix$ver
-    set_current_app libxcb $prefix$ver 1
+    create_app_in_tmp_and_link_it2 libxcb $prefix$ver
     make install
-    set_current_app_clean_strip_cd libxcb $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxcb $prefix$ver 1
+    create_dev_package2 libxcb $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcb-renderutil" ]; then
   ver="0.3.10";
   if should_make libxcb-renderutil $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/xcb-util-renderutil-$ver.tar.xz xcb-util-renderutil xcb-util-renderutil-$ver 1
-    ./configure --prefix=/app/libxcb-renderutil/current
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/xcb-util-renderutil-$ver.tar.xz \
+       xcb-util-renderutil xcb-util-renderutil-$ver 1
+    ./configure --prefix=/app/libxcb-renderutil/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libxcb-renderutil $prefix$ver
+    create_app_in_tmp_and_link_it2 libxcb-renderutil $prefix$ver
     make install
-    set_current_app_clean_strip_cd libxcb-renderutil $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxcb-renderutil $prefix$ver 1
+    create_dev_package2 libxcb-renderutil $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "xcb-util-errors" ]; then
