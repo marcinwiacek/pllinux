@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libwebp"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libtirpc"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1200,12 +1200,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libunistring" ]; then
   ver="1.5";
   if should_make libunistring $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/libunistring/libunistring-1.5.tar.gz libunistring libunistring-$ver 1
-    ./configure --prefix=/app/libunistring/current --enable-libdane
+    download_unpack_source https://ftp.gnu.org/gnu/libunistring/libunistring-$ver.tar.gz libunistring libunistring-$ver 1
+    ./configure --prefix=/app/libunistring/$prefix$ver --enable-libdane --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libunistring $prefix$ver
+    create_app_in_tmp_and_link_it2 libunistring $prefix$ver
     make install
-    set_current_app_clean_strip_cd libunistring $prefix$ver 1
+    set_current_app_clean_strip_cd2 libunistring $prefix$ver 1
+    create_dev_package2 libunistring $prefix$ver include share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpsl" ]; then
@@ -1635,15 +1636,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libudev-zero" ]; then
   ver="1.0.5";
   if should_make libudev-zero $ver; then
-    download_unpack_source https://github.com/illiliti/libudev-zero/archive/refs/tags/1.0.5.tar.gz libudev-zero libudev-zero-$ver 1
+    download_unpack_source https://github.com/illiliti/libudev-zero/archive/refs/tags/$ver.tar.gz libudev-zero libudev-zero-$ver 1
     #    install_host_deps "libusb-dev libudev-dev"
-    meson setup -Dprefix=/app/libudev-zero/$prefix$ver _build
+    meson setup -Dprefix=/app/libudev-zero/$prefix$ver -Dlibdir=lib _build -Dstrip=true -Ddefault_library=shared
     meson compile -C _build
-    create_app libudev-zero $prefix$ver
+    create_app_in_tmp_and_link_it2 libudev-zero $prefix$ver
     meson install -C _build
-    rsync -a $output/app/libudev-zero/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libudev-zero/$prefix$ver/lib
-    rm -r $output/app/libudev-zero/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd libudev-zero $prefix$ver 1
+    set_current_app_clean_strip_cd2 libudev-zero $prefix$ver 1
+    create_dev_package2 libudev-zero $prefix$ver include lib/pkgconfig
   fi
 fi
 # -------------------------------- basic - compression libs and tools ----------------------
@@ -3184,11 +3184,12 @@ if [ "$package" == "fs" ] || [ "$package" == "libwacom" ]; then
   ver="2.20.0";
   if should_make libwacom $ver; then
     download_unpack_source https://github.com/linuxwacom/libwacom/archive/refs/tags/libwacom-$ver.tar.gz libwacom libwacom-libwacom-$ver 1
-    meson setup -Dprefix=/app/libwacom/current -Dlibdir=lib builddir
+    meson setup -Dprefix=/app/libwacom/$prefix$ver -Dlibdir=lib builddir
     ninja -C builddir
-    create_app_in_tmp_and_link_it libwacom $prefix$ver
+    create_app_in_tmp_and_link_it2 libwacom $prefix$ver
     ninja -C builddir install
-    set_current_app_clean_strip_cd libwacom $prefix$ver 1
+    set_current_app_clean_strip_cd2 libwacom $prefix$ver 1
+    create_dev_package2 libwacom $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
@@ -3245,12 +3246,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libtirpc" ]; then
   ver="1.3.8";
   if should_make libtirpc $ver; then
-    download_unpack_source https://sourceforge.net/projects/libtirpc/files/libtirpc/1.3.8/libtirpc-1.3.8.tar.bz2/download libtirpc libtirpc-$ver 1
-    ./configure --prefix=/app/libtirpc/current --disable-gssapi
+    download_unpack_source https://sourceforge.net/projects/libtirpc/files/libtirpc/$ver/libtirpc-$ver.tar.bz2/download libtirpc libtirpc-$ver 1
+    ./configure --prefix=/app/libtirpc/$prefix$ver --disable-gssapi --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libtirpc $prefix$ver
+    create_app_in_tmp_and_link_it2 libtirpc $prefix$ver
     make install
-    set_current_app_clean_strip_cd libtirpc $prefix$ver 1
+    set_current_app_clean_strip_cd2 libtirpc $prefix$ver 1
+    create_dev_package2 libtirpc $prefix$ver include lib/pkgconfig lib/cmake share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
