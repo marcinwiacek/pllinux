@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="pcre2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="p11-kit"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1143,12 +1143,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "parte
     download_unpack_source https://ftp.gnu.org/gnu/parted/parted-$ver.tar.xz parted parted-$ver 1
     mkdir $out/parted/parted-$ver-build
     cd $out/parted/parted-$ver-build
-    ../parted-$ver/configure --prefix=/app/parted/current
+    ../parted-$ver/configure --prefix=/app/parted/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app parted $prefix$ver
-    set_current_app parted $prefix$ver 1
+    create_app_in_tmp_and_link_it2 parted $prefix$ver
     make install
-    set_current_app_clean_strip_cd parted $prefix$ver 1
+    set_current_app_clean_strip_cd2 parted $prefix$ver 1
+    create_dev_package2 parted $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "cryptsetup" ]; then
@@ -1892,18 +1892,22 @@ if [ "$package" == "fs" ] || [ "$package" == "p11-kit" ]; then
   if should_make p11-kit $ver; then
     download_unpack_source https://github.com/p11-glue/p11-kit/archive/refs/tags/$ver.tar.gz p11-kit p11-kit-$ver 1
     ./autogen.sh --with-trust-paths=/app/ccadb/current/all/ca-certificates.crt --disable-rpath --without-systemd --enable-debug=no \
-          --exec-prefix=/app/p11-kit/current --prefix=/app/p11-kit/current
+          --exec-prefix=/app/p11-kit/$prefix$ver --prefix=/app/p11-kit/$prefix$ver
     cd subprojects
     for DIRNAME in pkcs11-json; do
         if [ ! -f "$DIRNAME/meson.build" ]; then      rm -r $DIRNAME; fi
     done
     git clone https://github.com/p11-glue/pkcs11-json.git
     cd ..
-    meson setup -Dprefix=/app/p11-kit/current -Dsystemd=disabled  --buildtype release _build -Dbashcompdir=/app/p11-kit/current/completion -Dlibdir=lib
+    meson setup -Dprefix=/app/p11-kit/$prefix$ver -Dsystemd=disabled  --buildtype release _build \
+      -Dbashcompdir=/app/p11-kit/$prefix$ver/completion -Dlibdir=lib
     meson compile -C _build
-    create_app_in_tmp_and_link_it p11-kit $prefix$ver
+    create_app_in_tmp_and_link_it2 p11-kit $prefix$ver
     meson install -C _build
-    set_current_app_clean_strip_cd p11-kit $prefix$ver 1
+    chmod a-x /app/p11-kit/$prefix$ver/lib/pkcs11/*.so
+    rm -r /app/p11-kit/$prefix$ver/share/p11-kit/modules
+    set_current_app_clean_strip_cd2 p11-kit $prefix$ver 1
+    create_dev_package2 p11-kit $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libmnl" ]; then
@@ -3172,13 +3176,14 @@ if [ "$package" == "fs" ] || [ "$package" == "pango" ]; then
   ver="1.58.2";
   if should_make pango $ver; then
     download_unpack_source https://gitlab.gnome.org/GNOME/pango/-/archive/$ver/pango-$ver.tar.bz2?ref_type=tags pango pango-$ver 1
-    PATH=$PATH:/app/gobject-introspection/current/bin && \
-    PKG_CONFIG_PATH=/app/glib/current/lib/pkgconfig:/app/gobject-introspection/current/lib/pkgconfig:/app/harfbuzz/current/lib/pkgconfig:/app/fontconfig/current/lib/pkgconfig     meson setup \
-       -Dprefix=/app/pango/current --buildtype release -Dlibdir=lib -Dbuild-examples=false -Dbuild-testsuite=false build
+    PATH=$PATH:/app/gobject-introspection/current/bin \
+    PKG_CONFIG_PATH=/app/glib/current/lib/pkgconfig:/app/gobject-introspection/current/lib/pkgconfig:/app/harfbuzz/current/lib/pkgconfig:/app/fontconfig/current/lib/pkgconfig \
+      meson setup -Dprefix=/app/pango/$prefix$ver --buildtype release -Dlibdir=lib -Dbuild-examples=false -Dbuild-testsuite=false build
     ninja -C build
-    create_app_in_tmp_and_link_it pango $prefix$ver
+    create_app_in_tmp_and_link_it2 pango $prefix$ver
     ninja -C build install
-    set_current_app_clean_strip_cd pango $prefix$ver 1
+    set_current_app_clean_strip_cd2 pango $prefix$ver 1
+    create_dev_package2 pango $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "little-cms" ]; then
