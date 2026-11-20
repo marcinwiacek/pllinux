@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libxshmfence"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libxml2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1401,15 +1401,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
         --libdir=/app/libxml2/current/lib #--with-icu --with-history --with-legacy #--enable-aix-soname=both
 #    no need for ./configure
 #    LDFLAGS=-version-info 2:15:4 " && 
-    cp $curdir/in/libxml2/lib.vers .
+#    cp $curdir/in/libxml2/lib.vers .
 #    LDFLAGS=-Wl,--version-script=lib.vers
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libxml2 $prefix$ver
+    create_app_in_tmp_and_link_it2 libxml2 $prefix$ver
+    rm /app/libxml2/current
+    ln -s /app/libxml2/$prefix$ver /app/libxml2/current
     make install
     cd /app/libxml2/current/lib
-#fixme do link .so.2 do .so
     ln -s libxml2.so libxml2.so.2
-    set_current_app_clean_strip_cd libxml2 $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxml2 $prefix$ver 1
+    create_dev_package2 libxml2 $prefix$ver include lib/pkgconfig lib/cmake
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxcrypt" ]; then
@@ -2420,12 +2422,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libxrender" ]; then
   ver="0.9.13";
   if should_make libxrender $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.13/libxrender-libXrender-0.9.13.tar.bz2?ref_type=tags libXrender libxrender-libXrender-$ver 1
-    meson setup -Dprefix=/app/libxrender/current --buildtype release -Dlibdir=lib _build
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-$ver/libxrender-libXrender-$ver.tar.bz2?ref_type=tags \
+       libXrender libxrender-libXrender-$ver 1
+    meson setup -Dprefix=/app/libxrender/$prefix$ver --buildtype release -Dlibdir=lib _build
     meson compile -C _build
-    create_app_in_tmp_and_link_it libxrender $prefix$ver
+    create_app_in_tmp_and_link_it2 libxrender $prefix$ver
     meson install -C _build
-    set_current_app_clean_strip_cd libxrender $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxrender $prefix$ver 1
+    create_dev_package2 libxrender $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxaw" ]; then
@@ -2469,13 +2473,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libxmu" ]; then
   ver="1.3.1";
   if should_make libxmu $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxmu/-/archive/libXmu-1.3.1/libxmu-libXmu-1.3.1.tar.bz2?ref_type=tags libxmu libxmu-libXmu-$ver 1
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libxmu/-/archive/libXmu-$ver/libxmu-libXmu-$ver.tar.bz2?ref_type=tags \
+      libxmu libxmu-libXmu-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/libxmu/current
+    ./configure --prefix=/app/libxmu/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app_in_tmp_and_link_it libxmu $prefix$ver
+    create_app_in_tmp_and_link_it2 libxmu $prefix$ver
     make install
-    set_current_app_clean_strip_cd libxmu $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxmu $prefix$ver 1
+    create_dev_package2 libxmu $prefix$ver include lib/pkgconfig lib/cmake share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxft" ]; then
@@ -2614,13 +2620,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libxpm" ]; then
   ver="3.5.20";
   if should_make libxpm $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXpm-3.5.20.tar.xz  libxpm libXpm-$ver 1
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXpm-$ver.tar.xz  libxpm libXpm-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/libxpm/current
+    ./configure --prefix=/app/libxpm/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app_in_tmp_and_link_it libxpm $prefix$ver
+    create_app_in_tmp_and_link_it2 libxpm $prefix$ver
     make install
-    set_current_app_clean_strip_cd libxpm $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxpm $prefix$ver 1
+    create_dev_package2 libxpm $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libsm" ]; then
@@ -2651,11 +2658,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxr
   ver="1.5.5";
   if should_make libxrandr $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXrandr-$ver.tar.xz libXrandr libXrandr-$ver 1
-    ./configure --prefix=/app/libxrandr/current
+    ./configure --prefix=/app/libxrandr/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libxrandr $prefix$ver
+    create_app_in_tmp_and_link_it2 libxrandr $prefix$ver
     make install
-    set_current_app_clean_strip_cd libxrandr $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxrandr $prefix$ver 1
+    create_dev_package2 libxrandr $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxau" ]; then
@@ -2673,12 +2681,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxscrnsaver" ]; then
   ver="1.2.5";
   if should_make libxscrnsaver $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXScrnSaver-1.2.5.tar.xz libXScrnSaver libXScrnSaver-$ver 1
-    ./configure --prefix=/app/libxscrnsaver/current
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libXScrnSaver-$ver.tar.xz libXScrnSaver libXScrnSaver-$ver 1
+    ./configure --prefix=/app/libxscrnsaver/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libxscrnsaver $prefix$ver
+    create_app_in_tmp_and_link_it2 libxscrnsaver $prefix$ver
     make install
-    set_current_app_clean_strip_cd libxscrnsaver $prefix$ver 1
+    set_current_app_clean_strip_cd2 libxscrnsaver $prefix$ver 1
+    create_dev_package2 libxscrnsaver $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxcomposite" ]; then
@@ -2837,9 +2846,9 @@ if [ "$package" == "fs" ] || [ "$package" == "xauth" ]; then
 #libxmuu-dev
   ver="1.1.5";
   if should_make xauth $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xauth-1.1.5.tar.xz xauth xauth-$ver 1
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/app/xauth-$ver.tar.xz xauth xauth-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/xauth/current
+    ./configure --prefix=/app/xauth/$prefix$ver
     make -j$cpu_num
     create_app_in_tmp_and_link_it xauth $prefix$ver
     make install
