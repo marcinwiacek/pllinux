@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="util-linux"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="pcre2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1018,15 +1018,14 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "readl
     download_unpack_source https://ftp.gnu.org/gnu/readline/readline-$ver.tar.gz readline readline-$ver 1
     mkdir $out/readline/readline-$ver-build
     cd $out/readline/readline-$ver-build
-    ../readline-$ver/configure --prefix=/app/readline/current
+    ../readline-$ver/configure --prefix=/app/readline/$prefix$ver #--disable-static removes examples too.
     make -j$cpu_num
-    create_app readline $prefix$ver
-    set_current_app readline $prefix$ver 1
+    create_app_in_tmp_and_link_it2 readline $prefix$ver
     make install
-    echo "" >> /app/readline/current/readme.md
-    echo "**Last**" >> /app/readline/current/readme.md
-    echo "$LATEST_FILE_UPDATE" >> /app/readline/current/readme.md
-    set_current_app_clean_strip_cd readline $prefix$ver 1
+    rm -r /app/readline/$prefix$ver/bin # empty
+    rm /app/readline/$prefix$ver/lib/*.a
+    set_current_app_clean_strip_cd2 readline $prefix$ver 1
+    create_dev_package2 readline $prefix$ver include lib/pkgconfig share/readline
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "nano" ]; then
@@ -1224,11 +1223,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "popt"
   if should_make popt $ver; then
     download_unpack_source https://github.com/rpm-software-management/popt/archive/refs/tags/popt-$ver-release.tar.gz popt popt-popt-$ver-release 1
     ./autogen.sh
-    ./configure --prefix=/app/popt/$prefix$ver
+    ./configure --prefix=/app/popt/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app popt $prefix$ver
+    create_app_in_tmp_and_link_it2 popt $prefix$ver
     make install
-    set_current_app_clean_strip_cd popt $prefix$ver 1
+    set_current_app_clean_strip_cd2 popt $prefix$ver 1
+    create_dev_package2 popt $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libbsd" ]; then
@@ -1309,17 +1309,16 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pcre2
   ver="10.47";
   if should_make pcre2 $ver; then
     download_unpack_source https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$ver/pcre2-$ver.tar.gz pcre2 pcre2-$ver 1
-    ./configure --prefix=/app/pcre2/current
+    ./configure --prefix=/app/pcre2/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app pcre2 $prefix$ver
-    set_current_app pcre2 $prefix$ver 1
+    create_app_in_tmp_and_link_it2 pixman $prefix$ver
     make install
-    cp $out/pcre2/pcre2-$ver/LICENCE.md $output/app/pcre2/$prefix$ver
-    rsync -a $curdir/in/pcre2/ $output/app/pcre2/$prefix$ver
-    echo "" >> /app/pcre2/current/readme.md
-    echo "**Last**" >> /app/pcre2/current/readme.md
-    echo "$LATEST_FILE_UPDATE" >> /app/pcre2/current/readme.md
-    set_current_app_clean_strip_cd pcre2 $prefix$ver 1
+    chmod a-x /app/pcre2/$prefix$ver/lib/*.so*
+    chmod a-x /app/pcre2/$prefix$ver/lib/*.la
+    mv /app/pcre2/$prefix$ver/share/doc/pcre2/LICENCE.md /app/pcre2/$prefix$ver
+    rm /app/pcre2/$prefix$ver/share/doc/pcre2/COPYING
+    set_current_app_clean_strip_cd2 pcre2 $prefix$ver 1
+    create_dev_package2 pcre2 $prefix$ver include lib/pkgconfig share/man/man3 share/doc/pcre2/html
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gcc" ]; then
@@ -2359,12 +2358,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "pixman" ]; then
   ver="0.46.4";
   if should_make pixman $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/pixman/pixman/-/archive/pixman-0.46.4/pixman-pixman-0.46.4.tar.bz2?ref_type=tags pixman pixman-pixman-$ver 1
-    meson setup -Dprefix=/app/pixman/current --buildtype release -Dlibdir=lib _build
+    download_unpack_source https://gitlab.freedesktop.org/pixman/pixman/-/archive/pixman-$ver/pixman-pixman-$ver.tar.bz2?ref_type=tags \
+      pixman pixman-pixman-$ver 1
+    meson setup -Dprefix=/app/pixman/$prefix$ver --buildtype release -Dlibdir=lib _build
     meson compile -C _build
-    create_app_in_tmp_and_link_it pixman $prefix$ver
+    create_app_in_tmp_and_link_it2 pixman $prefix$ver
     meson install -C _build
-    set_current_app_clean_strip_cd pixman $prefix$ver 1
+    set_current_app_clean_strip_cd2 pixman $prefix$ver 1
+    create_dev_package2 pixman $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libnice" ]; then
@@ -2878,12 +2879,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "seatd" ]; then
   ver="0.9.3";
   if should_make seatd $ver; then
-    download_unpack_source https://github.com/kennylevinsen/seatd/archive/refs/tags/0.9.3.tar.gz seatd seatd-$ver 1
-    meson setup -Dprefix=/app/seatd/current --buildtype release -Dlibdir=lib -Dlibseat-logind=disabled _build
+    download_unpack_source https://github.com/kennylevinsen/seatd/archive/refs/tags/$ver.tar.gz seatd seatd-$ver 1
+    meson setup -Dprefix=/app/seatd/$prefix$ver --buildtype release -Dlibdir=lib -Dlibseat-logind=disabled _build
     meson compile -C _build
-    create_app_in_tmp_and_link_it seatd $prefix$ver
+    create_app_in_tmp_and_link_it2 seatd $prefix$ver
     meson install -C _build
-    set_current_app_clean_strip_cd seatd $prefix$ver 1
+    set_current_app_clean_strip_cd2 seatd $prefix$ver 1
+    create_dev_package2 seatd $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "xlibre-xf86-input-evdev" ]; then
@@ -3721,18 +3723,18 @@ if [ "$package" == "fs" ] || [ "$package" == "slang" ]; then
 #    set_current_app_clean_strip_cd slang $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "vala-dev" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "vala" ]; then
 #vala
   ver="0.56.19";
-  if should_make vala-dev $ver; then
+  if should_make vala $ver; then
     download_unpack_source https://gitlab.gnome.org/GNOME/vala/-/archive/$ver/vala-$ver.tar.bz2 vala vala-$ver 1
     ./autogen.sh
     PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig:/app/graphviz/current/lib/pkgconfig \
-        ./configure --prefix=/app/vala-dev/$prefix$ver PACKAGE_VERSION=$ver
+        ./configure --prefix=/app/vala/$prefix$ver PACKAGE_VERSION=$ver
     make -j$cpu_num
-    create_app_in_tmp_and_link_it2 vala-dev $prefix$ver
+    create_app_in_tmp_and_link_it2 vala $prefix$ver
     make install
-    set_current_app_clean_strip_cd2 vala-dev $prefix$ver 1
+    set_current_app_clean_strip_cd2 vala $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "python" ]; then
