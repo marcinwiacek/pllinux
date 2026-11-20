@@ -12,3 +12,13 @@ bin
 
 **Man**
 share/man/man1
+
+**Deps**
+libwebp current
+zstd current
+xzutils current
+lerc current
+libjpeg-turbo current
+libdeflate current
+zlib current
+gcclib current

@@ -12,3 +12,7 @@ bin
 
 **Man**
 share/man/man1
+
+**Deps**
+wayland current
+libffi current
