@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="p11-kit"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="ncurses"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -302,10 +302,10 @@ create_dev_package2() {
   version2=$2
 
     create_app_in_tmp_and_link_it2 ${packagename2}-dev $version2
-    for par in $3 $4 $5 $6; do
+    for par in $3 $4 $5 $6 $7 $8; do
 echo processing $par
       if [ "$par" != "" ]; then
-        IFS="/" read -r DIR1 DIR2 DIR3 DIR4 DIR5 << EOF
+        IFS="/" read -r DIR1 DIR2 DIR3 DIR4 DIR5 DIR6 DIR7 << EOF
 $par
 EOF
 echo $DIR1 $DIR2 $DIR3 $DIR4
@@ -313,6 +313,8 @@ echo $DIR1 $DIR2 $DIR3 $DIR4
         if [ "$DIR3" != "" ]; then mkdir /app/${packagename2}-dev/$version2/$DIR1/$DIR2; fi
         if [ "$DIR4" != "" ]; then mkdir /app/${packagename2}-dev/$version2/$DIR1/$DIR2/$DIR3; fi
         if [ "$DIR5" != "" ]; then mkdir /app/${packagename2}-dev/$version2/$DIR1/$DIR2/$DIR3/$DIR4; fi
+        if [ "$DIR6" != "" ]; then mkdir /app/${packagename2}-dev/$version2/$DIR1/$DIR2/$DIR3/$DIR4/$DIR5; fi
+        if [ "$DIR7" != "" ]; then mkdir /app/${packagename2}-dev/$version2/$DIR1/$DIR2/$DIR3/$DIR4/$DIR5/$DIR6; fi
         mv /app/$packagename2/$version2/$par /app/${packagename2}-dev/$version2/$par
       fi
     done
@@ -893,17 +895,15 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncurs
   ver="6.6";
   if should_make ncurses $ver; then
     download_unpack_source https://invisible-island.net/archives/ncurses/ncurses-$ver.tar.gz ncurses ncurses-$ver 1
-    ./configure --prefix=/app/ncurses/current --with-shared  --with-termlib  --with-ticlib --disable-widec --with-develop --with-cxx-shared --with-trace --with-versioned-syms
+    ./configure --prefix=/app/ncurses/$prefix$ver --with-shared  --with-termlib  --with-ticlib --disable-widec \
+       --with-develop --with-cxx-shared --with-trace --with-versioned-syms
     make all -j$cpu_num
-    create_app ncurses $prefix$ver
-    set_current_app ncurses $prefix$ver 1
+    create_app_in_tmp_and_link_it2 ncurses $prefix$ver
     make install
-    rsync -a $curdir/in/ncurses/ $output/app/ncurses/$prefix$ver
-    echo "" >> /app/ncurses/current/readme.md
-    echo "**Last**" >> /app/ncurses/current/readme.md
-    echo "$LATEST_FILE_UPDATE" >> /app/ncurses/current/readme.md
-    cp $out/ncurses/ncurses-$ver/COPYING $output/app/ncurses/$prefix$ver
-    set_current_app_clean_strip_cd ncurses $prefix$ver 1
+    cp COPYING /app/ncurses/$prefix$ver
+    rm /app/ncurses/$prefix$ver/lib/*.a
+    set_current_app_clean_strip_cd2 ncurses $prefix$ver 1
+    create_dev_package2 ncurses $prefix$ver include share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ncursesw" ]; then
@@ -1878,11 +1878,12 @@ if [ "$package" == "fs" ] || [ "$package" == "nettle" ]; then
   ver="3.10.2";
   if should_make nettle $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/nettle/nettle-$ver.tar.gz nettle nettle-$ver 1
-    ./configure --prefix=/app/nettle/current
+    ./configure --prefix=/app/nettle/$prefix$ver --libdir=/app/nettle/$prefix$ver/lib --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it nettle $prefix$ver
+    create_app_in_tmp_and_link_it2 nettle $prefix$ver
     make install
-    set_current_app_clean_strip_cd nettle $prefix$ver 1
+    set_current_app_clean_strip_cd2 nettle $prefix$ver 1
+    create_dev_package2 nettle $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "p11-kit" ]; then
@@ -1943,25 +1944,29 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftab
       sudo apt-get install download/libnftnl11_1.3.1-1_amd64.deb
     fi
     download_unpack_source https://netfilter.org/projects/nftables/files/nftables-$ver.tar.xz nftables nftables-$ver 1
-    ./configure --prefix=/app/nftables/current
+    ./configure --prefix=/app/nftables/$prefix$ver
     make -j$cpu_num
-    create_app nftables $prefix$ver
-    set_current_app nftables $prefix$ver 1
+    create_app_in_tmp_and_link_it2 nftables $prefix$ver
     make install
-    set_current_app_clean_strip_cd nftables $prefix$ver 1
+    set_current_app_clean_strip_cd2 nftables $prefix$ver 1
+    create_dev_package2 nftables $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "openssl" ]; then
 #3.5.9 LTS
-  for ver in 3.5.9 4.1.0; do 
+  for ver in 3.5.9; do 
     if should_make openssl $ver; then
       download_unpack_source https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz openssl openssl-$ver 1
-      ./Configure --prefix=/app/openssl/$prefix$ver #--openssldir=/app/ccadb/current
+      ./Configure --prefix=/app/openssl/$prefix$ver zlib-dynamic  #--openssldir=/app/ccadb/current
       make all -j$cpu_num
-      create_app openssl $prefix$ver
+      create_app_in_tmp_and_link_it2 openssl $prefix$ver
       make install
       mv /app/openssl/$prefix$ver/lib64 /app/openssl/$prefix$ver/lib
-      set_current_app_clean_strip_cd openssl $prefix$ver 1
+      chmod a-x /app/openssl/$prefix$ver/lib/engines-3/*.so
+      chmod a-x /app/openssl/$prefix$ver/lib/ossl-modules/*.so
+      set_current_app_clean_strip_cd2 openssl $prefix$ver 1
+      rm /app/openssl/$prefix$ver/lib/*.a
+      create_dev_package2 openssl $prefix$ver include lib/pkgconfig lib/cmake share/man/man3 share/doc/openssl/html/man3
       mkdir "/tmp/doit"
     fi
   done
@@ -2001,11 +2006,13 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nghtt
   ver="1.70.0";
   if should_make nghttp2 $ver; then
     download_unpack_source https://github.com/nghttp2/nghttp2/releases/download/v1.70.0/nghttp2-1.70.0.tar.xz nghttp2 nghttp2-$ver 1
-    ./configure --prefix=/app/nghttp2/current
+    ./configure --prefix=/app/nghttp2/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it nghttp2 $prefix$ver
+    create_app_in_tmp_and_link_it2 nghttp2 $prefix$ver
     make install
-    set_current_app_clean_strip_cd nghttp2 $prefix$ver 1
+    rm -r /app/nghttp2/$prefix$ver/bin
+    set_current_app_clean_strip_cd2 nghttp2 $prefix$ver 1
+    create_dev_package2 nghttp2 $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "ccadb" ]; then
@@ -2091,14 +2098,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "openjpeg" ]; then
   ver="2.5.4";
   if should_make openjpeg $ver; then
-    download_unpack_source https://github.com/uclouvain/openjpeg/archive/refs/tags/v2.5.4.tar.gz openjpeg openjpeg-$ver 1
+    download_unpack_source https://github.com/uclouvain/openjpeg/archive/refs/tags/v$ver.tar.gz openjpeg openjpeg-$ver 1
     mkdir build
-    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/openjpeg/current \
-      -B build
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DBUILD_STATIC_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/app/openjpeg/$prefix$ver -B build
     cmake --build build -- -j$cpu_num
-    create_app_in_tmp_and_link_it openjpeg $prefix$ver
+    create_app_in_tmp_and_link_it2 openjpeg $prefix$ver
     cmake --install build
-    set_current_app_clean_strip_cd openjpeg $prefix$ver 1
+    set_current_app_clean_strip_cd2 openjpeg $prefix$ver 1
+    create_dev_package2 openjpeg $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libzip" ]; then
