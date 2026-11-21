@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libpciaccess"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libjxl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1279,11 +1279,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libmd
 #    install_host_deps "automake autogen libtool"
 #    echo $ver > .dist-version
     ./autogen
-    ./configure --prefix=/app/libmd/$prefix$ver
+    ./configure --prefix=/app/libmd/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app libmd $prefix$ver
+    create_app_in_tmp_and_link_it2 libmd $prefix$ver
     make install
-    set_current_app_clean_strip_cd libmd $prefix$ver 1
+    set_current_app_clean_strip_cd2 libmd $prefix$ver 1
+    create_dev_package2 libmd $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "mtdev" ]; then
@@ -1910,23 +1911,24 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libmn
   ver="1.0.5";
   if should_make libmnl $ver; then
     download_unpack_source https://netfilter.org/projects/libmnl/files/libmnl-$ver.tar.bz2 libmnl libmnl-$ver 1
-    ./configure --prefix=/app/libmnl/current
+    ./configure --prefix=/app/libmnl/$prefix$ver
     make -j$cpu_num
-    create_app_in_tmp_and_link_it libmnl $prefix$ver
+    create_app_in_tmp_and_link_it2 libmnl $prefix$ver
     make install
-    set_current_app_clean_strip_cd libmnl $prefix$ver 1
+    set_current_app_clean_strip_cd2 libmnl $prefix$ver 1
+    create_dev_package2 libmnl $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libnftnl" ]; then
   ver="1.3.2";
   if should_make libnftnl $ver; then
-    download_unpack_source https://netfilter.org/projects/libnftnl/files/libnftnl-1.3.2.tar.xz libnftnl libnftnl-$ver 1
-    ./configure --prefix=/app/libnftnl/current
+    download_unpack_source https://netfilter.org/projects/libnftnl/files/libnftnl-$ver.tar.xz libnftnl libnftnl-$ver 1
+    ./configure --prefix=/app/libnftnl/$prefix$ver
     make -j$cpu_num
-    create_app libnftnl $prefix$ver
-    set_current_app libnftnl $prefix$ver 1
+    create_app_in_tmp_and_link_it2 libnftnl $prefix$ver
     make install
-    set_current_app_clean_strip_cd libnftnl $prefix$ver 1
+    set_current_app_clean_strip_cd2 libnftnl $prefix$ver 1
+    create_dev_package2 libnftnl $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nftables" ]; then
@@ -2056,13 +2058,14 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libjx
     sed -i "s/#download_github third_party\/sjpeg/download_github third_party\/sjpeg/" ./deps.sh
     ./deps.sh
     mkdir build
-    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libjxl/current \
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libjxl/$prefix$ver \
       -B build
 #      -D CMAKE_PREFIX_PATH="/app/brotli/current"  #it seems not to work very well
     cmake --build build -- -j$cpu_num
-    create_app_in_tmp_and_link_it libjxl $prefix$ver
+    create_app_in_tmp_and_link_it2 libjxl $prefix$ver
     cmake --install build
-    set_current_app_clean_strip_cd libjxl $prefix$ver 1
+    set_current_app_clean_strip_cd2 libjxl $prefix$ver 1
+    create_dev_package2 libjxl $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libheif" ]; then
@@ -3171,12 +3174,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
   ver="0.5.0";
   if should_make libliftoff $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/emersion/libliftoff/-/releases/v0.5.0/downloads/libliftoff-0.5.0.tar.gz libliftoff libliftoff-$ver 1
-    meson setup -Dprefix=/app/libliftoff/current -Dlibdir=lib builddir
+    download_unpack_source https://gitlab.freedesktop.org/emersion/libliftoff/-/releases/v$ver/downloads/libliftoff-$ver.tar.gz libliftoff libliftoff-$ver 1
+    meson setup -Dprefix=/app/libliftoff/$prefix$ver -Dlibdir=lib builddir
     ninja -C builddir
-    create_app_in_tmp_and_link_it libliftoff $prefix$ver
+    create_app_in_tmp_and_link_it2 libliftoff $prefix$ver
     ninja -C builddir install
-    set_current_app_clean_strip_cd libliftoff $prefix$ver 1
+    set_current_app_clean_strip_cd2 libliftoff $prefix$ver 1
+    create_dev_package2 libliftoff $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libwacom" ]; then
