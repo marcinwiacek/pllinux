@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="xlibre-xserver"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="fontconfig"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1400,6 +1400,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "glib"
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxml2" ]; then
+#CURRENT
 #no version available problem
   ver="2.15.4";
   if should_make libxml2 $ver; then
@@ -1423,6 +1424,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxm
 #    LDFLAGS=-Wl,--version-script=lib.vers
     make all -j$cpu_num
     create_app_in_tmp_and_link_it2 libxml2 $prefix$ver
+    #2 lines added specially to handle installing to current
     rm /app/libxml2/current
     ln -s /app/libxml2/$prefix$ver /app/libxml2/current
     make install
@@ -2230,7 +2232,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "cbind
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa" ]; then
   # path needs to be setup to current - contains links in so files
-
+#CURRENT
   #ver="25.3.6";
   ver="26.1.8"; #OK with GL and egl-native-platform=drm
   # ver="26.2.4";  # not possible because of -Degl-native-platform=drm
@@ -2258,6 +2260,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mesa"
 #-Degl-native-platform=drm
     meson compile -C _build
     create_app_in_tmp_and_link_it2 mesa $prefix$ver
+    #two lines added specially to handle install to current
     rm /app/mesa/current
     ln -s /app/mesa/$prefix$ver /app/mesa/current
     meson install -C _build
@@ -2351,43 +2354,45 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "vulka
 fi
 #----------------------------------- x11 ------------------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fontconfig" ]; then
+#CURRENT
 #  ver="2.18.3";
   ver="2.17.1";
   if should_make fontconfig $ver; then
     download_unpack_source https://gitlab.freedesktop.org/fontconfig/fontconfig/-/archive/$ver/fontconfig-$ver.tar.bz2 fontconfig fontconfig-$ver 1
-    meson setup -Dprefix=/app/fontconfig/$prefix$ver --buildtype release -Dlibdir=lib -Ddoc=disabled _build -Dcache-dir= -Dcache-build=disabled
+    meson setup -Dprefix=/app/fontconfig/current --buildtype release -Dlibdir=lib -Ddoc=disabled _build -Dcache-dir= -Dcache-build=disabled
     meson compile -C _build
-    create_app_in_tmp_and_link_it2 fontconfig $prefix$ver
+    create_app_in_tmp_and_link_it fontconfig $prefix$ver
     meson install -C _build
-    cp COPYING /app/fontconfig/$prefix$ver
-    cd /app/fontconfig/$prefix$ver/etc/fonts
+    cp COPYING /app/fontconfig/current
+    cd /app/fontconfig/current/etc/fonts
     mv fonts.conf fonts.conf.default
     ln -s /etc/x11/fonts.conf fonts.conf
-    set_current_app_clean_strip_cd2 fontconfig $prefix$ver 1
-    create_dev_package2 fontconfig $prefix$ver include lib/pkgconfig
-    ln -s /app/fontconfig/$prefix$ver/COPYING /app/fontconfig-dev/$prefix$ver/COPYING
+    set_current_app_clean_strip_cd fontconfig $prefix$ver 1
+#    create_dev_package2 fontconfig $prefix$ver include lib/pkgconfig
+#    ln -s /app/fontconfig/$prefix$ver/COPYING /app/fontconfig-dev/$prefix$ver/COPYING
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libglvnd" ]; then
+#CURRENT
   ver="1.7.0";
   if should_make libglvnd $ver; then
     download_unpack_source https://gitlab.freedesktop.org/glvnd/libglvnd/-/archive/v$ver/libglvnd-v$ver.tar.gz libglvnd libglvnd-v$ver 1
     meson setup -Dprefix=/app/libglvnd/current -Dlibdir=lib _build # links in so files
     meson compile -C _build
-    create_app_in_tmp_and_link_it2 libglvnd $prefix$ver
+    create_app_in_tmp_and_link_it libglvnd $prefix$ver
     meson install -C _build
 #    rsync -a $output/app/libglvnd/current/lib/x86_64-linux-gnu/* $output/app/libglvnd/current/lib
 #    rm -r $output/app/libglvnd/current/lib/x86_64-linux-gnu/
-    cd /app/libglvnd/$prefix$ver
+    cd /app/libglvnd/current
     mkdir etc
     cd etc
     ln -s /app/mesa/current/share/glvnd glvnd
-    cd /app/libglvnd/$prefix$ver
+    cd /app/libglvnd/current
     mkdir share
     cd share
     ln -s /app/mesa/current/share/glvnd glvnd
-    set_current_app_clean_strip_cd2 libglvnd $prefix$ver 1
-    create_dev_package2 libglvnd $prefix$ver include lib/pkgconfig
+    set_current_app_clean_strip_cd libglvnd $prefix$ver 1
+#    create_dev_package2 libglvnd $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "pixman" ]; then
@@ -2928,6 +2933,7 @@ if [ "$package" == "fs" ] || [ "$package" == "xkbcomp" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
+#CURRENT
   ver="1.13.2";
   if should_make libxkbcommon $ver; then
     download_unpack_source https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-$ver.tar.gz libxkbcommon libxkbcommon-xkbcommon-$ver 1
@@ -2935,6 +2941,7 @@ if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
       _build -Dxkb-config-root=/app/xkeyboard-config/current/share/X11/xkb
     meson compile -C _build
     create_app_in_tmp_and_link_it2 libxkbcommon $prefix$ver
+    #two lines added specially to handle install to current
     rm /app/libxkbcommon/current
     ln -s /app/libxkbcommon/$prefix$ver /app/libxkbcommon/current
     meson install -C _build

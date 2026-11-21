@@ -7,6 +7,12 @@ Library for configuring and customizing font access.
 **License**
 See COPYING
 
+**PATH**
+bin
+
+**Current**
+yes
+
 **Deps**
 freetype current
 libexpat current
@@ -17,6 +23,3 @@ harfbuzz current
 brotli current
 glib current
 pcre2 current
-
-**PATH**
-bin
