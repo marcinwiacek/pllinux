@@ -8,7 +8,7 @@ Wayland compositor
 MIT
 
 **PATH**
-bin
+.:bin
 
 **Man**
 man/man1:man/man5:man/man7
@@ -64,3 +64,4 @@ ncurses current
 libglvnd current
 libxcursor current
 libxfixes current
+vulkan-loader current

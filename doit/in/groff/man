@@ -7,9 +7,10 @@ fi
 
 # Midnight Commander
 if [ "$1" = "-P" ]  && [ "$2" = "cat" ] && [ "$3" != "" ]; then
-    groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
-        -F /app/groff/current/share/groff/current/font \
-        "$3"
+    cat $3 | nroff -E -c -Tlatin1 -mandoc
+#    TERM=dumb groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
+#        -F /app/groff/current/share/groff/current/font \
+#        "$3"
     exit
 fi
 
@@ -44,20 +45,23 @@ for APP_NAME in $(/app/busybox/current/bin/ls /app); do
 $line2
 EOF
                     if [ -e "/app/${APP_NAME}/current/$folder/../$FILENAME" ]; then
-                      groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
-                        -F /app/groff/current/share/groff/current/font \
-                        "/app/${APP_NAME}/current/$folder/../$FILENAME" 2> /dev/null | less -R -M -s
+                      cat /app/${APP_NAME}/current/$folder/../$FILENAME | nroff -E -c -Tlatin1 -mandoc | less -R -M -s
+#                      groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
+#                        -F /app/groff/current/share/groff/current/font \
+#                        "/app/${APP_NAME}/current/$folder/../$FILENAME" 2> /dev/null | less -R -M -s
                       exit
                     fi
                 esac
-                groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
-                   -F /app/groff/current/share/groff/current/font \
-                   "/app/${APP_NAME}/current/$folder/$1.$nr" 2> /dev/null | less -R -M -s
+                cat /app/${APP_NAME}/current/$folder/$1.$nr | nroff -E -c -Tlatin1 -mandoc | less -R -M -s
+#                groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
+#                   -F /app/groff/current/share/groff/current/font \
+#                   "/app/${APP_NAME}/current/$folder/$1.$nr" 2> /dev/null | less -R -M -s
                 exit
               elif [ -e "/app/${APP_NAME}/current/$folder/$1.$nr.gz" ]; then
                 gunzip -c "/app/${APP_NAME}/current/$folder/$1.$nr.gz" | \
-                  groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
-                    -F /app/groff/current/share/groff/current/font 2> /dev/null | less -R -M -s
+                   nroff -E -c -Tlatin1 -mandoc | less -R -M -s
+#                  groff -man -Tutf8 -E -M /app/groff/current/share/groff/current/tmac \
+#                    -F /app/groff/current/share/groff/current/font 2> /dev/null | less -R -M -s
                 exit
               fi
 #            done

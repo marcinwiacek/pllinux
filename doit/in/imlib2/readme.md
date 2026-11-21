@@ -9,3 +9,18 @@ See COPYING*
 
 **PATH**
 bin
+
+**Deps**
+libx11 current
+freetype current
+libxext current
+libxcb current
+zlib current
+bzip2 current
+libpng current
+harfbuzz current
+brotli current
+libxau current
+libxdmcp current
+glib current
+pcre2 current

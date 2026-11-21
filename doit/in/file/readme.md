@@ -19,6 +19,4 @@ xzutils current
 bzip2 current
 zlib current
 glibc current
-
-**Last**
-20260608
+libseccomp current
