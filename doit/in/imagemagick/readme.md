@@ -9,6 +9,9 @@ Creating, editing, converting and manipulating images in > 200 formats.
 **PATH**
 bin
 
+**Man**
+share/man/man1
+
 **Deps**
 little-cms current
 libtiff current
@@ -51,6 +54,3 @@ pcre2 current
 util-linux current
 libselinux current
 libdatrie current
-
-**Last**
-20261101
