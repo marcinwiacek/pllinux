@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libjpeg-turbo"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libheif"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1992,11 +1992,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libid
   ver="2.3.7";
   if should_make libidn2 $ver; then
     download_unpack_source https://ftp.gnu.org/gnu/libidn/libidn2-$ver.tar.gz libidn2 libidn2-$ver 1
-    ./configure --prefix=/app/libidn2/current
+    ./configure --prefix=/app/libidn2/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libidn2 $prefix$ver
+    create_app_in_tmp_and_link_it2 libidn2 $prefix$ver
     make install
-    set_current_app_clean_strip_cd libidn2 $prefix$ver 1
+    set_current_app_clean_strip_cd2 libidn2 $prefix$ver 1
+    create_dev_package2 libidn2 $prefix$ver include lib/pkgconfig share/gtk-doc share/info share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "nghttp2" ]; then
@@ -2059,7 +2060,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libjx
     ./deps.sh
     mkdir build
     cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libjxl/$prefix$ver -B build
-#      -D CMAKE_PREFIX_PATH="/app/brotli/current"  #it seems not to work very well
     cmake --build build -- -j$cpu_num
     create_app_in_tmp_and_link_it2 libjxl $prefix$ver
     cmake --install build
@@ -2070,19 +2070,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libheif" ]; then
   ver="1.23.7";
   if should_make libheif $ver; then
-    download_unpack_source https://github.com/strukturag/libheif/archive/refs/tags/v1.23.7.tar.gz libheif libheif-$ver 1
-#    sed -i "s/download_github third/#download_github third/" ./deps.sh
-#    sed -i "s/#download_github third_party\/skcms/download_github third_party\/skcms/" ./deps.sh
-#    sed -i "s/#download_github third_party\/sjpeg/download_github third_party\/sjpeg/" ./deps.sh
-#    ./deps.sh
+    download_unpack_source https://github.com/strukturag/libheif/archive/refs/tags/v$ver.tar.gz libheif libheif-$ver 1
     mkdir build
-    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libheif/current \
-      -B build
-#      -D CMAKE_PREFIX_PATH="/app/brotli/current"  #it seems not to work very well
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libheif/$prefix$ver -B build
     cmake --build build -- -j$cpu_num
-    create_app_in_tmp_and_link_it libheif $prefix$ver
+    create_app_in_tmp_and_link_it2 libheif $prefix$ver
     cmake --install build
-    set_current_app_clean_strip_cd libheif $prefix$ver 1
+    rm -r /app/libheif/$prefix$ver/lib/libheif
+    set_current_app_clean_strip_cd2 libheif $prefix$ver 1
+    create_dev_package2 libheif $prefix$ver include lib/pkgconfig lib/cmake
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libwebp" ]; then
@@ -2668,11 +2664,12 @@ if [ "$package" == "fs" ] || [ "$package" == "libice" ]; then
   if should_make libice $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libICE-$ver.tar.xz  libICE libICE-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/libice/current
+    ./configure --prefix=/app/libice/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app_in_tmp_and_link_it libice $prefix$ver
+    create_app_in_tmp_and_link_it2 libice $prefix$ver
     make install
-    set_current_app_clean_strip_cd libice $prefix$ver 1
+    set_current_app_clean_strip_cd2 libice $prefix$ver 1
+    create_dev_package2 libice $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxrandr" ]; then
@@ -3212,12 +3209,13 @@ if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
   ver="1.32.0";
 #sudo apt-get build-dep libinput
   if should_make libinput $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.32.0/libinput-1.32.0.tar.gz libinput libinput-$ver 1
-    meson setup -Dprefix=/app/libinput/current -Dlibdir=lib builddir
+    download_unpack_source https://gitlab.freedesktop.org/libinput/libinput/-/archive/$ver/libinput-$ver.tar.gz libinput libinput-$ver 1
+    meson setup -Dprefix=/app/libinput/$prefix$ver -Dlibdir=lib builddir
     ninja -C builddir
-    create_app_in_tmp_and_link_it libinput $prefix$ver
+    create_app_in_tmp_and_link_it2 libinput $prefix$ver
     ninja -C builddir install
-    set_current_app_clean_strip_cd libinput $prefix$ver 1
+    set_current_app_clean_strip_cd2 libinput $prefix$ver 1
+    create_dev_package2 libinput $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "cairo" ]; then
