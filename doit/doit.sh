@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="imagemagick"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="gnutls"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1496,13 +1496,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "harfbuzz" ]; then
   ver="15.0.0";
   if should_make harfbuzz $ver; then
-    download_unpack_source https://github.com/harfbuzz/harfbuzz/archive/refs/tags/15.0.0.tar.gz harfbuzz harfbuzz-$ver 1
-    meson setup -Dprefix=/app/harfbuzz/current --buildtype release -Dlibdir=lib _build
+    download_unpack_source https://github.com/harfbuzz/harfbuzz/archive/refs/tags/$ver.tar.gz harfbuzz harfbuzz-$ver 1
+    meson setup -Dprefix=/app/harfbuzz/$prefix$ver --buildtype release -Dlibdir=lib _build
     meson compile -C _build
-    create_app_in_tmp_and_link_it harfbuzz $prefix$ver
+    create_app_in_tmp_and_link_it2 harfbuzz $prefix$ver
     meson install -C _build
-    cp COPYING /app/harfbuzz/current
-    set_current_app_clean_strip_cd harfbuzz $prefix$ver 1
+    cp COPYING /app/harfbuzz/$prefix$ver
+    set_current_app_clean_strip_cd2 harfbuzz $prefix$ver 1
+    create_dev_package2 harfbuzz $prefix$ver include lib/pkgconfig lib/cmake share/gtk-doc
+    ln -s /app/harfbuzz/$prefix$ver/COPYING /app/harfbuzz-dev/$prefix$ver/COPYING
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libepoxy" ]; then
@@ -1764,9 +1766,11 @@ if [ "$package" == "fs" ] || [ "$package" == "i2c-tools" ]; then
     download_unpack_source https://www.kernel.org/pub/software/utils/i2c-tools/i2c-tools-$ver.tar.xz i2c-tools i2c-tools-$ver 1
     sed -i "s/\/usr\/local/\/app\/i2c-tools\/$prefix$ver/g" Makefile
     make all -j$cpu_num
-    create_app i2c-tools $prefix$ver
+    create_app_in_tmp_and_link_it2 i2c-tools $prefix$ver
     make install
-    set_current_app_clean_strip_cd i2c-tools $prefix$ver 1
+    rm /app/i2c-tools/$prefix$ver/lib/*.a
+    set_current_app_clean_strip_cd2 i2c-tools $prefix$ver 1
+    create_dev_package2 i2c-tools $prefix$ver include
   fi
 fi
 if [ "$package" == "fs2" ] || [ "$package" == "read-edid" ]; then
@@ -1832,15 +1836,17 @@ if [ "$package" == "fs" ] || [ "$package" == "gnutls" ]; then
 #libunbound-dev
   ver="3.7.11";
   if should_make gnutls $ver; then
-    download_unpack_source https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.11.tar.xz gnutls gnutls-$ver 1
-    ./configure --prefix=/app/gnutls/current --enable-libdane   --without-tpm2   \
-          --without-tpm  --with-included-libtasn1 --disable-guile --disable-rpath  --disable-valgrind-tests   --disable-full-test-suite \
+    download_unpack_source https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-$ver.tar.xz gnutls gnutls-$ver 1
+    ./configure --prefix=/app/gnutls/$prefix$ver --enable-libdane --without-tpm2 \
+       --without-tpm  --with-included-libtasn1 --disable-guile --disable-rpath  --disable-valgrind-tests   --disable-full-test-suite \
        --with-default-trust-store-dir=/app/ccadb/current/files
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it gnutls $prefix$ver
+    create_app_in_tmp_and_link_it2 gnutls $prefix$ver
     make install
-    cp LICENSE /app/gnutls/current
-    set_current_app_clean_strip_cd gnutls $prefix$ver 1
+    cp LICENSE /app/gnutls/$prefix$ver
+    set_current_app_clean_strip_cd2 gnutls $prefix$ver 1
+    create_dev_package2 gnutls $prefix$ver include lib/pkgconfig share/man/man3 share/info share/doc
+    ln -s /app/gnutls/$prefix$ver/LICENSE /app/gnutls-dev/$prefix$ver/LICENSE
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "unbound" ]; then
@@ -2148,14 +2154,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "highway" ]; then
   ver="1.3.0";
   if should_make highway $ver; then
-    download_unpack_source https://github.com/google/highway/archive/1.3.0/highway-1.3.0.tar.gz highway highway-$ver 1
+    download_unpack_source https://github.com/google/highway/archive/$ver/highway-$ver.tar.gz highway highway-$ver 1
     mkdir build
-    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/highway/current \
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/highway/$prefix$ver \
       -DBUILD_SHARED_LIBS=ON -B build
     cmake --build build -- -j$cpu_num
-    create_app_in_tmp_and_link_it highway $prefix$ver
+    create_app_in_tmp_and_link_it2 highway $prefix$ver
     cmake --install build
-    set_current_app_clean_strip_cd highway $prefix$ver 1
+    set_current_app_clean_strip_cd2 highway $prefix$ver 1
+    create_dev_package2 highway $prefix$ver include lib/pkgconfig lib/cmake
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "imagemagick" ]; then

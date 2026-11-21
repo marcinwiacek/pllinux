@@ -7,6 +7,12 @@ Text shaping library (converting Unicode input into glyph output)
 **License**
 See COPYING
 
+**PATH**
+bin
+
+**Man**
+share/man/man1
+
 **Deps**
 glib current
 gcclib current

@@ -6,3 +6,9 @@ I2C tools
 
 **License**
 GPL2
+
+**PATH**
+bin
+
+**Man**
+share/man/man1:share/man/man3:share/man/man8
