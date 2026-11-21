@@ -5,3 +5,6 @@ https://gitlab.freedesktop.org/glvnd/libglvnd
 GL Vendor-Neutral Dispatch library.
 
 **License**
+
+**Current**
+yes

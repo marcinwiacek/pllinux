@@ -24,6 +24,11 @@ Some candidates:
 The goal in PLLinux is, that you can assign to some users "current" version of apps and they can be replaced on fly. This could work, when... app
 files don't have hardcoded real paths. But
 
+readme.md
+
+    **Current**
+    yes
+
 **Stupid problems which need a lot of time**
 
 **Crappy and obsolete code**
@@ -36,6 +41,6 @@ And now time for some conclusion - many years ago in other reality very technica
 later their (sometimes bad) decicions were multiplied and without big cleanup like in PLLinux it's sometimes even
 difficult to understand what are some dependencies.
 
-People are writing so good things about Gnome, some other about KDE or systemd.
+**Cascade linking for libraries?**
 
 [Prev page](file_ym_milestone14.md) [Next page](file_zz_milestone.md)
