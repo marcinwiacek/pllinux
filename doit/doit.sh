@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libglvnd"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libestr"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1302,12 +1302,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libevdev" ]; then
   ver="1.14.0";
   if should_make libevdev $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/libevdev/libevdev/-/archive/libevdev-1.14.0/libevdev-libevdev-1.14.0.tar.bz2?ref_type=tags libevdev libevdev-libevdev-$ver 1
-    meson setup -Dprefix=/app/libevdev/current -Dlibdir=lib -Ddocumentation=disabled builddir
+    download_unpack_source https://gitlab.freedesktop.org/libevdev/libevdev/-/archive/libevdev-$ver/libevdev-libevdev-$ver.tar.bz2?ref_type=tags \
+        libevdev libevdev-libevdev-$ver 1
+    meson setup -Dprefix=/app/libevdev/$prefix$ver -Dlibdir=lib -Ddocumentation=disabled builddir
     ninja -C builddir
-    create_app_in_tmp_and_link_it libevdev $prefix$ver
+    create_app_in_tmp_and_link_it2 libevdev $prefix$ver
     ninja -C builddir install
-    set_current_app_clean_strip_cd libevdev $prefix$ver 1
+    set_current_app_clean_strip_cd2 libevdev $prefix$ver 1
+    create_dev_package2 libevdev $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pcre2" ]; then
@@ -1453,11 +1455,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libes
     mkdir $out/libestr/libestr-$ver-build
     cd $out/libestr/libestr-$ver-build
     ../libestr-$ver/autogen.sh
-    ../libestr-$ver/configure --prefix=/app/libestr/$prefix$ver
+    ../libestr-$ver/configure --prefix=/app/libestr/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app libestr $prefix$ver
+    create_app_in_tmp_and_link_it2 libestr $prefix$ver
     make install
-    set_current_app_clean_strip_cd libestr $prefix$ver 1
+    set_current_app_clean_strip_cd2 libestr $prefix$ver 1
+    create_dev_package2 libestr $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libfastjson" ]; then
@@ -1467,12 +1470,14 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libfa
     mkdir $out/libfastjson/libfastjson-$ver-build
     cd $out/libfastjson/libfastjson-$ver-build
     ../libfastjson-$ver/autogen.sh
-    ../libfastjson-$ver/configure --prefix=/app/libfastjson/$prefix$ver
+    ../libfastjson-$ver/configure --prefix=/app/libfastjson/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app libfastjson $prefix$ver
+    create_app_in_tmp_and_link_it2 libfastjson $prefix$ver
     make install
-    cp ../libfastjson-$ver/COPYING $output/app/libfastjson/$prefix$ver
-    set_current_app_clean_strip_cd libfastjson $prefix$ver 1
+    cp ../libfastjson-$ver/COPYING /app/libfastjson/$prefix$ver
+    set_current_app_clean_strip_cd2 libfastjson $prefix$ver 1
+    create_dev_package2 libfastjson $prefix$ver include lib/pkgconfig
+    ln -s /app/libfastjson/$prefix$ver/COPYING /app/libfastjson-dev/$prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libpng" ]; then
@@ -1553,30 +1558,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libex
   ver2="2_10_0";
   if should_make libexpat $ver; then
     download_unpack_source https://github.com/libexpat/libexpat/releases/download/R_$ver2/expat-$ver.tar.xz libexpat expat-$ver 1
-    ./configure --prefix=/app/libexpat/current
+    ./configure --prefix=/app/libexpat/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libexpat $prefix$ver
+    create_app_in_tmp_and_link_it2 libexpat $prefix$ver
     make install
-
-    set_current_app_clean_strip_cd libexpat $prefix$ver 1
-
-    #this is really first version. needs to be fixed
-    create_app libexpat-dev $prefix$ver
-
-    cd /app/libexpat/$prefix$ver
-    mv include /app/libexpat-dev/$prefix$ver
-    ln -s /app/libexpat-dev/$prefix$ver/include include
-
-    mkdir /app/libexpat-dev/$prefix$ver/lib
-    cd lib
-    for binentry in cmake pkgconfig *.a *.la; do
-      mv $binentry /app/libexpat-dev/$prefix$ver/lib
-      ln -s /app/libexpat-dev/$prefix$ver/lib/$binentry $binentry
-    done
-
-    cp /app/libexpat/$prefix$ver/readme.md /app/libexpat-dev/$prefix$ver
-
-    set_current_app_clean_strip_cd libexpat-dev $prefix$ver 1
+    set_current_app_clean_strip_cd2 libexpat $prefix$ver 1
+    create_dev_package2 libexpat $prefix$ver include lib/pkgconfig lib/cmake
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libdrm" ]; then
@@ -1618,17 +1605,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libffi" ]; then
   ver="3.8.0";
   if should_make libffi $ver; then
-    download_unpack_source https://github.com/libffi/libffi/archive/refs/tags/v3.8.0.tar.gz libffi libffi-$ver 1
+    download_unpack_source https://github.com/libffi/libffi/archive/refs/tags/v$ver.tar.gz libffi libffi-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/libffi/current
+    ./configure --prefix=/app/libffi/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app libffi $prefix$ver
-    set_current_app libffi $prefix$ver 1
+    create_app_in_tmp_and_link_it2 libffi $prefix$ver
     make install
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
-    set_current_app_clean_strip_cd libffi $prefix$ver 1
+    set_current_app_clean_strip_cd2 libffi $prefix$ver 1
+    create_dev_package2 libffi $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libudev-zero" ]; then
@@ -2402,13 +2386,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libfontenc" ]; then
   ver="1.1.9";
   if should_make libfontenc $ver; then
-    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libfontenc/-/archive/libfontenc-1.1.9/libfontenc-libfontenc-1.1.9.tar.bz2?ref_type=tags libfontenc libfontenc-libfontenc-$ver 1
+    download_unpack_source https://gitlab.freedesktop.org/xorg/lib/libfontenc/-/archive/libfontenc-$ver/libfontenc-libfontenc-$ver.tar.bz2?ref_type=tags \
+       libfontenc libfontenc-libfontenc-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/libfontenc/current
+    ./configure --prefix=/app/libfontenc/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app_in_tmp_and_link_it libfontenc $prefix$ver
+    create_app_in_tmp_and_link_it2 libfontenc $prefix$ver
     make install
-    set_current_app_clean_strip_cd libfontenc $prefix$ver 1
+    set_current_app_clean_strip_cd2 libfontenc $prefix$ver 1
+    create_dev_package2 libfontenc $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxinerama" ]; then

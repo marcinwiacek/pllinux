@@ -5,3 +5,4 @@ https://www.freedesktop.org/software/libevdev/
 Library for handling evdev kernel devices.
 
 **License**
+MIT
