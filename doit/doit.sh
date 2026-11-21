@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libedit"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xlibre-xserver"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2999,14 +2999,14 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
     ninja -C builddir install
     set_current_app_clean_strip_cd2 xlibre-xserver $prefix$ver 1
     cp $curdir/in/xlibre-xserver/win /app/xlibre-xserver/$prefix$ver
-    cd /app/xlibre-xserver/current/etc/X11
+    cd /app/xlibre-xserver/$prefix$ver/etc/X11
     mv xorg.conf.d xorg.conf.d.orig
     ln -s /etc/x11/xorg.conf.d xorg.conf.d
-    cd /app/xlibre-xserver/current/lib/xorg/modules
+    cd /app/xlibre-xserver/$prefix$ver/lib/xorg/modules
     find * -type f -exec bash -c 'chmod a-x "{}" ' \;
     mv xlibre-25 xlibre-25.orig
     ln -s /etc/x11/modules xlibre-25
-    create_dev_package2 xlibre-xserver $prefix$ver include lib/pkgconfig share/aclocal share/doc
+#    create_dev_package2 xlibre-xserver $prefix$ver include lib/pkgconfig share/aclocal share/doc
   fi
 fi
 #----------------------------------- x11 apps -------------------------------------------
