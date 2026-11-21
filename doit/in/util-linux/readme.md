@@ -19,3 +19,7 @@ ncurses current
 ncursesw current
 readline current
 zlib current
+file current
+zstd current
+xzutils current
+bzip2 current

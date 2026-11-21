@@ -4,27 +4,7 @@ DPI=""
 PS1ORIG=$(printenv PS1ORIG)
 if [ "$PS1ORIG" = "" ]; then PS1ORIG=$(printenv PS1); fi
 if [ -d /log ]; then
-#  PS1="$PS1ORIG" exec /app/xinit/current/bin/startx -- $DPI -logfile /log/tmp/x
-  PS1="$PS1ORIG" exec /app/xinit/current/bin/startx -- vt11 $DPI -logfile /log/tmp/x
+  PS1="$PS1ORIG" strace /app/xinit/current/bin/startx -- vt11 $DPI -logfile /log/tmp/x 2> /tmp/2 > /tmp/1
 else
-  PS1="$PS1ORIG" exec /app/xinit/current/bin/startx -- $DPI vt11
-#  PS1="$PS1ORIG" exec /app/xinit/current/bin/startx -- $DPI
+  PS1="$PS1ORIG" strace /app/xinit/current/bin/startx -- $DPI vt11 2> /tmp/2 > /tmp/1
 fi
-
-
-
-
-#exec strace /app/xinit/current/bin/startx -- vt11 -logfile /tmp/xwin1 2> /tmp/xwin2 &
-#_pid=$!
-#sleep 20 && kill $_pid &
-
-#needs name X
-#/app/seatd/current/bin/seatd &
-#/app/xlibre-xserver/current/bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb -logfile "/log/Xorg.log"
-#/app/xlibre-xserver/current/bin/startx -logfile "/log/Xorg.log" &
-#/app/xlibre-xserver/current/bin/X -logfile "/log/Xorg.log" $@ &
-
-#/app/xlibre-xserver/current/bin/X -xkbdir /app/xkeyboard-config/current/share/X11/xkb -logfile "/log/tmp/Xorg.log"
-#/app/xlibre-xserver/current/bin/X -logfile "/log/tmp/Xorg.log"
-#sleep 2
-#exec /app/xcalc/current/bin/xcalc
