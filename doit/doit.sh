@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="elfutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="efivar"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -749,10 +749,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efiva
     install_host_deps "mandoc"
     download_unpack_source https://github.com/rhboot/efivar/archive/refs/tags/$ver.tar.gz efivar efivar-$ver 1
     make -j$cpu_num
-    create_app efivar $prefix$ver
+    create_app_in_tmp_and_link_it2 efivar $prefix$ver
     make install PREFIX=/app/efivar/$prefix$ver
     mv /app/efivar/$prefix$ver/lib64 /app/efivar/$prefix$ver/lib
-    set_current_app_clean_strip_cd efivar $prefix$ver 1
+    set_current_app_clean_strip_cd2 efivar $prefix$ver 1
+    create_dev_package2 efivar $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "efibootmgr" ]; then
@@ -1012,6 +1013,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dialo
     make all -j$cpu_num
     create_app dialog $prefix$ver
     make install
+    rm -r /app/dialog/$prefix$var/lib
     set_current_app_clean_strip_cd dialog $prefix$ver 1
   fi
 fi
