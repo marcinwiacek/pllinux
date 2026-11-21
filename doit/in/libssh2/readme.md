@@ -5,3 +5,4 @@ https://libssh2.org/
 Client-side C library implementing SSH2 protocol.
 
 **License**
+See COPYING

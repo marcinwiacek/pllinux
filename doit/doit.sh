@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libthai"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libpciaccess"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1112,7 +1112,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "e2fsp
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dosfstools" ]; then
   ver="4.2";
-  if should_make libssh $ver; then
+  if should_make dosfstools $ver; then
     download_unpack_source https://github.com/dosfstools/dosfstools/releases/download/v4.2/dosfstools-4.2.tar.gz dosfstools dosfstools-$ver 1
     ./configure --prefix=$output/app/dosfstools/$prefix$ver
     make all -j$cpu_num
@@ -1212,12 +1212,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpsl" ]; then
   ver="0.23.3";
   if should_make libpsl $ver; then
-    download_unpack_source https://github.com/rockdaboot/libpsl/releases/download/0.23.3/libpsl-0.23.3.tar.lz libpsl libpsl-$ver 1
-    ./configure --prefix=/app/libpsl/current
+    download_unpack_source https://github.com/rockdaboot/libpsl/releases/download/$ver/libpsl-$ver.tar.lz libpsl libpsl-$ver 1
+    ./configure --prefix=/app/libpsl/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libpsl $prefix$ver
+    create_app_in_tmp_and_link_it2 libpsl $prefix$ver
     make install
-    set_current_app_clean_strip_cd libpsl $prefix$ver 1
+    set_current_app_clean_strip_cd2 libpsl $prefix$ver 1
+    create_dev_package2 libpsl $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "popt" ]; then
@@ -1433,12 +1434,15 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libse
   ver="3.11";
   if should_make libselinux $ver; then
     download_unpack_source https://github.com/SELinuxProject/selinux/releases/download/$ver/libselinux-$ver.tar.gz libselinux libselinux-$ver 1
-    create_app libselinux $prefix$ver
-    make -j$cpu_num DESTDIR=$output/app/libselinux/$prefix$ver install
-    cp LICENSE $output/app/libselinux/$prefix$ver
-    cd $output/app/libselinux/$prefix$ver/lib
+    create_app_in_tmp_and_link_it2 libselinux $prefix$ver
+    make -j$cpu_num DESTDIR=/app/libselinux/$prefix$ver install
+    cp LICENSE /app/libselinux/$prefix$ver
+    cd /app/libselinux/$prefix$ver/lib
     ln -s libselinux.so.1 libselinux.so
-    set_current_app_clean_strip_cd libselinux $prefix$ver 1
+    rm /app/libselinux/$prefix$ver/usr/lib/*.a
+    set_current_app_clean_strip_cd2 libselinux $prefix$ver 1
+    create_dev_package2 libselinux $prefix$ver usr/include usr/lib/pkgconfig usr/share/man/man3
+    cp /app/libselinux/$prefix$ver/LICENSE /app/libselinux-dev/$prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libestr" ]; then
@@ -1473,12 +1477,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libpng" ]; then
   ver="1.6.59";
   if should_make libpng $ver; then
-    download_unpack_source https://sourceforge.net/projects/libpng/files/libpng16/1.6.59/libpng-1.6.59.tar.xz/download libpng libpng-$ver 1
-    ./configure --prefix=/app/libpng/current
+    download_unpack_source https://sourceforge.net/projects/libpng/files/libpng16/$ver/libpng-$ver.tar.xz/download libpng libpng-$ver 1
+    ./configure --prefix=/app/libpng/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app_in_tmp_and_link_it libpng $prefix$ver
+    create_app_in_tmp_and_link_it2 libpng $prefix$ver
     make install
-    set_current_app_clean_strip_cd libpng $prefix$ver 1
+    set_current_app_clean_strip_cd2 libpng $prefix$ver 1
+    create_dev_package2 libpng $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "harfbuzz" ]; then
@@ -1534,15 +1539,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libss
     download_unpack_source https://git.libssh.org/projects/libssh.git/snapshot/stable-$ver.tar.gz libssh stable-$ver 1
     mkdir build
     cd build
-    create_app libssh $prefix$ver
-    set_current_app libssh $prefix$ver 1
-    cmake -DCMAKE_INSTALL_PREFIX=/app/libssh/current -DCMAKE_BUILD_TYPE=Release ..
-    make
+    create_app_in_tmp_and_link_it2 libssh $prefix$ver
+    cmake -DCMAKE_INSTALL_PREFIX=/app/libssh/$prefix$ver -DCMAKE_BUILD_TYPE=Release ..
+    make -j$cpu_num
     make install
-#    echo "" >> /app/libssh/current/readme.md
-#    echo "**Last**" >> /app/libssh/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libssh/current/readme.md
-    set_current_app_clean_strip_cd libssh $prefix$ver 1
+    set_current_app_clean_strip_cd2 libssh $prefix$ver 1
+    create_dev_package2 libssh $prefix$ver include lib/pkgconfig lib/cmake
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libexpat" ]; then
@@ -1592,17 +1594,24 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpc
   ver="0.19";
   if should_make libpciaccess $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libpciaccess-$ver.tar.xz libpciaccess libpciaccess-$ver 1
-    meson setup -Dprefix=/app/libpciaccess/$prefix$ver _build
+    meson setup -Dprefix=/app/libpciaccess/$prefix$ver -Dlibdir=lib _build
+return
     meson compile -C _build
-    create_app libpciaccess $prefix$ver
-    set_current_app libpciaccess $prefix$ver 1
+    create_app_in_tmp_and_link_it2 libpciaccess $prefix$ver
     meson install -C _build
-    rsync -a $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/json-c/$prefix$ver/lib
-    rm -r $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/
+#    rsync -a $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/json-c/$prefix$ver/lib
+#    rm -r $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/
 #    echo "" >> /app/libexpat/current/readme.md
 #    echo "**Last**" >> /app/libexpat/current/readme.md
 #    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
     set_current_app_clean_strip_cd libpciaccess $prefix$ver 1
+
+
+    create_app_in_tmp_and_link_it2 libpng $prefix$ver
+    make install
+    set_current_app_clean_strip_cd2 libpng $prefix$ver 1
+    create_dev_package2 libpng $prefix$ver include lib/pkgconfig share/man/man3
+
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxxf86vm" ]; then
@@ -1830,16 +1839,17 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libssh2" ]; then
   ver="1.11.1";
   if should_make libssh2 $ver; then
-    download_unpack_source https://github.com/libssh2/libssh2/archive/refs/tags/libssh2-1.11.1.tar.gz libssh2 libssh2-libssh2-$ver 1
+    download_unpack_source https://github.com/libssh2/libssh2/archive/refs/tags/libssh2-$ver.tar.gz libssh2 libssh2-libssh2-$ver 1
 #      -D CMAKE_PREFIX_PATH="/app/libssh2/current" \
 #      -DCURL_USE_GNUTLS=on -DCURL_USE_OPENSSL=on -DCURL_LIBCURL_VERSIONED_SYMBOLS=on -DBUILD_SHARED_LIBS=on \
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release  -B build \
-      -DCMAKE_INSTALL_PREFIX:PATH=/app/libssh2/current
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release  -B build -DCMAKE_INSTALL_PREFIX:PATH=/app/libssh2/$prefix$ver
     cmake --build build  --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it libssh2 $prefix$ver
+    create_app_in_tmp_and_link_it2 libssh2 $prefix$ver
     cmake --install build
-    cp COPYING /app/libssh2/current
-    set_current_app_clean_strip_cd libssh2 $prefix$ver 1
+    mv /app/libssh2/$prefix$ver/share/doc/libssh2/COPYING /app/libssh2/$prefix$ver
+    rm /app/libssh2/$prefix$ver/lib/*.a
+    set_current_app_clean_strip_cd2 libssh2 $prefix$ver 1
+    create_dev_package2 libssh2 $prefix$ver include lib/pkgconfig lib/cmake share/man
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "gnutls" ]; then
@@ -2653,13 +2663,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libsm" ]; then
   ver="1.2.6";
   if should_make libsm $ver; then
-    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libSM-1.2.6.tar.xz  libSM libSM-$ver 1
+    download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libSM-$ver.tar.xz  libSM libSM-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/libsm/current
+    ./configure --prefix=/app/libsm/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app_in_tmp_and_link_it libsm $prefix$ver
+    create_app_in_tmp_and_link_it2 libsm $prefix$ver
     make install
-    set_current_app_clean_strip_cd libsm $prefix$ver 1
+    set_current_app_clean_strip_cd2 libsm $prefix$ver 1
+    create_dev_package2 libsm $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libice" ]; then
