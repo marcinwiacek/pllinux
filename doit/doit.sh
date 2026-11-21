@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libjxl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libjpeg-turbo"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2058,8 +2058,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libjx
     sed -i "s/#download_github third_party\/sjpeg/download_github third_party\/sjpeg/" ./deps.sh
     ./deps.sh
     mkdir build
-    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libjxl/$prefix$ver \
-      -B build
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libjxl/$prefix$ver -B build
 #      -D CMAKE_PREFIX_PATH="/app/brotli/current"  #it seems not to work very well
     cmake --build build -- -j$cpu_num
     create_app_in_tmp_and_link_it2 libjxl $prefix$ver
@@ -3150,14 +3149,23 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libjpeg-turbo" ]; then
   ver="3.2.0";
   if should_make libjpeg-turbo $ver; then
-    download_unpack_source https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/3.2.0.tar.gz libjpeg-turbo libjpeg-turbo-$ver 1
-    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/libjpeg-turbo/current \
+    download_unpack_source https://github.com/libjpeg-turbo/libjpeg-turbo/archive/refs/tags/$ver.tar.gz libjpeg-turbo libjpeg-turbo-$ver 1
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/app/libjpeg-turbo/$prefix$ver \
       -DBUILD_SHARED_LIBS=true -S . -B ./build 
-    create_app_in_tmp_and_link_it libjpeg-turbo $prefix$ver
     cmake --build ./build --config Release --target all -j$cpu_num
-    create_app_in_tmp_and_link_it libjpeg-turbo $prefix$ver
+    create_app_in_tmp_and_link_it2 libjpeg-turbo $prefix$ver
     cmake --install build
-    set_current_app_clean_strip_cd libjpeg-turbo $prefix$ver 1
+    rm /app/libjpeg-turbo/$prefix$ver/lib/*.a
+    mv /app/libjpeg-turbo/$prefix$ver/share/doc/libjpeg-turbo/LICENSE.md /app/libjpeg-turbo/$prefix$ver
+    set_current_app_clean_strip_cd2 libjpeg-turbo $prefix$ver 1
+    create_dev_package2 libjpeg-turbo $prefix$ver include lib/pkgconfig lib/cmake
+    mkdir /app/libjpeg-turbo-dev/$prefix$ver/share
+    mkdir /app/libjpeg-turbo-dev/$prefix$ver/share/doc
+    mkdir /app/libjpeg-turbo-dev/$prefix$ver/share/doc/libjpeg-turbo
+    mv /app/libjpeg-turbo/$prefix$ver/share/doc/libjpeg-turbo/*.c /app/libjpeg-turbo-dev/$prefix$ver/share/doc/libjpeg-turbo
+    mv /app/libjpeg-turbo/$prefix$ver/share/doc/libjpeg-turbo/libjpeg.txt /app/libjpeg-turbo-dev/$prefix$ver/share/doc/libjpeg-turbo
+    mv /app/libjpeg-turbo/$prefix$ver/share/doc/libjpeg-turbo/structure.txt /app/libjpeg-turbo-dev/$prefix$ver/share/doc/libjpeg-turbo
+    ln -s /app/libjpeg-turbo/$prefix$ver/LICENSE.md /app/libjpeg-turbo-dev/$prefix$ver/LICENSE.md
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libgudev" ]; then
