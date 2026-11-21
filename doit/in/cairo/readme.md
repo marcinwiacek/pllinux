@@ -6,3 +6,6 @@ https://www.cairographics.org/
 
 **License**
 LGPL 2.1 or MPL 1.1
+
+**PATH**
+bin

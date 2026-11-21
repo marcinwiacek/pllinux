@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="efivar"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="brotli"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1165,9 +1165,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "crypt
     download_unpack_source https://cdn.kernel.org/pub/linux/utils/cryptsetup/v2.8/cryptsetup-$ver.tar.xz cryptsetup cryptsetup-$ver 1
     ./configure --prefix=/app/cryptsetup/$prefix$ver
     make -j$cpu_num
-    create_app cryptsetup $prefix$ver
+    create_app_in_tmp_and_link_it2 cryptsetup $prefix$ver
     make install
-    set_current_app_clean_strip_cd cryptsetup $prefix$ver 1
+    chmod a-x /app/cryptsetup/$prefix$ver/lib/cryptsetup/*.la
+    chmod a-x /app/cryptsetup/$prefix$ver/lib/cryptsetup/*.so
+    set_current_app_clean_strip_cd2 cryptsetup $prefix$ver 1
+    create_dev_package2 cryptsetup $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lvm2" ]; then
@@ -1697,12 +1700,14 @@ if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
   if should_make bzip2 $ver; then
     download_unpack_source https://sourceware.org/pub/bzip2/bzip2-$ver.tar.gz bzip2 bzip2-$ver 1
     make -j$cpu_num
-    create_app bzip2 $prefix$ver
+    create_app_in_tmp_and_link_it2 bzip2 $prefix$ver
     make install PREFIX=/app/bzip2/$prefix$ver
     make clean
     make -f Makefile-libbz2_so -j$cpu_num
-    cp libbz2.so* $output/app/bzip2/$prefix$ver/lib
-    set_current_app_clean_strip_cd bzip2 $prefix$ver 1
+    cp libbz2.so* /app/bzip2/$prefix$ver/lib
+    rm /app/bzip2/$prefix$ver/lib/*.a
+    set_current_app_clean_strip_cd2 bzip2 $prefix$ver 1
+    create_dev_package2 bzip2 $prefix$ver include
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "brotli" ]; then
@@ -1711,9 +1716,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "brotl
     download_unpack_source https://github.com/google/brotli/archive/refs/tags/v$ver.tar.gz brotli brotli-$ver 1
     mkdir out && cd out
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$output/app/brotli/$prefix$ver ..
-    create_app brotli $prefix$ver
+    create_app_in_tmp_and_link_it2 brotli $prefix$ver
     cmake --build . --config Release --target install
-    set_current_app_clean_strip_cd brotli $prefix$ver 1
+    set_current_app_clean_strip_cd2 brotli $prefix$ver 1
+    create_dev_package2 brotli $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 # -------------------------------- basic - info --------------------------------------------
@@ -1812,17 +1818,18 @@ if [ "$package" == "fs" ] || [ "$package" == "curl" ]; then
 #    cmake --install build
 #    cp COPYING /app/curl/current
 #link to libcurl-gnutls.so.4
-    download_unpack_source https://curl.se/download/curl-8.23.0.tar.xz curl curl-$ver 1
-    ./configure --with-openssl --with-gnutls --prefix=/app/curl/current --enable-versioned-symbols \
-        --with-ca-path=/app/ccadb/current/files --with-gnutls --without-openssl --with-libssh2 --disable-ldap
+    download_unpack_source https://curl.se/download/curl-$ver.tar.xz curl curl-$ver 1
+    ./configure --with-openssl --with-gnutls --prefix=/app/curl/$prefix$ver --enable-versioned-symbols \
+        --with-ca-path=/app/ccadb/current/files --with-gnutls --without-openssl --with-libssh2 --disable-ldap --disable-static
     sed -i "s/CURL_GNUTLS_4/CURL_GNUTLS_3/" lib/libcurl.vers  # in 8.23.0 in Debian libcurl_gnutls.so.4 has got CURL_GNUTLS_3
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it curl $prefix$ver
+    create_app_in_tmp_and_link_it2 curl $prefix$ver
     make install
-    cd /app/curl/current/lib
+    cd /app/curl/$prefix$ver/lib
     ln -s libcurl.so libcurl-gnutls.so.4
     cd /
-    set_current_app_clean_strip_cd curl $prefix$ver 1
+    set_current_app_clean_strip_cd2 curl $prefix$ver 1
+    create_dev_package2 curl $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libssh2" ]; then
@@ -3236,12 +3243,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "cairo" ]; then
   ver="1.18.6";
   if should_make cairo $ver; then
-    download_unpack_source https://www.cairographics.org/releases/cairo-1.18.6.tar.xz cairo cairo-$ver 1
-    meson setup -Dprefix=/app/cairo/current --buildtype release -Dlibdir=lib build
+    download_unpack_source https://www.cairographics.org/releases/cairo-$ver.tar.xz cairo cairo-$ver 1
+    meson setup -Dprefix=/app/cairo/$prefix$ver --buildtype release -Dlibdir=lib build
     ninja -C build
-    create_app_in_tmp_and_link_it cairo $prefix$ver
+    create_app_in_tmp_and_link_it2 cairo $prefix$ver
     ninja -C build install
-    set_current_app_clean_strip_cd cairo $prefix$ver 1
+    chmod a-x /app/cairo/$prefix$ver/lib/cairo/libcairo*
+    set_current_app_clean_strip_cd2 cairo $prefix$ver 1
+    create_dev_package2 cairo $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "pango" ]; then
@@ -3368,9 +3377,9 @@ if [ "$package" == "fs" ] || [ "$package" == "labwc-tweaks" ]; then
   ver="0.2.0";
   if should_make labwc-tweaks $ver; then
     download_unpack_source https://github.com/labwc/labwc-tweaks/archive/refs/tags/0.2.0.tar.gz  labwc-tweaks labwc-tweaks-$ver 1
-cmake -B build -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/app/labwc-tweaks/current -W no-dev
+    cmake -B build -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/app/labwc-tweaks/current -W no-dev
     create_app_in_tmp_and_link_it labwc-tweaks $prefix$ver
-cmake --build build --verbose
+    cmake --build build --verbose
     set_current_app_clean_strip_cd labwc-tweaks $prefix$ver 1
 
 #    PKG_CONFIG_PATH=/app/pixman/current/lib/pkgconfig:/app/wlroots/current/lib/pkgconfig:/app/wayland/current/lib/pkgconfig:/app/libdrm/current/lib/pkgconfig:/app/libxkbcommon/current/lib/pkgconfig:/app/xwayland/current/lib/pkgconfig \
@@ -3491,11 +3500,12 @@ if [ "$package" == "fs" ] || [ "$package" == "dav1d" ]; then
 #nasm
   ver="1.5.4";
   if should_make dav1d $ver; then
-    download_unpack_source https://code.videolan.org/videolan/dav1d/-/archive/1.5.4/dav1d-1.5.4.tar.bz2 dav1d dav1d-$ver 1
-    meson setup build --prefix="/app/dav1d/current" --libdir=lib
-    create_app_in_tmp_and_link_it dav1d $prefix$ver
+    download_unpack_source https://code.videolan.org/videolan/dav1d/-/archive/$ver/dav1d-$ver.tar.bz2 dav1d dav1d-$ver 1
+    meson setup build --prefix="/app/dav1d/$prefix$ver" --libdir=lib
+    create_app_in_tmp_and_link_it2 dav1d $prefix$ver
     meson install -C build
-    set_current_app_clean_strip_cd dav1d $prefix$ver 1
+    set_current_app_clean_strip_cd2 dav1d $prefix$ver 1
+    create_dev_package2 dav1d $prefix$ver include lib/pkgconfig
   fi
 fi
 #not used, probably not usefull outside NVidia

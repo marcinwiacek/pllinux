@@ -5,4 +5,6 @@ https://code.videolan.org/videolan/dav1d/
 AV1 decoder
 
 **License**
-https://code.videolan.org/videolan/dav1d/
+
+**PATH**
+bin
