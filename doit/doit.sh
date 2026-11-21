@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="brotli"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libedit"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1267,7 +1267,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libed
     make all -j$cpu_num
     create_app_in_tmp_and_link_it2 libedit $prefix$ver
     make install
-    cd /app/libedit/current/lib
+    cd /app/libedit/$prefix$ver/lib
     ln -s libedit.so libedit.so.2 # debian has other versioning than package?
     set_current_app_clean_strip_cd2 libedit $prefix$ver 1
     create_dev_package2 libedit $prefix$ver include lib/pkgconfig share/man/man3
