@@ -10,6 +10,9 @@ See COPYING*
 **PATH**
 bin
 
+**Current**
+yes
+
 **Deps**
 libx11 current
 freetype current

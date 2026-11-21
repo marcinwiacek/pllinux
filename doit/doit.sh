@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="fontconfig"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libx11"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2633,15 +2633,16 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fonts
   done
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libx11" ]; then
+#CURRENT
   ver="1.8.13";
   if should_make libx11 $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libX11-$ver.tar.xz libX11 libX11-$ver 1
-    ./configure --prefix=/app/libx11/$prefix$ver --disable-static
+    ./configure --prefix=/app/libx11/current --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it2 libx11 $prefix$ver
+    create_app_in_tmp_and_link_it libx11 $prefix$ver
     make install
-    set_current_app_clean_strip_cd2 libx11 $prefix$ver 1
-    create_dev_package2 libx11 $prefix$ver include lib/pkgconfig share/doc share/man/man3
+    set_current_app_clean_strip_cd libx11 $prefix$ver 1
+#    create_dev_package2 libx11 $prefix$ver include lib/pkgconfig share/doc share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxshmfence" ]; then
@@ -3060,15 +3061,16 @@ if [ "$package" == "fs" ] || [ "$package" == "jwm" ]; then
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "imlib2" ]; then
+#CURRENT
   ver="1.12.7";
   if should_make imlib2 $ver; then
     download_unpack_source https://downloads.sourceforge.net/enlightenment/imlib2-$ver.tar.xz imlib2 imlib2-$ver 1
-    ./configure --prefix=/app/imlib2/$prefix$ver --disable-static
+    ./configure --prefix=/app/imlib2/current --disable-static
     make -j$cpu_num
-    create_app_in_tmp_and_link_it2 imlib2 $prefix$ver
+    create_app_in_tmp_and_link_it imlib2 $prefix$ver
     make install
-    set_current_app_clean_strip_cd2 imlib2 $prefix$ver 1
-    create_dev_package2 imlib2 $prefix$ver include lib/pkgconfig
+    set_current_app_clean_strip_cd imlib2 $prefix$ver 1
+#    create_dev_package2 imlib2 $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "icewm" ]; then
