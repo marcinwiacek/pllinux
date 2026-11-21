@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libdisplay-info"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="imlib2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -949,14 +949,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod"
   if should_make kmod $ver; then
     install_host_deps "scdoc"
     download_unpack_source https://github.com/kmod-project/kmod/archive/refs/tags/v$ver.tar.gz kmod kmod-$ver 1
-    meson setup -Dprefix=/app/kmod/current --buildtype release _build
+    meson setup -Dprefix=/app/kmod/$prefix$ver --buildtype release --libdir=lib _build
     meson compile -C _build
-    create_app kmod $prefix$ver
-    set_current_app kmod $prefix$ver 1
+    create_app_in_tmp_and_link_it2 kmod $prefix$ver
     meson install -C _build
-    rsync -a $output/app/kmod/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/kmod/$prefix$ver/lib
-    rm -r $output/app/kmod/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd kmod $prefix$ver 1
+    set_current_app_clean_strip_cd2 kmod $prefix$ver 1
+    create_dev_package2 kmod $prefix$ver include lib/pkgconfig share/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "file" ]; then
@@ -1241,11 +1239,13 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libbs
     install_host_deps "automake autogen libtool"
 #    echo $ver > .dist-version
     ./autogen
-    ./configure --prefix=/app/libbsd/$prefix$ver
+    ./configure --prefix=/app/libbsd/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app libbsd $prefix$ver
+    create_app_in_tmp_and_link_it2 libbsd $prefix$ver
     make install
-    set_current_app_clean_strip_cd libbsd $prefix$ver 1
+    rm /app/libbsd/$prefix$ver/lib/*.a
+    set_current_app_clean_strip_cd2 libbsd $prefix$ver 1
+    create_dev_package2 libbsd $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libedit" ]; then
@@ -1532,13 +1532,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "json-
   ver="0.19-20260627";
   if should_make json-c $ver; then
     download_unpack_source https://github.com/json-c/json-c/archive/refs/tags/json-c-$ver.tar.gz json-c json-c-json-c-$ver 1
-    meson setup -Dprefix=$output/app/json-c/$prefix$ver --buildtype release _build
+    meson setup -Dprefix=$output/app/json-c/$prefix$ver --libdir lib --buildtype release _build
     meson compile -C _build
-    create_app json-c $prefix$ver
+    create_app_in_tmp_and_link_it2 json-c $prefix$ver
     meson install -C _build
-    rsync -a $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/json-c/$prefix$ver/lib
-    rm -r $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd json-c $prefix$ver 1
+    set_current_app_clean_strip_cd2 json-c $prefix$ver 1
+    create_dev_package2 json-c $prefix$ver include
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libssh" ]; then
@@ -2109,14 +2108,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lerc" ]; then
   ver="4.3.0";
   if should_make lerc $ver; then
-    download_unpack_source https://github.com/Esri/lerc/archive/refs/tags/v4.3.0.tar.gz lerc lerc-$ver 1
+    download_unpack_source https://github.com/Esri/lerc/archive/refs/tags/v$ver.tar.gz lerc lerc-$ver 1
     mkdir build
-    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/lerc/current \
-      -B build
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/lerc/$prefix$ver -B build
     cmake --build build -- -j$cpu_num
-    create_app_in_tmp_and_link_it lerc $prefix$ver
+    create_app_in_tmp_and_link_it2 lerc $prefix$ver
     cmake --install build
-    set_current_app_clean_strip_cd lerc $prefix$ver 1
+    set_current_app_clean_strip_cd2 lerc $prefix$ver 1
+    create_dev_package2 lerc $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "jbigkit" ]; then
@@ -2135,14 +2134,15 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdeflate" ]; then
   ver="1.26";
   if should_make libdeflate $ver; then
-    download_unpack_source https://github.com/ebiggers/libdeflate/archive/refs/tags/v1.26.tar.gz libdeflate libdeflate-$ver 1
+    download_unpack_source https://github.com/ebiggers/libdeflate/archive/refs/tags/v$ver.tar.gz libdeflate libdeflate-$ver 1
     mkdir build
-    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libdeflate/current \
-      -B build
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=/app/libdeflate/$prefix$ver -B build
     cmake --build build -- -j$cpu_num
-    create_app_in_tmp_and_link_it libdeflate $prefix$ver
+    create_app_in_tmp_and_link_it2 libdeflate $prefix$ver
     cmake --install build
-    set_current_app_clean_strip_cd libdeflate $prefix$ver 1
+    rm /app/libdeflate/$prefix$ver/lib/*.a
+    set_current_app_clean_strip_cd2 libdeflate $prefix$ver 1
+    create_dev_package2 libdeflate $prefix$ver include lib/pkgconfig lib/cmake
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "highway" ]; then
@@ -2259,8 +2259,6 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdi
     meson compile -C _build
     create_app_in_tmp_and_link_it2 libdisplay-info $prefix$ver
     meson install -C _build
-#    rsync -a /app/libdisplay-info/current/lib/x86_64-linux-gnu/* /app/libdisplay-info/current/lib
-#    rm -r /app/libdisplay-info/current/lib/x86_64-linux-gnu/
     set_current_app_clean_strip_cd2 libdisplay-info $prefix$ver 1
     create_dev_package2 libdisplay-info $prefix$ver include lib/pkgconfig
   fi
@@ -3028,12 +3026,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "imlib2" ]; then
   ver="1.12.7";
   if should_make imlib2 $ver; then
-    download_unpack_source https://downloads.sourceforge.net/enlightenment/imlib2-1.12.7.tar.xz imlib2 imlib2-$ver 1
-    ./configure --prefix=/app/imlib2/current
+    download_unpack_source https://downloads.sourceforge.net/enlightenment/imlib2-$ver.tar.xz imlib2 imlib2-$ver 1
+    ./configure --prefix=/app/imlib2/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app_in_tmp_and_link_it imlib2 $prefix$ver
+    create_app_in_tmp_and_link_it2 imlib2 $prefix$ver
     make install
-    set_current_app_clean_strip_cd imlib2 $prefix$ver 1
+    set_current_app_clean_strip_cd2 imlib2 $prefix$ver 1
+    create_dev_package2 imlib2 $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "icewm" ]; then
@@ -3112,13 +3111,14 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdatrie" ]; then
   ver="0.2.14";
   if should_make libdatrie $ver; then
-    download_unpack_source https://github.com/tlwg/libdatrie/archive/refs/tags/v0.2.14.tar.gz libdatrie libdatrie-$ver 1
+    download_unpack_source https://github.com/tlwg/libdatrie/archive/refs/tags/v$ver.tar.gz libdatrie libdatrie-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/libdatrie/current
+    ./configure --prefix=/app/libdatrie/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it libdatrie $prefix$ver
+    create_app_in_tmp_and_link_it2 libdatrie $prefix$ver
     make install
-    set_current_app_clean_strip_cd libdatrie $prefix$ver 1
+    set_current_app_clean_strip_cd2 libdatrie $prefix$ver 1
+    create_dev_package2 libdatrie $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libthai" ]; then

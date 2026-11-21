@@ -6,3 +6,6 @@ Graphics library for fast file loading, saving, manipulation and rendering.
 
 **License**
 See COPYING*
+
+**PATH**
+bin

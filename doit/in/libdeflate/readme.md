@@ -6,3 +6,6 @@ Library for DEFLATE/zlib/gzip compression and decompression.
 
 **License**
 MIT
+
+**PATH**
+bin
