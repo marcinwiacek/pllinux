@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libestr"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libdisplay-info"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1252,13 +1252,14 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libed
   ver="20260512-3.1";
   if should_make libedit $ver; then
     download_unpack_source https://www.thrysoee.dk/editline/libedit-$ver.tar.gz libedit libedit-$ver 1
-    ./configure --prefix=/app/libedit/$prefix$ver
+    ./configure --prefix=/app/libedit/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app libedit $prefix$ver
+    create_app_in_tmp_and_link_it2 libedit $prefix$ver
     make install
     cd /app/libedit/current/lib
     ln -s libedit.so libedit.so.2 # debian has other versioning than package?
-    set_current_app_clean_strip_cd libedit $prefix$ver 1
+    set_current_app_clean_strip_cd2 libedit $prefix$ver 1
+    create_dev_package2 libedit $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gmp" ]; then
@@ -1507,12 +1508,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "libepoxy" ]; then
   ver="1.5.10";
   if should_make libepoxy $ver; then
-    download_unpack_source https://github.com/anholt/libepoxy/archive/refs/tags/1.5.10.tar.gz libepoxy libepoxy-$ver 1
-    meson setup -Dprefix=/app/libepoxy/current --buildtype release -Dlibdir=lib _build
+    download_unpack_source https://github.com/anholt/libepoxy/archive/refs/tags/$ver.tar.gz libepoxy libepoxy-$ver 1
+    meson setup -Dprefix=/app/libepoxy/$prefix$ver --buildtype release -Dlibdir=lib _build
     meson compile -C _build
-    create_app_in_tmp_and_link_it libepoxy $prefix$ver
+    create_app_in_tmp_and_link_it2 libepoxy $prefix$ver
     meson install -C _build
-    set_current_app_clean_strip_cd libepoxy $prefix$ver 1
+    set_current_app_clean_strip_cd2 libepoxy $prefix$ver 1
+    create_dev_package2 libepoxy $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "freetype" ]; then
@@ -1570,12 +1572,13 @@ if [ "$package" == "fs" ] || [ "$package" == "libdrm" ]; then
   ver="2.4.134";
   if should_make libdrm $ver; then
     download_unpack_source https://dri.freedesktop.org/libdrm/libdrm-$ver.tar.xz libdrm libdrm-$ver 1
-    meson setup builddir/ --prefix=/app/libdrm/$prefix$ver
-    create_app libdrm $prefix$ver
+    meson setup builddir/ --prefix=/app/libdrm/$prefix$ver --libdir=lib
+    create_app_in_tmp_and_link_it2 libdrm $prefix$ver
     ninja -C builddir/ install
-    rsync -a $output/app/libdrm/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libdrm/$prefix$ver/lib
-    rm -r $output/app/libdrm/$prefix$ver/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd libdrm $prefix$ver 1
+#    rsync -a $output/app/libdrm/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libdrm/$prefix$ver/lib
+#    rm -r $output/app/libdrm/$prefix$ver/lib/x86_64-linux-gnu/
+    set_current_app_clean_strip_cd2 libdrm $prefix$ver 1
+    create_dev_package2 libdrm $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpciaccess" ]; then
@@ -2252,13 +2255,14 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdi
   if should_make libdisplay-info $ver; then
     download_unpack_source https://gitlab.freedesktop.org/emersion/libdisplay-info/-/releases/$ver/downloads/libdisplay-info-$ver.tar.xz \
           libdisplay-info libdisplay-info-$ver 1
-    meson setup -Dprefix=/app/libdisplay-info/current _build
+    meson setup -Dprefix=/app/libdisplay-info/$prefix$ver --libdir=lib _build
     meson compile -C _build
-    create_app_in_tmp_and_link_it libdisplay-info $prefix$ver
+    create_app_in_tmp_and_link_it2 libdisplay-info $prefix$ver
     meson install -C _build
-    rsync -a /app/libdisplay-info/current/lib/x86_64-linux-gnu/* /app/libdisplay-info/current/lib
-    rm -r /app/libdisplay-info/current/lib/x86_64-linux-gnu/
-    set_current_app_clean_strip_cd libdisplay-info $prefix$ver 1
+#    rsync -a /app/libdisplay-info/current/lib/x86_64-linux-gnu/* /app/libdisplay-info/current/lib
+#    rm -r /app/libdisplay-info/current/lib/x86_64-linux-gnu/
+    set_current_app_clean_strip_cd2 libdisplay-info $prefix$ver 1
+    create_dev_package2 libdisplay-info $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "swiftshader" ]; then
