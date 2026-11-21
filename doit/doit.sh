@@ -1595,23 +1595,11 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libpc
   if should_make libpciaccess $ver; then
     download_unpack_source https://xorg.freedesktop.org/archive/individual/lib/libpciaccess-$ver.tar.xz libpciaccess libpciaccess-$ver 1
     meson setup -Dprefix=/app/libpciaccess/$prefix$ver -Dlibdir=lib _build
-return
     meson compile -C _build
     create_app_in_tmp_and_link_it2 libpciaccess $prefix$ver
     meson install -C _build
-#    rsync -a $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/json-c/$prefix$ver/lib
-#    rm -r $output/app/json-c/$prefix$ver/lib/x86_64-linux-gnu/
-#    echo "" >> /app/libexpat/current/readme.md
-#    echo "**Last**" >> /app/libexpat/current/readme.md
-#    echo "$LATEST_FILE_UPDATE" >> /app/libexpat/current/readme.md
-    set_current_app_clean_strip_cd libpciaccess $prefix$ver 1
-
-
-    create_app_in_tmp_and_link_it2 libpng $prefix$ver
-    make install
-    set_current_app_clean_strip_cd2 libpng $prefix$ver 1
-    create_dev_package2 libpng $prefix$ver include lib/pkgconfig share/man/man3
-
+    set_current_app_clean_strip_cd2 libpciaccess $prefix$ver 1
+    create_dev_package2 libpciaccess $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxxf86vm" ]; then
