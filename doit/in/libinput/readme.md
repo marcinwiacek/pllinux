@@ -6,6 +6,9 @@ Library to handle input devices for most Wayland compositors and the X.Org xf86-
 
 **License**
 
+**Current**
+yes
+
 **Deps**
 libudev-zero current
 libevdev current

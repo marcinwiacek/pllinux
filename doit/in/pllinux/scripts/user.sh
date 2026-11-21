@@ -11,6 +11,7 @@ CONS=$(/app/busybox/current/bin/tty)
 
 FEATURES=""
 APPS=""
+CLASSIC=0
 
 if [ -e "/etc/pllinux/pllinux.conf" ]; then
   while read -r line; do
@@ -26,6 +27,7 @@ EOF
       /app/kbd/current/bin/loadkeys -C $CONS /app/kbd/current/share/keymaps/i386/$PARAM_VALUE ;;
     ${USER}_FONT )
       /app/kbd/current/bin/setfont -C $CONS $PARAM_VALUE ;;
+    ${USER}_CLASSIC ) CLASSIC=1 ;;
     esac
   done < "/etc/pllinux/pllinux.conf"
 fi
@@ -33,9 +35,8 @@ fi
 if [ "$APPS" = "" ]; then
   echo User $USER does not have any apps
 else
-#/app/pllinux/current/scripts/userwrap.sh mnt reset net processes "app mc current:util-linux current:busybox current:openssl current:groff current"
-  /app/pllinux/current/scripts/userwrap.sh $FEATURES "app $APPS"
+  #/app/pllinux/current/scripts/userwrap.sh mnt reset net processes "app mc current:util-linux current:busybox current:openssl current:groff current"
+  /app/pllinux/current/scripts/userwrap.sh $CLASSIC $FEATURES "app $APPS"
 fi
 /app/kbd/current/bin/setfont -C $CONS $(/app/pllinux/current/pllinux FONT)
 #/app/kbd/current/bin/loadkeys -C $CONS /app/kbd/current/share/keymaps/i386/$(/app/pllinux/current/pllinux KEYB)
-

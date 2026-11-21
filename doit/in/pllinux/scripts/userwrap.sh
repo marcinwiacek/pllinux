@@ -13,6 +13,18 @@ if [ ! -d "/log" ]; then
   return
 fi
 
+#echo third is $1
+if [ "$1" = "1" ]; then
+#  echo my name is
+#  echo my name is
+  /app/busybox/current/bin/whoami
+  /app/util-linux/current/bin/mount --rbind /app /app
+  /app/util-linux/current/bin/mount --bind /etc/users/$USER /home
+  /app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,nodev /tmp
+  /app/bash/current/bin/bash
+  return
+fi
+
 # green [time] user:folder $
 # OR
 # green [time] user:folder amber git branch name $
@@ -175,6 +187,7 @@ PARAMS="$PARAMS --setenv TERMINFO /app/ncurses/current/share/terminfo "
 PARAMS="$PARAMS --setenv TZDIR /app/tzdb/current/usr/share/zoneinfo "
 PARAMS="$PARAMS --setenv TERM linux "
 PARAMS="$PARAMS --setenv LANG $(/app/pllinux/current/pllinux LANG) "
+PARAMS="$PARAMS --setenv LANGUAGE $(/app/pllinux/current/pllinux LANG) "
 IFS="/"
 LAST=""
 for PART in $shell
