@@ -8,7 +8,7 @@ Tools for ELF format. Used mainly for debugging.
 GPL3.0 and 2 others (per Git-Hub)
 
 **PATH**
-sbin
+bin
 
 **Man**
 share/man/man1:share/man/man3:share/man/man7:share/man/man8

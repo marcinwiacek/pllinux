@@ -17,3 +17,6 @@ harfbuzz current
 brotli current
 glib current
 pcre2 current
+
+**PATH**
+bin

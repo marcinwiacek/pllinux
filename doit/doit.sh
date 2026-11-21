@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="gnutls"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="elfutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -959,14 +959,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod"
 fi
 if [ "$package" == "fs" ] || [ "$package" == "file" ]; then
   ver="5_48";
-  download_unpack_source https://github.com/file/file/archive/refs/tags/FILE$ver.tar.gz FILE file-FILE$ver 1
-  autoreconf -f -i
-  ./configure --prefix=/app/file/current
-  make all -j$cpu_num
-  create_app_in_tmp_and_link_it file $prefix$ver
-  make install
-  cp COPYING /app/file/current
-  set_current_app_clean_strip_cd file $prefix$ver 1
+  if should_make file $ver; then
+    download_unpack_source https://github.com/file/file/archive/refs/tags/FILE$ver.tar.gz FILE file-FILE$ver 1
+    autoreconf -f -i
+    ./configure --prefix=/app/file/$prefix$ver
+    make all -j$cpu_num
+    create_app_in_tmp_and_link_it2 file $prefix$ver
+    make install
+    cp COPYING /app/file/$prefix$ver
+    set_current_app_clean_strip_cd2 file $prefix$ver 1
+    create_dev_package2 file $prefix$ver include lib/pkgconfig share/man/man3
+    ln -s /app/file/$prefix$ver/COPYING /app/file-dev/$prefix$ver/COPYING
+  fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "binutils" ]; then
   ver="2.47";
@@ -1075,9 +1079,11 @@ if [ "$package" == "fs" ] || [ "$package" == "elfutils" ]; then
     cd $out/elfutils/elfutils-$ver-build
     ../elfutils-$ver/configure --prefix=/app/elfutils/$prefix$ver
     make -j$cpu_num
-    create_app elfutils $prefix$ver
+    create_app_in_tmp_and_link_it2 elfutils $prefix$ver
     make install
-    set_current_app_clean_strip_cd elfutils $prefix$ver 1
+    rm /app/elfutils/$prefix$ver/lib/*.a
+    set_current_app_clean_strip_cd2 elfutils $prefix$ver 1
+    create_dev_package2 elfutils $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "rsync" ]; then
@@ -1265,12 +1271,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gmp" ]; then
   ver="6.3.0";
   if should_make gmp $ver; then
-    download_unpack_source https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz gmp gmp-$ver 1
-    ./configure --prefix=/app/gmp/$prefix$ver
+    download_unpack_source https://gmplib.org/download/gmp/gmp-$ver.tar.xz gmp gmp-$ver 1
+    ./configure --prefix=/app/gmp/$prefix$ver --disable-static
     make all -j$cpu_num
-    create_app gmp $prefix$ver
+    create_app_in_tmp_and_link_it2 gmp $prefix$ver
     make install
-    set_current_app_clean_strip_cd gmp $prefix$ver 1
+    set_current_app_clean_strip_cd2 gmp $prefix$ver 1
+    create_dev_package2 gmp $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libmd" ]; then
@@ -1522,12 +1529,13 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "freetype" ]; then
   ver="2.15.0";
   if should_make freetype $ver; then
-    download_unpack_source https://download.savannah.gnu.org/releases/freetype/freetype-2.15.0.tar.gz freetype  freetype-$ver 1
-    ./configure --prefix=/app/freetype/current
+    download_unpack_source https://download.savannah.gnu.org/releases/freetype/freetype-$ver.tar.gz freetype  freetype-$ver 1
+    ./configure --prefix=/app/freetype/$prefix$ver --disable-static
     make -j$cpu_num
-    create_app_in_tmp_and_link_it freetype $prefix$ver
+    create_app_in_tmp_and_link_it2 freetype $prefix$ver
     make install
-    set_current_app_clean_strip_cd freetype $prefix$ver 1
+    set_current_app_clean_strip_cd2 freetype $prefix$ver 1
+    create_dev_package2 freetype $prefix$ver include lib/pkgconfig share
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "json-c" ]; then
@@ -2338,15 +2346,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fontconfig" ]; then
   ver="2.17.1";
   if should_make fontconfig $ver; then
     download_unpack_source https://gitlab.freedesktop.org/fontconfig/fontconfig/-/archive/$ver/fontconfig-$ver.tar.bz2 fontconfig fontconfig-$ver 1
-    meson setup -Dprefix=/app/fontconfig/current --buildtype release -Dlibdir=lib -Ddoc=disabled _build -Dcache-dir= -Dcache-build=disabled
+    meson setup -Dprefix=/app/fontconfig/$prefix$ver --buildtype release -Dlibdir=lib -Ddoc=disabled _build -Dcache-dir= -Dcache-build=disabled
     meson compile -C _build
-    create_app_in_tmp_and_link_it fontconfig $prefix$ver
+    create_app_in_tmp_and_link_it2 fontconfig $prefix$ver
     meson install -C _build
-    cp COPYING /app/fontconfig/current
-    cd /app/fontconfig/current/etc/fonts
+    cp COPYING /app/fontconfig/$prefix$ver
+    cd /app/fontconfig/$prefix$ver/etc/fonts
     mv fonts.conf fonts.conf.default
     ln -s /etc/x11/fonts.conf fonts.conf
-    set_current_app_clean_strip_cd fontconfig $prefix$ver 1
+    set_current_app_clean_strip_cd2 fontconfig $prefix$ver 1
+    create_dev_package2 fontconfig $prefix$ver include lib/pkgconfig
+    ln -s /app/fontconfig/$prefix$ver/COPYING /app/fontconfig-dev/$prefix$ver/COPYING
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libglvnd" ]; then
@@ -3109,13 +3119,14 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fribi
 #help2man
   ver="1.0.18";
   if should_make fribidi $ver; then
-    download_unpack_source https://github.com/fribidi/fribidi/archive/refs/tags/v1.0.18.tar.gz fribidi fribidi-$ver 1
+    download_unpack_source https://github.com/fribidi/fribidi/archive/refs/tags/v$ver.tar.gz fribidi fribidi-$ver 1
     ./autogen.sh
-    ./configure --prefix=/app/fribidi/current
+    ./configure --prefix=/app/fribidi/$prefix$ver
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it fribidi $prefix$ver
+    create_app_in_tmp_and_link_it2 fribidi $prefix$ver
     make install
-    set_current_app_clean_strip_cd fribidi $prefix$ver 1
+    set_current_app_clean_strip_cd2 fribidi $prefix$ver 1
+    create_dev_package2 fribidi $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libdatrie" ]; then

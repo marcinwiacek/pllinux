@@ -6,3 +6,9 @@ Free implementation of the Unicode Bidirectional Algorithm.
 
 **License**
 LGPL2.1
+
+**PATH**
+bin
+
+**Man**
+share/man/man1
