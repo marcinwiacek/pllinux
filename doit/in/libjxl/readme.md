@@ -6,3 +6,8 @@ JPEG XL image format reference implementation.
 
 **License**
 BSD-3-Clause license
+
+**Deps**
+highway current
+gcclib current
+brotli current
