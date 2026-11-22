@@ -23,3 +23,5 @@ file current
 zstd current
 xzutils current
 bzip2 current
+libxcrypt current
+linux-pam current

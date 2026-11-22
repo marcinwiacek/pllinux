@@ -11,3 +11,7 @@ BSD-3-Clause license
 highway current
 gcclib current
 brotli current
+giflib current
+libjpeg-turbo current
+libpng current
+zlib current
