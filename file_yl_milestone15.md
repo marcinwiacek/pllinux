@@ -68,17 +68,19 @@ This needs to be improved with future releases. The goal is to have all system c
 One of main goals was, that user has got nice filesystem. Before today it was implemented, that:
 
 1. root files are saved in /home (please don't comment, there were various reasons for it)
-2. user files are saved in /etc/users (it contains symlink to /home too)
-3. users after logging into sandbox see their home directory (we map /etc/users/(user_name)) or root see the same
+2. user files are saved in /etc/users (it contains symlink from /etc/users/root into /home too)
+3. users after logging into sandbox see their home directory inside /home (we map /etc/users/(user_name))
+4. root after logging see its home directory inside /home
 
-But what when users want to more classical design and be able to use sudo/su? We can't sandbox them - with this approach security will be much lower, but... we need, that /home contains classic files (/home/user1, /home/user2, etc.).
+But what when users want to more classical design and be able to use sudo/su? We can't sandbox them (with this version security will be much lower) & we need, that /home contains classic files (/home/user1, /home/user2, etc.).
 
 After some consideration new approach will be probably, that:
 
-1. we will stay with /etc/users
-2. /home will be symlink to /etc/users in main filesystem (will be visible for non-sandboxed user)
-3. for root user we will mount/bind /etc/users/root into home
-4. for sandboxed user we will mount /etc/users/(user) into home
+1. we will have "classic" /home directory (/home/user1, /home/user2, etc.)
+2. root home files will be saved inside /home/root (with few users it shouldn't be big problem)
+3. for sandboxed user we will mount /home/(user) into /home
+
+Root and non-sandboxed user will see all users inside /home & there is risk, that some software will save something inside /home. Not nice, but how to resolve it in nice way? One step back, two forward. I hope to find better solution in the future.
 
 **Cascade linking for libraries?**
 
