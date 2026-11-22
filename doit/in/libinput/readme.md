@@ -5,6 +5,7 @@ https://gitlab.freedesktop.org/libinput/libinput/
 Library to handle input devices for most Wayland compositors and the X.Org xf86-input-libinput driver.
 
 **License**
+See COPYING
 
 **Current**
 yes
