@@ -5,3 +5,4 @@ https://www.openjpeg.org/
 JPEG 2000 codec in C and (since May 2015) JPEG 2000 Reference Software for ISO/IEC and ITU-T.
 
 **License**
+2-clauses BSD License
