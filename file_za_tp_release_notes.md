@@ -171,6 +171,9 @@ Readme.md is semi-text file with some elements, for example:
     glibc current
     zstd current
 
+    **Current**
+    yes
+
 This is text file and order is technically not important (but I try to have project, description and license on the beginning and deps on the end).
 
 We have here different elements:
@@ -315,9 +318,6 @@ Known GRUB issue. The only one solution is decreasing security, in the future GR
 
 Known GRUB/Linux architecture issue. Some distributions are mitigating it with putting decryption key on the disk and we don't want
 probably to do it.
-
-**Midnight Commander shows strange .[1m or similar things with man files in viewer**
-[mcviewer: add syntax highlighting via external command - #5065](https://github.com/MidnightCommander/mc/pull/5065)
 
 **Midnight Commander and "Broken Pipe" error**
 When you see this after pressing F3 or F4 - add link from /bin/sh to the /app/busybox/current/bin/sh
