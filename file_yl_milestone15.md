@@ -57,21 +57,31 @@ The goal in PLLinux is, that you can assign to some users "current" version of a
     **Current**
     yes
 
-Needs to be improved with future releases. The goal is to have all system config in /etc and user config in /home/app
-
-**Stupid problems which need a lot of time**
+This needs to be improved with future releases. The goal is to have all system config in /etc (or other kernel releated directories) and user config in /home/app.
 
 **Crappy and obsolete code**
 
-/bin/sh
+/bin/sh from previous milestone is just example of this what is happening. Programmers for years assumed some behaviors and didn't respect standards. To improve it we need projects like PLLinux - currently some files and settings in packages are still unknown, but it's improving from release to release.
 
 **Users with and without sandboxing**
 
+One of main goals was, that user has got nice filesystem. Before today it was implemented, that:
+
+1. root files are saved in /home (please don't comment, there were various reasons for it)
+2. user files are saved in /etc/users (it contains symlink to /home too)
+3. users after logging into sandbox see their home directory (we map /etc/users/(user_name)) or root see the same
+
+But what when users want to more classical design and be able to use sudo/su? We can't sandbox them - with this approach security will be much lower, but... we need, that /home contains classic files (/home/user1, /home/user2, etc.).
+
+After some consideration new approach will be probably, that:
+
+1. we will stay with /etc/users
+2. /home will be symlink to /etc/users in main filesystem (will be visible for non-sandboxed user)
+3. for root user we will mount/bind /etc/users/root into home
+4. for sandboxed user we will mount /etc/users/(user) into home
 
 **Cascade linking for libraries?**
 
-And now time for some conclusion - many years ago in other reality very technical people made some decisions and
-later their (sometimes bad) decicions were multiplied and without big cleanup like in PLLinux it's sometimes even
-difficult to understand what are some dependencies.
+Let's assume, that we have app1 using few other apps (app2, app3, etc.). Currently all deps from app2 and app3 need to be mentioned in the app1, it will be probably changed to cascade linking - app1 will link only app2, app3, etc. and system will check their readme.md for next deps. This approach has got disadvantage (they can potentially add dep to something, we don't want), but greatly improve situation, when we remove some deps from them.
 
 [Prev page](file_ym_milestone14.md) [Next page](file_zz_milestone.md)
