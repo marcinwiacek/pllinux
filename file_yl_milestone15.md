@@ -86,4 +86,18 @@ Root and non-sandboxed user will see all users inside /home & there is risk, tha
 
 Let's assume, that we have app1 using few other apps (app2, app3, etc.). Currently all deps from app2 and app3 need to be mentioned in the app1, it will be probably changed to cascade linking - app1 will link only app2, app3, etc. and system will check their readme.md for next deps. This approach has got disadvantage (they can potentially add dep to something, we don't want), but greatly improve situation, when we remove some deps from them.
 
+**Should we support all font types?**
+
+BDF, TTF, PSF and others. Should system distribute all or just subset? (for now we use PSF for console and TTF for X11)
+
+**Going with all standards?**
+
+Wayland or X11 or both? Or maybe systemctl?
+
+These questions are with me the whole time and (as for now): 
+
+1. Wayland implementations are more complicated or not working (the only one sensible
+till now seems to be Weston, but it doesn't have real taskbar, which is very bad, because 99% is done)
+2. systemctl is maybe used by part of Linux world, but this is really not working well, when you want to separate things
+
 [Prev page](file_ym_milestone14.md) [Next page](file_zz_milestone.md)

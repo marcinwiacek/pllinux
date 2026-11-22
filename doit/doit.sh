@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="curl"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="fonts-x11"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2626,14 +2626,15 @@ if [ "$package" == "fs" ] || [ "$package" == "xkeyboard-config" ]; then
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fonts-x11" ]; then
 #font-bitstream-speedo:1.0.2 \
-  for DIR_NAME in encodings:1.1.0 \
-      font-adobe-75dpi:1.0.4 font-adobe-100dpi:1.0.4 font-adobe-utopia-100dpi:1.0.5 font-adobe-utopia-type1:1.0.5 font-alias:1.0.6 \
-      font-arabic-misc:1.0.4 font-bh-75dpi:1.0.4 font-bh-100dpi:1.0.4 font-bh-lucidatypewriter-75dpi:1.0.4 font-bh-lucidatypewriter-100dpi:1.0.4 \
-      font-bh-ttf:1.0.4 font-bh-type1:1.0.4 font-bitstream-75dpi:1.0.4 font-bitstream-100dpi:1.0.4 \
-      font-bitstream-type1:1.0.4 font-cronyx-cyrillic:1.0.4 font-cursor-misc:1.0.4 font-daewoo-misc:1.0.4 font-dec-misc:1.0.4 \
-      font-ibm-type1:1.0.4 font-isas-misc:1.0.4 font-jis-misc:1.0.4 font-micro-misc:1.0.4 font-misc-cyrillic:1.0.4 \
-      font-misc-ethiopic:1.0.5 font-misc-meltho:1.0.4 font-misc-misc:1.1.3 font-mutt-misc:1.0.4 font-schumacher-misc:1.1.3 \
-      font-screen-cyrillic:1.0.5 font-sony-misc:1.0.4 font-sun-misc:1.0.4 font-winitzki-cyrillic:1.0.4 font-xfree86-type1:1.0.5; do
+  for DIR_NAME in font-bh-ttf:1.0.4; do
+#encodings:1.1.0 \
+#      font-adobe-75dpi:1.0.4 font-adobe-100dpi:1.0.4 font-adobe-utopia-100dpi:1.0.5 font-adobe-utopia-type1:1.0.5 font-alias:1.0.6 \
+#      font-arabic-misc:1.0.4 font-bh-75dpi:1.0.4 font-bh-100dpi:1.0.4 font-bh-lucidatypewriter-75dpi:1.0.4 font-bh-lucidatypewriter-100dpi:1.0.4 \
+#      font-bh-ttf:1.0.4 font-bh-type1:1.0.4 font-bitstream-75dpi:1.0.4 font-bitstream-100dpi:1.0.4 \
+#      font-bitstream-type1:1.0.4 font-cronyx-cyrillic:1.0.4 font-cursor-misc:1.0.4 font-daewoo-misc:1.0.4 font-dec-misc:1.0.4 \
+#      font-ibm-type1:1.0.4 font-isas-misc:1.0.4 font-jis-misc:1.0.4 font-micro-misc:1.0.4 font-misc-cyrillic:1.0.4 \
+#      font-misc-ethiopic:1.0.5 font-misc-meltho:1.0.4 font-misc-misc:1.1.3 font-mutt-misc:1.0.4 font-schumacher-misc:1.1.3 \
+#      font-screen-cyrillic:1.0.5 font-sony-misc:1.0.4 font-sun-misc:1.0.4 font-winitzki-cyrillic:1.0.4 font-xfree86-type1:1.0.5; do
     fname="";
     IFS=":"
     for X in $DIR_NAME; do
@@ -2646,12 +2647,13 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "fonts
     IFS=$IFSORIG
     if should_make $fname $ver; then
       download_unpack_source https://xorg.freedesktop.org/archive/individual/font/$fname-$ver.tar.xz $fname $fname-$ver 1
-      ./configure --with-fontrootdir=/app/$fname/current --prefix=/app/$fname/current --exec-prefix=/app/$fname/current \
-           --with-fontdir=/app/$fname/current  --with-fc-confdir=/app/$fname/current/cfg
+      ./configure --with-fontrootdir=/app/$fname/$prefix$ver --prefix=/app/$fname/$prefix$ver --exec-prefix=/app/$fname/$prefix$ver \
+           --with-fontdir=/app/$fname/$prefix$ver  --with-fc-confdir=/app/$fname/$prefix$ver/cfg
       make all -j$cpu_num
-      create_app_in_tmp_and_link_it $fname $prefix$ver
+      create_app_in_tmp_and_link_it2 $fname $prefix$ver
       make install
-      set_current_app_clean_strip_cd $fname $prefix$ver 1
+      cp COPYING /app/$fname/$prefix$ver/COPYING
+      set_current_app_clean_strip_cd2 $fname $prefix$ver 1
       mkdir "/tmp/doit"
       cd $curdir
     fi
@@ -3536,11 +3538,13 @@ if [ "$package" == "fs" ] || [ "$package" == "dav1d" ]; then
   ver="1.5.4";
   if should_make dav1d $ver; then
     download_unpack_source https://code.videolan.org/videolan/dav1d/-/archive/$ver/dav1d-$ver.tar.bz2 dav1d dav1d-$ver 1
-    meson setup build --prefix="/app/dav1d/$prefix$ver" --libdir=lib
+    meson setup build --prefix=/app/dav1d/$prefix$ver --libdir=lib
     create_app_in_tmp_and_link_it2 dav1d $prefix$ver
     meson install -C build
+    cp COPYING /app/dav1d/$prefix$ver
     set_current_app_clean_strip_cd2 dav1d $prefix$ver 1
     create_dev_package2 dav1d $prefix$ver include lib/pkgconfig
+    ln -s /app/dav1d/$prefix$ver/COPYING /app/dav1d-dev/$prefix$ver/COPYING
   fi
 fi
 #not used, probably not usefull outside NVidia
