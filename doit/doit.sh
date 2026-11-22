@@ -554,17 +554,17 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bwrap
     install_host_deps "meson libcap-dev"
     download_unpack_source https://github.com/containers/bubblewrap/releases/download/v$ver/bubblewrap-$ver.tar.xz bwrap bubblewrap-$ver 1
     cp $curdir/in/bwrap/*.c $out/bwrap/bubblewrap-$ver
-    meson setup -Ddefault_library=static -Ddefault_both_libraries=static -Dselinux=disabled _builddir
-    meson compile -C _builddir
-    sed -i 's/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined \/usr\/lib\/x86_64-linux-gnu\/libcap.so/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined -static \/usr\/lib\/x86_64-linux-gnu\/libcap.a/g' _builddir/build.ninja
-    meson compile -C _builddir
+    meson setup -Ddefault_library=static -Ddefault_both_libraries=static -Dselinux=disabled _build
+    meson compile -C _build
+    sed -i 's/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined \/usr\/lib\/x86_64-linux-gnu\/libcap.so/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined -static \/usr\/lib\/x86_64-linux-gnu\/libcap.a/g' _build/build.ninja
+    meson compile -C _build
     create_app bwrap $prefix$ver
     mkdir $output/app/bwrap/$prefix$ver/bin
-    cp _builddir/bwrap $output/app/bwrap/$prefix$ver/bin
+    cp _build/bwrap $output/app/bwrap/$prefix$ver/bin
     cp $curdir/in/bwrap/diff $output/app/bwrap/$prefix$ver
     cp $curdir/in/bwrap/diff2 $output/app/bwrap/$prefix$ver
     mkdir $output/app/bwrap/$prefix$ver/man
-    cp _builddir/bwrap.1 $output/app/bwrap/$prefix$ver/man
+    cp _build/bwrap.1 $output/app/bwrap/$prefix$ver/man
     mkdir $output/app/bwrap/$prefix$ver/completion
     mkdir $output/app/bwrap/$prefix$ver/completion/bash
     cp completions/bash/bwrap $output/app/bwrap/$prefix$ver/completion/bash
@@ -1282,6 +1282,18 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gifli
     create_dev_package2 giflib $prefix$ver include share/doc
   fi
 fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "linux-pam" ]; then
+  ver="1.7.3";
+  if should_make linux-pam $ver; then
+    download_unpack_source https://github.com/linux-pam/linux-pam/archive/refs/tags/v$ver.tar.gz linux-pam linux-pam-$ver 1
+    meson setup -Dprefix=/app/linux-pam/$prefix$ver -Dlibdir=lib _build
+    ninja -C _build
+    create_app_in_tmp_and_link_it2 linux-pam $prefix$ver
+    ninja -C _build install
+    set_current_app_clean_strip_cd2 linux-pam $prefix$ver 1
+#    create_dev_package2 libevdev $prefix$ver include lib/pkgconfig share/man/man3
+  fi
+fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "gmp" ]; then
   ver="6.3.0";
   if should_make gmp $ver; then
@@ -1326,10 +1338,10 @@ if [ "$package" == "fs" ] || [ "$package" == "libevdev" ]; then
   if should_make libevdev $ver; then
     download_unpack_source https://gitlab.freedesktop.org/libevdev/libevdev/-/archive/libevdev-$ver/libevdev-libevdev-$ver.tar.bz2?ref_type=tags \
         libevdev libevdev-libevdev-$ver 1
-    meson setup -Dprefix=/app/libevdev/$prefix$ver -Dlibdir=lib -Ddocumentation=disabled builddir
-    ninja -C builddir
+    meson setup -Dprefix=/app/libevdev/$prefix$ver -Dlibdir=lib -Ddocumentation=disabled _build
+    ninja -C _build
     create_app_in_tmp_and_link_it2 libevdev $prefix$ver
-    ninja -C builddir install
+    ninja -C _build install
     set_current_app_clean_strip_cd2 libevdev $prefix$ver 1
     create_dev_package2 libevdev $prefix$ver include lib/pkgconfig share/man/man3
   fi
@@ -1597,9 +1609,9 @@ if [ "$package" == "fs" ] || [ "$package" == "libdrm" ]; then
   ver="2.4.134";
   if should_make libdrm $ver; then
     download_unpack_source https://dri.freedesktop.org/libdrm/libdrm-$ver.tar.xz libdrm libdrm-$ver 1
-    meson setup builddir/ --prefix=/app/libdrm/$prefix$ver --libdir=lib
+    meson setup _build/ --prefix=/app/libdrm/$prefix$ver --libdir=lib
     create_app_in_tmp_and_link_it2 libdrm $prefix$ver
-    ninja -C builddir/ install
+    ninja -C _build/ install
 #    rsync -a $output/app/libdrm/$prefix$ver/lib/x86_64-linux-gnu/* $output/app/libdrm/$prefix$ver/lib
 #    rm -r $output/app/libdrm/$prefix$ver/lib/x86_64-linux-gnu/
     set_current_app_clean_strip_cd2 libdrm $prefix$ver 1
@@ -2213,7 +2225,7 @@ if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llv
   ver="23.1.4";
   if should_make llvm $ver; then
     download_unpack_source https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-$ver.tar.gz llvm llvm-project-llvmorg-$ver 1
-    cmake -S llvm -B builddir -G Ninja \
+    cmake -S llvm -B _build -G Ninja \
        -DCMAKE_SKIP_INSTALL_RPATH=ON \
        -DLLVM_ENABLE_RTTI=ON \
        -DCLANG_DEFAULT_PIE_ON_LINUX=ON \
@@ -2224,7 +2236,7 @@ if [ "$package" == "fs2" ] || [ "$package" == "fsmin2" ] || [ "$package" == "llv
        -DLLVM_ENABLE_PROJECTS=clang -DLLVM_ENABLE_RUNTIMES=compiler-rt
     create_app llvm $prefix$ver
     set_current_app llvm $prefix$ver 1
-    ninja -C builddir install
+    ninja -C _build install
     set_current_app_clean_strip_cd llvm $prefix$ver 1
   fi
 fi
@@ -3007,13 +3019,13 @@ if [ "$package" == "fs" ] || [ "$package" == "xlibre-xserver" ]; then
     PKG_CONFIG_PATH=/app/mesa/current/lib/pkgconfig \
        meson setup -Dprefix=/app/xlibre-xserver/$prefix$ver \
        -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
-       -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir \
+       -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin _build \
        -Dmodule_dir=/app/xlibre-xserver/current/lib/xorg/modules \
        -Dsysconfdir=/app/xlibre-xserver/current/etc
     sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/" os/utils.c
-    ninja -C builddir
+    ninja -C _build
     create_app_in_tmp_and_link_it2 xlibre-xserver $prefix$ver
-    ninja -C builddir install
+    ninja -C _build install
     set_current_app_clean_strip_cd2 xlibre-xserver $prefix$ver 1
     cp $curdir/in/xlibre-xserver/win /app/xlibre-xserver/$prefix$ver
     cd /app/xlibre-xserver/$prefix$ver/etc/X11
@@ -3208,10 +3220,10 @@ if [ "$package" == "fs" ] || [ "$package" == "libgudev" ]; then
   ver="238";
   if should_make libgudev $ver; then
     download_unpack_source https://github.com/GNOME/libgudev/archive/refs/tags/$ver.tar.gz libgudev libgudev-$ver 1
-    meson setup -Dprefix=/app/libgudev/$prefix$ver -Dlibdir=lib builddir
-    ninja -C builddir
+    meson setup -Dprefix=/app/libgudev/$prefix$ver -Dlibdir=lib _build
+    ninja -C _build
     create_app_in_tmp_and_link_it2 libgudev $prefix$ver
-    ninja -C builddir install
+    ninja -C _build install
     set_current_app_clean_strip_cd2 libgudev $prefix$ver 1
     create_dev_package2 libgudev $prefix$ver include lib/pkgconfig share
   fi
@@ -3220,10 +3232,10 @@ if [ "$package" == "fs" ] || [ "$package" == "libliftoff" ]; then
   ver="0.5.0";
   if should_make libliftoff $ver; then
     download_unpack_source https://gitlab.freedesktop.org/emersion/libliftoff/-/releases/v$ver/downloads/libliftoff-$ver.tar.gz libliftoff libliftoff-$ver 1
-    meson setup -Dprefix=/app/libliftoff/$prefix$ver -Dlibdir=lib builddir
-    ninja -C builddir
+    meson setup -Dprefix=/app/libliftoff/$prefix$ver -Dlibdir=lib _build
+    ninja -C _build
     create_app_in_tmp_and_link_it2 libliftoff $prefix$ver
-    ninja -C builddir install
+    ninja -C _build install
     set_current_app_clean_strip_cd2 libliftoff $prefix$ver 1
     create_dev_package2 libliftoff $prefix$ver include lib/pkgconfig
   fi
@@ -3237,10 +3249,10 @@ if [ "$package" == "fs" ] || [ "$package" == "libwacom" ]; then
   ver="2.20.0";
   if should_make libwacom $ver; then
     download_unpack_source https://github.com/linuxwacom/libwacom/archive/refs/tags/libwacom-$ver.tar.gz libwacom libwacom-libwacom-$ver 1
-    meson setup -Dprefix=/app/libwacom/$prefix$ver -Dlibdir=lib builddir
-    ninja -C builddir
+    meson setup -Dprefix=/app/libwacom/$prefix$ver -Dlibdir=lib _build
+    ninja -C _build
     create_app_in_tmp_and_link_it2 libwacom $prefix$ver
-    ninja -C builddir install
+    ninja -C _build install
     set_current_app_clean_strip_cd2 libwacom $prefix$ver 1
     create_dev_package2 libwacom $prefix$ver include lib/pkgconfig
   fi
@@ -3251,10 +3263,10 @@ if [ "$package" == "fs" ] || [ "$package" == "libinput" ]; then
 #sudo apt-get build-dep libinput
   if should_make libinput $ver; then
     download_unpack_source https://gitlab.freedesktop.org/libinput/libinput/-/archive/$ver/libinput-$ver.tar.gz libinput libinput-$ver 1
-    meson setup -Dprefix=/app/libinput/current -Dlibdir=lib builddir
-    ninja -C builddir
+    meson setup -Dprefix=/app/libinput/current -Dlibdir=lib _build
+    ninja -C _build
     create_app_in_tmp_and_link_it libinput $prefix$ver
-    ninja -C builddir install
+    ninja -C _build install
     set_current_app_clean_strip_cd libinput $prefix$ver 1
 #    create_dev_package2 libinput $prefix$ver include lib/pkgconfig
   fi
@@ -3320,16 +3332,16 @@ if [ "$package" == "fs" ] || [ "$package" == "xwayland" ]; then
     download_unpack_source https://www.x.org/pub/individual/xserver/xwayland-$ver.tar.xz xwayland xwayland-$ver 1
 #    PKG_CONFIG_PATH=/app/mesa/current/lib/pkgconfig meson setup -Dprefix=/app/xlibre-xserver/current \
 #       -Dsystemd_logind=false -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
-#       -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir
+#       -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin _build
     #don't forget about about sync with xlibre-xserver
     PKG_CONFIG_PATH=/app/xkbcomp/current/lib/pkgconfig meson setup -Dprefix=/app/xwayland/current \
         -Dsystemd_notify=false -Dxselinux=false -Dlibdir=lib \
-        -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin builddir \
+        -Dxkb_dir=/app/xkeyboard-config/current/share/X11/xkb -Dxkb_bin_dir=/app/xkbcomp/current/bin _build \
         -Ddri3=true -Dmitshm=true
     sed -i "s/\/bin\/sh/\/app\/busybox\/current\/bin\/sh/" os/utils.c
-    ninja -C builddir
+    ninja -C _build
     create_app_in_tmp_and_link_it xwayland $prefix$ver
-    ninja -C builddir install
+    ninja -C _build install
     set_current_app_clean_strip_cd xwayland $prefix$ver 1
   fi
 fi
@@ -3569,10 +3581,10 @@ if [ "$package" == "fs" ] || [ "$package" == "gdk-pixbuf" ]; then
   ver="2.44.8";
   if should_make gdk-pixbuf $ver; then
     download_unpack_source https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/archive/2.44.8/gdk-pixbuf-2.44.8.tar.bz2 gdk-pixbuf gdk-pixbuf-$ver 1
-    PKG_CONFIG_PATH=/app/glycin/current/lib/pkgconfig    meson setup -Dprefix=/app/gdk-pixbuf/current -Dlibdir=lib builddir -Dtests=false
-    ninja -C builddir
+    PKG_CONFIG_PATH=/app/glycin/current/lib/pkgconfig    meson setup -Dprefix=/app/gdk-pixbuf/current -Dlibdir=lib _build -Dtests=false
+    ninja -C _build
     create_app_in_tmp_and_link_it gdk-pixbuf $prefix$ver
-    ninja -C builddir install
+    ninja -C _build install
     set_current_app_clean_strip_cd gdk-pixbuf $prefix$ver 1
   fi
 fi
@@ -3585,8 +3597,8 @@ if [ "$package" == "fs" ] || [ "$package" == "glycin" ]; then
     download_unpack_source https://gitlab.gnome.org/GNOME/glycin/-/archive/$ver/glycin-$ver.tar.bz2 glycin glycin-$ver 1
 #sed -e "s/get_option('libglycin-gtk4')/(& or get_option('glycin-thumbnailer'))/" -i meson.build
     create_app_in_tmp_and_link_it glycin $prefix$ver
-    mkdir builddir
-    cd builddir
+    mkdir _build
+    cd _build
     PKG_CONFIG_PATH=/app/gobject-introspection/current/lib/pkgconfig      meson setup -Dprefix=/app/glycin/current -Dlibdir=lib \
        -Dbuildtype=release -Dlibglycin-gtk4=false -Dtests=false \
        -Dglycin-thumbnailer=false  -Dintrospection=false       ..
@@ -3600,10 +3612,10 @@ if [ "$package" == "fs" ] || [ "$package" == "gobject-introspection" ]; then
   ver="1.86.0";
   if should_make gobject-introspection $ver; then
     download_unpack_source https://gitlab.gnome.org/GNOME/gobject-introspection/-/archive/1.86.0/gobject-introspection-1.86.0.tar.bz2 gobject-introspection gobject-introspection-$ver 1
-    meson setup -Dprefix=/app/gobject-introspection/current -Dlibdir=lib -Dtests=false builddir
-    ninja -C builddir
+    meson setup -Dprefix=/app/gobject-introspection/current -Dlibdir=lib -Dtests=false _build
+    ninja -C _build
     create_app_in_tmp_and_link_it gobject-introspection $prefix$ver
-    ninja -C builddir install
+    ninja -C _build install
     set_current_app_clean_strip_cd gobject-introspection $prefix$ver 1
   fi
 fi
