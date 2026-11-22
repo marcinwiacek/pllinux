@@ -1,7 +1,7 @@
 #!/app/busybox/current/bin/sh
 # Creates bwrap for user. Version from 19 Jul 2026. Part of PLLINUX
 # Options: mnt - user has got access to /mnt
-#          net - access to net
+#          network - access to net
 #          ignorepathorder - PATH will setup according to app order, not according to the order from packages
 #          reset|services - access to the /app/dinit
 #          app - user has got access to everything in /app
@@ -67,7 +67,7 @@ do
      PARAMS="$PARAMS --proc proc "
   fi
   if [ "$ARG" = "mnt" ]; then PARAMS="$PARAMS --bind mnt mnt " ; fi
-  if [ "$ARG" = "net" ]; then PARAMS="$PARAMS --share-net --ro-bind /etc/resolv.conf /etc/resolv.conf " ; fi
+  if [ "$ARG" = "network" ]; then PARAMS="$PARAMS --share-net --ro-bind /etc/resolv.conf /etc/resolv.conf " ; fi
   if [ "${ARG:0:3}" = "app" ]; then
     if [ "$ARG" = "app" ]; then
       allapp=1;
