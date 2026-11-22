@@ -20,3 +20,4 @@ xzutils current
 lerc current
 libdeflate current
 gcclib current
+giflib current

@@ -105,4 +105,9 @@ till now seems to be Weston, but it doesn't have real taskbar, which is very bad
 Why many projects can shortly give license name and other want to create the same, but with other name? Any sense? The same do we have any sence is
 putting GPL2 file in many copies in disk?
 
+**What should be used for package naming?**
+
+Some packages have different names in PLLinux than in other distributions. The rule here is one - if possible, name should be like project repository
+name in Internet (in other words: when you put package name in the DuckDuckGo or other search engine, you should be able to find correct place).
+
 [Prev page](file_ym_milestone14.md) [Next page](file_zz_milestone.md)
