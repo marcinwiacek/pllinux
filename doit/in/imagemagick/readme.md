@@ -5,6 +5,7 @@ https://imagemagick.org
 Creating, editing, converting and manipulating images in > 200 formats.
 
 **License**
+See LICENSE
 
 **PATH**
 bin

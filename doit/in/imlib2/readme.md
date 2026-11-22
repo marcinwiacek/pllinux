@@ -5,7 +5,7 @@ https://sourceforge.net/projects/enlightenment/files/imlib2-src/
 Graphics library for fast file loading, saving, manipulation and rendering.
 
 **License**
-See COPYING*
+BSD
 
 **PATH**
 bin

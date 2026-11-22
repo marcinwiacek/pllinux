@@ -5,7 +5,7 @@ https://www.gnu.org/software/groff/
 Core part of PLLINUX. Typesetting system for creating Postscript, PDF, HTML or DVI from text files. Used for formatting man pages.
 
 **License**
-GPL2 or later
+GPL2+
 
 **PATH_First**
 .:bin

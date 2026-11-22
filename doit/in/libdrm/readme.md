@@ -5,6 +5,7 @@ https://dri.freedesktop.org/libdrm
 Library for accessing the Direct Rendering Manager on OS with ioctl interface.
 
 **License**
+MIT
 
 **Deps**
 glibc current

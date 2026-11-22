@@ -5,6 +5,10 @@ https://ice-wm.org/
 X11 window manager.
 
 **License**
+LGPL2
+
+**PATH**
+bin
 
 **Deps**
 gcclib current

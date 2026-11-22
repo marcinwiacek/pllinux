@@ -100,4 +100,9 @@ These questions are with me the whole time and (as for now):
 till now seems to be Weston, but it doesn't have real taskbar, which is very bad, because 99% is done)
 2. systemctl is maybe used by part of Linux world, but this is really not working well, when you want to separate things
 
+**Licenses**
+
+Why many projects can shortly give license name and other want to create the same, but with other name? Any sense? The same do we have any sence is
+putting GPL2 file in many copies in disk?
+
 [Prev page](file_ym_milestone14.md) [Next page](file_zz_milestone.md)

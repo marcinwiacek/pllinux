@@ -5,3 +5,4 @@ https://github.com/anholt/libepoxy
 Library for handling OpenGL function pointer management.
 
 **License**
+MIT

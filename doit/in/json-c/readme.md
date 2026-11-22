@@ -5,3 +5,4 @@ https://github.com/json-c/json-c
 JSON implementation in C.
 
 **License**
+MIT
