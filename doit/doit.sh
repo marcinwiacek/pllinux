@@ -451,18 +451,17 @@ if [ "$package" == "fsfs" ] || [ "$package" == "fsmin" ]; then
 
   #don't forget about sync with pllinux and initramfs
 
-  for folderentry in app dev etc etc/users mnt proc run sys tmp lib64 log log/tmp; do mkdir $output/$folderentry; done
+  for folderentry in app dev etc home mnt proc run sys tmp lib64 log log/tmp; do mkdir $output/$folderentry; done
 
   rsync -a in/pllinux.etc/ $output/etc
 
-  for userentry in root user user2; do 
+  for userentry in root user user2 user3; do 
+    DIRDIR=home/$userentry
     case $userentry in
-      root) GRP=root
-            DIRDIR=home ;;
-      user) GRP=1000
-            DIRDIR=etc/users/$userentry ;;
-      user2) GRP=1001
-             DIRDIR=etc/users/$userentry ;;
+      root) GRP=root ;;
+      user) GRP=1000 ;;
+      user2) GRP=1001 ;;
+      user3) GRP=1002 ;;
     esac
 
     for direntry in $output/$DIRDIR $output/$DIRDIR/app; do
@@ -475,9 +474,6 @@ if [ "$package" == "fsfs" ] || [ "$package" == "fsmin" ]; then
     sudo chmod g-rwx $output/$DIRDIR
     sudo chmod o-rwx $output/$DIRDIR
   done
-
-  cd $output/etc/users
-  ln -s ../../home root
 
   cd $output/lib64
   ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
