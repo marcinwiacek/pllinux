@@ -64,12 +64,14 @@ Note: project was started after finding various problems with existing Linux dis
 
 # Filesystem
 
-* /app - place for all apps normally with read-only permission (they're saved in separate folders, you can assign different apps or app versions from the /app to other users, excluding package updates everything inside /app
+* /app - place for all apps (they're saved in separate folders, you can assign different apps or app versions from the /app to sandboxed users, excluding package updates and root access everything inside /app
 cannot be modified)
-* /etc - home dirs from all "normal" users (inside /etc/users) and some system-wide configuration files (much less files and more readable than in typical Linux distributions, normally you can manage them with **pllinux** manager)
-* /home - user files for every user including root (we setup HOME into app directory inside we try to put all apps config and stuff there)
+* /etc - system-wide configuration files (much less files and more readable than in typical Linux distributions, normally you can manage them with **pllinux** manager)
+* /home
+    * for root and non-sandboxed users: user files for every user including root (we setup HOME into app directory inside we try to put all apps config and stuff there)
+    * for sandboxed users: home directory (the same rule with HOME)
 * /lib64 - one single link to the dynamic loader
-* /log - visible only for root (contains temporary or permament log files written for example by **syslogd**)
+* /log - visible only for root and non-sandboxed users (contains temporary or permament log files written for example by **syslogd**)
 * /lost+found - ext4 folder
 * /mnt - CD-ROM, USB memories, memory cards, etc.
 * /tmp - tmpfs for temporary files (maybe it will later replaced with zram)
@@ -209,14 +211,14 @@ busybox has got known issues or limits
 3. [bwrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation layers in various situations
 4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
 
-We avoid changing existing software code and there are only few exceptions:
+We avoid changing existing software code and generally there are only few exceptions:
 
 1. [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md)
 2. some permission details in "bwrap"
 3. changing some /bin/sh references to /app/busybox/current/bin/sh
 
-Excluding permissions and other directories names PLLinux in many cases can run without any problems unmodified Linux binaries. 
-This simply works... just after giving list of dependencies in readme.md manifest files described below (this is totally different
+Excluding permissions and other directories names PLLinux in many cases can run without any problems unmodified Linux binaries.
+This simply works... just after giving list of dependencies in readme.md manifest files described below (this is totally different approach
 from NixOS, where binaries normally need to be patched).
 
 There are just few services started:
@@ -227,10 +229,8 @@ There are just few services started:
 4. **crond** for tasks started with schedule in background
 5. **syslogd** for saving logs in the disk
 
-Other actions (starting and stopping network, synchronizing time using NTP, mounting USB drives, etc.) are done mainly on event - you can wait some
+DHCP is not done with services now. Other actions (starting and stopping network, synchronizing time using NTP, mounting USB drives, etc.) are done mainly on event - you can wait some
 miliseconds and it doesn't hurt.
-
-DHCP is not done with services now.
 
 **bwrap** sandboxing is used for:
 
@@ -238,12 +238,17 @@ DHCP is not done with services now.
 2. running package manager (it doesn't see user files)
 3. running compilation/installation script from packages (generally all changes in main filesystem are done by package manager)
 
-Big pressure is put into limiting disk writes or memory usage. This is very important with current SSD/RAM prices.
+System allows for two types of users:
+
+1. root and non-sandboxed users (working like in every "normal" distribution), which normally are NOT recommended (PLLinux makes many operations like mounting USB memories automatically)
+2. sanboxed users (recommended and created by default) - they should see always "current" version of apps after updating it and need to logout/logout after adding new package.
 
 Note: used architecture (especially **bwrap**) can make some scenarios potentially more difficult and
-root actions are normally done from the terminal with logged root (honestly speaking you don't need to do them every second with good work framework).
+for sandboxed users root actions are normally done from the terminal with logged root (honestly speaking you don't need to do them every second with typical daily activities).
 
-What about configurations?
+Big effort is put into limiting disk writes or memory usage. This is very important with current SSD/RAM prices.
+
+What about configuration?
 
 Some packages in the /app contain link to the directory in the /etc, where we put for example links to all drivers. This is happening for example
 with x11 drivers or vulkan and these /etc directories and updated ONLY by **app** package manager.
@@ -258,15 +263,20 @@ everything is estimated from technical perspective only (maturity, number of bug
 
 # Starting ISO
 
-You need system with UEFI with disabled Secure Boot.
+You need system with UEFI with disabled Secure Boot, normal RAM usage with cache is less than 1GB... but if you decide to copy all /app into RAM you will need even 6GB RAM.
 
-The best results could be visible with VirtualBox (ICH9, VMSVGA, NVME, etc.). You can try QEMU too:
+The best results could be visible with VirtualBox (ICH9, VMSVGA, NVME, etc.), you can try QEMU too:
 
 **qemu-system-x86_64 -cdrom iso.iso -m 4098 -bios /usr/share/OVMF/OVMF_CODE.fd**
 
-Technology Preview contains three users: root (password root), user (password user) and user2 (password user2). You can use configurator (**pllinux**) or start X11 available with console number 11 (**win** command). User files are saved in the RAM (tmpfs) and it's possible for example make setup using root and later login into other account. Additionally system is ready for partitioning and cloning/installing to the separate partition.
+Technology Preview contains four users:
 
-If you want to play with development and extra packages, just unpack them to the /app, logout and login again. Done.
+1.root (password root) - access to everything including X11 available on console 11 (**win** command) and Wayland session (**os2** command), configuration or installation to disk is done with configurator (**pllinux**)
+2.user (password user) - sandbox with access to X11
+3.user2 (password user2) - sandbox with access to Wayland.
+4.user3 (password user3) - user with sandboxing
+
+User files are saved in the RAM (tmpfs) and it's possible for example make setup using root and later login into other account. System is ready for partitioning and cloning/installing to the separate partition. If you want to play with development and extra packages on your disk, just unpack them to the /app, logout and login again. Done.
 
 During all checks please remember: this is technology preview, not production ready setup.
 
