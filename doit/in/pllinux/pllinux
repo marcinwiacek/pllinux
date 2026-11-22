@@ -604,7 +604,7 @@ EOF
         continue
       fi
       clear
-      adduser -s /app/pllinux/current/scripts/user.sh -h /etc/users $cmd
+      adduser -s /app/pllinux/current/scripts/user.sh $cmd
     fi
     break
   done

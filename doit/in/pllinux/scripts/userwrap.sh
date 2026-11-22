@@ -13,25 +13,11 @@ if [ ! -d "/log" ]; then
   return
 fi
 
-#echo third is $1
-if [ "$1" = "1" ]; then
-#  echo my name is
-#  echo my name is
-  /app/busybox/current/bin/whoami
-  /app/util-linux/current/bin/mount --rbind /app /app
-  /app/util-linux/current/bin/mount --bind /etc/users/$USER /home
-  /app/util-linux/current/bin/mount tmpfs -t tmpfs -o rw,noatime,nosuid,noexec,nodev /tmp
-  /app/bash/current/bin/bash
-  return
-fi
-
 # green [time] user:folder $
 # OR
 # green [time] user:folder amber git branch name $
 export PS1="\e[32m[\t] $USER:\w\$(if [ -f "/app/git/current/bin/git" ] && git rev-parse --git-dir > /dev/null 2>&1; then echo -n \" \e[33m\";git branch --show-current; fi) $ \e[m"
 # export PS1="\e[32m[\t] $USER:\w $ \e[m"
-
-#echo "$@"
 
 processesall=0
 for ARG in "$@"
@@ -53,7 +39,7 @@ PARAMS="$PARAMS --dev-bind /dev /dev "
 #  esac
 #done
 PARAMS="$PARAMS --tmpfs tmp "
-PARAMS="$PARAMS --bind /etc/users/$USER home "
+PARAMS="$PARAMS --bind /home/$USER home "
 PARAMS="$PARAMS --ro-bind /etc/localtime /etc/localtime "
 PARAMS="$PARAMS --ro-bind /etc/x11 /etc/x11 "
 PARAMS="$PARAMS --ro-bind /etc/wayland /etc/wayland "
@@ -195,7 +181,7 @@ do
   LAST=$PART;
 done
 PARAMS="$PARAMS --setenv HOME /home/app "
-if [ ! -d /etc/users/$USER/app ]; then /app/busybox/current/bin/mkdir /etc/users/$USER/app; fi
+if [ ! -d /home/$USER/app ]; then /app/busybox/current/bin/mkdir /home/$USER/app; fi
 PARAMS="$PARAMS -- $LAST"
 #echo "$PARAMS"
 cd /
@@ -203,4 +189,18 @@ IFS=" "
 if [ "$LAST" = "" ]; then
   echo "User doesn't have app with shell (like busybox)"
 fi
-/app/bwrap/current/bin/bwrap $PARAMS
+
+if [ "$1" = "1" ]; then
+  export TZ=Europe/Warsaw
+  export PATH=$path
+  export SHELL=$shell
+  export TERMINFO=/app/ncurses/current/share/terminfo
+  export TZDIR=/app/tzdb/current/usr/share/zoneinfo
+  export TERM=linux
+  export LANG=$(/app/pllinux/current/pllinux LANG)
+  export LANGUAGE=$(/app/pllinux/current/pllinux LANG)
+  export HOME=/home/$USER/app
+  $LAST
+else
+  /app/bwrap/current/bin/bwrap $PARAMS
+fi

@@ -5,16 +5,21 @@ if [ ! -d "/iso" ]; then
   # normal system, not iso
   APP="$APP --chdir $(pwd) ";
 fi
+MCHOME=/home/$USER/app
 if [ -d "/log" ]; then
-  # root
+  # root or user without sandbox
   APP="$APP --bind /app app --bind /etc etc "
-  PS111="\e[31m[\t] $USER # \e[m"
+  if [ "$USER" = "root" ]; then
+    PS111="\e[31m[\t] $USER # \e[m"
+  else
+    PS111="\e[32m[\t] $USER # \e[m"
+  fi
 else
   # non root
   APP="$APP --ro-bind /app app --ro-bind /etc/localtime etc/localtime "
   PS111="\e[32m[\t] $USER # \e[m"
+  if [ ! -d /home/$USER ]; then MCHOME=/home/app; fi
 fi
-MCHOME=/home/app
 /app/busybox/current/bin/mkdir $MCHOME 2> /dev/null
 
 #doesnt work because it's started always in /

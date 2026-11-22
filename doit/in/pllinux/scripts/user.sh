@@ -32,7 +32,7 @@ EOF
   done < "/etc/pllinux/pllinux.conf"
 fi
 
-if [ "$APPS" = "" ]; then
+if [ "$APPS" = "" ] && [ "$CLASSIC" = 0 ]; then
   echo User $USER does not have any apps
 else
   #/app/pllinux/current/scripts/userwrap.sh mnt reset net processes "app mc current:util-linux current:busybox current:openssl current:groff current"
