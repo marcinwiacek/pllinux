@@ -5,7 +5,7 @@ https://gitlab.com/cryptsetup/cryptsetup
 Managing LUKS/LUKS2 encrypted devices.
 
 **License**
-GPL2 or later
+GPL2+
 
 **PATH**
 sbin

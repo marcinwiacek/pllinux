@@ -5,7 +5,7 @@ https://www.gnu.org/software/binutils/
 Programming tools for maintaining executable code (assembly, linking, etc.). From GNU Project.
 
 **License**
-GPL3 or later
+GPL3+
 
 **PATH**
 bin

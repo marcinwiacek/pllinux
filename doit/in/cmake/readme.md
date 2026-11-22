@@ -5,6 +5,7 @@ https://cmake.org/
 Software build system.
 
 **License**
+BSD-3-Clause
 
 **PATH**
 bin
