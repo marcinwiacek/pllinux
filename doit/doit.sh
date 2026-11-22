@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="giflib"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="linux-pam"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1286,10 +1286,12 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "linux
   ver="1.7.3";
   if should_make linux-pam $ver; then
     download_unpack_source https://github.com/linux-pam/linux-pam/archive/refs/tags/v$ver.tar.gz linux-pam linux-pam-$ver 1
-    meson setup -Dprefix=/app/linux-pam/$prefix$ver -Dlibdir=lib _build
+    meson setup -Dprefix=/app/linux-pam/$prefix$ver -Dlibdir=lib _build \
+          -Dvendordir=/app/linux-pam/$prefix$ver/usr/share/pam -Dlocalstatedir=/app/linux-pam/$prefix$ver/var
     ninja -C _build
     create_app_in_tmp_and_link_it2 linux-pam $prefix$ver
     ninja -C _build install
+    cp COPYING /app/linux-pam/$prefix$ver
     set_current_app_clean_strip_cd2 linux-pam $prefix$ver 1
 #    create_dev_package2 libevdev $prefix$ver include lib/pkgconfig share/man/man3
   fi
