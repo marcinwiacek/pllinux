@@ -867,7 +867,9 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "mc" ]
     make all -j$cpu_num
     create_app_in_tmp_and_link_it mc $prefix$ver
     make install
-    cp $curdir/in/mc/mc /app/mc/current
+    rm /app/mc/current/libexec/mc/ext.d/misc.sh
+    cp $curdir/in/mc/misc.sh /app/mc/current/libexec/mc/ext.d/misc.sh
+    cp $curdir/in/mc/mc* /app/mc/current
     set_current_app_clean_strip_cd mc $prefix$ver 1
     # normally without /bin/sh Pipe failed error, when try to view or edit something
     # even after years MC doesn't respect SHELL variable. This is rudicolous
