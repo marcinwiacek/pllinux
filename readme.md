@@ -47,7 +47,7 @@ Currently in early alpha. Some things are done and many still todo:
  11. [Milestone 11 - mounting CD, design decisions, shebang, booting with encryption](file_yo_milestone11.md)
  12. [Milestone 12 - software compiling, graphic drivers and SDL/framebuffer support, creating packages - let's optimalize it](file_yn_milestone12.md)
  14. [Milestone 14 - Wayland or X11? Improving old ideas, /bin/sh hell](file_ym_milestone14.md)
- 15. [Milestone 15 - ](file_yl_milestone15.md)
+ 15. [Milestone 15 - one step back, two forward](file_yl_milestone15.md)
  16. Milestone 16 - dbus? AppArmor? SeLinux? more packages, matrioszka (compiling PLLinux from PLLinux) and reliable offline builds from host (with docker?),
 checking signatures, etc.
  17. Milestone 17 - installation with Secure Boot, firmware and CPU microcode, CVE database, etc.
@@ -86,11 +86,12 @@ encryption for main filesystem.
   1. install Debian "Trixie" (build script is created inside it; probably any last Debian/Ubuntu distribution should work without changes)
   2. create and mount new EXT4 partition
   3. point this partition in the [build script doit.sh](doit/doit.sh)
-  4. run [build script doit.sh](doit/doit.sh) (it can ask sometimes for sudo for dependiences) with settings inside for compiling "fs" or "fsmin" package
-  5. add PLLINUX to the GRUB (create [file /etc/grub.d/40_custom](2026/40_custom) with correct UUID for new filesystem get with **sudo blkid**)
-  6. (if necessary) increase resolution in /etc/default/grub (GRUB_GFXMODE=1920x1080 or something similar)
-  7. execute **update-grub** command
-  8. restart and have fun (users: root/root, user/user, user2/user2)
+  4. add your user to group with number 10000 (I name it normally pllinuxhost)
+  5. run [build script doit.sh](doit/doit.sh) (it can ask sometimes for sudo for dependiences) with settings inside for compiling "fs" or "fsmin" package
+  6. add PLLINUX to the GRUB (create [file /etc/grub.d/40_custom](2026/40_custom) with correct UUID for new filesystem get with **sudo blkid**)
+  7. (if necessary) increase resolution in /etc/default/grub (GRUB_GFXMODE=1920x1080 or something similar)
+  8. execute **update-grub** command
+  9. restart and have fun (users: root/root, user/user, user2/user2)
 
 Notes: 
 
