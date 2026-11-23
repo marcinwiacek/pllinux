@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libdeflate"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="bzip2"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -373,13 +373,19 @@ remove_duplicates_cd() {
     DOITAGAIN="0"
     for fname in $(find . -maxdepth 1 -type f); do
       CHECKSUM=$(md5sum $fname)
+      CHECKSUM=${CHECKSUM:0:32}
       for fname2 in $(find . -maxdepth 1 -type f); do
-        CHECKSUM2=$(md5sum $fname2)
-        if [ "$fname" != "$fname2" ] && [ "$CHECKSUM" = "$CHECKSUM2" ]; then
+        if [ "$fname" != "$fname2" ]; then
+          CHECKSUM2=$(md5sum $fname2)
+          CHECKSUM2=${CHECKSUM2:0:32}
+#          echo Comparing $fname with $fname2 - $CHECKSUM $CHECKSUM2
+          if [ "$CHECKSUM" = "$CHECKSUM2" ]; then
+#            echo Duplicate
             chmod a+w $fname2
             rm $fname2
             ln -s $fname $fname2
             DOITAGAIN="1"
+          fi
         fi
       done
       if [ "$DOITAGAIN" = "1" ]; then
@@ -1735,6 +1741,16 @@ if [ "$package" == "fs" ] || [ "$package" == "bzip2" ]; then
     make -f Makefile-libbz2_so -j$cpu_num
     cp libbz2.so* /app/bzip2/$prefix$ver/lib
     rm /app/bzip2/$prefix$ver/lib/*.a
+    cd /app/bzip2/$prefix$ver/bin
+    rm bzcmp
+    ln -s bzdiff bzcmp
+    rm bzegrep
+    rm bzfgrep
+    ln -s bzgrep bzegrep
+    ln -s bzgrep bzfgrep
+    rm bzless
+    ln -s bzmore bzless
+    remove_duplicates_cd /app/bzip2/$prefix$ver/bin
     set_current_app_clean_strip_cd2 bzip2 $prefix$ver 1
     create_dev_package2 bzip2 $prefix$ver include
   fi
