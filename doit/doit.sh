@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="sdl3"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="powertop"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -977,6 +977,19 @@ if [ "$package" == "fs" ] || [ "$package" == "file" ]; then
     set_current_app_clean_strip_cd2 file $prefix$ver 1
     create_dev_package2 file $prefix$ver include lib/pkgconfig share/man/man3
     ln -s /app/file/$prefix$ver/COPYING /app/file-dev/$prefix$ver/COPYING
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "powertop" ]; then
+#libtracefs
+  ver="2.16.1";
+  if should_make powertop $ver; then
+    download_unpack_source https://github.com/fenrus75/powertop/archive/refs/tags/v$ver.tar.gz powertop powertop-$ver 1
+    meson setup -Dprefix=/app/powertop/$prefix$ver -Dlibdir=lib _build
+    ninja -C _build
+    create_app_in_tmp_and_link_it2 powertop $prefix$ver
+    ninja -C _build install
+    set_current_app_clean_strip_cd2 powertop $prefix$ver 1
+#    create_dev_package2 libevdev $prefix$ver include lib/pkgconfig share/man/man3
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "binutils" ]; then
