@@ -2962,7 +2962,7 @@ EOF
   mount -t vfat $EFIPART $ROOTBOOT
 
   mkdir $ROOTBOOT/EFI/$NEW_NAME
-  cp /app/shim/current/fedora/shimx64.efi $ROOTBOOT/EFI/$NEW_NAME
+  cp /app/shim/current/shimx64.efi $ROOTBOOT/EFI/$NEW_NAME
 
   case $BLKID in
     *crypto_LUKS*)
