@@ -744,6 +744,32 @@ EOF
       fi
     fi
   done
+elif [ "$1" = "nolicense" ]; then
+    for APP_NAME in $(ls ${DIR}app); do
+      for APP_VER in $(ls ${DIR}app/$APP_NAME); do
+        case $APP_NAME in
+          *dev);;
+          *) if [ "$APP_VER" != "current" ]; then
+                 license=""
+               if [ -e "${DIR}app/$APP_NAME/$APP_VER/readme.md" ]; then
+                 sectionLicense=0
+                 while read -r line; do
+                   if [ "$line" = "**License**" ]; then
+                     sectionLicense=1
+                   elif [ "$line" = "" ]; then
+                     sectionLicense=0;
+                   elif [ "$sectionLicense" = 1 ]; then
+                     license=$line
+                   fi
+                 done < ${DIR}app/$APP_NAME/$APP_VER/readme.md
+               fi
+               if [ "$license" == "" ]; then
+                 echo $APP_NAME $APP_VER
+               fi
+             fi
+          esac
+      done
+    done
 elif [ "$1" = "help" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
   echo "$INFO"
   echo
@@ -769,6 +795,8 @@ elif [ "$1" = "help" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
   echo "updatecheck [package_list]  - like update, but shows info only (no updates in the /app)"
   echo "upgrade [package_list]      - like update"
   echo "upgradecheck [package_list] - like update, but shows info only (no updates in the /app)"
+  echo
+  echo "nolicense                   - show all packages without license info in the readme.md"
   echo
   echo "help                        - this info"
   echo
