@@ -517,15 +517,16 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kernel" ]; then
   ver="6.18.60";
   ver="7.3.3";
+  ver="7.3.6";
   if should_make kernel $ver; then
     install_host_deps "build-essential libncurses-dev bc libelf-dev bison flex libdwarf-dev libelf-dev libdw-dev libssl-dev gawk"
     download_unpack_source https://cdn.kernel.org/pub/linux/kernel/v${ver:0:1}.x/linux-$ver.tar.xz kernel linux-$ver 1
     cp $curdir/in/kernel/.config_$ver ./.config
     make -j$cpu_num
     cp .config $curdir/in/kernel/.config_$ver # .config will be updated with new header and maybe options
-    create_app kernel $prefix$ver
+    create_app_in_tmp_and_link_it2 kernel $prefix$ver
     for fileentry in .config arch/x86/boot/bzImage; do
-      cp $fileentry $output/app/kernel/$prefix$ver
+      cp $fileentry /app/kernel/$prefix$ver
     done
 #    make modules -j$cpu_num
 #    make headers_install INSTALL_HDR_PATH=$output/app/kernel/$prefix$ver -j$cpu_num
@@ -537,7 +538,13 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kerne
     rsync -a . $output/app/kernel/$prefix$ver/modules
     cd /tmp
     rm -r /tmp/x
-    set_current_app_clean_strip_cd kernel $prefix$ver 0 # not stripping of kernel modules!
+    cd /app/kernel/$prefix$ver
+    mkdir lib
+    cd lib
+    mkdir modules
+    cd modules
+    ln -s ../../modules ${ver}PLLINUX
+    set_current_app_clean_strip_cd2 kernel $prefix$ver 0 # not stripping of kernel modules!
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busybox" ]; then
