@@ -5,6 +5,7 @@ http://www.polypux.org/projects/read-edid/
 Tools for reading the EDID from the monitor.
 
 **License**
+See LICENSE
 
 **PATH**
 bin

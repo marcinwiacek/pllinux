@@ -5,6 +5,7 @@ https://www.libsdl.org/
 Simple DirectMedia Layer - cross-platform development library.
 
 **License**
+zlib license (allows for using freely in any software)
 
 **Deps**
 glibc current
