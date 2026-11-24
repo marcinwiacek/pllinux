@@ -538,7 +538,7 @@ set_existing_user_password() {
   else
     clear
     passwd $1
-    echo "Press any key to continue..."
+    echo "Press Enter to continue..."
     read
   fi
 }
@@ -714,7 +714,7 @@ format_install2() {
         mkfs -V -t ext4 /dev/mapper/encryptedpartition
           if [ $? != 0 ]; then
             echo error
-            echo Press any key to continue.
+            echo Press Enter to continue.
             read x
           fi
         mkdir /mnt/install
@@ -810,7 +810,7 @@ format_install2() {
       chmod a+x /tmp/42_custom
 
       echo System cloned into $1 partition. Example GRUB file for starting it saved in the /tmp/42_custom file.
-      echo Press any key to continue.
+      echo Press Enter to continue.
       read x
     fi
 }
@@ -1030,7 +1030,7 @@ EOF
               done
               fsck.ext4 /dev/mapper/encryptedpartition -f
               cryptsetup luksClose encryptedpartition
-              echo Press any key to continue
+              echo Press Enter to continue
               read x ;;
            luksdefrag*)
               clear
@@ -1049,11 +1049,11 @@ EOF
 #              rm /etc/mtab
               umount /tmp/partition
               cryptsetup luksClose encryptedpartition
-              echo Press any key to continue
+              echo Press Enter to continue
               read x ;;
            *) clear
               eval $line
-              echo Press any key to continue
+              echo Press Enter to continue
               read x ;;
         esac
       esac
@@ -2230,8 +2230,12 @@ EOF
       1) #dialog --backtitle "PLLinux\kernel modules\module $LINE2X\info (modinfo)" --msgbox "$(modinfo $1)" 100 90 ;;
          clear
          modinfo $1 | less ;;
-      2) cmd2=$(dialog --stdout --backtitle "PLLinux\kernel params\filter" --cancel-label "Back" \
-              --inputbox "Module params. Can be empty." 15 100 "" )
+      2) cmd2=""
+         case $MODULEDESCRIPTION in
+           *parm*) 
+             cmd2=$(dialog --stdout --backtitle "PLLinux\kernel params\filter" --cancel-label "Back" \
+                --inputbox "$MODULEDESCRIPTION\n\nEnter module params. Can be empty." 20 100 "" )
+         esac
          if [ $? = 0 ]; then
            MSG="$(modprobe $1 $cmd2 2>&1)"
            IS_LOADED=$(lsmod 2>&1)
@@ -3639,7 +3643,7 @@ EOF
        9 "Network firewall (nftables)" \
        10 "Task manager (top, q to quit)" \
        11 "Time" \
-       12 "Kernel modules (modprobe, insmod, rmmod, modinfo)" \
+       12 "Kernel modules (modprobe, rmmod, modinfo)" \
        14 "Kernel params (sysctl)" \
        15 "Kernel logs (dmesg, can be saved to disk with syslogd, q to quit)" \
        16 "Partition mounting in /mnt" \
