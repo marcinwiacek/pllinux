@@ -5,6 +5,7 @@ https://github.com/linuxwacom/libwacom
 Database with a C library wrapper for information about a tablet.
 
 **License**
+See COPYING
 
 **Deps**
 glib current

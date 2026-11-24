@@ -2,8 +2,7 @@
 https://xorg.freedesktop.org/archive/individual/lib/
 
 **Description**
+Generic PCI access library
 
 **License**
-
-**Last**
-20260314
+MIT

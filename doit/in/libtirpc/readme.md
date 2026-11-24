@@ -5,3 +5,4 @@ https://sourceforge.net/projects/libtirpc/
 Port of Suns Transport-Independent RPC library to Linux.
 
 **License**
+BSD

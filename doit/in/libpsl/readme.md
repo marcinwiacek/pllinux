@@ -5,6 +5,7 @@ https://rockdaboot.github.io/libpsl/
 C library for the Public Suffix List
 
 **License**
+MIT
 
 **Deps**
 libidn2 current

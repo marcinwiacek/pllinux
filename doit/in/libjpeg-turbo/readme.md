@@ -5,3 +5,4 @@ https://libjpeg-turbo.org/
 JPEG library using SIMD CPU instructions for encoding/decoding.
 
 **License**
+See LICENSE.md
