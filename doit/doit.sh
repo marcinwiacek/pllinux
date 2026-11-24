@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="kernel"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="binutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1002,11 +1002,16 @@ fi
 if [ "$package" == "fs" ] || [ "$package" == "binutils" ]; then
   ver="2.47";
   download_unpack_source https://sourceware.org/pub/binutils/releases/binutils-$ver.tar.xz binutils binutils-$ver 1
-  ./configure --prefix=/app/binutils/current
+  ./configure --prefix=/app/binutils/$prefix$ver --disable-static
   make all -j$cpu_num
-  create_app_in_tmp_and_link_it binutils $prefix$ver
+  create_app_in_tmp_and_link_it2 binutils $prefix$ver
   make install
-  set_current_app_clean_strip_cd binutils $prefix$ver 1
+  rm /app/binutils/$prefix$ver/lib/*.a
+  rm /app/binutils/$prefix$ver/lib/*.la
+  chmod a-x /app/binutils/$prefix$ver/lib/bfd-plugins/*.so
+  chmod a-x /app/binutils/$prefix$ver/lib/gprofng/*.so
+  chmod a-x /app/binutils/$prefix$ver/lib/gprofng/*.la
+  set_current_app_clean_strip_cd2 binutils $prefix$ver 1
 fi
 if [ "$package" == "fs" ] || [ "$package" == "grep" ]; then
   ver="3.12";
