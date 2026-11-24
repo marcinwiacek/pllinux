@@ -1,5 +1,0 @@
-#!/bin/bash
-#rm -r /tmp/.X11-unix #this folder can be created by normal x11 and it's not sticky then
-XDG_RUNTIME_DIR=/run /app/xwayland/current/bin/Xwayland
-/app/seatd/current/bin/seatd &
-XDG_RUNTIME_DIR=/run /app/weston/current/bin/weston -c /etc/wayland/weston/weston.ini --xwayland 2> /tmp/log2 > /tmp/log1

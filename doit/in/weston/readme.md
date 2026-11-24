@@ -8,7 +8,7 @@ Wayland compositor
 MIT
 
 **PATH**
-.:bin
+bin
 
 **Man**
 man/man1:man/man5:man/man7

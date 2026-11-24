@@ -3193,6 +3193,7 @@ if [ "$package" == "fs" ] || [ "$package" == "wayland" ]; then
     meson compile -C _build
     create_app_in_tmp_and_link_it wayland $prefix$ver
     meson install -C _build
+    cp $curdir/in/$package/wayland/os2 /app/wayland/$prefix$ver
     set_current_app_clean_strip_cd wayland $prefix$ver 1
   fi
 fi

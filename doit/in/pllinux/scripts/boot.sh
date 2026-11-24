@@ -8,6 +8,8 @@ fi
 
 export PATH=/app/busybox/current/bin:/app/busybox/current/sbin
 
+export MODPROBE_OPTIONS="-d /app/kernel/current"
+
 #enable when want to see more from dynamic loader code
 #export LD_PLLINUX_DEBUG=1
 
