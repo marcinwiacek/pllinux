@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="binutils"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="initramfs"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -611,16 +611,16 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dinit
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "initramfs" ]; then
-  ver="0.1";
+  ver="0.2";
   if should_make initramfs $ver; then
-    create_app initramfs $prefix$ver
+    create_app_in_tmp_and_link_it2 initramfs $prefix$ver
 
     mkdir $out/initramfs
     cp $curdir/in/initramfs/init $out/initramfs
 
     for folderentry in app dev lib64 proc mnt run sys etc; do mkdir $out/initramfs/$folderentry; done
 
-    for app in busybox; do mkdir $out/initramfs/app/$app; rsync -a $output/app/$app/ $out/initramfs/app/$app; done
+    for app in busybox; do mkdir $out/initramfs/app/$app; rsync -a /app/$app/ $out/initramfs/app/$app; done
 
     # we should have cryptsetup command compiled static with minimum size
     # instead of this we copy a lot of libraries and unnecessary dependencies
@@ -650,7 +650,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "initr
     cp $output/app/cryptsetup/current/sbin/cryptsetup $out/initramfs/app/cryptsetup/current/sbin
     cp $output/app/cryptsetup/current/readme.md $out/initramfs/app/cryptsetup/current
 
-    DEPS="glibc current:cryptsetup current:openssl 260725_3.6.3"
+    DEPS="glibc current:cryptsetup current:openssl 4.0.0-"
     while true; do
       IFS=":"
       for DEP in $DEPS; do
@@ -677,9 +677,9 @@ EOF
     chmod a+x ld-linux-x86-64.so.2
 
     cd $out/initramfs
-    find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $output/app/initramfs/$prefix$ver/initramfs.gz
+    find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > /app/initramfs/$prefix$ver/initramfs.gz
 
-    set_current_app_clean_strip_cd initramfs $prefix$ver 0
+    set_current_app_clean_strip_cd2 initramfs $prefix$ver 0
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "pllinux" ]; then
