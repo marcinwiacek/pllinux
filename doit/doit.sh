@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libxcomposite"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libxft"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2600,8 +2600,10 @@ if [ "$package" == "fs" ] || [ "$package" == "libxft" ]; then
     make -j$cpu_num
     create_app_in_tmp_and_link_it2 libxft  $prefix$ver
     make install
+    cp COPYING /app/libxft/$prefix$ver
     set_current_app_clean_strip_cd2 libxft $prefix$ver 1
     create_dev_package2 libxft $prefix$ver include lib/pkgconfig share
+    ln -s /app/libxft/$prefix$ver /app/libxft-dev/$prefix$ver
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxfont2" ]; then
@@ -2836,8 +2838,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxd
     make all -j$cpu_num
     create_app_in_tmp_and_link_it2 libxdamage $prefix$ver
     make install
+    cp COPYING /app/libxdamage/$prefix$ver
     set_current_app_clean_strip_cd2 libxdamage $prefix$ver 1
     create_dev_package2 libxdamage $prefix$ver include lib/pkgconfig
+    ln -s /app/libxdamage/$prefix$ver/COPYING /app/libxdamage-dev/$prefix$ver/COPYING
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxtst" ]; then
@@ -2848,8 +2852,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxt
     make all -j$cpu_num
     create_app_in_tmp_and_link_it2 libxtst $prefix$ver
     make install
+    cp COPYING /app/libxtst/$prefix$ver
     set_current_app_clean_strip_cd2 libxtst $prefix$ver 1
     create_dev_package2 libxtst $prefix$ver include lib/pkgconfig share
+    ln -s /app/libxtst/$prefix$ver/COPYING /app/libxtst-dev/$prefix$ver/COPYING
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxfixes" ]; then
@@ -2872,8 +2878,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxc
     make all -j$cpu_num
     create_app_in_tmp_and_link_it2 libxcursor $prefix$ver
     make install
+    cp COPYING /app/libxcursor/$prefix$ver
     set_current_app_clean_strip_cd2 libxcursor $prefix$ver 1
     create_dev_package2 libxcursor $prefix$ver include lib/pkgconfig share
+    ln -s /app/libxcursor/$prefix$ver/COPYING /app/libxcursor-dev/$prefix$ver/COPYING
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxdmcp" ]; then
@@ -2884,8 +2892,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxd
     make all -j$cpu_num
     create_app_in_tmp_and_link_it2 libxdmcp $prefix$ver
     make install
+    cp COPYING /app/libxdmcp/$prefix$ver
     set_current_app_clean_strip_cd2 libxdmcp $prefix$ver 1
     create_dev_package2 libxdmcp $prefix$ver include lib/pkgconfig share
+    ln -s /app/libxdmcp/$prefix$ver/COPYING /app/libxdmcp-dev/$prefix$ver/COPYING
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxi" ]; then
