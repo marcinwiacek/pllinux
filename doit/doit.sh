@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="kmod"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="libxcomposite"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -2542,8 +2542,10 @@ if [ "$package" == "fs" ] || [ "$package" == "libxaw" ]; then
     make -j$cpu_num
     create_app_in_tmp_and_link_it2 libxaw $prefix$ver
     make install
+    cp COPYING /app/libxaw/$prefix$ver
     set_current_app_clean_strip_cd2 libxaw $prefix$ver 1
     create_dev_package2 libxaw $prefix$ver include lib/pkgconfig share
+    ln -s /app/libxaw/$prefix$ver/COPYING /app/libxaw-dev/$prefix$ver/COPYING
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "libxt" ]; then
@@ -2716,6 +2718,7 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libx1
     make all -j$cpu_num
     create_app_in_tmp_and_link_it libx11 $prefix$ver
     make install
+    cp COPYING /app/libx11/current
     set_current_app_clean_strip_cd libx11 $prefix$ver 1
 #    create_dev_package2 libx11 $prefix$ver include lib/pkgconfig share/doc share/man/man3
   fi
@@ -2793,8 +2796,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxa
     make all -j$cpu_num
     create_app_in_tmp_and_link_it2 libxau $prefix$ver
     make install
+    cp COPYING /app/libxau/$prefix$ver
     set_current_app_clean_strip_cd2 libxau $prefix$ver 1
     create_dev_package2 libxau $prefix$ver include lib/pkgconfig share
+    ln -s /app/libxau/$prefix$ver/COPYING /app/libxau-dev/$prefix$ver/COPYING
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxscrnsaver" ]; then
@@ -2817,8 +2822,10 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxc
     make all -j$cpu_num
     create_app_in_tmp_and_link_it2 libxcomposite $prefix$ver
     make install
+    cp COPYING /app/libxcomposite/$prefix$ver
     set_current_app_clean_strip_cd2 libxcomposite $prefix$ver 1
     create_dev_package2 libxcomposite $prefix$ver include lib/pkgconfig share
+    ln -s /app/libxcomposite/$prefix$ver/COPYING /app/libxcomposite-dev/$prefix$ver/COPYING
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "libxdamage" ]; then
