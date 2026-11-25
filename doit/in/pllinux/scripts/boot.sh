@@ -8,7 +8,6 @@ fi
 
 export PATH=/app/busybox/current/bin:/app/busybox/current/sbin
 
-export MODPROBE_OPTIONS="-d /app/kernel/current"
 
 #enable when want to see more from dynamic loader code
 #export LD_PLLINUX_DEBUG=1
@@ -71,6 +70,11 @@ if [ ! -x /app/glibc/current/lib/ld-linux-x86-64.so.2 ]; then
   echo "/app/glibc/current/lib/ld-linux-x86-64.so.2 not executable. Fixing"
   chmod a+x /app/glibc/current/lib/ld-linux-x86-64.so.2
 fi
+
+export MODPROBE_OPTIONS="-d /app/kernel/current"
+#echo /app/kmod/current/sbin/modprobe > /proc/sys/kernel/modprobe
+#chmod a+w /sys/bus/pci/rescan
+#echo 1 > /sys/bus/pci/rescan
 
 # access to dinit for non-root users
 /app/busybox/current/bin/busybox chmod a+rw /run/dinitctl

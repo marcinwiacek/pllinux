@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libjpeg-turbo"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="kmod"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -960,6 +960,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "kmod"
   if should_make kmod $ver; then
     install_host_deps "scdoc"
     download_unpack_source https://github.com/kmod-project/kmod/archive/refs/tags/v$ver.tar.gz kmod kmod-$ver 1
+    #after changing it with -Dmoduledir="/app/kernel/current/lib/modules" first character is cut off
+    sed -i "s|/lib/modules|/app/kernel/current/lib/modules|g" meson.build
     meson setup -Dprefix=/app/kmod/$prefix$ver --buildtype release --libdir=lib _build
     meson compile -C _build
     create_app_in_tmp_and_link_it2 kmod $prefix$ver
