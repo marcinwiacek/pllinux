@@ -22,7 +22,7 @@ PLLinux:
 * prepared from scratch (it allows for avoiding many problems visible
 in typical Linux distributions, gives good knowledge about internals and occasion for cutting off obsolete parts) AND
 * done with long technical experience (I'm certified engineer working in the past for such companies like Google,
-additionally I'm very lazy and preffer doing something once, but good).
+additionally I'm very lazy and preffer doing something only once, but good).
 
 The biggest key points for release 1.0:
 
