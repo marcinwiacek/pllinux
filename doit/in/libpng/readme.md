@@ -5,6 +5,7 @@ https://libpng.org/pub/png/libpng.html
 Official PNG reference library.
 
 **License**
+See LICENSE
 
 **Deps**
 zlib current

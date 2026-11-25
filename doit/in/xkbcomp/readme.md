@@ -5,6 +5,7 @@ https://xorg.freedesktop.org/archive/individual/app
 Compiler for converting description of an XKB keymap for example into xkm file.
 
 **License**
+MIT
 
 **PATH**
 bin

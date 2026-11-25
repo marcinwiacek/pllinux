@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="libxcb-renderutil"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="xkeyboard-config"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1561,8 +1561,10 @@ if [ "$package" == "fs" ] || [ "$package" == "libpng" ]; then
     make -j$cpu_num
     create_app_in_tmp_and_link_it2 libpng $prefix$ver
     make install
+    cp LICENSE /app/libpng/$prefix$ver
     set_current_app_clean_strip_cd2 libpng $prefix$ver 1
     create_dev_package2 libpng $prefix$ver include lib/pkgconfig share/man/man3
+    ln -s /app/libpng/$prefix$ver/LICENSE /app/libpng-dev/$prefix$ver/LICENSE
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "harfbuzz" ]; then
@@ -3046,8 +3048,10 @@ if [ "$package" == "fs" ] || [ "$package" == "libxkbcommon" ]; then
     rm /app/libxkbcommon/current
     ln -s /app/libxkbcommon/$prefix$ver /app/libxkbcommon/current
     meson install -C _build
+    cp LICENSE /app/libxkbcommon/$prefix$ver
     set_current_app_clean_strip_cd2 libxkbcommon $prefix$ver 1
     create_dev_package2 libxkbcommon $prefix$ver include lib/pkgconfig
+    ln -s /app/libxkbcommon/$prefix$ver/LICENSE /app/libxkbcommon-dev/$prefix$ver/LICENSE
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "seatd" ]; then

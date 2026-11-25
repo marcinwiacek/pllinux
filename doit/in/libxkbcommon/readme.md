@@ -5,6 +5,7 @@ https://xkbcommon.org/
 XKB specificiation specification for handling keyboard descriptions.
 
 **License**
+See LICENSE
 
 **Deps**
 libxml2 current
