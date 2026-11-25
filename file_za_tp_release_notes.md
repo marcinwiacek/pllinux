@@ -9,7 +9,7 @@
   * Do you want to be able to play with some new software without resigning from stable and working environment?
   * And finally: do you want to pay less for CPU, RAM and disk and better control what your hardware is used for?
 
-Hi, my name is Marcin. I'm not maybe the smartest and best programmer on the world, but I'm quite good and effective in this what I'm
+Hi, my name is Marcin. I'm not maybe the best programmer on the world, but I'm quite good and effective in this what I'm
 doing. I was using PCs around 36 years and I love beauty and simplicity, additionally I'm tired with politics
 and words "nothing can be done". And I'm building system, which could resolve various existing problems.
 
