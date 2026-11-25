@@ -18,10 +18,10 @@ I know, that you heard similar things many times. And I know, that Internet is f
 
 PLLinux:
 
-* is created using existing software (it gives maturity in many cases) AND
+* is created using existing software (it gives maturity in most cases) AND
 * prepared from scratch (it allows for avoiding many problems visible
-in typical Linux distributions, gives good knowledge about internals and occasion for cutting off obsolete parts) AND
-* done with long technical experience (I'm certified engineer working in the past for such companies like Google,
+in typical distributions, gives good knowledge about internals and occasion for cutting off obsolete parts) AND
+* done with long technical experience (I'm certified engineer working in the past for such companies like Google or HP,
 additionally I'm very lazy and preffer doing something only once, but good).
 
 The biggest key points for release 1.0:
