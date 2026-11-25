@@ -71,7 +71,7 @@ if [ ! -x /app/glibc/current/lib/ld-linux-x86-64.so.2 ]; then
   chmod a+x /app/glibc/current/lib/ld-linux-x86-64.so.2
 fi
 
-export MODPROBE_OPTIONS="-d /app/kernel/current"
+#export MODPROBE_OPTIONS="-d /app/kernel/current"
 #echo /app/kmod/current/sbin/modprobe > /proc/sys/kernel/modprobe
 #chmod a+w /sys/bus/pci/rescan
 #echo 1 > /sys/bus/pci/rescan

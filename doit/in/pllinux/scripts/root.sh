@@ -71,7 +71,7 @@ export SHELL=/app/bash/current/bin/bash
 export HOME=/home/root/app
 export TERMINFO=/app/ncurses/current/share/terminfo
 export TZDIR=/app/tzdb/current/usr/share/zoneinfo
-export MODPROBE_OPTIONS="-d /app/kernel/current"
+#export MODPROBE_OPTIONS="-d /app/kernel/current"
 mkdir $HOME 2> /dev/null
 
 # red [time] user:folder #
