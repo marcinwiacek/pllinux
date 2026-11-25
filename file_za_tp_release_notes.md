@@ -9,16 +9,19 @@
   * Do you want to be able to play with some new software without resigning from stable and working environment?
   * And finally: do you want to pay less for CPU, RAM and disk and better control what your hardware is used for?
 
-Hi, my name is Marcin. I'm using PCs around 36 years and I love beauty and simplicity, additionally I'm tired with politics
-in IT and words "nothing can be done". And I'm building system, which could resolve many existing problems.
+Hi, my name is Marcin. I'm not maybe the smartest and best programmer on the world, but I'm quite good and effective in this what I'm
+doing. I was using PCs around 36 years and I love beauty and simplicity, additionally I'm tired with politics
+and words "nothing can be done". And I'm building system, which could resolve various existing problems.
 
-I know, that you heard it many times. And I know, that Internet is full of similar projects now.
-The thing is, that PLLinux:
+I know, that you heard similar things many times. And I know, that Internet is full of different projects and promises now
+(including attractive code from various models).
 
-* is created using existing software (it equals maturity in many cases) and
+PLLinux:
+
+* is created using existing software (it gives maturity in many cases) AND
 * prepared from scratch (it allows for avoiding many problems visible
-in typical Linux distributions and gives good knowledge about internals and occasion for cutting off obsolete parts),
-* done with long technical experience (I'm certified engineer and working in the past for such companies like Google,
+in typical Linux distributions, gives good knowledge about internals and occasion for cutting off obsolete parts) AND
+* done with long technical experience (I'm certified engineer working in the past for such companies like Google,
 additionally I'm very lazy and preffer doing something once, but good).
 
 The biggest key points for release 1.0:
