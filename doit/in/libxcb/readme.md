@@ -2,6 +2,7 @@
 https://xorg.freedesktop.org/archive/individual/xcb/ or https://gitlab.freedesktop.org/xorg/lib/libxcb
 
 **Description**
+C interface to the X Window System protocol.
 
 **License**
-X11 License Distribution Modification Variant.
+MIT

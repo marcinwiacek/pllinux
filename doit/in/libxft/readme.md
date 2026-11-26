@@ -5,4 +5,4 @@ https://xorg.freedesktop.org/archive/individual/lib/ or https://gitlab.freedeskt
 Font rendering library, using libfreetype, libX11 and the X Render extension to display anti-aliased text.
 
 **License**
-See COPYING
+MIT
