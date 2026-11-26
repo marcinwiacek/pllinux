@@ -2199,8 +2199,8 @@ kernel_module_list() {
          for MOD_NAME in $REMOVE_MODULE_BLACK_LIST; do
            if [ $MOD_NAME = $3 ]; then
              echo \"don\'t load after system restart \(won\'t be stopped now because can hang system\)\"
+             break
            fi
-           break
          done
          IFS=$IFSORIG
 
@@ -2317,8 +2317,20 @@ EOF
               done
               change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE"
 
-      MSG="$(modprobe -r $LINE2X 2>&1)"
-      #fixme: how to find dependend modules to remove them from config file too?
+WRONG=0
+         IFS=":"
+         for MOD_NAME in $REMOVE_MODULE_BLACK_LIST; do
+           if [ $MOD_NAME = $LINE2X ]; then
+             WRONG=1
+             break
+           fi
+           break
+         done
+         IFS=$IFSORIG
+
+      if [ $WRONG = 0 ]; then
+        MSG="$(modprobe -r $LINE2X 2>&1)"
+        #fixme: how to find dependend modules to remove them from config file too?
          IS_LOADED=$(lsmod 2>&1)
          case $IS_LOADED in
            *${LINE2X}*)
@@ -2328,6 +2340,7 @@ EOF
          if [ "$MSG" != "" ]; then 
            dialog --backtitle "PLLinux\kernel modules\module $LINE2X\stop (rmmod)" --msgbox "$MSG" 100 90
          fi
+       fi
          ;;
        4) echo blacklist $LINE2X >> /etc/modprobe.d/blacklist
           ISBLACK=1
