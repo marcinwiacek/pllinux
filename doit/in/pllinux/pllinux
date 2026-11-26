@@ -2186,10 +2186,41 @@ search_path_for_kernel_module() {
   done
 }
 
+kernel_module_list() {
+         echo " 1 "
+         echo \"info \(modinfo\)\"
+         if [ "$1" = "1" ]; then
+           echo " 3 "
+           echo \"stop and don\'t load after system restart \(modprobe -r\)\"
+         else
+          echo " 2 "
+          echo \"start and load after system restart \(modprobe\)\" 
+         fi
+         if [ "$2" = "0" ]; then
+          echo " 4 "
+          echo \"blacklist module to prevent starting\"
+         else
+          echo " 5 "
+          echo \"remove module from blacklist\"
+         fi
+
+}
+
 kernel_module() {
   LINE2X=${1##*/}
   LINE2X=${LINE2X%%.ko.xz*}
   LINE2X=${LINE2X//-/_} # a little bit tricky
+
+  BLACK=""
+  if [ -e "${DIR}etc/modprobe.d/blacklist" ]; then
+    BLACK=$(cat ${DIR}etc/modprobe.d/blacklist)
+  fi
+                     ISBLACK=0
+                  case $BLACK in
+                  *blacklist\ ${LINE2X}*)
+                     ISBLACK=1
+                     esac                    
+
   ISSTARTED=$2
     MODULEDESCRIPTION=""
       while read -r line2; do
@@ -2214,14 +2245,15 @@ EOF
           break
         fi
       done
+      
       IFS=$IFSORIG
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1.$SERVICE_PARAMS\n\n$MODULEDESCRIPTION\" 0 0 8 \
-         1 \"info \(modinfo\)\" 3 \"stop and don\'t load after system restart \(modprobe -r\)\" 4 \"blacklist module to prevent starting\")
+         $(kernel_module_list $ISSTARTED $ISBLACK))
     else
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1.\n\n$MODULEDESCRIPTION\" 0 0 8 \
-         1 \"info \(modinfo\)\" 2 \"start and load after system restart \(modprobe\)\" 4 \"blacklist module to prevent starting\")
+         $(kernel_module_list $ISSTARTED $ISBLACK))
     fi
     cmd=$(eval $abc)
     if [ $? != 0 ]; then
@@ -2238,29 +2270,25 @@ EOF
                 --inputbox "$MODULEDESCRIPTION\n\nEnter module params. Can be empty." 20 100 "" )
          esac
          if [ $? = 0 ]; then
+                         get_value_from_conf_file "KERNEL_MODULES_START" ""
+                NEW_VALUE="$CONF_FILE_VALUE"
+                if [ "$NEW_VALUE" != "" ]; then NEW_VALUE="$NEW_VALUE:"; fi
+                change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE$1 $cmd2"
+
            MSG="$(modprobe $1 $cmd2 2>&1)"
            IS_LOADED=$(lsmod 2>&1)
            case $IS_LOADED in
              *${LINE2X}*)
-                get_value_from_conf_file "KERNEL_MODULES_START" ""
-                NEW_VALUE="$CONF_FILE_VALUE"
-                if [ "$NEW_VALUE" != "" ]; then NEW_VALUE="$NEW_VALUE:"; fi
-                change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE$1 $cmd2"
                 ISSTARTED=1 ;;
-             *) MSG="Module $1 not started. Below modprobe output\n\n$MSG"
+             *) MSG="Module $1 scheduled for start on system start. Currently not started. Below modprobe output\n\n$MSG"
            esac
            if [ "$MSG" != "" ]; then
              dialog --backtitle "PLLinux\kernel modules\module $LINE2X\start (modprobe)" --msgbox "$MSG" 100 90
            fi
          fi
          ;;
-      3) MSG="$(modprobe -r $1 2>&1)"
-      #fixme: how to find dependend modules to remove them from config file too?
-         IS_LOADED=$(lsmod 2>&1)
-         case $IS_LOADED in
-           *${LINE2X}*)
-              MSG="Module $1 not stopped. Below modprobe output\n\n$MSG" ;;
-           *) get_value_from_conf_file "KERNEL_MODULES_START" ""
+      3) 
+                    get_value_from_conf_file "KERNEL_MODULES_START" ""
               NEW_VALUE=""
               IFS=":"
               for modname in $CONF_FILE_VALUE; do
@@ -2273,12 +2301,30 @@ EOF
                 fi
               done
               change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE"
-              ISSTARTED=0
+
+      
+      MSG="$(modprobe -r $LINE2X 2>&1)"
+      #fixme: how to find dependend modules to remove them from config file too?
+         IS_LOADED=$(lsmod 2>&1)
+         case $IS_LOADED in
+           *${LINE2X}*)
+              MSG="Module $1 removed from start on system start. Currently not stopped. Below modprobe output\n\n$MSG" ;;
+           *) ISSTARTED=0
          esac
          if [ "$MSG" != "" ]; then 
            dialog --backtitle "PLLinux\kernel modules\module $LINE2X\stop (rmmod)" --msgbox "$MSG" 100 90
          fi
          ;;
+       4) echo blacklist $LINE2X >> /etc/modprobe.d/blacklist
+          ISBLACK=1
+          ;;
+        5) mv /etc/modprobe.d/blacklist /etc/modprobe.d/blacklist_
+           while read -r line; do
+             case $LINE in
+             *\ $LINE2X) ;;
+             *) echo $LINE >> /etc/modprobe.d/blacklist
+             esac
+           done < ${DIR}etc/modprobe.d/blacklist
 #not required anymore? creating module tree
 #      4) deps_changed=0
 #         deps_list="$1"
@@ -2338,7 +2384,7 @@ kernel_modules_list() {
                 LINE2X=${LINE2X//-/_} # a little bit tricky
                 if [ "$2" = "3" ]; then
                   case $BLACK in
-                  *blacklist${LINE2X}*)
+                  *blacklist\ ${LINE2X}*)
                     case $line2 in
                     *$1*) case $IS_LOADED in
                         *${LINE2X}*)
@@ -2358,12 +2404,23 @@ kernel_modules_list() {
                       *${LINE2X}*)
                          if [ "$2" = "1" ] || [ "$2" = "2" ]; then
                            echo " $listnr "
-                           echo  \"$line2 - STARTED\"
+                           case $BLACK in
+                           *blacklist\ ${LINE2X}*)
+                             echo  \"$line2 - BLACKLIST, STARTED\"
+                             ;;
+                           *) echo  \"$line2 - STARTED\"
+                           esac
                            listnr=$(($listnr+1))
                          fi ;;
                       *) if [ "$2" = "0" ] || [ "$2" = "2" ]; then
                            echo " $listnr "
-                           echo  \"$line2\"
+                           case $BLACK in
+                           *blacklist\ ${LINE2X}*)
+                             echo  \"$line2 - BLACKLIST\"
+                             ;;
+                           *) echo  \"$line2\"
+                           ;;
+                           esac
                            listnr=$(($listnr+1))
                          fi
                       esac
