@@ -23,6 +23,9 @@ SYSTEM_APPS="${SYSTEM_APPS}:pcre2:pllinux:popt:readline:rsync:rsyslog:shim:smart
 
 SYSTEM_SERVICES="syslogd:crond:tty2:tty3"
 
+# these modules can hang system during unloading
+REMOVE_MODULE_BLACK_LIST="vmwgfx"
+
 # some default values
 TIMEZONE="UTC"
 KEYB="qwerty/pl4.map.gz"
@@ -2191,7 +2194,19 @@ kernel_module_list() {
          echo \"info \(modinfo\)\"
          if [ "$1" = "1" ]; then
            echo " 3 "
-           echo \"stop and don\'t load after system restart \(modprobe -r\)\"
+
+         IFS=":"
+         for MOD_NAME in $REMOVE_MODULE_BLACK_LIST; do
+           if [ $MOD_NAME = $3 ]; then
+             echo \"don\'t load after system restart \(won\'t be stopped now because can hang system\)\"
+           fi
+           break
+         done
+         IFS=$IFSORIG
+
+           if [ $MOD_NAME != $3 ]; then
+             echo \"stop and don\'t load after system restart \(modprobe -r\)\"
+           fi
          else
           echo " 2 "
           echo \"start and load after system restart \(modprobe\)\" 
@@ -2219,7 +2234,7 @@ kernel_module() {
                   case $BLACK in
                   *blacklist\ ${LINE2X}*)
                      ISBLACK=1
-                     esac                    
+                     esac
 
   ISSTARTED=$2
     MODULEDESCRIPTION=""
@@ -2245,15 +2260,15 @@ EOF
           break
         fi
       done
-      
+
       IFS=$IFSORIG
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1.$SERVICE_PARAMS\n\n$MODULEDESCRIPTION\" 0 0 8 \
-         $(kernel_module_list $ISSTARTED $ISBLACK))
+         $(kernel_module_list $ISSTARTED $ISBLACK $LINE2X))
     else
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1.\n\n$MODULEDESCRIPTION\" 0 0 8 \
-         $(kernel_module_list $ISSTARTED $ISBLACK))
+         $(kernel_module_list $ISSTARTED $ISBLACK $LINE2X))
     fi
     cmd=$(eval $abc)
     if [ $? != 0 ]; then
@@ -2302,7 +2317,6 @@ EOF
               done
               change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE"
 
-      
       MSG="$(modprobe -r $LINE2X 2>&1)"
       #fixme: how to find dependend modules to remove them from config file too?
          IS_LOADED=$(lsmod 2>&1)
@@ -2325,6 +2339,8 @@ EOF
              *) echo $LINE >> /etc/modprobe.d/blacklist
              esac
            done < ${DIR}etc/modprobe.d/blacklist
+           ISBLACK=0
+           ;;
 #not required anymore? creating module tree
 #      4) deps_changed=0
 #         deps_list="$1"
