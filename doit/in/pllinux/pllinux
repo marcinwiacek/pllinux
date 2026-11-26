@@ -2190,35 +2190,34 @@ search_path_for_kernel_module() {
 }
 
 kernel_module_list() {
-         echo " 1 "
-         echo \"info \(modinfo\)\"
-         if [ "$1" = "1" ]; then
-           echo " 3 "
+  echo " 1 "
+  echo \"info \(modinfo\)\"
+  if [ "$1" = "1" ]; then
+    echo " 3 "
 
-         IFS=":"
-         for MOD_NAME in $REMOVE_MODULE_BLACK_LIST; do
-           if [ $MOD_NAME = $3 ]; then
-             echo \"don\'t load after system restart \(won\'t be stopped now because can hang system\)\"
-             break
-           fi
-         done
-         IFS=$IFSORIG
+    IFS=":"
+    for MOD_NAME in $REMOVE_MODULE_BLACK_LIST; do
+      if [ $MOD_NAME = $3 ]; then
+        echo \"don\'t load after system restart \(won\'t be stopped now because can hang system\)\"
+        break
+       fi
+    done
+    IFS=$IFSORIG
 
-           if [ $MOD_NAME != $3 ]; then
-             echo \"stop and don\'t load after system restart \(modprobe -r\)\"
-           fi
-         else
-          echo " 2 "
-          echo \"start and load after system restart \(modprobe\)\" 
-         fi
-         if [ "$2" = "0" ]; then
-          echo " 4 "
-          echo \"blacklist module to prevent starting\"
-         else
-          echo " 5 "
-          echo \"remove module from blacklist\"
-         fi
-
+    if [ $MOD_NAME != $3 ]; then
+      echo \"stop and don\'t load after system restart \(modprobe -r\)\"
+    fi
+  else
+    echo " 2 "
+    echo \"start and load after system restart \(modprobe\)\" 
+  fi
+  if [ "$2" = "0" ]; then
+    echo " 4 "
+    echo \"blacklist module to prevent starting\"
+  else
+    echo " 5 "
+    echo \"remove module from blacklist\"
+  fi
 }
 
 kernel_module() {
@@ -2230,21 +2229,23 @@ kernel_module() {
   if [ -e "${DIR}etc/modprobe.d/blacklist" ]; then
     BLACK=$(cat ${DIR}etc/modprobe.d/blacklist)
   fi
-                     ISBLACK=0
-                  case $BLACK in
-                  *blacklist\ ${LINE2X}*)
-                     ISBLACK=1
-                     esac
+  ISBLACK=0
+  case $BLACK in
+    *blacklist\ ${LINE2X}*)
+    ISBLACK=1
+  esac
 
   ISSTARTED=$2
-    MODULEDESCRIPTION=""
-      while read -r line2; do
-        case $line2 in
-        description*) MODULEDESCRIPTION="\n\n$line2\n" ;;
-        depends*) MODULEDESCRIPTION="$MODULEDESCRIPTION\n$line2\n" ;;
-        parm*) MODULEDESCRIPTION="$MODULEDESCRIPTION\n$line2" ;;
-        esac
-      done <<< $(modinfo $1)
+
+  MODULEDESCRIPTION=""
+  while read -r line2; do
+    case $line2 in
+    description*) MODULEDESCRIPTION="\n\n$line2\n" ;;
+    depends*) MODULEDESCRIPTION="$MODULEDESCRIPTION\n$line2\n" ;;
+    parm*) MODULEDESCRIPTION="$MODULEDESCRIPTION\n$line2" ;;
+    esac
+  done <<< $(modinfo $1)
+
   while true; do
     if [ "$ISSTARTED" = "1" ]; then
       get_value_from_conf_file "KERNEL_MODULES_START" ""
@@ -2302,22 +2303,21 @@ EOF
            fi
          fi
          ;;
-      3) 
-                    get_value_from_conf_file "KERNEL_MODULES_START" ""
-              NEW_VALUE=""
-              IFS=":"
-              for modname in $CONF_FILE_VALUE; do
-                IFS=" " read -r SERVICE_NAME SERVICE_PARAMS << EOF
+      3) get_value_from_conf_file "KERNEL_MODULES_START" ""
+         NEW_VALUE=""
+         IFS=":"
+         for modname in $CONF_FILE_VALUE; do
+           IFS=" " read -r SERVICE_NAME SERVICE_PARAMS << EOF
 ${modname}
 EOF
-                if [ "$SERVICE_NAME" != "$1" ]; then
-                  if [ "$NEW_VALUE" != "" ]; then NEW_VALUE="$NEW_VALUE:"; fi
-                  NEW_VALUE="$NEW_VALUE$modname"
-                fi
-              done
-              change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE"
+           if [ "$SERVICE_NAME" != "$1" ]; then
+             if [ "$NEW_VALUE" != "" ]; then NEW_VALUE="$NEW_VALUE:"; fi
+             NEW_VALUE="$NEW_VALUE$modname"
+           fi
+         done
+         change_value_in_conf_file "KERNEL_MODULES_START" "$NEW_VALUE"
 
-WRONG=0
+         WRONG=0
          IFS=":"
          for MOD_NAME in $REMOVE_MODULE_BLACK_LIST; do
            if [ $MOD_NAME = $LINE2X ]; then
@@ -2328,32 +2328,32 @@ WRONG=0
          done
          IFS=$IFSORIG
 
-      if [ $WRONG = 0 ]; then
-        MSG="$(modprobe -r $LINE2X 2>&1)"
-        #fixme: how to find dependend modules to remove them from config file too?
-         IS_LOADED=$(lsmod 2>&1)
-         case $IS_LOADED in
-           *${LINE2X}*)
-              MSG="Module $1 removed from start on system start. Currently not stopped. Below modprobe output\n\n$MSG" ;;
-           *) ISSTARTED=0
-         esac
-         if [ "$MSG" != "" ]; then 
-           dialog --backtitle "PLLinux\kernel modules\module $LINE2X\stop (rmmod)" --msgbox "$MSG" 100 90
+         if [ $WRONG = 0 ]; then
+           MSG="$(modprobe -r $LINE2X 2>&1)"
+           #fixme: how to find dependend modules to remove them from config file too?
+           IS_LOADED=$(lsmod 2>&1)
+           case $IS_LOADED in
+             *${LINE2X}*)
+                MSG="Module $1 removed from start on system start. Currently not stopped. Below modprobe output\n\n$MSG" ;;
+             *) ISSTARTED=0
+           esac
+           if [ "$MSG" != "" ]; then 
+             dialog --backtitle "PLLinux\kernel modules\module $LINE2X\stop (rmmod)" --msgbox "$MSG" 100 90
+           fi
          fi
-       fi
          ;;
        4) echo blacklist $LINE2X >> /etc/modprobe.d/blacklist
           ISBLACK=1
           ;;
-        5) mv /etc/modprobe.d/blacklist /etc/modprobe.d/blacklist_
-           while read -r line; do
+       5) mv /etc/modprobe.d/blacklist /etc/modprobe.d/blacklist_
+          while read -r line; do
              case $LINE in
              *\ $LINE2X) ;;
              *) echo $LINE >> /etc/modprobe.d/blacklist
              esac
-           done < ${DIR}etc/modprobe.d/blacklist
-           ISBLACK=0
-           ;;
+          done < ${DIR}etc/modprobe.d/blacklist
+          ISBLACK=0
+          ;;
 #not required anymore? creating module tree
 #      4) deps_changed=0
 #         deps_list="$1"
