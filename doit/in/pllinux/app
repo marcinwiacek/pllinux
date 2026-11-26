@@ -3,11 +3,11 @@
 /app/bwrap/current/bin/bwrap \
     --unshare-all \
     --share-net \
-    --ro-bind /etc/app.repos /etc/app.repos \
+    --ro-bind /etc/pllinux/app.repos /etc/pllinux/app.repos \
     --ro-bind /etc/resolv.conf /etc/resolv.conf \
     --tmpfs tmp \
     --bind /app app \
     --dev dev \
-    --chdir /app/pllinux/current/helper \
+    --chdir /app/pllinux/current/scripts \
     --setenv PATH /app/wget2/current:/app/busybox/current/bin:/app/busybox/current/sbin \
     /app/busybox/current/bin/sh /app/pllinux/current/scripts/app.sh $@

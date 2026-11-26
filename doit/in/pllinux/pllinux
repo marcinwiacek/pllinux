@@ -1,7 +1,6 @@
 #!/app/busybox/current/bin/sh
 # Part of PLLINUX. Creating system cfg from conf file or asking user and creating conf file.
 
-#VER="5 Oct 2026"
 VER="$(/app/busybox/current/bin/date -r $0 +%Y%m%d)"
 
 DIR="/" # path with / in the end. In real system /
@@ -3166,6 +3165,12 @@ menuentry '$NEW_NAME' --class ubuntu --class gnu-linux --class gnu --class os {
     initrd /app/initramfs/current/initramfs.gz
 }
 
+menuentry '$NEW_NAME safe mode (no kernel modules)' --class ubuntu --class gnu-linux --class gnu --class os {
+    echo 'Loading PLLINUX ...'
+    linux /app/kernel/current/bzImage root=UUID=$ROOT_DEVICE_ID rw nomodule
+    initrd /app/initramfs/current/initramfs.gz
+}
+
 fwsetup --is-supported
 if [ "$?" = 0 ]; then
     menuentry 'UEFI setup menu (normally available with Esc, F8, F10 or Del key)' {
@@ -3683,7 +3688,8 @@ groups() {
 current_boot_menu() {
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\apps\" --cancel-label "Back" \
              --menu \"Groups\" 0 0 8 \
-              1 Timeout 0)
+              1 Timeout)
+    cmd=$(eval $abc)
 }
 
 CFGFILE="etc/pllinux/pllinux.conf"

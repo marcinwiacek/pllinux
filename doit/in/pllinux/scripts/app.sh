@@ -1,5 +1,5 @@
 #!/app/busybox/current/bin/sh
-INFO="Package manager. Version from 8 Jul 2026. Part of PLLINUX"
+INFO="Package manager. Version from 26 Nov 2026. Part of PLLINUX"
 DIR="/" # path with / in the end. In real system /
 if [ -d "/mnt/x" ]; then
   DIR="/mnt/x/"
