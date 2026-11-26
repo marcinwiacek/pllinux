@@ -2313,60 +2313,11 @@ EOF
 
 kernel_modules_list() {
   IS_LOADED=$(lsmod 2>&1)
-  listnr=1
-  if [ "$2" = "3" ]; then
-    if [ -e "${DIR}etc/modprobe.conf" ]; then
-      while read -r line; do
-        case $line in
-        blacklist*) IFS=" " read -r COMMAND MODULE_NAME << EOF
-$line
-EOF
-
-        APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
-        for APP_NAME in $APP_LIST; do
-          if [ -e "${DIR}app/${APP_NAME}/current/readme.md" ]; then
-            sectionModules=0
-            while read -r line; do
-              if [ "$line" = "**Modules**" ]; then
-                sectionModules=1
-              elif [ "$line" = "" ]; then
-                sectionModules=0;
-              elif [ "$sectionModules" = 1 ]; then
-                IFS=":"
-                for folder in $line; do
-                  if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
-                    PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
-                    while read -r line2; do
-                      LINE2X=${line2##*/}
-                      LINE2X=${LINE2X%%.ko.xz*}
-                      LINE2X=${LINE2X//-/_} # a little bit tricky
-                      case $line2 in
-                        *$1*) case $IS_LOADED in
-                              *${LINE2X}*)
-                                if [ "$2" = "1" ] || [ "$2" = "2" ]; then
-                                  echo " $listnr "
-                                  echo  \"$line2 - STARTED\"
-                                  listnr=$(($listnr+1))
-                                fi ;;
-                              *) if [ "$2" = "0" ] || [ "$2" = "2" ]; then
-                                   echo " $listnr "
-                                   echo  \"$line2\"
-                                   listnr=$(($listnr+1))
-                                 fi
-                              esac
-                      esac
-                    done <<< $PARAMS
-                  fi
-               done
-             fi
-           done < ${DIR}app/${APP_NAME}/current/readme.md
-          fi
-        done
-        esac
-      done <<< "${DIR}etc/modprobe.conf"
-    fi
-    return
+  BLACK=""
+  if [ -e "${DIR}etc/modprobe.d/blacklist" ]; then
+    BLACK=$(cat ${DIR}etc/modprobe.d/blacklist)
   fi
+  listnr=1
   APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
   for APP_NAME in $APP_LIST; do
     if [ -e "${DIR}app/${APP_NAME}/current/readme.md" ]; then
@@ -2385,8 +2336,25 @@ EOF
                 LINE2X=${line2##*/}
                 LINE2X=${LINE2X%%.ko.xz*}
                 LINE2X=${LINE2X//-/_} # a little bit tricky
-                case $line2 in
-                *$1*) case $IS_LOADED in
+                if [ "$2" = "3" ]; then
+                  case $BLACK in
+                  *blacklist${LINE2X}*)
+                    case $line2 in
+                    *$1*) case $IS_LOADED in
+                        *${LINE2X}*)
+                             echo " $listnr "
+                             echo  \"$line2 - BLACKLIST, STARTED\"
+                             listnr=$(($listnr+1))
+                           ;;
+                        *)   echo " $listnr "
+                             echo  \"$line2 - BLACKLIST\"
+                             listnr=$(($listnr+1))
+                        esac
+                     esac
+                  esac
+                else
+                  case $line2 in
+                  *$1*) case $IS_LOADED in
                       *${LINE2X}*)
                          if [ "$2" = "1" ] || [ "$2" = "2" ]; then
                            echo " $listnr "
@@ -2399,7 +2367,8 @@ EOF
                            listnr=$(($listnr+1))
                          fi
                       esac
-                esac
+                  esac
+                fi
               done <<< $PARAMS
             fi
           done
