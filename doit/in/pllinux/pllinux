@@ -2217,11 +2217,11 @@ EOF
       IFS=$IFSORIG
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1.$SERVICE_PARAMS\n\n$MODULEDESCRIPTION\" 0 0 8 \
-         1 \"info \(modinfo\)\" 3 \"stop and don\'t load after system restart \(modprobe -r\)\" 4 \"blacklist module to block start\")
+         1 \"info \(modinfo\)\" 3 \"stop and don\'t load after system restart \(modprobe -r\)\" 4 \"blacklist module to prevent starting\")
     else
       abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\module $LINE2X\" --cancel-label "Back" \
          --menu \"Linux kernel module $1.\n\n$MODULEDESCRIPTION\" 0 0 8 \
-         1 \"info \(modinfo\)\" 2 \"start and load after system restart \(modprobe\)\" 4 \"blacklist module to block start\")
+         1 \"info \(modinfo\)\" 2 \"start and load after system restart \(modprobe\)\" 4 \"blacklist module to prevent starting\")
     fi
     cmd=$(eval $abc)
     if [ $? != 0 ]; then
@@ -2314,6 +2314,59 @@ EOF
 kernel_modules_list() {
   IS_LOADED=$(lsmod 2>&1)
   listnr=1
+  if [ "$2" = "3" ]; then
+    if [ -e "${DIR}etc/modprobe.conf" ]; then
+      while read -r line; do
+        case $line in
+        blacklist*) IFS=" " read -r COMMAND MODULE_NAME << EOF
+$line
+EOF
+
+        APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
+        for APP_NAME in $APP_LIST; do
+          if [ -e "${DIR}app/${APP_NAME}/current/readme.md" ]; then
+            sectionModules=0
+            while read -r line; do
+              if [ "$line" = "**Modules**" ]; then
+                sectionModules=1
+              elif [ "$line" = "" ]; then
+                sectionModules=0;
+              elif [ "$sectionModules" = 1 ]; then
+                IFS=":"
+                for folder in $line; do
+                  if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
+                    PARAMS=$(find ${DIR}app/${APP_NAME}/current/$folder -type f -name \*.ko.xz)
+                    while read -r line2; do
+                      LINE2X=${line2##*/}
+                      LINE2X=${LINE2X%%.ko.xz*}
+                      LINE2X=${LINE2X//-/_} # a little bit tricky
+                      case $line2 in
+                        *$1*) case $IS_LOADED in
+                              *${LINE2X}*)
+                                if [ "$2" = "1" ] || [ "$2" = "2" ]; then
+                                  echo " $listnr "
+                                  echo  \"$line2 - STARTED\"
+                                  listnr=$(($listnr+1))
+                                fi ;;
+                              *) if [ "$2" = "0" ] || [ "$2" = "2" ]; then
+                                   echo " $listnr "
+                                   echo  \"$line2\"
+                                   listnr=$(($listnr+1))
+                                 fi
+                              esac
+                      esac
+                    done <<< $PARAMS
+                  fi
+               done
+             fi
+           done < ${DIR}app/${APP_NAME}/current/readme.md
+          fi
+        done
+        esac
+      done <<< "${DIR}etc/modprobe.conf"
+    fi
+    return
+  fi
   APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
   for APP_NAME in $APP_LIST; do
     if [ -e "${DIR}app/${APP_NAME}/current/readme.md" ]; then
@@ -2365,8 +2418,8 @@ kernel_modules() {
     if [ "$ret" = "0" ]; then
       cmd=$(dialog --stdout --backtitle "PLLinux\kernel modules\filter" --cancel-label "Back" \
           --form "Pls provide params for kernel module filename search" 0 0 8 \
-          "Show only stopped (0), started (1) or both (2)" 1 1 "$FILTER_START" 1 60 20 0 \
-          "Filename filter. Empty = everything. Case sensitive." 2 1 "$FILTER" 2 60 20 0)
+          "Show stopped (0), started (1), started+stopped (2) or blocked from starting (3)" 1 1 "$FILTER_START" 1 82 20 0 \
+          "Filename filter. Empty = everything. Case sensitive." 2 1 "$FILTER" 2 82 20 0)
       if [ $? = 0 ]; then
         linenr=1
         FILTER_START="2";
@@ -2392,6 +2445,7 @@ kernel_modules() {
     0) TYPE_INFO="only stopped";;
     1) TYPE_INFO="only started";;
     2) TYPE_INFO="started or stopped";;
+    3) TYPE_INFO="blacklisted to prevent starting";;
     esac
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\kernel modules\\list\" --cancel-label "Back" \
            --default-item $listnr3 \
@@ -3667,7 +3721,7 @@ EOF
        25 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
        26 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
        27 "Timezone                              - $TIMEZONE" \
-       28 "System boot menu on current partition" \
+       28 "Boot menu on current partition" \
        29 "Install or clone system to other partition" \
        30 "UEFI boot menu and FAT32 partition" )
   if [ $? == 0 ]; then
