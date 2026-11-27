@@ -1,16 +1,22 @@
 #!/app/busybox/current/bin/sh
 # Part of PLLINUX. Creating binaries (from the source) inside PLLinux and installing them in the PLLinux partition.
 
-output="app";  # location of the package to be put
-download="download"; # location of the downloaded source files
-package="bash"; 
+output_dir="app";  # location of the package to be put
+download_dir="download"; # location of the downloaded source files
+in_dir="/app/doit/current/in";
 cpu_num=6; # how many CPU cores are used during compilation
 #dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
+package="$1"; 
+if [ "$1" = "" ]; then
+  echo First param must package name.
+  return
+fi
 
 # options below shouldn't be probably changed
 curdir=$(pwd)
 prefix="$(date +"%y%m%d")_" # prefix for packages versions in /app in new system
+out="/tmp/doit"
 
 IFSORIG=$IFS
 
@@ -46,11 +52,13 @@ download_unpack_source() {
     * ) localfile=${packagename}-${localfile}
   esac
 
-  if [ ! -f "$download/$localfile" ]; then
+echo $download/$localfile
+
+  if [ ! -f "$download_dir/$localfile" ]; then
     echo $url
     wget -O /tmp/$localfile.tmp $url;
     if [ $? -eq 0 ]; then
-      mv /tmp/$localfile.tmp $download/$localfile
+      mv /tmp/$localfile.tmp $download_dir/$localfile
     else
       exit 1
     fi
@@ -62,14 +70,14 @@ download_unpack_source() {
       mkdir $out/$packagename || true
       cd $out/$packagename
       case $localfile in
-        ccadb* ) cp $download/$localfile $out/$packagename/ccadb ;;
+        ccadb* ) cp $download_dir/$localfile $out/$packagename/ccadb ;;
         *.rpm* ) install_host_deps "rpm"
-                 rpm2cpio $download/$localfile | cpio -idmv ;;
-        *.zip* ) unzip $download/$localfile -d .
+                 rpm2cpio $download_dir/$localfile | cpio -idmv ;;
+        *.zip* ) unzip $download_dir/$localfile -d .
                  cd $unpackeddir ;;
-        *.lz )   tar --lzip -xvf $download/$localfile
+        *.lz )   tar --lzip -xvf $download_dir/$localfile
                  cd $unpackeddir ;;
-        * )      tar -xvf $download/$localfile
+        * )      tar -xvf $download_dir/$localfile
                  cd $unpackeddir
       esac
     else
@@ -181,6 +189,18 @@ set_current_app_clean_strip_cd2() {
 mkdir $output
 mkdir $download
 
+run_in_sandbox() {
+  /app/bwrap/current/bin/bwrap \
+    --unshare-all \
+    --ro-bind /etc etc \
+    --bind /tmp tmp \
+    --bind /app app \
+    --dev dev \
+    --link $1 $2 \
+    --setenv PATH $PATH \
+    /app/busybox/current/bin/sh $3
+}
+
 # --------------------------------- basic - console env and basic tools -------------------------------------
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bash" ]; then
   ver="5.3";
@@ -188,9 +208,9 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bash"
     download_unpack_source https://ftp.gnu.org/gnu/bash/bash-$ver.tar.gz bash bash-$ver 1
     ./configure --prefix=/app/bash/$prefix$ver
     make all -j$cpu_num
-    create_app_in_tmp_and_link_it2 bash $prefix$ver
-    make install
-    chmod a-x /app/bash/$prefix$ver/lib/bash/*
-    set_current_app_clean_strip_cd2 bash $prefix$ver 1
+#    create_app_in_tmp_and_link_it2 bash $prefix$ver
+#    run_in_sandbox $output_dir/bash/$prefix$ver /app/bash/$prefix$ver "make install"
+#    chmod a-x $output_dir/bash/$prefix$ver/lib/bash/*
+#    set_current_app_clean_strip_cd2 bash $prefix$ver 1
   fi
 fi

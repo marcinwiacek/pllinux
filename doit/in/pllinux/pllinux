@@ -554,13 +554,24 @@ set_existing_user() {
                    5 "Keyboard and font (setfont, loadkeys)" \
                    6 "Password (passwd)" )
     else
-      cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
-           --menu "Set user $1" 0 0 6 1 "Apps available to the user" \
+      get_value_from_conf_file "$1_CLASSIC" ""
+      if [ "$CONF_FILE_VALUE" != "" ]; then
+        cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
+           --menu "Set user $1" 0 0 7 2 "App language (todo)" \
+                   3 "Background scheduled tasks setup by this user (crond)" \
+                   5 "Keyboard and font (setfont, loadkeys)" \
+                   6 "Password (passwd)" \
+                   7 "Change user to sandboxed" )
+      else
+        cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
+           --menu "Set user $1" 0 0 7 1 "Apps available to the user" \
                    2 "App language (todo)" \
                    3 "Background scheduled tasks setup by this user (crond)" \
                    4 "Features" \
                    5 "Keyboard and font (setfont, loadkeys)" \
-                   6 "Password (passwd)" )
+                   6 "Password (passwd)" \
+                   7 "Change user to classic (without sandboxing, with sudo)" )
+      fi
     fi
     if [ $? == 0 ]; then
       case $cmd in
@@ -573,6 +584,12 @@ set_existing_user() {
            NEW_FONT="$CONF_FILE_VALUE"
            set_keyboard_font_general_or_user $1 ;;
         6) set_existing_user_password $1 ;;
+        7) get_value_from_conf_file "$1_CLASSIC" ""
+           if [ "$CONF_FILE_VALUE" != "" ]; then
+              change_value_in_conf_file "$1_CLASSIC" ""
+           else
+              change_value_in_conf_file "$1_CLASSIC" "1"
+           fi
       esac
     else
       break
