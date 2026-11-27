@@ -80,6 +80,8 @@ encryption for main filesystem.
   12. 25 Oct 2026 - first successfull X11/X11 app start
   14. 2 Nov 2026 - first working setup with X11 window manager (JWM)
   15. 10 Nov 2026 - PLLinux enters Wayland world (labwc)
+  16. 25 Nov 2026 - finalizing readme.md files from all packages
+  17. 27 Nov 2026 - first compiling bigger app inside system
 
 **Building and starting system from the partition (in the host system)**
 
