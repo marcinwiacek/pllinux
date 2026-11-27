@@ -23,7 +23,7 @@ syslogd
 **Deps**
 e2fsprogs current
 busybox current
-bwrap current
+bubblewrap current
 dialog current
 gptfdisk current
 kbd current

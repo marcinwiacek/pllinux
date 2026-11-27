@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="kernel"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="initramfs"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -457,7 +457,7 @@ if [ "$package" == "fsfs" ] || [ "$package" == "fsmin" ]; then
 
   #don't forget about sync with pllinux and initramfs
 
-  for folderentry in app dev etc home mnt proc run sys tmp lib64 log log/tmp; do mkdir $output/$folderentry; done
+  for folderentry in app bin dev etc home mnt proc run sys tmp lib64 log log/tmp; do mkdir $output/$folderentry; done
 
   rsync -a in/pllinux.etc/ $output/etc
 
@@ -481,6 +481,9 @@ if [ "$package" == "fsfs" ] || [ "$package" == "fsmin" ]; then
     sudo chmod o-rwx $output/$DIRDIR
   done
 
+  cd $output/bin
+  ln -s /app/busybox/current/bin/sh sh
+
   cd $output/lib64
   ln -s /app/glibc/current/lib/ld-linux-x86-64.so.2 ld-linux-x86-64.so.2
   chmod a+x ld-linux-x86-64.so.2
@@ -490,11 +493,16 @@ if [ "$package" == "fsfs" ] || [ "$package" == "fsmin" ]; then
   cd $curdir
 fi
 if [ "$package" == "iso" ]; then
-  mkdir $output/boot
-  mkdir $output/boot/grub
-  cp $curdir/in/pllinux.iso/* $output/boot/grub
-  sudo grub-mkrescue -o $isofile $output/ --disable-shim-lock
-  rm -r $output/boot
+  mkdir /tmp/isosrc
+  rsync -a --progress $output/ /tmp/isosrc
+  rm -r /tmp/isosrc/bin
+  rm -r /tmp/isosrc/home
+  rm -r /tmp/isosrc/log
+  mkdir /tmp/isosrc/boot
+  mkdir /tmp/isosrc/boot/grub
+  cp $curdir/in/pllinux.iso/grub.cfg /tmp/isosrc/boot/grub/
+  sudo grub-mkrescue -o $isofile /tmp/isosrc/ --disable-shim-lock
+  rm -r /tmp/isosrc
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "groff" ]; then
   # for displaying man pages
