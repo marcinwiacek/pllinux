@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="bubblewrap"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="ffmpeg"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -1209,6 +1209,19 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "crypt
     chmod a-x /app/cryptsetup/$prefix$ver/lib/cryptsetup/*.so
     set_current_app_clean_strip_cd2 cryptsetup $prefix$ver 1
     create_dev_package2 cryptsetup $prefix$ver include lib/pkgconfig
+  fi
+fi
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "ffmpeg" ]; then
+  ver="9.1";
+  if should_make ffmpeg $ver; then
+    download_unpack_source https://ffmpeg.org/releases/ffmpeg-9.1.tar.xz ffmpeg ffmpeg-$ver 1
+    ./configure --prefix=/app/ffmpeg/$prefix$ver --enable-gpl --disable-static  --enable-shared
+    make -j$cpu_num
+    create_app_in_tmp_and_link_it2 ffmpeg $prefix$ver
+    make install
+    cp LICENSE.md /app/ffmpeg/$prefix$ver
+    set_current_app_clean_strip_cd2 ffmpeg $prefix$ver 1
+#    create_dev_package2 cryptsetup $prefix$ver include lib/pkgconfig
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "lvm2" ]; then
