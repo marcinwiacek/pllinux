@@ -2789,7 +2789,8 @@ install_from_file() {
 set_system_apps() {
   while true; do
     cmd=$(dialog --stdout --backtitle "PLLinux\apps" --cancel-label "Back" --menu "Manage apps in the /app" 0 0 8 \
-       1 "Install from repo" 2 "Install from file"  3 Delete)
+       1 "Install from repo" 2 "Install from file"  3 Delete \
+       4 "Locale for new installed/updated app  - all" )
     if [ $? = 0 ]; then
       case $cmd in
       1) install_system_apps ;;
@@ -3756,51 +3757,51 @@ EOF
 
   cmd=$(dialog --stdout --backtitle "PLLinux" --cancel-label "Quit" \
        --default-item $mainmenunum \
-       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r), disk $DISKAVAIL/$DISKSIZE avail, RAM $RAMFREE/$RAMTOTAL avail)" 0 0 30 \
+       --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r), disk $DISKAVAIL/$DISKSIZE avail, RAM $RAMFREE/$RAMTOTAL avail)" 0 0 28 \
        1 "Apps (app)" \
        2 "Background tasks after changing files or dirs (inotifyd)" \
        3 "Background tasks running in specified time for all users (crond)" \
        4 "Background tasks running after specified period of time" \
        5 "Background services (dinit)" \
-       6 "Devices (info, power options, partitioning, etc.)" \
-       7 "Disk usage" \
-       8 "File interpreters (associations) and shebang support" \
-       9 "Network firewall (nftables)" \
-       10 "Task manager (top, q to quit)" \
-       11 "Time" \
-       12 "Kernel modules (modprobe, rmmod, modinfo)" \
-       14 "Kernel params (sysctl)" \
-       15 "Kernel logs (dmesg, can be saved to disk with syslogd, q to quit)" \
-       16 "Partition mounting in /mnt" \
-       17 "System logs saved in files (syslogd)" \
-       18 "Users (adduser, deluser, etc.)" \
-       19 "User groups" \
-       20 "X11/Wayland graphic environments" \
-       21 "App language (todo)                   - $LANG" \
-       22 "Locale for new installed/updated app  - all" \
+       6 "Boot menu" \
+       7 "Devices (info, power options, partitioning, etc.)" \
+       8 "Disk usage" \
+       9 "File interpreters (associations) and shebang support" \
+       10 "Network firewall (nftables)" \
+       11 "Task manager (top, q to quit)" \
+       12 "Time" \
+       14 "Kernel modules (modprobe, rmmod, modinfo)" \
+       15 "Kernel params (sysctl)" \
+       16 "Kernel logs (dmesg, can be saved to disk with syslogd, q to quit)" \
+       17 "Partition mounting in /mnt" \
+       18 "System logs saved in files (syslogd)" \
+       19 "Users (adduser, deluser, etc.)" \
+       20 "User groups" \
+       21 "X11/Wayland graphic environments" \
+       22 "App language (todo)                   - $LANG" \
        23 "Main filesystem check on next reboot  - $FSCK" \
        24 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
        25 "Network (ip)                          - $ETH_ENABLED, $ETH_START, $ETH_IP4" \
        26 "Swap file (swapon,off, mkswap)        - $SWAP_ON_OFF" \
        27 "Timezone                              - $TIMEZONE" \
-       28 "Boot menu on current partition" \
-       29 "Install or clone system to other partition" \
-       30 "UEFI boot menu and FAT32 partition" )
+       28 "Install or clone system to other partition" \
+       29 "UEFI boot menu and FAT32 partition" )
   if [ $? == 0 ]; then
     mainmenunum="$cmd"
     case $cmd in
     1) set_system_apps ;;
     3) tasks "crontab" ;;
     5) services ;;
-    6) devices ;;
-    7) main_disk_usage ;;
-    10) top ;;
-    12) kernel_modules ;;
-    14) kernel_param ;;
-    15) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
-    17) logs ;;
-    18) set_users ;;
-    19) groups ;;
+    6) current_boot_menu ;;
+    7) devices ;;
+    8) main_disk_usage ;;
+    11) top ;;
+    14) kernel_modules ;;
+    15) kernel_param ;;
+    16) dmesg | less ;; # it seems, that msgbox and other dialog elements have size limit
+    18) logs ;;
+    19) set_users ;;
+    20) groups ;;
     23) if [ -f "/forcefsck" ]; then
           rm /forcefsck
         else
@@ -3812,9 +3813,8 @@ EOF
     25) network ;;
     26) swap_file ;;
     27) set_time_zone ;;
-    28) current_boot_menu ;;
-    29) install_to 1 ;;
-    30) uefi ;;
+    28) install_to 1 ;;
+    29) uefi ;;
     esac
   else
     break
