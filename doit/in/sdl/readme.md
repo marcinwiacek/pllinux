@@ -44,3 +44,8 @@ libxkbcommon current
 libxi current
 libxscrnsaver current
 ffmpeg current
+xzutils current
+libva current
+bzip2 current
+libvdpau current
+pipewire current
