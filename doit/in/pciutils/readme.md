@@ -2,6 +2,7 @@
 https://github.com/pciutils/pciutils
 
 **Description**
+PCI utilities.
 
 **License**
 GPL2

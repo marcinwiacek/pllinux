@@ -1,8 +1,8 @@
 **Project**
 https://gitlab.gnome.org/GNOME/libxml2
 
-**Project**
-XML parser and toolkit
+**Description**
+XML parser and toolkit.
 
 **License**
 MIT

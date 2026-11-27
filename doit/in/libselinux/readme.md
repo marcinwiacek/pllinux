@@ -2,6 +2,7 @@
 https://github.com/SELinuxProject/selinux
 
 **Description**
+Shared libraries for apps with support for Security-Enhanced Linux.
 
 **License**
 See LICENSE

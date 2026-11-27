@@ -2,6 +2,7 @@
 https://github.com/openssl/openssl
 
 **Description**
+General-purpose cryptography and secure communication.
 
 **License**
 Apache 2.0

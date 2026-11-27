@@ -2,6 +2,7 @@
 https://github.com/PCRE2Project/pcre2
 
 **Description**
+Perl-Compatible Regular Expressions.
 
 **License**
 See LICENSE.md

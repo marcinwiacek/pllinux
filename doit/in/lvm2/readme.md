@@ -2,6 +2,7 @@
 https://github.com/lvmteam/lvm2
 
 **Description**
+Logical Volume Management.
 
 **License**
 GPL2.0 or BSD-2 clause license or LGPL2.1 ?
