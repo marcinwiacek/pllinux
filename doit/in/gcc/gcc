@@ -9,34 +9,38 @@ IFSORIG=$IFS
 
 PARAMS1=""
 PARAMS2=""
+PARAMS3=""
 
-APP_LIST=$(${DIR}app/busybox/current/bin/ls ${DIR}app)
-for APP_NAME in $APP_LIST; do
+for APP_NAME in $(${DIR}app/busybox/current/bin/ls ${DIR}app); do
   if [ -e "${DIR}app/${APP_NAME}/current/readme.md" ]; then
     sectionInclude=0
     while read -r line; do
       if [ "$line" = "**Include**" ]; then
         sectionInclude=1
-      elif [ "$line" = "" ]; then
-        sectionInclude=0;
       elif [ "$sectionInclude" = 1 ]; then
         IFS=":"
         for folder in $line; do
-          if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
+#          if [ -d "${DIR}app/${APP_NAME}/current/$folder" ]; then
             PARAMS1="-I/app/${APP_NAME}/current/$folder $PARAMS1"
-          fi
+#          fi
         done
+        break
       fi
     done < ${DIR}app/${APP_NAME}/current/readme.md
   fi
-  if [ -d "${DIR}app/${APP_NAME}/current/lib" ]; then
-    PARAMS2="-L /app/${APP_NAME}/current/lib $PARAMS2"
-  fi
+#  if [ -d "${DIR}app/${APP_NAME}/current/lib" ]; then
+#    PARAMS2="-L /app/${APP_NAME}/current/lib $PARAMS2"
+    PARAMS3="/app/${APP_NAME}/current/lib:$PARAMS3"
+#  fi
 done
 
 IFS=$IFSORIG
 
-export LD_LIBRARY_PATH="/app/glibc/current/lib"
-export LIBRARY_PATH="/app/glibc/current/lib"
+#export LD_LIBRARY_PATH="/app/glibc/current/lib"
+#export LIBRARY_PATH="/app/glibc/current/lib"
+
+export LD_LIBRARY_PATH="$PARAMS3"
+export LIBRARY_PATH="$PARAMS3"
+
 #COMPILER_PATH="/app/gcc/current" && 
-/app/gcc/current/bin/gcc $PARAMS2 $PARAMS1 $@
+/app/gcc/current/bin/gcc $PARAMS1 $@
