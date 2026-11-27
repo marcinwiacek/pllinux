@@ -190,14 +190,17 @@ mkdir $output
 mkdir $download
 
 run_in_sandbox() {
+  curdir=$(pwd)
   /app/bwrap/current/bin/bwrap \
     --unshare-all \
     --ro-bind /etc etc \
     --bind /tmp tmp \
     --bind /app app \
+    --bind $curdir $curdir \
     --dev dev \
     --link $1 $2 \
     --setenv PATH $PATH \
+    --chdir $curdir \
     /app/busybox/current/bin/sh $3
 }
 
@@ -205,10 +208,11 @@ run_in_sandbox() {
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bash" ]; then
   ver="5.3";
   if should_make bash $ver; then
-    download_unpack_source https://ftp.gnu.org/gnu/bash/bash-$ver.tar.gz bash bash-$ver 1
-    ./configure --prefix=/app/bash/$prefix$ver
-    make all -j$cpu_num
+#    download_unpack_source https://ftp.gnu.org/gnu/bash/bash-$ver.tar.gz bash bash-$ver 1
+#    ./configure --prefix=/app/bash/$prefix$ver
+#    make all -j$cpu_num
 #    create_app_in_tmp_and_link_it2 bash $prefix$ver
+    run_in_sandbox $(pwd)/app /app/bash/$prefix$ver "make install"
 #    run_in_sandbox $output_dir/bash/$prefix$ver /app/bash/$prefix$ver "make install"
 #    chmod a-x $output_dir/bash/$prefix$ver/lib/bash/*
 #    set_current_app_clean_strip_cd2 bash $prefix$ver 1
