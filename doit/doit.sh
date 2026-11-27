@@ -2,7 +2,7 @@
 # Part of PLLINUX. Version from 15 Nov 2026. Creating binaries (from the source) and installing them in the PLLINUX partition. Tested on Debian "Trixie".
 
 output="/mnt/x";  # directory with EXT4 partition, which will be / for new system. In other scripts equal to DIR variable
-package="doit"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
+package="bubblewrap"; # "fs" to build all, "fsmin" to build minimalistic working system, "iso" to build iso file or concrete name for package (busybox, nftables, etc.)
 cpu_num=6; # how many CPU cores are used during compilation
 dont_process_the_same_ver=0; # 1 - on; 0 - off; don't compile and install app, when the same version (even from other day) available
 use_tmpfs=1; # 1 - some compilations will be done in RAM disk (currently excluded: kernel and gcc part); 0 - save all to disk
@@ -561,29 +561,30 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "busyb
     set_current_app_clean_strip_cd busybox $prefix$ver 1
   fi
 fi
-if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bwrap" ]; then
+if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bubblewrap" ]; then
   ver="0.11.2";
-  if should_make bwrap $ver; then
+  ver="0.13.1";
+  if should_make bubblewrap $ver; then
     install_host_deps "meson libcap-dev"
-    download_unpack_source https://github.com/containers/bubblewrap/releases/download/v$ver/bubblewrap-$ver.tar.xz bwrap bubblewrap-$ver 1
-    cp $curdir/in/bwrap/*.c $out/bwrap/bubblewrap-$ver
+    download_unpack_source https://github.com/containers/bubblewrap/releases/download/v$ver/bubblewrap-$ver.tar.xz bubblewrap bubblewrap-$ver 1
+#    cp $curdir/in/bubblewrap/*.c $out/bubblewrap/bubblewrap-$ver
     meson setup -Ddefault_library=static -Ddefault_both_libraries=static -Dselinux=disabled _build
-    meson compile -C _build
+#    meson compile -C _build
     sed -i 's/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined \/usr\/lib\/x86_64-linux-gnu\/libcap.so/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined -static \/usr\/lib\/x86_64-linux-gnu\/libcap.a/g' _build/build.ninja
     meson compile -C _build
-    create_app bwrap $prefix$ver
-    mkdir $output/app/bwrap/$prefix$ver/bin
-    cp _build/bwrap $output/app/bwrap/$prefix$ver/bin
-    cp $curdir/in/bwrap/diff $output/app/bwrap/$prefix$ver
-    cp $curdir/in/bwrap/diff2 $output/app/bwrap/$prefix$ver
-    mkdir $output/app/bwrap/$prefix$ver/man
-    cp _build/bwrap.1 $output/app/bwrap/$prefix$ver/man
-    mkdir $output/app/bwrap/$prefix$ver/completion
-    mkdir $output/app/bwrap/$prefix$ver/completion/bash
-    cp completions/bash/bwrap $output/app/bwrap/$prefix$ver/completion/bash
-    mkdir $output/app/bwrap/$prefix$ver/completion/zsh
-    cp completions/zsh/_bwrap $output/app/bwrap/$prefix$ver/completion/zsh
-    set_current_app_clean_strip_cd bwrap $prefix$ver 1
+    create_app bubblewrap $prefix$ver
+    mkdir $output/app/bubblewrap/$prefix$ver/bin
+    cp _build/bwrap $output/app/bubblewrap/$prefix$ver/bin
+#    cp $curdir/in/bubblewrap/diff $output/app/bubblewrap/$prefix$ver
+#    cp $curdir/in/bubblewrap/diff2 $output/app/bubblewrap/$prefix$ver
+    mkdir $output/app/bubblewrap/$prefix$ver/man1
+    cp _build/bwrap.1 $output/app/bubblewrap/$prefix$ver/man1
+    mkdir $output/app/bubblewrap/$prefix$ver/completion
+    mkdir $output/app/bubblewrap/$prefix$ver/completion/bash
+    cp completions/bash/bwrap $output/app/bubblewrap/$prefix$ver/completion/bash
+    mkdir $output/app/bubblewrap/$prefix$ver/completion/zsh
+    cp completions/zsh/_bwrap $output/app/bubblewrap/$prefix$ver/completion/zsh
+    set_current_app_clean_strip_cd bubblewrap $prefix$ver 1
   fi
 fi
 if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "dinit" ]; then
