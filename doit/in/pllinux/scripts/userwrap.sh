@@ -39,6 +39,7 @@ PARAMS="$PARAMS --dev-bind /dev /dev "
 #  esac
 #done
 PARAMS="$PARAMS --tmpfs tmp "
+PARAMS="$PARAMS --bind /bin bin "
 PARAMS="$PARAMS --bind /home/$USER home "
 PARAMS="$PARAMS --ro-bind /etc/localtime /etc/localtime "
 PARAMS="$PARAMS --ro-bind /etc/x11 /etc/x11 "
@@ -76,7 +77,7 @@ do
     fi
   fi
 done
-deps="$deps:bwrap current"
+deps="$deps:bubblewrap current"
 while true; do
   complete=1
   IFS=":"
@@ -202,5 +203,5 @@ if [ "$1" = "1" ]; then
   export HOME=/home/$USER/app
   $LAST
 else
-  /app/bwrap/current/bin/bwrap $PARAMS
+  /app/bubblewrap/current/bin/bwrap $PARAMS
 fi

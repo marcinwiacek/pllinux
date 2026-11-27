@@ -4,7 +4,7 @@ DIR="/" # path with / in the end. In real system /
 if [ -d "/mnt/x" ]; then
   DIR="/mnt/x/"
 fi
-SYSTEM_APPS="busybox:bwrap:dinit:e2fsprogs:initramfs:kbd:kernel:ldso:libc:libtinfo:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
+SYSTEM_APPS="busybox:bubblewrap:dinit:e2fsprogs:initramfs:kbd:kernel:ldso:libc:libtinfo:nftables:pllinux:util-linux" # we cannot remove "current" version for these apps
 
 # getting app dependencies from app readme.md
 find_app_deps() {

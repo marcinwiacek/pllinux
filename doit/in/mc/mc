@@ -29,7 +29,7 @@ fi
 
 #--bind / /  makes problem - everything created in bin is visible outside
 
-/app/bwrap/current/bin/bwrap \
+/app/bubblewrap/current/bin/bwrap \
     --setenv HOME $MCHOME \
     --setenv PAGER "/app/less/current/bin/less" \
     --bind / / \

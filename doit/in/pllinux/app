@@ -1,6 +1,6 @@
 #!/app/busybox/current/bin/sh
 # Starting app.sh without access to user files
-/app/bwrap/current/bin/bwrap \
+/app/bubblewrap/current/bin/bwrap \
     --unshare-all \
     --share-net \
     --ro-bind /etc/pllinux/app.repos /etc/pllinux/app.repos \
