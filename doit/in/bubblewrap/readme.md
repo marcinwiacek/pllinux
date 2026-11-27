@@ -13,4 +13,4 @@ LGPL2+
 bin
 
 **Man**
-man
+man1

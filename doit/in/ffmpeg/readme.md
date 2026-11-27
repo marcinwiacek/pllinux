@@ -12,3 +12,9 @@ bin
 
 **Man**
 share/man/man1:share/man/man3
+
+**Deps**
+zlib current
+libdrm current
+libxcb current
+alsa-lib current

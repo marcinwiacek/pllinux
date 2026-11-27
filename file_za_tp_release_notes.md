@@ -480,17 +480,23 @@ PLLinux is in first stage and it will be during long time... or at least so long
 
 3, 2, 1... start (this is how Open Source works).
 
-Remember only one thing - forking sometimes gives more problems than merging everything into mainstream.
+Remember only one thing - forking many times gives more problems than merging everything into mainstream.
+
+**Is AI allowed here?**
+
+AI will not disappear in many usages... if some products have good quality and correct license, why not to use them?
+
+It doesn't change one fact: brain needs continuous training to grow. If everything will be done by agents, human role will be slowly
+degradated (and no, please don't say, that we have today such situation like during industrial revolution or replacing horse by engine/car)
 
 # Schedule and future
 
 This project was started in April 2026 and already went into quite useable shape and form.
 
 Time in the 2026/2027 and beyond will be used for improving functionality (compiling more packages,
-providing more flexible and easier structure, decreasing resources usage, etc.). It includes preparing user-friendly
-graphic environment (something similar probably to HaikuOS or desktops in the Gnome 2 / Windows 95-XP era with the nice to eye rich graphic elements
-and GUI concentrated on real productivity)
+providing more flexible and easier structure, decreasing resources usage, improving functionality, etc.). 
 
 There are of course many things in the queue (for example firewall rules for every app or updates with downloading incremental packages parts), just
 some single more funny elements (which require more development and code changes) will be probably moved into further future
-(example: deleting to the trash)
+(example: deleting to the trash). It includes preparing user-friendly graphic environment (something similar probably to HaikuOS or 
+desktops in the Gnome 2 / Windows 95-XP era with the nice to eye rich graphic elements and GUI concentrated on real productivity)

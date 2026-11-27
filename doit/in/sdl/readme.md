@@ -43,3 +43,4 @@ wayland current
 libxkbcommon current
 libxi current
 libxscrnsaver current
+ffmpeg current

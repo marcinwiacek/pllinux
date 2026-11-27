@@ -5,3 +5,4 @@ https://alsa-project.org/ or https://www.alsa-project.org/files/pub/lib/
 Library from Advanced Linux Sound Architecture (ALSA) project
 
 **License**
+LGPL2.1
