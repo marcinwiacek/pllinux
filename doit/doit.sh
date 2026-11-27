@@ -4535,6 +4535,7 @@ if [ "$package" == "fs" ] || [ "$package" == "pipewire" ]; then
     ninja -C build
     create_app_in_tmp_and_link_it pipewire $prefix$ver
     ninja -C build install
+#fixme symlink to libjack.so.0
     set_current_app_clean_strip_cd pipewire $prefix$ver 1
   fi
 fi
