@@ -191,14 +191,17 @@ mkdir $download
 
 run_in_sandbox() {
   curdir=$(pwd)
-  /app/bwrap/current/bin/bwrap \
+  /app/bubblewrap/current/bin/bwrap \
     --unshare-all \
     --ro-bind /etc etc \
     --bind /tmp tmp \
-    --bind /app app \
     --bind $curdir $curdir \
     --dev dev \
-    --link $1 $2 \
+    --bind /app/busybox/current app/busybox/current \
+    --bind /app/make/current app/make/current \
+    --bind /app/bash/current app/bash/current \
+    --tmpfs $2 \
+    --symlink $1 $2 \
     --setenv PATH $PATH \
     --chdir $curdir \
     /app/busybox/current/bin/sh $3
