@@ -548,20 +548,11 @@ set_existing_user_password() {
 set_existing_user() {
   while true; do
     if [ "$1" = "root" ]; then
-      get_value_from_conf_file "$1_ROOT_HOME" ""
-      if [ "$CONF_FILE_VALUE" = "1" ]; then
-        cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
+      cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
            --menu "Set user $1" 0 0 6 2 "App language (todo)" \
                    3 "Background scheduled tasks setup by this user (crond)" \
                    5 "Keyboard and font (setfont, loadkeys)" \
-                   6 "Password (passwd)" 8 "Show all users in /home (update needs logout)")
-      else
-        cmd=$(dialog --stdout --backtitle "PLLinux\set users\\$1" --cancel-label "Back" \
-           --menu "Set user $1" 0 0 6 2 "App language (todo)" \
-                   3 "Background scheduled tasks setup by this user (crond)" \
-                   5 "Keyboard and font (setfont, loadkeys)" \
-                   6 "Password (passwd)" 8 "Show only root files in /home (update needs logout)")
-      fi
+                   6 "Password (passwd)" )
     else
       get_value_from_conf_file "$1_CLASSIC" ""
       if [ "$CONF_FILE_VALUE" != "" ]; then
@@ -598,14 +589,6 @@ set_existing_user() {
               change_value_in_conf_file "$1_CLASSIC" ""
            else
               change_value_in_conf_file "$1_CLASSIC" "1"
-           fi ;;
-        8) get_value_from_conf_file "$1_ROOT_HOME" ""
-           if [ "$CONF_FILE_VALUE" = "1" ]; then
-#             umount /home
-             change_value_in_conf_file "$1_ROOT_HOME" ""
-           else
-#             mount --bind /home/root /home
-             change_value_in_conf_file "$1_ROOT_HOME" "1"
            fi
       esac
     else
@@ -3746,10 +3729,6 @@ else
     exit
   elif [ "$1" = "FONT" ]; then
     echo $FONT
-    exit
-  elif [ "$1" = "ROOT_HOME" ]; then
-    get_value_from_conf_file "root_ROOT_HOME" ""
-    echo $CONF_FILE_VALUE
     exit
   fi
 fi
