@@ -26,7 +26,7 @@ additionally I'm very lazy and preffer doing something only once, but good).
 
 The biggest key points for upcoming release 1.0:
 
-  1. the less is more - for example:
+  1. less is more:
     * one script for configuring everything named **pllinux** (it calls various command line tools including script for managing apps called **app**)
     * one script for building distro in the Debian named **doit** (you should be able to do everything even from cheap desktop, laptop or mini pc, no servers required) and one package **doit** for building packages inside PLLinux
     * no dev elements when user doesn't want and doesn't need development (no header files, compilers, etc.)
@@ -34,17 +34,22 @@ The biggest key points for upcoming release 1.0:
     * one installation file for all (no more many similiar "flavors")
     * modular structure for giving normal user chance to understand what is done internally (it includes all system scripts built in one language
 and put in one place)
-    * decreasing codebase size from release to release for saving power, decreasing CPU / RAM / network usage and SSD wearing (no duplicated files,
+    * decreasing codebase from release to release for saving power, decreasing CPU / RAM / network usage and SSD wearing (no duplicated files,
 big logs and packages, binary indexes, telemetry, etc.)
-  2. no crap - continuous implementing best technical options + removing obsolete madness known from many
+  2. no crap:
+     * continuous implementing best technical options
+     * removing obsolete madness known from many
 other distro (it's time to grow up and go beyond 1984 year)
-  3. no waiting - very easy adding existing apps for example from Linux (they can be always actual, no weeks or months of waiting)
-  4. separating apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
+     * reconsidering decisions when something is not working as expected
+     * very easy adding existing apps for example from Linux (they can be always actual, no weeks or months of waiting) - if it makes sense, giving ability of running packages directly from Mozilla, Google, etc.
+  3. separating things:
+      * apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
 control permissions and dependencies)
-  5. separating users and their files - extra security layers
-  6. no hidden things - doing what is setup and nothing else (reliable, repeatable and expected results and
-no hidden actions / changing settings without user knowledge)
-  7. showing reality "as is" - no hiding problems (for example obsolete code)
+      * users and their files for example from system - extra security layers
+  4. no more hiding:
+      * doing what is setup and nothing else (reliable, repeatable and expected results and no hidden actions/changing settings without user knowledge)
+      * providing configurators for known options (no situation like in Gnome with so called Tweaks)
+      * showing reality "as is" (for example marking obsolete code)
 
 In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should do
 whatever user want and expect.
@@ -68,6 +73,7 @@ Note: project was started after finding various problems with existing Linux dis
 
 * /app - place for all apps (they're saved in separate folders, you can assign different apps or app versions from the /app to sandboxed users, excluding package updates and root access everything inside /app
 cannot be modified)
+* /bin - although PLLinux is ready for removing it, probably with stay with just one symlink to **sh** (to increase compatibility with **configure** and various apps)
 * /etc - system-wide configuration files (much less files and more readable than in typical Linux distributions, normally you can manage them with **pllinux** manager)
 * /home
     * for root and non-sandboxed users: user files for every user including root (we setup HOME into app directory inside we try to put all apps config and stuff there)
@@ -80,7 +86,7 @@ cannot be modified)
 * /dev, /proc, /run, /sys - pseudo-filesystems exposed by kernel
 * /iso - visible for root and non-sandboxed users only when started from ISO file (contains DVD files)
 
-And this is everything. /bin, /usr, /cache, /boot, /cdrom, /lib32, /libx32, /media, /root, /sbin, /snap, /srv, /var and many other are eliminated.
+And this is everything. /usr, /cache, /boot, /cdrom, /lib32, /libx32, /media, /root, /sbin, /snap, /srv, /var and many other are eliminated.
 And scripts with first line with /bin/sh and many others are working thx to the binfmt_misc from kernel. But this is nothing - the biggest magic starts in /app:
 
 Every package inside /app has got own directory with:
