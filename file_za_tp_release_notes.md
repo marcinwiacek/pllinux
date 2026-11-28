@@ -32,7 +32,7 @@ The biggest key points for upcoming release 1.0:
     * no dev elements when user doesn't want and doesn't need development (no header files, compilers, etc.)
     * no all world localization files when user needs just English
     * one installation file for all (no more many similiar "flavors")
-    * modular structure for giving normal user chance to understand what is done internally (it includes all system scripts built in one language
+    * modular structure for giving user chance to understand what is done internally (it includes all system scripts built in one language
 and put in one place)
     * decreasing codebase from release to release for saving power, decreasing CPU / RAM / network usage and SSD wearing (no duplicated files,
 big logs and packages, binary indexes, telemetry, etc.)
