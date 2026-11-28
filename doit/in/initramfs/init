@@ -29,12 +29,12 @@ if [ "$ROOT_DEVICE_ID" == "" ] || [ "$ROOT_DEVICE_ID" == "rsync" ]; then
 
   cd /mnt
 
+  mkdir app
   if [ "$ROOT_DEVICE_ID" = "rsync" ]; then
-    mkdir app
     echo "Copying /app from ISO to the RAM. This will need some time (even 20-30 seconds)"
     /app/rsync/current/bin/rsync -a --info=progress2 iso/app/ app
   else
-    ln -s /iso/app app
+    mount -o bind iso/app app
   fi
 
 #  mkdir app
