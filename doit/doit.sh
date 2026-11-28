@@ -574,7 +574,8 @@ if [ "$package" == "fs" ] || [ "$package" == "fsmin" ] || [ "$package" == "bubbl
     install_host_deps "meson libcap-dev"
     download_unpack_source https://github.com/containers/bubblewrap/releases/download/v$ver/bubblewrap-$ver.tar.xz bubblewrap bubblewrap-$ver 1
 #    cp $curdir/in/bubblewrap/0.11.2/*.c $out/bubblewrap/bubblewrap-$ver
-    cp $curdir/in/bubblewrap/0.13.1/*.c $out/bubblewrap/bubblewrap-$ver
+#    cp $curdir/in/bubblewrap/0.13.1/*.c $out/bubblewrap/bubblewrap-$ver
+    patch < $curdir/in/bubblewrap/0.13.1/diff
     meson setup -Ddefault_library=static -Ddefault_both_libraries=static -Dselinux=disabled _build
     meson compile -C _build
     sed -i 's/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined \/usr\/lib\/x86_64-linux-gnu\/libcap.so/ LINK_ARGS = -Wl,--as-needed -Wl,--no-undefined -static \/usr\/lib\/x86_64-linux-gnu\/libcap.a/g' _build/build.ninja
