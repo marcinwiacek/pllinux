@@ -9,7 +9,7 @@
   * Do you want to be able to play with some new software without resigning from stable and working environment?
   * And finally: do you want to pay less for CPU, RAM and disk and better control what your hardware is used for?
 
-Hi, my name is Marcin. I'm not maybe the best programmer on the world, but I'm quite good and effective in this what I'm
+Hi, my name is Marcin. I'm not maybe smartest and best programmer on the world, but I'm quite good and effective in this what I'm
 doing. I was using PCs around 36 years and I love beauty and simplicity, additionally I'm tired with politics
 and words "nothing can be done". And I'm building system, which could resolve various existing problems.
 
@@ -18,41 +18,40 @@ I know, that you heard similar things many times. And I know, that Internet is f
 
 PLLinux:
 
-* is created using existing software (it gives maturity in most cases) AND
+* is created using existing software (it gives maturity in most cases)
 * prepared from scratch (it allows for avoiding many problems visible
-in typical distributions, gives good knowledge about internals and occasion for cutting off obsolete parts) AND
+in typical distributions, gives good knowledge about internals and occasion for cutting off obsolete parts)
 * done with long technical experience (I'm certified engineer working in the past for such companies like Google or HP,
 additionally I'm very lazy and preffer doing something only once, but good).
 
-The biggest key points for release 1.0:
+The biggest key points for upcoming release 1.0:
 
   1. the less is more - for example:
-    * one script for configuring everything named **pllinux** (it calls command line tools including script for managing apps called **app**)
-    * one script for building distro named **doit** (you should be able to do everything even from cheap desktop, laptop or mini pc, no servers required)
+    * one script for configuring everything named **pllinux** (it calls various command line tools including script for managing apps called **app**)
+    * one script for building distro in the Debian named **doit** (you should be able to do everything even from cheap desktop, laptop or mini pc, no servers required) and one package **doit** for building packages inside PLLinux
     * no dev elements when user doesn't want and doesn't need development (no header files, compilers, etc.)
-    * no world localization files when user needs just English
-    * one small installation file for all (no more many similiar "flavors")
+    * no all world localization files when user needs just English
+    * one installation file for all (no more many similiar "flavors")
     * modular structure for giving normal user chance to understand what is done internally (it includes all system scripts built in one language
 and put in one place)
     * decreasing codebase size from release to release for saving power, decreasing CPU / RAM / network usage and SSD wearing (no duplicated files,
 big logs and packages, binary indexes, telemetry, etc.)
-  2. no crap - continuous implementing best technical options + removing obsolete solutions known from many
-other distro (it's time to grow up and go beyond 1980 year and of course there is used many time similar software,
-but it's connected totally differently)
-  3. no waiting - very easy adding existing apps for example from Linux (they can be always actual, no weeks or months of irritating waiting)
+  2. no crap - continuous implementing best technical options + removing obsolete madness known from many
+other distro (it's time to grow up and go beyond 1984 year)
+  3. no waiting - very easy adding existing apps for example from Linux (they can be always actual, no weeks or months of waiting)
   4. separating apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
 control permissions and dependencies)
   5. separating users and their files - extra security layers
-  6. doing what is setup and nothing else (reliable, repeatable and expected results and
+  6. no hidden things - doing what is setup and nothing else (reliable, repeatable and expected results and
 no hidden actions / changing settings without user knowledge)
   7. showing reality "as is" - no hiding problems (for example obsolete code)
 
 In other words: operating system should allow for runnings apps with minimal resources in secure and comfortable way and should do
 whatever user want and expect.
 
-This Technology Preview is not created for production use. It was prepared to show main architecture elements - you can see how could look
-and work basic elements of the modern OS. Current version contains many components and is very good presenting, what could be wrong with existing
-systems (you could compare it to the
+**This Technology Preview is not created for production use.** It was prepared to show main architecture elements only - you can see how could look
+and work basic elements of the modern OS. Current version contains many components already and is very good presenting, what could be wrong with existing
+systems too (you could compare it to the
 [Windows 95 build 58s](https://www.youtube.com/watch?v=9gKi_zYklMI&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=2) or
 [Windows 95 build 73f](https://www.youtube.com/watch?v=SVL7aL7AN74&list=PLUS6aV5qyWClKFfbFT2P4Yd1RMNfxNhpM&index=3), where revolution
 was started and somehow visible, but not completed and fully ready yet).
@@ -72,28 +71,29 @@ cannot be modified)
 * /etc - system-wide configuration files (much less files and more readable than in typical Linux distributions, normally you can manage them with **pllinux** manager)
 * /home
     * for root and non-sandboxed users: user files for every user including root (we setup HOME into app directory inside we try to put all apps config and stuff there)
-    * for sandboxed users: home directory (the same rule with HOME)
+    * for sandboxed users: home directory (the same rule with HOME like above)
 * /lib64 - one single link to the dynamic loader
 * /log - visible only for root and non-sandboxed users (contains temporary or permament log files written for example by **syslogd**)
 * /lost+found - ext4 folder
 * /mnt - CD-ROM, USB memories, memory cards, etc.
 * /tmp - tmpfs for temporary files (maybe it will later replaced with zram)
 * /dev, /proc, /run, /sys - pseudo-filesystems exposed by kernel
+* /iso - visible for root and non-sandboxed users only when started from ISO file (contains DVD files)
 
 And this is everything. /bin, /usr, /cache, /boot, /cdrom, /lib32, /libx32, /media, /root, /sbin, /snap, /srv, /var and many other are eliminated.
 And scripts with first line with /bin/sh and many others are working thx to the binfmt_misc from kernel. But this is nothing - the biggest magic starts in /app:
 
-Every package inside /app has got own directory. Inside you have:
+Every package inside /app has got own directory with:
 
 1. readme.md with package description
-2. other files and directories provided "as is" by software (structure is not defined, but normally you see such directories like in "normal" Linux)
+2. files and directories provided "as is" by software (structure is not defined, but normally you see such directories like in "normal" Linux)
 
-Some packages will need maybe dynamic content, but... it can be modified only by **app** manager in controlled sandbox (this part is still considered). This part will probably look this way:
+Some packages will need maybe dynamic content, but... it can be modified only by **app** manager in controlled sandbox (it's still considered). This part will probably look this way:
 
 1. scripts directory (package manager can start file from them during installation, etc.)
 2. dynamic directory (scripts can put here whatever required)
 
-Some of directories inside /app/(app_name) are just symlinks. And we have:
+Some of directories inside /app/(app_name) are just symlinks and we have:
 
 1. current - always the latest or gratest version selected by default
 2. (version number)- - link to highest version lower than specified (for example for 4.0.0- we normally select latest 3.x.x)
@@ -196,13 +196,13 @@ Very interesting is point 4 - PLLinux by default doesn't give access to all *.so
 But what in situation when package is downloaded and readme.md needs to be updated?
 
 There will be added some package with updates, details will be implemented after Technical Preview. Additionally, to save SSD space for release 1.0 
-there is planned to prepare three packages for the software:
+there is planned preparing three packages for the software:
 
 1. main able to start software with English locale (for example "mc")
 2. development with header files and a libraries ("mc-dev")
 3. locale with different languages ("mc-locale")
 
-It all should greatly decrease disk writes.
+Details are still considered, but it should greatly decrease disk writes.
 
 # Architecture
 
@@ -214,13 +214,14 @@ busybox has got known issues or limits
 3. [bwrap](https://github.com/containers/bubblewrap) (used for example in Flatpak) - in PLLinux giving extra security and separation layers in various situations
 4. [dinit](https://davmac.org/projects/dinit/) (taken because of simplicity) - decision about lack of systemd could be reconsidered in the future
 
-We avoid changing existing software code and generally there are only few exceptions:
+We avoid changing existing software code and generally there are only few bigger exceptions:
 
 1. [dynamic loader in "libc"](https://github.com/marcinwiacek/pllinux/blob/main/file_yt_milestone6.md)
 2. some permission details in "bwrap"
 3. changing some /bin/sh references to /app/busybox/current/bin/sh
+4. updates required for compiling (some packages are written in very strange way)
 
-Excluding permissions and other directories names PLLinux in many cases can run without any problems unmodified Linux binaries.
+Excluding permissions and other directories PLLinux in many cases can run without any problems unmodified Linux binaries.
 This simply works... just after giving list of dependencies in readme.md manifest files described below (this is totally different approach
 from NixOS, where binaries normally need to be patched).
 
@@ -266,22 +267,27 @@ everything is estimated from technical perspective only (maturity, number of bug
 
 # Starting ISO
 
-You need system with UEFI with disabled Secure Boot, normal RAM usage with cache is less than 1GB... but if you decide to copy all /app into RAM you will need even 6GB RAM.
+You need system with UEFI with disabled Secure Boot, normal RAM usage with cache is less than 1GB... 
+but if you decide to copy all /app into RAM you will need even 6GB RAM.
 
-The best results could be visible with VirtualBox (ICH9, VMSVGA, NVME, etc.), you can try QEMU too:
+The best results could be visible with VirtualBox (ICH9, VMSVGA, NVME).
+
+You can try QEMU too, but it can be much slower (no correct graphic acceleration, etc.), for example:
 
 **qemu-system-x86_64 -cdrom iso.iso -m 4098 -bios /usr/share/OVMF/OVMF_CODE.fd**
 
-Technology Preview contains four users:
+Running from USB should work too.
+
+Technology Preview contains 4 users:
 
 1.root (password root) - access to everything including X11 available on console 11 (**win** command) and Wayland session (**os2** command), configuration or installation to disk is done with configurator (**pllinux**)
 2.user (password user) - sandbox with access to X11
-3.user2 (password user2) - sandbox with access to Wayland.
-4.user3 (password user3) - user with sandboxing
+3.user2 (password user2) - sandbox with access to Wayland
+4.user3 (password user3) - user without sandboxing
 
 User files are saved in the RAM (tmpfs) and it's possible for example make setup using root and later login into other account. System is ready for partitioning and cloning/installing to the separate partition. If you want to play with development and extra packages on your disk, just unpack them to the /app, logout and login again. Done.
 
-During all checks please remember: this is technology preview, not production ready setup.
+During all checks please remember: **this is technology preview, not production ready setup.**
 
 # Managing system
 
