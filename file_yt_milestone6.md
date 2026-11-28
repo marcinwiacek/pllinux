@@ -22,19 +22,19 @@ Option 2 seems to be easier and more ellegant. During some research there were f
 
 With place 1 code was quite fast written (it's very ugly and just for starting some things)
 
-![Alt text](2026/jul_ldso1.png)
+![Alt text](docfiles/2026/jul_ldso1.png)
 
 but it end with compilation errors (rootcause is quite clear, but shows, that this path will need more code updates and because of it it's not very good)
 
-![Alt text](2026/jul_ldso2.png)
+![Alt text](docfiles/2026/jul_ldso2.png)
 
 Let's go to place 2... and we have the same linking problems. It looks, that in this place we cannot use stdio.h functions. Let's check it.
 
-![Alt text](2026/jul_ldso3.png)
+![Alt text](docfiles/2026/jul_ldso3.png)
 
 Bingo!
 
-![Alt text](2026/jul_ldso4.png)
+![Alt text](docfiles/2026/jul_ldso4.png)
 
 We have first from many very steps in good direction. Now we need to place it in correct function + get binary path + process. Simple, isn't it?
 
@@ -47,11 +47,11 @@ After parsing readme.md we can prepare LD_LIBRARY_PATH value (this covers just t
 
 But how to pass it further to other code parts? Few tries and...
 
-![Alt text](2026/jul_ldso5.png)
+![Alt text](docfiles/2026/jul_ldso5.png)
 
 18 Jul is next (very huge!) milestone - we have first working [patch for ld.so compatible with PLLINUX](doit/in/glibc/2_43_patch_ver3.txt). But it isn't the end.
 
-![Alt text](2026/jul_ldso6.png)
+![Alt text](docfiles/2026/jul_ldso6.png)
 
 We need to find correctly binary in all cases. Let's assume we have /app/package/current/bin/x binary. Now need to handle such cases:
 

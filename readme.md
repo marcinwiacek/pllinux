@@ -21,11 +21,11 @@ When this is not enough, I invite to reading short text [Why PLLinux?](https://m
 
 When you still think, this is just utopia, look on screens below - is it possible with your Linux?
 
-![Memory](2026/jun_mc_root.png)
+![Memory](docfiles/2026/jun_mc_root.png)
 
-![Memory](2026/jun_mc_user.png)
+![Memory](docfiles/2026/jun_mc_user.png)
 
-![Memory](2026/jul_app.png)
+![Memory](docfiles/2026/jul_app.png)
 
 (last screen was done from the host)
 
@@ -90,7 +90,7 @@ encryption for main filesystem.
   3. point this partition in the [build script doit.sh](doit/doit.sh)
   4. add your user to group with number 10000 (I name it normally pllinuxhost)
   5. run [build script doit.sh](doit/doit.sh) (it can ask sometimes for sudo for dependiences) with settings inside for compiling "fs" or "fsmin" package
-  6. add PLLINUX to the GRUB (create [file /etc/grub.d/40_custom](2026/40_custom) with correct UUID for new filesystem get with **sudo blkid**)
+  6. add PLLINUX to the GRUB (create [file /etc/grub.d/40_custom](docfiles/2026/40_custom) with correct UUID for new filesystem get with **sudo blkid**)
   7. (if necessary) increase resolution in /etc/default/grub (GRUB_GFXMODE=1920x1080 or something similar)
   8. execute **update-grub** command
   9. restart and have fun (users: root/root, user/user, user2/user2)
@@ -122,7 +122,7 @@ Note: it can need xorriso (**sudo apt-get install xorriso**) and eventually some
 
 16 Jun 2026: PLLINUX filesystem needs 127MB and place for compiling 27GB.
 
-![Memory](2026/jun_memory.png)
+![Memory](docfiles/2026/jun_memory.png)
 
 8 Sep 2026: quite funtional system needs around 320MB in disk (it can be bigger with extra packages), place for compiling 28,5GB 
 (this is mainly for saving some elements for example for kernel compilation and doesn't include few GB in /tmp, where majority of things is compiled) 

@@ -35,7 +35,7 @@ Try to boot... for example with Qemu.
 
 Doesn't work after selecting menu option in Grub.
 
-![Alt text](2026/jul_magic.png)
+![Alt text](docfiles/2026/jul_magic.png)
 
 Try to replace initramfs with other (old) format and you will see funny info "qemu: linux kernel too old to load a ram disk" (Open Source like closed source
 software is full of stupidy or funny things).
@@ -58,11 +58,11 @@ AND switching root there.
 
 Easy, isn't it? Let's create script for it making it from the host first. First tries look promising, but... then it happens:
 
-![Alt text](2026/jul_iso1.png)
+![Alt text](docfiles/2026/jul_iso1.png)
 
 Super hiper dynamic loader is not working. But why? I didn't fully answer on that, but after adding all standard system folders (proc, sys, etc.) problem was gone. And finally with big pleasure I could announce, that first working ISO was created and started 22 Jul 2026
 
-![Alt text](2026/jul_iso2.png)
+![Alt text](docfiles/2026/jul_iso2.png)
 
 How it can be created ? Just setup isofile parameter and use doit.sh script with iso package.
 
@@ -81,7 +81,7 @@ After some further investigation it looks, that it's possible:
 
 Option, where every app is linked to the application from the /mnt/iso/app seems to make problems with bwrap. Example of such links below:
 
-![Alt](2026/jul_iso_link.png)
+![Alt](docfiles/2026/jul_iso_link.png)
 
 It was not further investigated. In the end ISO is created with two boot menu options (one for rw /app, one for ro /app). This required some cosmetic changes in dynamic loader (it should recognize PLLINUX app running from app folder in different locations). Additionally code was moved from initramfsiso into main initramfs. Mission complete in this moment.
 

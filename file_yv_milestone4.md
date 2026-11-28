@@ -128,7 +128,7 @@ In this moment it's important to prepare AND optimalize all algorithms + it's go
 
 Let's look what we have (screen done from host system):
 
-![app.sh options](2026/jul_app.png)
+![app.sh options](docfiles/2026/jul_app.png)
 
 # Package format and authenticity checking
 
@@ -141,6 +141,6 @@ Each repo needs two copies of public key used for signing packages - they must b
 
 Anyway, first successfull upgrade from remote repo in real PLLINUX was done 9 Jul 2026:
 
-![first app.sh upgrade](2026/jul_update.png)
+![first app.sh upgrade](docfiles/2026/jul_update.png)
 
 [Prev page](file_yw_milestone3.md) [Next page](file_yu_milestone5.md)

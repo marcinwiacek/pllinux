@@ -34,17 +34,17 @@ It's not too much, additionally splitting files will need extra work and can mak
 
 And how should look these "dev" packages? Should we link all files from "main" to "dev"?
 
-![Alt text](2026/nov_links_to_dev.jpg)
+![Alt text](docfiles/2026/nov_links_to_dev.jpg)
 
 It doesn't look ellegant and easy and suggests some problems, when "dev" package is not installed as well.
 
 Should we have dev files in separate files? The profit is, that admin will see immediately, what is installed and what not (but in the same time it's not clearly visible, if we have all "main" and all "dev" in the same version)
 
-![Alt text](2026/nov_separate_dev.jpg)
+![Alt text](docfiles/2026/nov_separate_dev.jpg)
 
 Maybe in that case we should give everything with same package name and just add "-dev" to the version?
 
-![Alt text](2026/nov_separate_dev_version.jpg)
+![Alt text](docfiles/2026/nov_separate_dev_version.jpg)
 
 This gives profit, that removing app is deleting everything at once... but admin needs to enter package directory to see everything.
 

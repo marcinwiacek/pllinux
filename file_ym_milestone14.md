@@ -21,7 +21,7 @@ Do you see difference? (and please don't start explaining, that Wayland and all 
 
 Anyway, practically during second day I have first rendering with XLibre:
 
-![Alt text](2026/oct_startx.png)
+![Alt text](docfiles/2026/oct_startx.png)
 
 Not too much (no keyboard input, etc.), but it reminds me time, when I was young and preparing my first XWindows (it was XFree86). 
 I hope to find way to separate and configure components and make it working at least in minimal way. Let's do it a little bit parallel with
@@ -53,23 +53,23 @@ compilation errors with WP_COLOR_MANAGER_V1...:
 
  And in the end first quite complete config is...X11 with JWM (screen from 2 Nov):
 
-![Alt text](2026/nov_x11.png)
+![Alt text](docfiles/2026/nov_x11.png)
 
  Real old-school in first attempts... and main work will be connected with separating config, making it working in different situations, with other manager (scaling), etc.
 
 Few days later (10 Nov) I have working IceWM (X11):
 
-![Alt text](2026/nov_icewm.png)
+![Alt text](docfiles/2026/nov_icewm.png)
 
 and... first screen from Wayland compositor Labwc:
 
-![Alt text](2026/nov_wayland_labwc.png)
+![Alt text](docfiles/2026/nov_wayland_labwc.png)
 
 There are strange problems visible... for example with compiling glycin (Failed to guess install tag for ...) or with libxml2 (can't find, how to compile symbols with version inside).
 
 And what is interesting? New (Rust or Wayland) stuff seems to be more complicated and this doesn't look very good. Anyway, after short playing with XOrg server I have XWaylaynd running (it starts after few crashes). And now very, very funny thing - X11 will stay with us forever, if we want or not. My XLibre server seems to work with acceleration, the same Vulkan demo in Wayland session is slower... now I need not only one X11 server on my disk, but there will be actually even two (and two codebases for devs creating them). Total mess.
 
-![Alt text](2026/nov_wayland2.png)
+![Alt text](docfiles/2026/nov_wayland2.png)
 
 Few more days (16 Nov) and situation looks the following:
 
@@ -85,7 +85,7 @@ Is Wayland really better? (you could say, that problem is in PLLinux, but... man
 
 For short time I was thinking, that first "big" versions shouldn't have Wayland, but... in the end I found Weston.
 
-![Alt text](2026/nov_weston.png)
+![Alt text](docfiles/2026/nov_weston.png)
 
 Totally different league. (almost) everything is working very smoothly and unproblematic (you have animations, no problems with cursor, etc.)
 and I could say - other compositors based on wlroots

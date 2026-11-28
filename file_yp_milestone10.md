@@ -6,7 +6,7 @@
 
 PLLinux should be user friendly. There was longer time spent on extending **pllinux** and currently (11 Sep 2026) it's main menu looks this way:
 
-![Alt text](2026/sep_pllinux_main.jpg)
+![Alt text](docfiles/2026/sep_pllinux_main.jpg)
 
 When we speak about logging - in theory system could implement logging in the syslog standard and done (kernel log saved with **dmesg** should have redirection possibility, the same services created with **dinit** could have private logs or could be redirected, etc.)
 
@@ -75,11 +75,11 @@ In the beginning kernel modules required 5GB, but after few tweaks (disabling de
 
 Options provided by *dialog* are maybe not very big, but allow for creating quite impresive menus, for example:
 
-![Alt text](2026/sep_modules1.jpg)
+![Alt text](docfiles/2026/sep_modules1.jpg)
 
-![Alt text](2026/sep_modules2.jpg)
+![Alt text](docfiles/2026/sep_modules2.jpg)
 
-![Alt text](2026/sep_modules3.png)
+![Alt text](docfiles/2026/sep_modules3.png)
 
 System should be easy (user shouldn't search for command line) and currently disabling something will do this action after system restart. In the future there will be implemented starting with dependencies.
 
@@ -99,7 +99,7 @@ That's correct, only 2MB... but 2MB, 2MB there and there. Please add into it pro
 
 Small offtopic:
 
-![Alt text](2026/sep_disk_usage.jpg)
+![Alt text](docfiles/2026/sep_disk_usage.jpg)
 
 Adding really basic OS functionalities requires more and more disk space - currently it's more than 400MB. And do you remember Windows 95 with 50MB or 98 with minimum 120MB? Open Source really need to learn many things (note: this is partially sign of our times and it's quite good explained in the video [Why your NEW computer is SLOWER than your OLD computer! By a Retired Microsoft Engineer.](https://www.youtube.com/watch?v=t992ul_IKtc))
 
@@ -112,7 +112,7 @@ Anyway, minimalistic boot chain (without encryption) looks this way:
 
 This is of course top of the iceberg (although I pointed, that Grub config and boot setup are big and bloated in typical distro, they offer more than that). The biggest challenges are connected with providing correct efi files and nice easy config now. Let's start from something small and later add new pieces. And integrate it with **pllinux** to give user nice way of configuring basic things (this is what made Microsoft tools so popular).
 
-![Alt text](2026/sep_boot_menu.jpg)
+![Alt text](docfiles/2026/sep_boot_menu.jpg)
 
 This looks like good beginning (of course big challenge is connected with doing it very intuitive and user friendly with quite limited **dialog**).
 

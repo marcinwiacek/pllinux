@@ -31,11 +31,11 @@ in plan I have adding option for installing selected locales)
 # Manual pages
 
 Realized with groff and [some script](doit/in/groff/man). Man-db is not required. Combination of groff and other displaying tools can give different results:
-![Alt text](2026/jul_man_less.png)
+![Alt text](docfiles/2026/jul_man_less.png)
 
 (with less)
 
-![Alt text](2026/jul_man_more.png)
+![Alt text](docfiles/2026/jul_man_more.png)
 
 (with more)
 

@@ -8,13 +8,13 @@ than available from busybox.
 
 # Configurator with dialog
 
-![Alt text](2026/aug_cli.png)
+![Alt text](docfiles/2026/aug_cli.png)
 
 PLLinux script makes work, but definitely doesn't look nice. It's time for somethine else.
 
-![Alt text](2026/aug_dialog1.png)
+![Alt text](docfiles/2026/aug_dialog1.png)
 
-![Alt text](2026/aug_dialog2.png)
+![Alt text](docfiles/2026/aug_dialog2.png)
 
 It's just beginning, but for now it will be done with dialog command / application. You can find a lot about it, for example:
 
@@ -31,8 +31,8 @@ We will see, from history: have you seen Linux terminal in the old printer worki
 
 Works need a lot of elements, but this is done step by step. With next builds of PLLinux command there are added new things, for example:
 
-![Alt text](2026/aug_pllinux.jpg)
+![Alt text](docfiles/2026/aug_pllinux.jpg)
 
-![Alt text](2026/aug_pllinux2.jpg)
+![Alt text](docfiles/2026/aug_pllinux2.jpg)
 
 [Prev page](file_yr_milestone8.md) [Next page](file_yp_milestone10.md)

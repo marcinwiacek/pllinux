@@ -88,17 +88,17 @@ Packages without special optimalization need 128MB on the disk. PLLINUX in this 
 
 # System in this moment
 
-![Booting](2026/jun_start.png)
+![Booting](docfiles/2026/jun_start.png)
 
 Font is provided by kbd package. In theory it should be possible to map also Polish keyboard, but... the whole package seems to be quite obsolete and needs further investigation (it's potentially possible to change screen size with GRUB options)
 
-![Memory](2026/jun_memory.png)
+![Memory](docfiles/2026/jun_memory.png)
 
 System needs ca. 100MB RAM. Without **dinit** it could be maybe a little less and in further version probably we don't need much more - there must be added cron and acpi daemon/service from busybox, syslog and few details and in command line version that's it (for example mounting daemons are started on demand).
 
-![Memory](2026/jun_mc_root.png)
+![Memory](docfiles/2026/jun_mc_root.png)
 
-![Memory](2026/jun_mc_user.png)
+![Memory](docfiles/2026/jun_mc_user.png)
 
 In the first screen from root account, in the second from user account. This is power of the modularity:
 
@@ -107,11 +107,11 @@ In the first screen from root account, in the second from user account. This is 
 
 And now examples: http server user see less than normal user (but have some special network config), for C projects you could assign other home directory than for Rust, etc.
 
-![Memory](2026/jun_limit_proc.png)
+![Memory](docfiles/2026/jun_limit_proc.png)
 
 Another nice profit from bwrap - we could limit for example proc info and show only own user apps.
 
-![Memory](2026/jun_home.png)
+![Memory](docfiles/2026/jun_home.png)
 
 This concept is still investigated - idea is, that normal users in /home see only documents and in the /other file data from other apps in normal Linux saved in /home (root user will see in /home directories from all users and in the /other file data from other apps in normal Linux saved in /home)
 

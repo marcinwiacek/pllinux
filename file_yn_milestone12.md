@@ -62,7 +62,7 @@ Generally a lot of "fun", happily after some investigation it was found path to 
 There are still things to do like moving these json files to system /etc, enabling full hardware acceleration, Vulkan, investigating latest mesa (it looks, it cannot work with FB anymore), etc. 
 But for now (15 Oct):
 
-![Alt text](2026/oct_opengl.png)
+![Alt text](docfiles/2026/oct_opengl.png)
 
 Similar path should be visible with Vulkan (we have vulkan-loader library, it's searching for json files describing Vulkan drivers/libraries and
 it's loading them), unfortunately here there is an error "Couldn't create window: Installed Vulkan doesn't implement the VK_KHR_surface extension" visible.
