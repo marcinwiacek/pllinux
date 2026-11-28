@@ -68,7 +68,13 @@ export PATH=$path
 #export SHELL=/app/busybox/current/bin/sh
 #export HOME=/other/app/sh
 export SHELL=/app/bash/current/bin/bash
-export HOME=/home/root/app
+if [ "$(/app/pllinux/current/pllinux ROOT_HOME)" = "1" ]; then
+  mount --bind /home/root /home
+  export HOME=/home/app
+else
+  umount /home
+  export HOME=/home/root/app
+fi
 export TERMINFO=/app/ncurses/current/share/terminfo
 export TZDIR=/app/tzdb/current/usr/share/zoneinfo
 #export MODPROBE_OPTIONS="-d /app/kernel/current"
