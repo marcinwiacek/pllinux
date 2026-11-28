@@ -494,10 +494,8 @@ if [ "$package" == "fsfs" ] || [ "$package" == "fsmin" ]; then
 fi
 if [ "$package" == "iso" ]; then
   mkdir /tmp/isosrc
-  rsync -a --progress $output/ /tmp/isosrc
-  rm -r /tmp/isosrc/bin
-  rm -r /tmp/isosrc/home
-  rm -r /tmp/isosrc/log
+  rsync -a --progress $output/app/ /tmp/isosrc/app
+  rsync -a --progress $output/etc/ /tmp/isosrc/etc
   mkdir /tmp/isosrc/boot
   mkdir /tmp/isosrc/boot/grub
   cp $curdir/in/pllinux.iso/grub.cfg /tmp/isosrc/boot/grub/
