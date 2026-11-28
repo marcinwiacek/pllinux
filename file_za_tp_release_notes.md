@@ -32,8 +32,6 @@ The biggest key points for upcoming release 1.0:
     * no dev elements when user doesn't want and doesn't need development (no header files, compilers, etc.)
     * no all world localization files when user needs just English
     * one installation file for all (no more many similiar "flavors")
-    * modular structure for giving user chance to understand what is done internally (it includes all system scripts built in one language
-and put in one place)
     * decreasing codebase from release to release for saving power, decreasing CPU / RAM / network usage and SSD wearing (no duplicated files,
 big logs and packages, binary indexes, telemetry, etc.)
   2. no crap:
@@ -46,6 +44,7 @@ other distro (it's time to grow up and go beyond 1984 year)
       * apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
 control permissions and dependencies)
       * users and their files for example from system - extra security layers
+      * modular structure for giving user chance to understand what is done internally (it includes all system scripts built in one language and put in one place)
   4. no more hiding:
       * doing what is setup and nothing else (reliable, repeatable and expected results and no hidden actions/changing settings without user knowledge)
       * providing configurators for known options (no situation like in Gnome with so called Tweaks)
@@ -278,11 +277,11 @@ but if you decide to copy all /app into RAM you will need even 6GB RAM.
 
 The best results could be visible with VirtualBox (ICH9, VMSVGA, NVME).
 
-You can try QEMU too, but it can be much slower (no correct graphic acceleration, etc.), for example:
+You can try QEMU too, but it can be much slower (no correct graphic acceleration, etc.), for example in Ubuntu I'm using this command:
 
 **qemu-system-x86_64 -cdrom iso.iso -m 4098 -bios /usr/share/OVMF/OVMF_CODE.fd**
 
-Running from USB should work too.
+Remember, that some actions for 1s in VirtualBox in QEMU need sometimes even 10 or 20.
 
 Technology Preview contains 4 users:
 
@@ -341,16 +340,15 @@ Known GRUB issue. The only one solution is decreasing security, in the future GR
 
 **Password need to be given two times with encrypted partition**
 
-Known GRUB/Linux architecture issue. Some distributions are mitigating it with putting decryption key on the disk and we don't want
-probably to do it.
+Known GRUB/Linux architecture issue. Some distributions are mitigating it with putting decryption key on the disk and we don't want probably to do it.
 
 **Midnight Commander and "Broken Pipe" error**
+
 When you see this after pressing F3 or F4 - add link from /bin/sh to the /app/busybox/current/bin/sh
 
 **Software needs /bin/sh or /usr/share/terminfo or other "standard" location**
 
-Indeed, /bin/sh is hardcoded in many binaries and I still search for method for fully elimininating it (MC and F3/F4 "Broken pipe" is example).
-With scripts it's already done - there is used kernel mechanism for this.
+Indeed, /bin/sh is hardcoded in many binaries and I still search for method for fully elimininating it (MC and F3/F4 "Broken pipe" is example). With scripts it's already done - there is used kernel mechanism for this.
 
 With /usr/share/terminfo - we use TERMINFO variable, XTERM is provided with option setting it up (by default it's removing it)
 
