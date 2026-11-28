@@ -3710,8 +3710,8 @@ groups() {
 
 current_boot_menu() {
     abc=$(echo dialog --stdout --backtitle \"PLLinux\\apps\" --cancel-label "Back" \
-             --menu \"Groups\" 0 0 8 \
-              1 Timeout)
+             --menu \"Boot menu\" 0 0 8 \
+              1 Timeout 2 \"Default option\" 3 \"Aply theme\")
     cmd=$(eval $abc)
 }
 
@@ -3780,25 +3780,25 @@ EOF
        --default-item $mainmenunum \
        --menu "Welcome to the PLLinux configuration (script $VER, kernel $(uname -r), disk $DISKAVAIL/$DISKSIZE avail, RAM $RAMFREE/$RAMTOTAL avail)" 0 0 28 \
        1 "Apps (app)" \
-       2 "Background tasks after changing files or dirs (inotifyd)" \
+       2 "Background tasks after changing files or dirs (inotifyd) (todo)" \
        3 "Background tasks running in specified time for all users (crond)" \
-       4 "Background tasks running after specified period of time" \
+       4 "Background tasks running after specified period of time (todo)" \
        5 "Background services (dinit)" \
-       6 "Boot menu" \
+       6 "Boot menu (todo)" \
        7 "Devices (info, power options, partitioning, etc.)" \
        8 "Disk usage" \
-       9 "File interpreters (associations) and shebang support" \
-       10 "Network firewall (nftables)" \
+       9 "File interpreters (associations) and shebang support (todo)" \
+       10 "Network firewall (nftables) (todo)" \
        11 "Task manager (top, q to quit)" \
-       12 "Time" \
+       12 "Time (todo)" \
        14 "Kernel modules (modprobe, rmmod, modinfo)" \
-       15 "Kernel params (sysctl)" \
+       15 "Kernel params (sysctl) (todo)" \
        16 "Kernel logs (dmesg, can be saved to disk with syslogd, q to quit)" \
-       17 "Partition mounting in /mnt" \
+       17 "Partition mounting in /mnt (todo)" \
        18 "System logs saved in files (syslogd)" \
        19 "Users (adduser, deluser, etc.)" \
        20 "User groups" \
-       21 "X11/Wayland graphic environments" \
+       21 "X11/Wayland graphic environments (todo)" \
        22 "App language (todo)                   - $LANG" \
        23 "Main filesystem check on next reboot  - $FSCK" \
        24 "Keyboard and font (setfont, loadkeys) - $KEYB, $FONT" \
