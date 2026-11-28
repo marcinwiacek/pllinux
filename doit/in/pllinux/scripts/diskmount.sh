@@ -5,8 +5,8 @@
 
 if [ -z "$ACTION" ]; then echo "Script should be run from mdev"; exit 1; fi
 
-#logger -p info -t kern "Mount action: $ACTION $MDEV"
-#echo "Mount action: $ACTION $MDEV" >> /tmp/mount
+logger -p info -t kern "Mount action: $ACTION $MDEV"
+echo "Mount action: $ACTION $MDEV" >> /tmp/mount
 
 if [ "$ACTION" == "remove" ]; then
   /app/util-linux/current/bin/umount -f "/mnt/$MDEV" || true
@@ -19,7 +19,7 @@ elif [ "$ACTION" == "add" ] || [ "$ACTION" == "change" ]; then
       /app/util-linux/current/bin/umount -l "/mnt/$MDEV" || true
       /app/busybox/current/bin/rmdir "/mnt/$MDEV" || true
     fi
-  else
+  elif [ $MDEV != "sda" ]; then
     for PARAM in $DEVICE_INFO
     do
       FS=${PARAM#TYPE=\"}
