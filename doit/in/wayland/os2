@@ -9,6 +9,7 @@ fi
 
 XDG_RUNTIME_DIR=/run /app/xwayland/current/bin/Xwayland 2> /dev/null
 /app/seatd/current/bin/seatd 2> /dev/null &
-XDG_RUNTIME_DIR=/run strace /app/weston/current/bin/weston -c /etc/wayland/weston/weston.ini --xwayland 2> /tmp/$USER.wayland.2 > $LOGFILE
+#XDG_RUNTIME_DIR=/run strace /app/weston/current/bin/weston -c /etc/wayland/weston/weston.ini --xwayland 2> /tmp/$USER.wayland.2 > $LOGFILE
+XDG_RUNTIME_DIR=/run /app/weston/current/bin/weston -c /etc/wayland/weston/weston.ini --xwayland
 killall seatd
 rm -r /tmp/.X11-unix

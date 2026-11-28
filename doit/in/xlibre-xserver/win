@@ -6,8 +6,10 @@ PS1ORIG=$(printenv PS1ORIG)
 if [ "$PS1ORIG" = "" ]; then PS1ORIG=$(printenv PS1); fi
 
 if [ -d /log/tmp ]; then
-  PS1="$PS1ORIG" strace /app/xinit/current/bin/startx -- vt11 $DPI -logfile /log/tmp/x 2> /tmp/$USER.x.2 > /tmp/$USER.x.1
+#  PS1="$PS1ORIG" strace /app/xinit/current/bin/startx -- vt11 $DPI -logfile /log/tmp/x 2> /tmp/$USER.x.2 > /tmp/$USER.x.1
+  PS1="$PS1ORIG" /app/xinit/current/bin/startx -- vt11 $DPI -logfile /log/tmp/x
 else
-  PS1="$PS1ORIG" strace /app/xinit/current/bin/startx -- $DPI vt11 2> /tmp/$USER.x.2 > /tmp/$USER.x.1
+#  PS1="$PS1ORIG" strace /app/xinit/current/bin/startx -- $DPI vt11 2> /tmp/$USER.x.2 > /tmp/$USER.x.1
+  PS1="$PS1ORIG" /app/xinit/current/bin/startx -- $DPI vt11
 fi
 rm -r /tmp/.X11-unix
