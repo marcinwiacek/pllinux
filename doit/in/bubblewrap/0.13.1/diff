@@ -1,0 +1,11 @@
+--- bubblewrap_old.c	2026-10-14 14:13:57.000000000 +0200
++++ bubblewrap.c	2026-11-28 16:24:29.827476880 +0100
+@@ -3300,7 +3300,7 @@
+   if (mkdir ("newroot", 0755))
+     die_with_error ("Creating newroot failed");
+ 
+-  if (mount ("newroot", "newroot", NULL, MS_SILENT | MS_MGC_VAL | MS_BIND | MS_REC, NULL) < 0)
++  if (mount ("newroot", "newroot", NULL, MS_SILENT | MS_MGC_VAL | MS_BIND | MS_REC | MS_SLAVE, NULL) < 0)
+     die_with_mount_error ("setting up newroot bind");
+ 
+   if (mkdir ("oldroot", 0755))
