@@ -27,19 +27,19 @@ additionally I'm very lazy and preffer doing something only once, but good).
 The biggest key points for upcoming release 1.0:
 
   1. less is more:
-    * one script for configuring everything named **pllinux** (it calls various command line tools including script for managing apps called **app**)
-    * one script for building distro in the Debian named **doit** (you should be able to do everything even from cheap desktop, laptop or mini pc, no servers required) and one package **doit** for building packages inside PLLinux
-    * no dev elements when user doesn't want and doesn't need development (no header files, compilers, etc.)
-    * no all world localization files when user needs just English
-    * one installation file for all (no more many similiar "flavors")
-    * decreasing codebase from release to release for saving power, decreasing CPU / RAM / network usage and SSD wearing (no duplicated files,
+      * one script for configuring everything named **pllinux** (it calls various command line tools including script for managing apps called **app**)
+      * one script for building distro in the Debian named **doit** (you should be able to do everything even from cheap desktop, laptop or mini pc, no servers required) and one package **doit** for building packages inside PLLinux
+      * no dev elements when user doesn't want and doesn't need development (no header files, compilers, etc.)
+      * no all world localization files when user needs just English
+      * one installation file for all (no more many similiar "flavors")
+      * decreasing codebase from release to release for saving power, decreasing CPU / RAM / network usage and SSD wearing (no duplicated files,
 big logs and packages, binary indexes, telemetry, etc.)
   2. no crap:
-     * continuous implementing best technical options
-     * removing obsolete madness known from many
+      * continuous implementing best technical options
+      * removing obsolete madness known from many
 other distro (it's time to grow up and go beyond 1984 year)
-     * reconsidering decisions when something is not working as expected
-     * very easy adding existing apps for example from Linux (they can be always actual, no weeks or months of waiting) - if it makes sense, giving ability of running packages directly from Mozilla, Google, etc.
+      * reconsidering decisions when something is not working as expected
+      * very easy adding existing apps for example from Linux (they can be always actual, no weeks or months of waiting) - if it makes sense, giving ability of running packages directly from Mozilla, Google, etc.
   3. separating things:
       * apps from each other - much better even than in NixOS (you can easy check version, size, files, etc. and
 control permissions and dependencies)
