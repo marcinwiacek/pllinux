@@ -86,6 +86,11 @@ cannot be modified)
 * /iso - visible for root and non-sandboxed users only when started from ISO file (contains DVD files)
 
 And this is everything. /usr, /cache, /boot, /cdrom, /lib32, /libx32, /media, /root, /sbin, /snap, /srv, /var and many other are eliminated.
+
+![Alt text](docfiles/2026/nov_tp_mc1.png)
+
+![Alt text](docfiles/2026/nov_tp_mc2.png)
+
 And scripts with first line with /bin/sh and many others are working thx to the binfmt_misc from kernel. But this is nothing - the biggest magic starts in /app:
 
 Every package inside /app has got own directory with:
@@ -290,6 +295,12 @@ Technology Preview contains 4 users:
 3.user2 (password user2) - sandbox with access to Wayland
 4.user3 (password user3) - user without sandboxing
 
+![Alt text](docfiles/2026/nov_tp_x11_1.png)
+
+![Alt text](docfiles/2026/nov_tp_x11_2.png)
+
+![Alt text](docfiles/2026/nov_tp_wayland.png)
+
 User files are saved in the RAM (tmpfs) and it's possible for example make setup using root and later login into other account. System is ready for partitioning and cloning/installing to the separate partition. If you want to play with development and extra packages on your disk, just unpack them to the /app, logout and login again. Done.
 
 During all checks please remember: **this is technology preview, not production ready setup.**
@@ -303,6 +314,8 @@ In some edge cases you can be maybe interested in two more:
 1. **app** (command line manager for managing apps normally called from **pllinux**)
 2. **doit** (running from host, not included in ISO file, available [in GitHub](https://github.com/marcinwiacek/pllinux) and used for making all distribution files
 and packages from the source)
+
+![Alt text](docfiles/2026/nov_tp_pllinux.png)
 
 They're all created using shell scripting. It's clear, that this is NOT the best way of writing code, from the other hand it really makes work and 
 you don't need anything more for apps used from time to time, additionally code can be easy modified and audited even by medium experienced people.
