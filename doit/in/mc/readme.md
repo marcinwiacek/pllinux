@@ -17,7 +17,7 @@ none
 share/man/man1
 
 **Deps**
-bwrap current
+bubblewrap current
 gcclib current
 glib current
 glibc current
